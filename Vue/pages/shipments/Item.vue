@@ -48,7 +48,7 @@ const openVendorPage = (id) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-7" >
 
         <Panel class="is-small" v-if="store && store.item">
 

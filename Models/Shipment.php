@@ -291,7 +291,7 @@ class Shipment extends VaahModel
                 $order_items = $order['items'];
                 foreach ($order_items as $order_item) {
                     if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
-                        if ($order_item['to_be_shipped'] > $order_item['pending']) {
+                        if ($order_item['to_be_shipped'] > $order_item['pending'] ) {
                             return [
                                 'success' => false,
                                 'errors' => [
