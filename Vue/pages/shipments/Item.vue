@@ -133,7 +133,7 @@ const openVendorPage = (id) => {
 
                                     <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'slug'|| column === 'tracking_key'|| column === 'tracking_value'|| column === 'tracking_url'
                         || column === 'deleted_by'|| column === 'orders'|| column === 'shipment_order_items'|| column === 'taxonomy_id_shipment_status'
-                        ||  column=== 'status'">
+                        ||  column=== 'status' ||  column=== 'total_shipment'||  column=== 'is_items_exist_already'">
                                     </template>
 
                                     <template v-else-if="column === 'id' || column === 'uuid'">

@@ -159,7 +159,7 @@ const toggleItemMenu = (event) => {
                             column === 'status'|| column === 'status_order'|| column === 'amount'||
                             column === 'is_active_order_item' || column == 'is_invoice_available'
                             || column == 'meta' || column == 'deleted_by' || column == 'status_notes'
-                             || column == 'slug' || column === 'payments'">
+                             || column === 'order_shipment_status' || column === 'payments'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -179,9 +179,9 @@ const toggleItemMenu = (event) => {
 
 
 
-                        <template v-else-if="column === 'taxonomy_id_order_status'">
+                        <template v-else-if="column === 'order_status'">
                             <tr>
-                                <td><b>Order Payment Status</b></td>
+                                <td><b>Order Status</b></td>
                                 <td  colspan="2" >
                                     <Badge v-if="store.item.order_payment_status.slug === 'paid'" severity="success">
                                         {{store.item.order_payment_status?.name}}
@@ -198,13 +198,13 @@ const toggleItemMenu = (event) => {
                                 <td><b>Shipping Status</b></td>
                                 <td  colspan="2" >
                                     <Badge class="word-overflow">
-                                        {{'Pending'}}</Badge>
+                                        {{store.item.order_shipment_status}}</Badge>
                                 </td>
                             </tr>
-                            <VhViewRow label="Order Status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
+<!--                            <VhViewRow label="Order Status"-->
+<!--                                       :value="store.item.status"-->
+<!--                                       type="status"-->
+<!--                            />-->
                         </template>
 
                         <template v-else-if="column === 'vh_st_payment_method_id'">
@@ -299,15 +299,25 @@ const toggleItemMenu = (event) => {
                          </Tag>
                                 </td>
                             </tr>
+                            <tr>
+                                <td><b>Payable</b></td>
+                                <td colspan="2">
+                                    <span class="word-overflow">
+                                       &#8377; {{ store.item && store.item.amount !== null && store.item.paid !== null
+                                        ? (store.item.amount - store.item.paid).toFixed(2)
+                                        : '' }}
+                                    </span>
+                                </td>
+                            </tr>
 
                             <tr >
                                 <td><b>Order Items</b></td>
                                 <td colspan="2">
-                                <Tag class=" cursor-pointer" v-tooltip.top="'View Order Details'" @click="store.toOrderDetails(store.item)">
+                                <Badge severity="warning" class=" cursor-pointer" v-tooltip.top="'View Order Details'" @click="store.toOrderDetails(store.item)">
                              <b>
                                 {{store.item.items_count}}
                             </b>
-                         </Tag>
+                         </Badge>
                                 </td>
                             </tr>
 
