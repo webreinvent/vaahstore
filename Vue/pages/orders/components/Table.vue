@@ -131,7 +131,7 @@ const useVaah = vaah();
                              {{ prop.data.status ? prop.data.status.name : '' }}
                          </Badge>
                      </template>-->
-                     <Badge >
+                     <Badge class="min-w-max" >
                          {{prop.data.order_status}}
                      </Badge>
                  </template>
@@ -164,7 +164,7 @@ const useVaah = vaah();
              <Column  header="Shipping Status"
                      :sortable="true" v-if="store.isViewLarge()">
                  <template #body="prop">
-                     <Badge severity="warning">
+                     <Badge class="min-w-max" severity="warning">
 <!--                         {{'Pending' }}-->
                          {{prop.data.order_shipment_status}}
                      </Badge>
