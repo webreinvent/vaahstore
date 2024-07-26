@@ -239,6 +239,10 @@ export const useShipmentStore = defineStore({
                     this.view = 'small';
                     this.list_view_width = 5;
                     break;
+                case 'shipments.view':
+                    this.view = 'small';
+                    this.list_view_width = 5;
+                    break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
