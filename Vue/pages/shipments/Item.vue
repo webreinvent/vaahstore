@@ -6,7 +6,9 @@ import { useShipmentStore } from '../../stores/store-shipments'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 import {vaah} from "../../vaahvue/pinia/vaah";
+import {useVendorStore} from "../../stores/store-vendors";
 const store = useShipmentStore();
+const vendorStore = useVendorStore();
 const route = useRoute();
 const useVaah = vaah();
 onMounted(async () => {
@@ -236,12 +238,10 @@ const openVendorPage = (id) => {
                             <Column  header="Vendor">
                                 <template #body="prop">
                                     <div class="min-w-max">
-                                    <router-link
-                                        :to="{ name: 'vendors.index', query: { page: 1, rows: 20, 'filter[q]': prop.data.vendor.id } }"
-                                        target="_blank"
-                                    >
-                                        {{ prop.data.vendor.name }}
-                                    </router-link>
+                                        <Button  @click="store.redirectToVendor(prop.data)"
+                                        >
+                                            {{prop.data.vendor.name}}
+                                        </Button>
                                     </div>
                                 </template>
                             </Column>
