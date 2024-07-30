@@ -1264,6 +1264,10 @@ export const useShipmentStore = defineStore({
         toOrderDetails(order_id){
             this.$router.push({name: 'orders.view',params:{id:order_id}})
 
+        },//---------------------------------------------------------------------
+        redirectToVendor(item){
+            this.$router.push({name: 'vendors.view',params:{id:item.vh_st_vendor_id}})
+
         },
         //---------------------------------------------------------------------
     }
