@@ -183,8 +183,15 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Order Payment Status</b></td>
                                 <td  colspan="2" >
-                                    <Badge class="word-overflow">
-                                        {{store.item.order_payment_status?.name}}</Badge>
+                                    <Badge v-if="store.item.order_payment_status.slug === 'paid'" severity="success">
+                                        {{store.item.order_payment_status?.name}}
+                                    </Badge>
+                                    <Badge v-else-if="store.item.order_payment_status.slug === 'partially-paid'" severity="info">
+                                        {{store.item.order_payment_status?.name}}
+                                    </Badge>
+                                    <Badge v-else severity="danger">
+                                        {{store.item.order_payment_status?.name}}
+                                    </Badge>
                                 </td>
                             </tr>
                             <tr>
@@ -218,26 +225,17 @@ const toggleItemMenu = (event) => {
                                        :value="store.item.user?.display_name"
                             />
 
-                            <tr>
-                                <td><b>Order Payable Amount</b></td>
+                            <tr >
+                                <td><b>Amount</b></td>
                                 <td colspan="2">
-                                    <span class="word-overflow">
-                                       &#8377; {{ store.item && store.item.amount !== null && store.item.paid !== null
-                                        ? (store.item.amount - store.item.paid).toFixed(2)
-                                        : '' }}
-                                    </span>
+                                <span class="word-overflow">
+                                   &#8377; {{store.item && store.item.amount !== null
+                                    ? (store.item.amount).toFixed(2)
+                                    : '' }}
+                                </span>
                                 </td>
                             </tr>
-                            <tr>
-                                <td><b>Order Paid Amount</b></td>
-                                <td colspan="2">
-                                    <span class="word-overflow">
-                                      &#8377;  {{ store.item && store.item.paid !== null
-                                        ? (store.item.paid).toFixed(2)
-                                        : '' }}
-                                    </span>
-                                </td>
-                            </tr>
+
 
 
                             <tr >
@@ -270,14 +268,24 @@ const toggleItemMenu = (event) => {
                                     </span>
                                 </td>
                             </tr>
-                            <tr >
-                                <td><b>Order Amount</b></td>
+                            <tr>
+                                <td><b>Paid</b></td>
                                 <td colspan="2">
-                                <span class="word-overflow">
-                                   &#8377; {{store.item && store.item.amount !== null
-                                    ? (store.item.amount).toFixed(2)
-                                    : '' }}
-                                </span>
+                                    <span class="word-overflow">
+                                      &#8377;  {{ store.item && store.item.paid !== null
+                                        ? (store.item.paid).toFixed(2)
+                                        : '' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Payable</b></td>
+                                <td colspan="2">
+                                    <span class="word-overflow">
+                                       &#8377; {{ store.item && store.item.amount !== null && store.item.paid !== null
+                                        ? (store.item.amount - store.item.paid).toFixed(2)
+                                        : '' }}
+                                    </span>
                                 </td>
                             </tr>
 
