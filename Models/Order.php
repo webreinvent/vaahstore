@@ -554,25 +554,7 @@ class Order extends VaahModel
             $response['errors'][] = 'Record not found with ID: '.$id;
             return $response;
         }
-        //To get data for dropdown of order items
-        $array_item = $item->toArray();
-//        if($item['items']!=null){
-//            $item['types'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_types'])->get()->toArray()[0];
-//            $item['product'] = Product::where('id',$array_item['items']['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-//            $item['product_variation'] = ProductVariation::where('id',$array_item['items']['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-//            $item['vendor'] = Vendor::where('id',$array_item['items']['vh_st_vendor_id'])->get(['id','name','slug'])->toArray()[0];
-//            $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
-//            $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
-//            $item['status_notes_order_item'] = $array_item['items']['status_notes'];
-//            $item['is_active_order_item'] = $array_item['items']['is_active'];
-//            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
-//            $item['invoice_url'] = $array_item['items']['invoice_url'];
-//            $item['tracking'] = $array_item['items']['tracking'];
-//        }
-//        else{
-//            $item['is_invoice_available'] = 1;
-//            $item['is_active_order_item'] = 1;
-//        }
+
 
         $response['success'] = true;
         $response['data'] = $item;
@@ -758,50 +740,7 @@ class Order extends VaahModel
 
     //-----------------validation for product price--------------------------------
 
-    public static function validationOrderItem($inputs)
-    {
-        $rules = validator($inputs,
-            [
-                'types' => 'required',
-                'product' => 'required',
-                'product_variation' => 'required',
-                'vendor' => 'required',
-                'customer_group' => 'required',
-                'invoice_url' => 'required',
-                'tracking' => 'required',
-                'status_order_items' => 'required',
-                'status_notes_order_item' => [
-                    'required_if:status_order_items.slug,==,rejected',
-                    'max:250'
-                ],
-            ],
-            [
-                'types.required' => 'The Payment Type field is required',
-                'product.required' => 'The Product field is required',
-                'product_variation.required' => 'The Product Variation field is required',
-                'vendor.required' => 'The Vendor field is required',
-                'customer_group.required' => 'The Customer Groups field is required',
-                'invoice_url.required' => 'The Invoice URL field is required',
-                'status_order_items.required' => 'The Status field is required',
-                'tracking.required' => 'The Tracking field is required',
-                'status_notes_order_item.required_if' => 'The Status Notes is required for rejected status',
-                'status_notes_order_item.max' => 'The Status notes field may not be greater than :max characters.',
-            ]);
 
-        if($rules->fails()){
-            return [
-                'success' => false,
-                'errors' => $rules->errors()->all()
-            ];
-        }
-        $rules = $rules->validated();
-
-        return [
-            'success' => true,
-            'data' => $rules
-        ];
-
-    }
 
     //-------------------------------------------------
 

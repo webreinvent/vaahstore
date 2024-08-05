@@ -172,20 +172,25 @@ const toggleFormMenu = (event) => {
                             </div>
 
                             <div class="flex items-center w-full ">
-                                <InputText v-model="detail.user_name" readonly :placeholder="'Order ' + (index + 1)" required />
+                                <InputText v-model="detail.user_name" readonly
+                                           data-testid="payments-order-name" :placeholder="'Order ' + (index + 1)" required />
                                 <InputGroup>
                                     <InputGroupAddon>&#8377;</InputGroupAddon>
-                                    <InputNumber class="w-full" v-model="detail.payable_amount" readonly  placeholder="Total amount" :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
+                                    <InputNumber class="w-full" v-model="detail.payable_amount" readonly  placeholder="Total amount"
+                                                 data-testid="payments-order-payable"
+                                                 :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
 
                                 </InputGroup>
                                 <InputGroupAddon>&#8377;</InputGroupAddon>
-                                <InputNumber v-model="detail.pay_amount" placeholder=" Amount"   @input="store.totalPaidAmount($event, index)"  :minFractionDigits="0" :maxFractionDigits="2" class="w-full" />
+                                <InputNumber v-model="detail.pay_amount" placeholder=" Amount"
+                                             data-testid="payments-order-paid"
+                                             @input="store.totalPaidAmount($event, index)"  :minFractionDigits="0" :maxFractionDigits="2" class="w-full" />
 
                                 <div class="flex items-center ml-auto">
                                     <Button
                                         class="p-button-primary p-button-sm text-red-500"
                                         icon="pi pi-times"
-                                        data-testid="sources-scraping_details"
+                                        data-testid="payments-remove-orders"
                                         @click="store.removeOrderDetail(index)"
                                     />
                                 </div>
@@ -194,7 +199,9 @@ const toggleFormMenu = (event) => {
                         </div>
                     </VhField>
                     <VhField label="Total Payment" v-if="store.item.orders && store.item.orders.length>0">
-                        <InputNumber v-model="store.item.amount" placeholder="Total payment amount" :minFractionDigits="0" :maxFractionDigits="2" readonly label="Total Amount" class="w-full" />
+                        <InputNumber v-model="store.item.amount" placeholder="Total payment amount"
+                                     data-testid="payments-total-payment"
+                                     :minFractionDigits="0" :maxFractionDigits="2" readonly label="Total Amount" class="w-full" />
                     </VhField>
                     <VhField label="Payment Method*">
                         <AutoComplete
@@ -217,17 +224,10 @@ const toggleFormMenu = (event) => {
                 <VhField label="Payment Notes">
                     <Textarea placeholder="Enter payment note"
                               v-model="store.item.notes" rows="3" class="w-full"
-                              data-testid="vendors-status_notes" name="vendors-status_notes" />
+                              data-testid="payments-payment_notes" name="vendors-status_notes" />
                 </VhField>
 
-<!--                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
-                                 name="payments-active"
-                                 data-testid="payments-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>-->
+
 
 
 
