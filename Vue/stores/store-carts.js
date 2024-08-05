@@ -1083,7 +1083,6 @@ export const useCartStore = defineStore({
                 this.item_billing_address=null;
                 this.selected_shipping_address=null;
                 this.selected_billing_address=null;
-                // this.bill_form=!this.bill_form;
                 this.is_same_as_shipping=null;
             }
         },

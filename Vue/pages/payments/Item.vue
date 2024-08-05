@@ -307,9 +307,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                         <template #body="prop">
                             <div class="justify-content-end flex min-w-max">
-<!--                            <Badge class="min-w-max" severity="info">-->
                                 &#8377;  {{prop.data.payable_amount}}
-<!--                            </Badge>-->
                             </div>
                         </template>
 

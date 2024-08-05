@@ -81,8 +81,8 @@ onMounted(async () => {
             </div>
             <div class="mx-auto max-w-2xl px-4 2xl:px-0">
                 <div class="flex justify-content-center  items-center">
-                    <Button @click="store.returnToProduct()" label="Return To Shopping" class="w-full"/>
-                    <Button label="Track Your Order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
+                    <Button @click="store.returnToProduct()" data-testid="order-details-to_product" label="Return To Shopping" class="w-full"/>
+                    <Button label="Track Your Order" data-testid="order-details-to_order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
                 </div>
                 <div class="flex flex-wrap justify-between">
 
@@ -107,8 +107,7 @@ onMounted(async () => {
                                         <b>Total Amount Paid :</b>
                                     </p>
                                     <p class="m-0">₹{{store.order_paid_amount}}
-<!--                                        <i v-if="store.is_order_amount_paid" class="pi pi-check-circle text-success text-xl"></i>-->
-<!--                                        <i v-else class="pi pi-times-circle text-danger text-xl"></i>-->
+
                                     </p>
                                 </div>
                             </template>
@@ -159,7 +158,6 @@ onMounted(async () => {
                         <Card class="border-1 border-gray-100 w-20rem mt-5" :pt="{content: {class: 'pb-0'} }">
                             <template #title>Shipping Address</template>
                             <template #content v-if="store && store.ordered_shipping_address">
-<!--                                <h3 class="text-center mb-2">Shipping Address</h3>-->
                                 <div class="flex align-items-center">
                                     <label class="ml-2"><b>{{ store.ordered_shipping_address.name }}</b></label>
                                 </div>

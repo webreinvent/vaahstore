@@ -85,12 +85,7 @@ const toggleCreateMenu = (event) => {
 
                     <div class="p-inputgroup">
 
-<!--                    <Button data-testid="orders-list-create"
-                            class="p-button-sm"
-                            @click="store.toForm()">
-                        <i class="pi pi-plus mr-1"></i>
-                        Create
-                    </Button>-->
+
 
                     <Button data-testid="orders-list-reload"
                             class="p-button-sm"
@@ -98,16 +93,7 @@ const toggleCreateMenu = (event) => {
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
-                    <!--form_menu-->
 
-<!--                    <Button v-if="root.assets && root.assets.module
-                                                && root.assets.module.is_dev"
-                        type="button"
-                        @click="toggleCreateMenu"
-                        class="p-button-sm"
-                        data-testid="orders-create-menu"
-                        icon="pi pi-angle-down"
-                        aria-haspopup="true"/>-->
 
                     <Menu ref="create_menu"
                           :model="store.list_create_menu"
