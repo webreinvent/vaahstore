@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use Ramsey\Uuid\Uuid;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
@@ -212,7 +213,7 @@ class Payment extends VaahModel
         }
         $successfully_paid_orders = $validation_result['successfully_paid_orders'] ?? [];
 
-        $transaction_id = uniqid('TXN');
+        $transaction_id = Uuid::uuid7(now())->toString();
         $item = new self();
         $item->fill($inputs);
         $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')
