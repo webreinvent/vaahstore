@@ -72,14 +72,20 @@ function () {
         ->name('vh.backend.store.payments.item.action');
 
     //---------------------------------------------------------
+    /**
+     * search orders for make payment
+     */
     Route::post('/search/orders', [PaymentsController::class, 'searchOrders'])
         ->name('vh.backend.store.payments.search.orders');
 
+    /**
+     * get orders for filter
+     */
     Route::post('/filter/get/orders',  [PaymentsController::class, 'getOrdersForFilter'])
         ->name('vh.backend.store.payments.get.filter.order');
 
     /**
-     * Search order after refresh
+     * Search order after refresh in filter
      */
     Route::post('/filter/order-by-user-name', [PaymentsController::class, 'getOrdersByName'])
         ->name('vh.backend.store.payments.search.filter-order-by-user-name');

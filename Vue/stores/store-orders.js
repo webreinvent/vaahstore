@@ -773,18 +773,7 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'orders.index'})
         },
         //---------------------------------------------------------------------
-        // toForm()
-        // {
-        //     this.item = vaah().clone(this.assets.empty_item);
-        //     this.getFormMenu();
-        //     this.$router.push({name: 'orders.form'})
-        // },
-        //---------------------------------------------------------------------
-        // toOrderItem(id)
-        // {
-        //     this.$router.push({name: 'orders.orderitems', params:{order_id:id}});
-        //
-        // },
+
         //---------------------------------------------------------------------
 
         toView(item)
@@ -1093,6 +1082,8 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
 
         },
+        //---------------------------------------------------------------------
+
         formatDateTime (datetimeString) {
             if (!datetimeString) return '';
 
@@ -1110,6 +1101,8 @@ export const useOrderStore = defineStore({
 
             return datetime.toLocaleDateString('en-US', options);
         },
+        //---------------------------------------------------------------------
+
         toPaymentHistory(payment,user){
             const query = {
                 filter: {
@@ -1124,6 +1117,8 @@ export const useOrderStore = defineStore({
             this.$router.push(route);
 
         },
+        //---------------------------------------------------------------------
+
         toOrderPayment(order_id) {
             this.$router.push({
                 name: 'payments.form',

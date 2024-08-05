@@ -964,6 +964,8 @@ export const usePaymentStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+        //---------------------------------------------------------------------
+
         async searchOrders(event){
             const query = event;
             const options = {
@@ -1079,6 +1081,7 @@ export const usePaymentStore = defineStore({
                 this.filter_order_suggestion = data;
             }
         },
+        //---------------------------------------------------------------------
 
         addOrderFIlter() {
             const unique_order = Array.from(new Set(this.selected_order.map(v => v.id)));

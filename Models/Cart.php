@@ -1138,7 +1138,7 @@ class Cart extends VaahModel
             }
 //            $response['data']['is_paid'] = $order->payments()->wherePivot('remaining_payable_amount', 0)->exists();
             $response['data']['order_paid_amount'] = $order->payments()
-                ->sum('payment_amount_paid');
+                ->sum('payment_amount');
 
             return $response;
 
