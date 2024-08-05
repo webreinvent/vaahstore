@@ -364,7 +364,7 @@ const toggleItemMenu = (event) => {
                                 >
                                     <template #body="prop" >
                                         <div class="justify-content-end flex min-w-max">
-                                            &#8377; {{prop.data.pivot.payment_amount_paid}}
+                                            &#8377; {{prop.data.pivot.payment_amount}}
                                         </div>
                                     </template>
 

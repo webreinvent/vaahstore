@@ -320,12 +320,12 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                         <template #body="prop">
                             <div class="justify-content-end flex">
-                            <span v-if="prop.data.payment_amount_paid == 0"
+                            <span v-if="prop.data.payment_amount == 0"
                                    class="min-w-max"
-                                   >&#8377;{{ prop.data.payment_amount_paid }}</span>
-                            <span v-else-if="prop.data.payment_amount_paid > 0"
-                                   :value="prop.data.payment_amount_paid" class="min-w-max"
-                                   severity="secondary">&#8377;{{prop.data.payment_amount_paid}}</span>
+                                   >&#8377;{{ prop.data.payment_amount }}</span>
+                            <span v-else-if="prop.data.payment_amount > 0"
+                                   :value="prop.data.payment_amount" class="min-w-max"
+                                   severity="secondary">&#8377;{{prop.data.payment_amount}}</span>
                             </div>
                         </template>
 
