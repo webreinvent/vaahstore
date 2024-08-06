@@ -224,7 +224,8 @@ class Payment extends VaahModel
         $item->save();
         if (isset($inputs['orders']) && is_array($inputs['orders'])) {
             $is_payment_for_all_orders = false;
-            foreach ($inputs['orders'] as $order_data) {
+            $collect_orders = collect($inputs['orders']);
+            foreach ($collect_orders as $key => $order_data){
                 $order = Order::find($order_data['id']);
                 if ($order) {
                     $order->paid += $order_data['pay_amount'];
@@ -275,7 +276,8 @@ class Payment extends VaahModel
         $errors = [];
         $successfully_paid_orders = [];
         $total_paid_amount = 0;
-        foreach ($orders as $order_data) {
+        $collected_orders = collect($orders);
+        foreach ($collected_orders as $key => $order_data){
             $order = Order::find($order_data['id']);
             $payable_amount = round($order_data['payable_amount'], 2);
             $pay_amount = $order_data['pay_amount'];
@@ -390,7 +392,7 @@ class Payment extends VaahModel
             return $query;
         }
         $search_array = explode(' ',$filter['q']);
-        foreach ($search_array as $search_item){
+        foreach ($search_array as  $key =>$search_item){
             $query->where(function ($q1) use ($search_item) {
                 $q1->Where('id', 'LIKE', $search_item . '%')
                     ->orWhere('transaction_id', 'LIKE', $search_item . '%');
@@ -573,7 +575,7 @@ class Payment extends VaahModel
                 break;
             case 'delete-all':
                 $items = self::withTrashed()->get();
-                foreach ($items as $item) {
+                foreach ($items as  $key =>$item) {
                     $item->orders()->detach();
                 }
                 $list->forceDelete();
@@ -771,7 +773,7 @@ class Payment extends VaahModel
             $item->date=now();
             $item->save();
             if (isset($inputs['orders']) && is_array($inputs['orders']) && count($inputs['orders']) > 0) {
-                foreach ($inputs['orders'] as $order) {
+                foreach ($inputs['orders'] as  $key =>$order) {
                     $payable_amount = $order['payable_amount'];
 
                     $pay_amount = 0;

@@ -1106,8 +1106,8 @@ class Cart extends VaahModel
                     'total_mrp' => 0,
                 ],
             ];
-
-            foreach ($order_items as $order_item) {
+            $order_items_collection = collect($order_items);
+            foreach ($order_items_collection as $key => $order_item){
                 $product = Product::find($order_item->vh_st_product_id);
                 $product_variation = ProductVariation::find($order_item->vh_st_product_variation_id);
 
@@ -1117,13 +1117,13 @@ class Cart extends VaahModel
                     $price = $order_item->price;
 
                     $product_media_ids = self::getProductMediaIdsAtOrder($product, $order_item->vh_st_product_variation_id);
-                    $imageUrls = self::getImageUrls($product_media_ids);
+                    $image_urls = self::getImageUrls($product_media_ids);
 
                     $response['data']['product_details'][] = [
                         'product_id' => $product->id,
                         'name' => $product->name,
                         'description' => $product->description,
-                        'image_urls' => $imageUrls,
+                        'image_urls' => $image_urls,
                         'pivot' => [
                             'cart_product_variation' => $product_variation->name,
                             'product_variation_id' => $product_variation->id,
