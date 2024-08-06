@@ -237,7 +237,7 @@ class Payment extends VaahModel
                     $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('order-payment-status')->where('slug', $taxonomy_payment_status_slug)->value('id');
                     $item->orders()->attach($order->id, [
                         'payable_amount' => $order_data['payable_amount'],
-                        'payment_amount_paid' => $order_data['pay_amount'],
+                        'payment_amount' => $order_data['pay_amount'],
                         'remaining_payable_amount' => $order_data['payable_amount'] - $order_data['pay_amount'],
                         'taxonomy_id_order_payment_status' => $taxonomy_payment_status_id,
                         'created_at' => now(),
@@ -762,7 +762,7 @@ class Payment extends VaahModel
                     ];
                     $attachmentData = [
                         'payable_amount' => $orderData['payable_amount'],
-                        'payment_amount_paid' => $orderData['pay_amount'],
+                        'payment_amount' => $orderData['pay_amount'],
                         'remaining_payable_amount' => $remaining_payable_amount,
                         'created_at' => now(),
                     ];
