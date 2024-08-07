@@ -4,7 +4,8 @@ import { useShipmentStore } from '../../stores/store-shipments'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
-
+import { useDialog } from "primevue/usedialog";
+import EditShipmentQuntities from "../shipments/components/EditShipmentQuntities.vue";
 
 const store = useShipmentStore();
 const route = useRoute();
@@ -42,6 +43,26 @@ watchEffect(() => {
         store.item.is_trackable = trackableSelection.value;
     }
 });
+
+const dialog = useDialog();
+const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
+    const dialogRef = dialog.open(EditShipmentQuntities, {
+        props: {
+            header: product,
+            style: {
+                width: '50vw',
+            },
+            breakpoints:{
+                '960px': '75vw',
+                '640px': '90vw'
+            },
+            modal: true
+        },
+        data : {'shipment_item_id' : shipped_item_id
+
+        },
+    });
+}
 </script>
 <template>
 
@@ -228,7 +249,7 @@ watchEffect(() => {
                                     <Button class="p-button-tiny p-button-text"
                                             data-testid="shipments-table-to-view"
                                             v-tooltip.top="'View'"
-                                            @click="store.openShippingQuantityModal(store.item.id)"
+                                            @click="openShippingQuantityModal(store.item.id,prop.data.name,prop.data.id)"
                                             icon="pi pi-pencil" />
                                 </template>
                             </Column>
@@ -333,5 +354,5 @@ watchEffect(() => {
         </Panel>
 
     </div>
-
+    <DynamicDialog  />
 </template>
