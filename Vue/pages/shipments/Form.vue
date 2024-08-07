@@ -222,6 +222,17 @@ watchEffect(() => {
                                     </div>
                                 </template>
                             </Column>
+                            <template v-if=" store.item.id">
+                            <Column  header="Edit Quanity">
+                                <template #body="prop">
+                                    <Button class="p-button-tiny p-button-text"
+                                            data-testid="shipments-table-to-view"
+                                            v-tooltip.top="'View'"
+                                            @click="store.openShippingQuantityModal(store.item.id)"
+                                            icon="pi pi-pencil" />
+                                </template>
+                            </Column>
+                            </template>
                             <template v-if=" !store.item.id">
                             <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
                                 <template #body="prop" >
@@ -263,6 +274,7 @@ watchEffect(() => {
 
 
                             </Column>
+
                             </template>
 
                         </DataTable>
