@@ -70,6 +70,7 @@ export const useShipmentStore = defineStore({
         form_menu_list: [],
         order_list_tables:[],
         status_suggestion:null,
+        shipped_items_list:null,
         order_list : [
             { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
                 "items": [{
@@ -1270,7 +1271,7 @@ export const useShipmentStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        
+
         //---------------------------------------------------------------------
         async getShipmentItemList(shipment_item_id){
             console.log(shipment_item_id);
@@ -1280,6 +1281,11 @@ export const useShipmentStore = defineStore({
                     this.getShipmentItemListAfter
                 );
             }
+        },
+        getShipmentItemListAfter(data,res){
+             if (data){
+                 this.shipped_items_list=data;
+             }
         }
     }
 });
