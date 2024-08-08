@@ -1071,6 +1071,17 @@ class Shipment extends VaahModel
     }
 
     public static function getShippedItemList($id){
-        dd($id);
+        $shipment_items = ShipmentItem::where('vh_st_order_item_id', $id)
+            ->get();
+//        dd($shipment_items);
+        if (!$shipment_items) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
+            return $response;
+        }
+        $response['success'] = true;
+        $response['data'] = $shipment_items;
+        return $response;
+
     }
 }
