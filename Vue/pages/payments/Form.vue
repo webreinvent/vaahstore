@@ -72,7 +72,7 @@ const toggleFormMenu = (event) => {
                     <Button class="p-button-sm"
                             v-tooltip.left="'View'"
                             v-if="store.item && store.item.id"
-                            data-testid="payments-view_item"
+                            data-testid="payments-view-item"
                             @click="store.toView(store.item)"
                             icon="pi pi-eye"/>
 
@@ -214,7 +214,7 @@ const toggleFormMenu = (event) => {
                             @complete="store.searchPaymentMethod($event)"
                             placeholder="Select payment method"
                             :dropdown="true" optionLabel="name"
-                            data-testid="payments-payment_method"
+                            data-testid="payments-payment-method"
                             forceSelection>
                         </AutoComplete>
                     </VhField>
@@ -224,7 +224,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Payment Notes">
                     <Textarea placeholder="Enter payment note"
                               v-model="store.item.notes" rows="3" class="w-full"
-                              data-testid="payments-payment_notes" name="vendors-status_notes" />
+                              data-testid="payments-payment-notes" name="vendors-status_notes" />
                 </VhField>
 
 

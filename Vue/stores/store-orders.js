@@ -190,129 +190,15 @@ export const useOrderStore = defineStore({
             )
         },
         // //---------------------------------------------------------------------
-        //  watchItem(amount)
-        //   {
-        //       if(amount && amount !== "")
-        //       {
-        //          alert(amount);
-        //       }
-        //   },
-        // //---------------------------------------------------------------------
 
-        // watchAmount()
-        // {
-        //     if(this.item){
-        //         watch(() => [this.item.amount, this.item.delivery_fee,this.item.taxes, this.item.discount],
-        //             ([newAmount, newDeliveryFee,newTaxes, newDiscount], [oldAmount, oldDeliveryFee,oldTaxes, oldDiscount]) =>
-        //             {
-        //
-        //                 let payable = newAmount + newDeliveryFee + newTaxes - newDiscount;
-        //                     this.item.payable = payable;
-        //
-        //             },{deep: true}
-        //         )
-        //     }
-        //     if (this.form_menu_list.length === 0) {
-        //         this.getFormMenu();
-        //     }
-        // },
 
 
         //---------------------------------------------------------------------
-        updateAmount(event)
-        {
-            this.item.amount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-        updateDeliveryFee(event)
-        {
-            this.item.delivery_fee = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-
-        updateTaxAmount(event)
-        {
-            this.item.taxes = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-        updateDiscountAmount(event)
-        {
-            this.item.discount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
 
         //---------------------------------------------------------------------
 
 
-        setUser(event) {
-            let user = toRaw(event.value);
-            this.item.vh_user_id = user.id;
-        },
-        //---------------------------------------------------------------------
-        setPaymentMethod(event) {
-            let payment_method = toRaw(event.value);
-            this.item.vh_st_payment_method_id = payment_method.id;
-        },
-        //---------------------------------------------------------------------
-        setStatus(event) {
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_order_status = status.id;
 
-        },
-        //---------------------------------------------------------------------
-
-        setOrderItemType(event) {
-            let type = toRaw(event.value);
-            this.item.taxonomy_id_order_items_types = type.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemProduct(event) {
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemProductVariation(event) {
-            let product_variation = toRaw(event.value);
-            this.item.vh_st_product_variation_id = product_variation.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemVendor(event) {
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemCustomerGroup(event) {
-            let customer_group = toRaw(event.value);
-            this.item.vh_st_customer_group_id = customer_group.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemStatus(event) {
-
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_order_items_status = status.id;
-        },
-        //---------------------------------------------------------------------
-        checkPaidAmount(event)
-        {
-            this.item.paid = event.value;
-            if(this.item.paid > 0)
-            {
-                this.item.is_paid = 1;
-            }
-            else {
-                this.item.is_paid = 0;
-            }
-        },
         //---------------------------------------------------------------------
 
         async getAssets() {
