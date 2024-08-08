@@ -80,5 +80,9 @@ function () {
      */
     Route::any('/search/status',[ShipmentsController::class, 'searchStatus'])
         ->name('vh.backend.store.shipments.search.status');
-
+    /**
+     * Search status
+     */
+    Route::get('/{id}/get-shipped-item-list',[ShipmentsController::class, 'getShippedItemList'])
+        ->name('vh.backend.store.shipments.get.shipped-item-list');
 });

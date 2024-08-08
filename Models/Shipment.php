@@ -1070,4 +1070,7 @@ class Shipment extends VaahModel
 
     }
 
+    public static function getShippedItemList($id){
+        dd($id);
+    }
 }

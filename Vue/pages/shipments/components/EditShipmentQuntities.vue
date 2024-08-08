@@ -13,7 +13,7 @@ onMounted(() => {
     if (dialogRef && dialogRef.value && dialogRef.value.data) {
         injectedCategories.value = dialogRef.value.data;
         header.value = dialogRef.value.options.props.header;
-        store.getShipmentItemRecords(dialogRef.value.data.shipment_item_id)
+        store.getShipmentItemList(dialogRef.value.data.shipment_item_id)
     }
 })
 // const categoriesData = computed(() => {
