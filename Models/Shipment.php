@@ -1079,6 +1079,13 @@ class Shipment extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+        $order_item = OrderItem::find($id);
+        $total_quantity = $order_item->quantity;
+
+        $shipment_items = $shipment_items->map(function($item) use ($total_quantity) {
+            $item->total_quantity = $total_quantity;
+            return $item;
+        });
         $response['success'] = true;
         $response['data'] = $shipment_items;
         return $response;

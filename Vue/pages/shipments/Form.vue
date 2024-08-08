@@ -49,6 +49,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
     const dialogRef = dialog.open(EditShipmentQuntities, {
         props: {
             header: product,
+
             style: {
                 width: '50vw',
             },
