@@ -1270,12 +1270,16 @@ export const useShipmentStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        openShippingQuantityModal(shipment_id){
-            vaah().toastErrors(['This will impact quantity on other shipments as well.']);
-        },
+        
         //---------------------------------------------------------------------
-        getShipmentItemRecords(){
-            // vaah().toastErrors(['This will impact quantity on other shipments as well.']);
+        async getShipmentItemList(shipment_item_id){
+            console.log(shipment_item_id);
+            if(shipment_item_id){
+                await vaah().ajax(
+                    ajax_url+'/'+shipment_item_id+'/get-shipped-item-list',
+                    this.getShipmentItemListAfter
+                );
+            }
         }
     }
 });
