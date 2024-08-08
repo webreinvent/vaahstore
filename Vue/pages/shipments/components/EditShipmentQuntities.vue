@@ -29,7 +29,12 @@ const onRowEditSave = (event) => {
     let { newData, index } = event;
 
     store.shipped_items_list[index] = newData;
-    console.log( store.shipped_items_list)
+
+};
+const updatePendingQuantity = (data) => {
+    if (data.total_quantity != null && data.quantity != null) {
+        data.pending = data.total_quantity - data.quantity;
+    }
 };
 </script>
 
@@ -40,7 +45,7 @@ const onRowEditSave = (event) => {
                 class="p-button-sm"
                 v-if="store.item && store.item.id"
                 data-testid="shipments-save"
-                @click="store.saveShippedItemQuanity('save')"
+                @click="store.saveShippedItemQuanity(store.shipped_items_list)"
                 icon="pi pi-save"/>
     </div>
 
@@ -155,14 +160,14 @@ const onRowEditSave = (event) => {
                     </div>
                 </template>
                 <template #editor="{ data, field }">
-                    <InputText v-model="data[field]" fluid />
+                    <InputText  v-model="data[field]" @input="updatePendingQuantity(data)" fluid />
 
                 </template>
             </Column>
             <Column field="pending" header="Pending Quantity" >
 
                 <template #editor="{ data, field }">
-                    <InputText v-model="data[field]" fluid />
+                    <InputText readonly v-model="data[field]" fluid />
 
                 </template>
             </Column>
