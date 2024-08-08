@@ -1290,7 +1290,9 @@ export const useShipmentStore = defineStore({
                  this.shipped_items_list=data;
              }
         },
-
+        saveShippedItemQuanity(item_list){
+            console.log(item_list);
+        }
     }
 });
 
