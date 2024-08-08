@@ -149,6 +149,11 @@ const onRowEditSave = (event) => {
                 </template>
             </Column>
             <Column field="quantity" header="Shipped Quantity" >
+                <template #footer="slotProps">
+                    <div class="ml-2">
+                        Total Shipped: {{ store.calculateTotalShippedas() }}
+                    </div>
+                </template>
                 <template #editor="{ data, field }">
                     <InputText v-model="data[field]" fluid />
 

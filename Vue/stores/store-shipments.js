@@ -183,6 +183,9 @@ export const useShipmentStore = defineStore({
 
 
         },
+        calculateTotalShippedas(){
+           return 12;
+        },
         calculateTotalQuantity(items) {
             if (!Array.isArray(items) || items.length === 0) {
                 return 0;
@@ -1286,7 +1289,8 @@ export const useShipmentStore = defineStore({
              if (data){
                  this.shipped_items_list=data;
              }
-        }
+        },
+
     }
 });
 
