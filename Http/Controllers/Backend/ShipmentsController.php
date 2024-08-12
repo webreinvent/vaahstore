@@ -262,10 +262,26 @@ class ShipmentsController extends Controller
         }
     }
 
-    public function getShippedItemList(Request $request,$id)
+    public function getShipmentItemList(Request $request,$id)
     {
         try{
-            return Shipment::getShippedItemList($id);
+            return Shipment::getShipmentItemList($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    public function saveEditedShippedQuantity(Request $request)
+    {
+        try{
+            return Shipment::saveEditedShippedQuantity($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

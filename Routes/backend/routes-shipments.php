@@ -83,6 +83,9 @@ function () {
     /**
      * Search status
      */
-    Route::get('/{id}/get-shipped-item-list',[ShipmentsController::class, 'getShippedItemList'])
+    Route::get('/{id}/get-shipped-item-list',[ShipmentsController::class, 'getShipmentItemList'])
         ->name('vh.backend.store.shipments.get.shipped-item-list');
+
+    Route::post('/update-shipped-item-quantity', [ShipmentsController::class,'saveEditedShippedQuantity'])
+        ->name('vh.backend.store.shipments.save.edited-shipped-quantity');
 });

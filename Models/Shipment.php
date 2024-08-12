@@ -1062,7 +1062,7 @@ class Shipment extends VaahModel
 
     }
 
-    public static function getShippedItemList($id){
+    public static function getShipmentItemList($id){
         $shipment_items = ShipmentItem::where('vh_st_order_item_id', $id)
             ->get();
 //        dd($shipment_items);
@@ -1079,8 +1079,34 @@ class Shipment extends VaahModel
             return $item;
         });
         $response['success'] = true;
-        $response['data'] = $shipment_items;
+        $response['data'] = [
+            'shipment_items' => $shipment_items,
+            'total_quantity_to_be_shipped' => $total_quantity
+        ];
         return $response;
 
+    }
+
+    public static function saveEditedShippedQuantity($request){
+        $items = $request->request->all();
+        foreach ($items['shipment_items'] as $item) {
+            $order_item = OrderItem::where('id', $item['vh_st_order_item_id'])->first();
+            if ($item['quantity'] > $order_item->quantity){
+                $response['success'] = false;
+                $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
+                return $response;
+            }
+            $shipment_item = ShipmentItem::find($item['id']);
+            $shipment_item->update([
+                'quantity' => $item['quantity'],
+                'pending' => $item['pending'],
+                'updated_at' => now(),
+            ]);
+        }
+        $shipment=self::find($items['shipment_id']);
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['success'] = true;
+        $response['data'] = $shipment;
+        return $response;
     }
 }
