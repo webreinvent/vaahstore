@@ -1079,7 +1079,10 @@ class Shipment extends VaahModel
             return $item;
         });
         $response['success'] = true;
-        $response['data'] = $shipment_items;
+        $response['data'] = [
+            'shipment_items' => $shipment_items,
+            'total_quantity_to_be_shipped' => $total_quantity
+        ];
         return $response;
 
     }

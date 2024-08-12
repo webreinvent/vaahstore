@@ -1,5 +1,5 @@
 <script setup>
-import {computed, defineProps, inject, onMounted, ref} from 'vue';
+import {computed, defineProps, inject, onMounted, ref, watch} from 'vue';
 import { vaah } from '../../../vaahvue/pinia/vaah';
 import {useShipmentStore} from "../../../stores/store-shipments";
 import {useRoute} from "vue-router";
@@ -46,6 +46,17 @@ const rowClass = (data) => {
 const rowStyle = (data) => {
     return data.vh_st_shipment_id === Number(route.params.id) ? { fontWeight: 'bold', fontStyle: 'italic' } : {};
 };
+
+const totalShipped = computed(() => {
+    if (Array.isArray(store.shipped_items_list)) {
+        return store.shipped_items_list.reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
+        // this.item.updated_shipped_quantity = this.shipped_items_list.reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
+    }
+    return 0;
+});
+watch(totalShipped, (newTotal) => {
+    store.item.updated_total_shipped_quantity = newTotal;
+});
 </script>
 
 
@@ -86,14 +97,20 @@ const rowStyle = (data) => {
                 </template>
             </Column>
             <Column  header="Total Quantity" >
+                <template #footer="slotProps">
+                    <div class="ml-2">
+                         Total Item Quantity: {{ store.total_quantity_to_be_shipped }}
+                    </div>
+                </template>
                 <template #body="props">
                     {{ props.data.total_quantity }}
                 </template>
             </Column>
-            <Column field="quantity" header="Shipped Quantity" >
+            <Column field="quantity" header="Shipping Quantity" >
                 <template #footer="slotProps">
                     <div class="ml-2">
-                        Total Shipped: {{ store.calculateTotalShippedas() }}
+<!--                        Updated Shipping Quantity: {{ totalShipped }}-->
+                        Updated Shipping Quantity: {{ store.item.updated_total_shipped_quantity }}
                     </div>
                 </template>
                 <template #editor="{ data, field }">
@@ -101,6 +118,7 @@ const rowStyle = (data) => {
 
                 </template>
             </Column>
+
 <!--            <Column field="pending" header="Pending Quantity" >-->
 
 <!--                <template #editor="{ data, field }">-->
