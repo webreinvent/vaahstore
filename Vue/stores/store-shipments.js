@@ -1277,7 +1277,6 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------------------------
         async getShipmentItemList(shipment_item_id){
-            console.log(shipment_item_id);
             if(shipment_item_id){
                 await vaah().ajax(
                     ajax_url+'/'+shipment_item_id+'/get-shipped-item-list',
