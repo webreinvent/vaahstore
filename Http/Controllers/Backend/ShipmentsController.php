@@ -262,10 +262,10 @@ class ShipmentsController extends Controller
         }
     }
 
-    public function getShippedItemList(Request $request,$id)
+    public function getShipmentItemList(Request $request,$id)
     {
         try{
-            return Shipment::getShippedItemList($id);
+            return Shipment::getShipmentItemList($id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

@@ -1292,16 +1292,16 @@ export const useShipmentStore = defineStore({
                  this.total_quantity_to_be_shipped=data.total_quantity_to_be_shipped;
              }
         },
-        async saveShippedItemQuanity(type,item=null){
-            if (this.total_quantity_to_be_shipped< this.item.updated_total_shipped_quantity){
-                vaah().toastErrors(['Updated shipping quantity should be less than equal to Total Item Quantity ']);
-                return;
-            }
+        async saveShippedItemQuanity(type,item=null,params_id=null){
+            // if (this.total_quantity_to_be_shipped< this.item.updated_total_shipped_quantity){
+            //     vaah().toastErrors(['Updated shipping quantity should be less than equal to Total Item Quantity ']);
+            //     return;
+            // }
             if(!item)
             {
                 item = this.item;
             }
-            console.log(type,item)
+            console.log(params_id)
             this.action.type = type;
             let ajax_url = this.ajax_url;
 
@@ -1313,17 +1313,25 @@ export const useShipmentStore = defineStore({
                  * Create a record, hence method is `POST`
                  * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
                  */
-                case 'save-updated-shipped-quantity':
+                case 'update-shipped-item-quantity':
                     options.method = 'POST';
-                    options.params = item;
-                    ajax_url += '/save-updated-shipped-quantity'
+                    options.params = {
+                        shipment_items: item,
+                        shipment_id: params_id
+                    };
+                    ajax_url += '/update-shipped-item-quantity'
                     break;
             }
             await vaah().ajax(
                 ajax_url,
-                this.itemActionAfter,
+                this.saveShippedItemQuanityAfter,
                 options
             );
+        },
+        saveShippedItemQuanityAfter(data,res){
+             if (data){
+                 this.getItem(data.id);
+             }
         },
         getMaxValue(currentIndex){
             const available_quantity_to_be_shipped = this.shipped_items_list.reduce((sum, item, index) => {
@@ -1359,6 +1367,21 @@ export const useShipmentStore = defineStore({
             if (data.total_quantity != null && data.quantity != null) {
                 data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
             }
+
+             this.shipped_items_list.forEach((currentItem, idx) => {
+                 if (idx !== index) {
+                     const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
+                         if (otherIdx !== idx) {
+                             return sum + item.quantity;
+                         }
+                         return sum;
+                     }, 0);
+
+                     if (current_item.total_quantity != null && current_item.quantity != null) {
+                         current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
+                     }
+                 }
+             });
         },
 
     }
