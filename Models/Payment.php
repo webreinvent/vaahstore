@@ -718,7 +718,7 @@ class Payment extends VaahModel
         ], [
             'orders.required' => 'The orders field is required.',
             'orders.array' => 'The orders field must be an array.',
-            'orders.*.pay_amount.required' => 'The payment amount for each order is required.',
+            'orders.*.pay_amount.required' => 'The payment amount field is required.',
             'orders.*.pay_amount.numeric' => 'The payment amount must be a number.',
             'orders.*.pay_amount.min' => 'The payment amount must be at least :min.',
             'orders.*.user_name.required' => 'The user name for each order is required.',
