@@ -70,7 +70,8 @@ export const useShipmentStore = defineStore({
         form_menu_list: [],
         order_list_tables:[],
         status_suggestion:null,
-        shipped_items_list:null,
+        total_quantity_to_be_shipped:null,
+        shipped_items_list:[],
         order_list : [
             { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
                 "items": [{
@@ -1286,10 +1287,15 @@ export const useShipmentStore = defineStore({
         },
         getShipmentItemListAfter(data,res){
              if (data){
-                 this.shipped_items_list=data;
+                 this.shipped_items_list=data.shipment_items;
+                 this.total_quantity_to_be_shipped=data.total_quantity_to_be_shipped;
              }
         },
         async saveShippedItemQuanity(type,item=null){
+            if (this.total_quantity_to_be_shipped< this.item.updated_total_shipped_quantity){
+                vaah().toastErrors(['Updated shipping quantity should be less than equal to Total Item Quantity ']);
+                return;
+            }
             if(!item)
             {
                 item = this.item;
