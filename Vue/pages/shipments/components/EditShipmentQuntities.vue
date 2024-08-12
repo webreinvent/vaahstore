@@ -9,6 +9,7 @@ const useVaah = vaah();
 const injectedCategories = ref({ shipment_item_id: [] });
 const header = ref('');
 const dialogRef = inject('dialogRef');
+const route = useRoute();
 onMounted(() => {
 
     if (dialogRef && dialogRef.value && dialogRef.value.data) {
@@ -17,32 +18,16 @@ onMounted(() => {
         store.getShipmentItemList(dialogRef.value.data.shipment_item_id)
     }
 })
-// const categoriesData = computed(() => {
-//     const search = (store.item.search_category || '').toLowerCase().trim();
-//     return injectedCategories.value.categories.filter(category =>
-//         category.name.toLowerCase().includes(search)
-//     );
-// });
 
-const route = useRoute();
-const editingRows = ref([]);
-const onRowEditSave = (event) => {
-    let { newData, index } = event;
 
-    store.shipped_items_list[index] = newData;
 
-};
-const updatePendingQuantity = (data) => {
-    if (data.total_quantity != null && data.quantity != null) {
-        data.pending = data.total_quantity - data.quantity;
-    }
-};
+
+
 const rowClass = (data) => {
     return {
         '!bg-primary !text-primary-contrast': data.vh_st_shipment_id === Number(route.params.id)
     };
 };
-
 const rowStyle = (data) => {
     return data.vh_st_shipment_id === Number(route.params.id) ? { fontWeight: 'bold', fontStyle: 'italic' } : {};
 };
@@ -50,7 +35,6 @@ const rowStyle = (data) => {
 const totalShipped = computed(() => {
     if (Array.isArray(store.shipped_items_list)) {
         return store.shipped_items_list.reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
-        // this.item.updated_shipped_quantity = this.shipped_items_list.reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
     }
     return 0;
 });
@@ -74,8 +58,8 @@ watch(totalShipped, (newTotal) => {
         <Message :closable="false" severity="warn">This will impact quantity on other shipments as well.</Message>
     </div>
     <div v-if="store.item">
-        <DataTable v-model:editingRows="editingRows" :rows="10"  :rowClass="rowClass" :rowStyle="rowStyle"
-                   :paginator="true" :value="store.shipped_items_list" editMode="row" dataKey="id" @row-edit-save="onRowEditSave"
+        <DataTable v-model:editingRows="store.editingRows" :rows="10"  :rowClass="store.rowClass" :rowStyle="rowStyle"
+                   :paginator="true" :value="store.shipped_items_list" editMode="row" dataKey="id" @row-edit-save="store.onRowEditSave"
                    :pt="{
 
                 column: {
@@ -109,23 +93,28 @@ watch(totalShipped, (newTotal) => {
             <Column field="quantity" header="Shipping Quantity" >
                 <template #footer="slotProps">
                     <div class="ml-2">
-<!--                        Updated Shipping Quantity: {{ totalShipped }}-->
                         Updated Shipping Quantity: {{ store.item.updated_total_shipped_quantity }}
                     </div>
                 </template>
-                <template #editor="{ data, field }">
-                    <InputText  v-model="data[field]" @input="updatePendingQuantity(data)" fluid />
-
+                <template #editor="{ data, field ,index}">
+                    <InputNumber
+                        v-model="data[field]"
+                        @input="store.updatePendingQuantity(data, index)"
+                        mode="decimal"
+                        :min="0"
+                        :max="store.getMaxValue(index)"
+                        fluid
+                    />
                 </template>
             </Column>
 
-<!--            <Column field="pending" header="Pending Quantity" >-->
+            <Column field="pending" header="Pending Quantity" >
 
-<!--                <template #editor="{ data, field }">-->
-<!--                    <InputText readonly v-model="data[field]" fluid />-->
+                <template #editor="{ data, field }">
+                    <InputText readonly v-model="data[field]" fluid />
 
-<!--                </template>-->
-<!--            </Column>-->
+                </template>
+            </Column>
 
             <Column header="Click To Edit" :rowEditor="true" style="width: 10%; min-width: 8rem" bodyStyle="text-align:center"></Column>
         </DataTable>

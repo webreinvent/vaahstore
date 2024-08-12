@@ -72,6 +72,7 @@ export const useShipmentStore = defineStore({
         status_suggestion:null,
         total_quantity_to_be_shipped:null,
         shipped_items_list:[],
+        editingRows:[],
         order_list : [
             { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
                 "items": [{
@@ -1323,7 +1324,43 @@ export const useShipmentStore = defineStore({
                 this.itemActionAfter,
                 options
             );
-        }
+        },
+        getMaxValue(currentIndex){
+            const available_quantity_to_be_shipped = this.shipped_items_list.reduce((sum, item, index) => {
+                if (index !== currentIndex) {
+                    return sum + item.quantity;
+                }
+                return sum;
+            }, 0);
+            const current_item = this.shipped_items_list[currentIndex];
+            const max_value = current_item.total_quantity - available_quantity_to_be_shipped;
+            return max_value;
+        },
+         onRowEditSave(event)  {
+            let { newData, index } = event;
+            if (newData.quantity > newData.total_quantity) {
+                return;
+            }
+             this.shipped_items_list[index] = newData;
+
+            this.updatePendingQuantity(newData, index);
+
+        },
+         updatePendingQuantity(data,index)  {
+
+            const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
+                if (idx !== index) {
+                    return sum + item.quantity;
+                }
+                return sum;
+            }, 0);
+
+
+            if (data.total_quantity != null && data.quantity != null) {
+                data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
+            }
+        },
+
     }
 });
 

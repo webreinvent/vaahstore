@@ -1097,17 +1097,17 @@ class Shipment extends VaahModel
 
     public static function saveEditedShippedQuantity($request){
         $items = $request->request->all();
-        dd($items);
+//        dd($items);
 
         foreach ($items as $item) {
             // Find the item by its ID and update its fields
             $order_item = OrderItem::where('id', $item['vh_st_order_item_id'])->first();
-            dd($order_item->quantity - $item['quantity']);
+//            dd($order_item->quantity - $item['quantity']);
             $shipment_item = ShipmentItem::find($item['id']);
-            if ($item['pending'] < 0 || $item['pending'] > ($order_item->quantity - $item['quantity'])) {
-                \Log::warning('Invalid pending quantity for ShipmentItem ID: ' . $item['id']);
-                continue; // Skip this item or handle error
-            }
+//            if ($item['pending'] < 0 || $item['pending'] > ($order_item->quantity - $item['quantity'])) {
+//                \Log::warning('Invalid pending quantity for ShipmentItem ID: ' . $item['id']);
+//                continue; // Skip this item or handle error
+//            }
 
 
 //            dd($shipmentItem);
