@@ -279,7 +279,7 @@ class ShipmentsController extends Controller
         }
     }
     public function saveEditedShippedQuantity(Request $request)
-    {dd($request);
+    {
         try{
             return Shipment::saveEditedShippedQuantity($request);
         }catch (\Exception $e){

@@ -22,6 +22,8 @@ class ShipmentItem extends VaahModel {
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
+        'pending',
+        'quantity',
         'is_active',
         'created_by',
         'updated_by',
