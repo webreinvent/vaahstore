@@ -55,7 +55,7 @@ const rowStyle = (data) => {
                 class="p-button-sm"
                 v-if="store.item && store.item.id"
                 data-testid="shipments-save"
-                @click="store.saveShippedItemQuanity(store.shipped_items_list)"
+                @click="store.saveShippedItemQuanity('save-updated-shipped-quantity',store.shipped_items_list)"
                 icon="pi pi-save"/>
     </div>
 
