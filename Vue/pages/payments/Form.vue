@@ -162,43 +162,69 @@ const toggleFormMenu = (event) => {
                         </div>
                     </VhField>
 
-                    <VhField >
+<!--                    <VhField >-->
+                    <div v-if="store.item.orders && store.item.orders.length > 0 " class="mb-4">
+                            <DataTable :value="store.item.orders"
+                                       rowGroupMode="subheader">
 
-                        <div v-for="(detail, index) in store.item.orders" :key="index" class="mb-2">
-                            <div class="flex items-center w-full ">
-                                <label class=" w-full text-center" v-if="index === 0" for="pay-amount-input">Order </label>
-                                <label class=" w-full text-center" v-if="index === 0" for="pay-amount-input">Payable </label>
-                                <label class=" w-full ml-5" v-if="index === 0" for="pay-amount-input">Payment </label>
-                            </div>
+                            <Column field="user_name" header="Order" >
+                                <template #body="prop">{{prop.data.user_name}}
+                                </template>
+                            </Column>
+                            <Column field="payable_amount" header="Payable Amount" >
 
-                            <div class="flex items-center w-full ">
-                                <InputText v-model="detail.user_name" readonly
-                                           data-testid="payments-order-name" :placeholder="'Order ' + (index + 1)" required />
-                                <InputGroup>
-                                    <InputGroupAddon>&#8377;</InputGroupAddon>
-                                    <InputNumber class="w-full" v-model="detail.payable_amount" readonly  placeholder="Total amount"
-                                                 data-testid="payments-order-payable"
-                                                 :minFractionDigits="0" :maxFractionDigits="2" inputId="locale-indian"  locale="en-IN"/>
+                                <template #body="prop">
+                                    <InputGroup>
+                                        <InputGroupAddon>&#8377;</InputGroupAddon>
+                                        <InputNumber
+                                            style="width: 6rem;"
+                                            v-model="prop.data.payable_amount"
+                                            readonly
+                                            :placeholder="'Total amount'"
+                                            data-testid="payments-order-payable"
+                                            :minFractionDigits="0"
+                                            :maxFractionDigits="2"
+                                            inputId="locale-indian"
+                                            locale="en-IN"
+                                        />
+                                    </InputGroup>
+                                </template>
+                            </Column>
+                            <Column header="Payment">
+                                <template #body="prop">
+                                    <InputGroup>
+                                        <InputGroupAddon>&#8377;</InputGroupAddon>
+                                        <InputNumber
+                                            v-model="prop.data.pay_amount"
+                                            :placeholder="'Enter amount'"
+                                            data-testid="payments-order-paid"
+                                            :minFractionDigits="0"
+                                            :maxFractionDigits="2"
+                                            style="width: 6rem;"
+                                            @input="store.totalPaidAmount($event, prop.data.id)"
+                                        />
+                                    </InputGroup>
 
-                                </InputGroup>
-                                <InputGroupAddon>&#8377;</InputGroupAddon>
-                                <InputNumber v-model="detail.pay_amount" placeholder=" Amount"
-                                             data-testid="payments-order-paid"
-                                             @input="store.totalPaidAmount($event, index)"  :minFractionDigits="0" :maxFractionDigits="2" class="w-full" />
+                                </template>
+                            </Column>
+                            <Column header="">
+                                <template #body="prop">
+                                    <div class=" justify-content-end">
+                                        <Button
+                                            class="p-button-primary  text-red-500"
+                                            icon="pi pi-times"
+                                            data-testid="payments-remove-orders"
+                                            @click="store.removeOrderDetail(prop.rowIndex)"
+                                        />
+                                    </div>
 
-                                <div class="flex items-center ml-auto">
-                                    <Button
-                                        class="p-button-primary p-button-sm text-red-500"
-                                        icon="pi pi-times"
-                                        data-testid="payments-remove-orders"
-                                        @click="store.removeOrderDetail(index)"
-                                    />
-                                </div>
-                            </div>
-                            <small v-if="parseFloat(detail.pay_amount) > parseFloat(detail.payable_amount)" id="email-error" class="p-error"> Payment amount cannot be greater than payable amount</small>
-                        </div>
-                    </VhField>
-                    <VhField label="Total Payment" v-if="store.item.orders && store.item.orders.length>0">
+                                </template>
+                            </Column>
+                            </DataTable>
+                         </div>
+
+<!--                    </VhField>-->
+                    <VhField label="Total Payment"  v-if="store.item.orders && store.item.orders.length>0">
                         <InputNumber v-model="store.item.amount" placeholder="Total payment amount"
                                      data-testid="payments-total-payment"
                                      :minFractionDigits="0" :maxFractionDigits="2" readonly label="Total Amount" class="w-full" />

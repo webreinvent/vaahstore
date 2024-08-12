@@ -3,6 +3,7 @@
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use Ramsey\Uuid\Uuid;
@@ -707,46 +708,44 @@ class Payment extends VaahModel
 
     public static function validation($inputs)
     {
-        $validated_data = validator($inputs, [
-
-           'orders' =>'required',
-            'orders.*.pay_amount' => 'required|numeric|min:0',
+        $validator = Validator::make($inputs, [
+            'orders' => ['required', 'array'],
+            'orders.*.pay_amount' => ['required', 'numeric', 'min:0'],
             'orders.*.amount' => 'nullable|numeric',
             'orders.*.user_name' => 'required|string',
             'vh_st_payment_method_id' => 'required',
             'notes' => 'nullable|string|max:100',
-        ],
-        [
+        ], [
+            'orders.required' => 'The orders field is required.',
+            'orders.array' => 'The orders field must be an array.',
+            'orders.*.pay_amount.required' => 'The payment amount for each order is required.',
+            'orders.*.pay_amount.numeric' => 'The payment amount must be a number.',
+            'orders.*.pay_amount.min' => 'The payment amount must be at least :min.',
+            'orders.*.user_name.required' => 'The user name for each order is required.',
+            'orders.*.user_name.string' => 'The user name must be a string.',
             'vh_st_payment_method_id.required' => 'The payment method is required.',
+            'notes.max' => 'The payment notes field may not be greater than :max characters.',
+        ]);
 
-            'notes.max' => 'The payment notes field may not be greater than :max characters',
-        ]
-        );
-        if($validated_data->fails()){
-            $errors = $validated_data->errors()->all();
-            if (isset($inputs['value'])) {
-                foreach ($inputs['value'] as $key => $value) {
+        if ($validator->fails()) {
+            $errors = $validator->errors();
 
-                    if (in_array("value.{$key}.value", $errors)) {
-                        unset($inputs['value'][$key]);
-                    }
-                }
-            }
+            $all_errors = $errors->all();
             return [
                 'success' => false,
-                'errors' => $validated_data->errors()->all()
-
+                'errors' => array_unique($all_errors)
             ];
         }
 
-        $validated_data = $validated_data->validated();
+        $validated_data = $validator->validated();
 
         return [
             'success' => true,
             'data' => $validated_data
         ];
-
     }
+
+
 
     //-------------------------------------------------
     public static function getActiveItems()

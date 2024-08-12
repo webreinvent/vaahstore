@@ -1007,12 +1007,25 @@ export const usePaymentStore = defineStore({
             this.item.vh_st_payment_method_id = payment_method.id;
         },
 
-         totalPaidAmount (event, index) {
-             this.item.orders[index].pay_amount = parseFloat(event.value) || 0;
-             this.item.amount = this.item.orders.reduce((total, detail) => {
-                return total + (parseFloat(detail.pay_amount) || 0);
+         totalPaidAmount (event, id) {
+            const value = parseFloat(event.value) || 0;
+             const item_index = this.item.orders.findIndex(order => order.id === id);
+
+             if (item_index !== -1) {
+                 this.item.orders[item_index].pay_amount = value;
+                 this.item.amount = this.calculateTotalPayment(this.item.orders);
+             }
+
+        },
+        calculateTotalPayment(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((total, item) => {
+                return total + (parseFloat(item.pay_amount) || 0);
             }, 0);
         },
+
         //---------------------------------------------------------------------
         toOrderDetails(order_id){
             this.$router.push({name: 'orders.view',params:{id:order_id}})
