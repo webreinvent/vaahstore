@@ -1289,8 +1289,34 @@ export const useShipmentStore = defineStore({
                  this.shipped_items_list=data;
              }
         },
-        saveShippedItemQuanity(item_list){
-            console.log(item_list);
+        async saveShippedItemQuanity(type,item=null){
+            if(!item)
+            {
+                item = this.item;
+            }
+            console.log(type,item)
+            this.action.type = type;
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                method: 'post',
+            };
+            switch (type) {
+                /**
+                 * Create a record, hence method is `POST`
+                 * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
+                 */
+                case 'save-edited-shipped-quantity':
+                    options.method = 'POST';
+                    options.params = item;
+                    ajax_url += '/save-updated-shipped-quantity'
+                    break;
+            }
+            await vaah().ajax(
+                ajax_url,
+                this.itemActionAfter,
+                options
+            );
         }
     }
 });
