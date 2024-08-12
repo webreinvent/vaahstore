@@ -1306,7 +1306,7 @@ export const useShipmentStore = defineStore({
                  * Create a record, hence method is `POST`
                  * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
                  */
-                case 'save-edited-shipped-quantity':
+                case 'save-updated-shipped-quantity':
                     options.method = 'POST';
                     options.params = item;
                     ajax_url += '/save-updated-shipped-quantity'

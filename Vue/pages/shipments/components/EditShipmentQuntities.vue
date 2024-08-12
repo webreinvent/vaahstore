@@ -101,15 +101,15 @@ const rowStyle = (data) => {
 
                 </template>
             </Column>
-            <Column field="pending" header="Pending Quantity" >
+<!--            <Column field="pending" header="Pending Quantity" >-->
 
-                <template #editor="{ data, field }">
-                    <InputText readonly v-model="data[field]" fluid />
+<!--                <template #editor="{ data, field }">-->
+<!--                    <InputText readonly v-model="data[field]" fluid />-->
 
-                </template>
-            </Column>
+<!--                </template>-->
+<!--            </Column>-->
 
-            <Column :rowEditor="true" style="width: 10%; min-width: 8rem" bodyStyle="text-align:center"></Column>
+            <Column header="Click To Edit" :rowEditor="true" style="width: 10%; min-width: 8rem" bodyStyle="text-align:center"></Column>
         </DataTable>
 
     </div>
