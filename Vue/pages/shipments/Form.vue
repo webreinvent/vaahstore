@@ -59,9 +59,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
             },
             modal: true
         },
-        data : {'shipment_item_id' : shipped_item_id
-
-        },
+        data : {'shipment_item_id' : shipped_item_id},
     });
 }
 </script>

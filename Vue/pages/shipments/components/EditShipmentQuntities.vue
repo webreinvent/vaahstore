@@ -50,7 +50,7 @@ watch(totalShipped, (newTotal) => {
                 class="p-button-sm"
                 v-if="store.item && store.item.id"
                 data-testid="shipments-save"
-                @click="store.saveShippedItemQuanity('save-updated-shipped-quantity',store.shipped_items_list)"
+                @click="store.saveShippedItemQuanity('update-shipped-item-quantity',store.shipped_items_list,route.params.id)"
                 icon="pi pi-save"/>
     </div>
 
