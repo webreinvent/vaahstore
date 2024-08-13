@@ -273,7 +273,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                             :min="0"
                                             class="w-full"
                                             placeholder="Enter quantity"
-                                            :max="prop.data.quantity"
+
                                             @input="store.updateQuantities($event,index,prop.data,order)"
                                         ></InputNumber>
                                     </div>
