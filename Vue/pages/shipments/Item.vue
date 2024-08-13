@@ -255,17 +255,19 @@ const openVendorPage = (id) => {
                                 </template>
                             </Column>
                             <Column field="pending" header=" Pending">
-<!--                                <template #body="{ data }">-->
                                     <template #body="prop">
                                     {{prop.data.pivot.pending}}
-<!--                                    {{ data.quantity - data.pivot.quantity }}-->
                                 </template>
                             </Column>
                             <template #groupheader="prop">
                                 <div class="flex items-center gap-2">
-                                    <span style="text-wrap:nowrap" class=" hover:text-primary-700 cursor-pointer" @click="store.toOrderDetails(prop.data.order.id)"><b>{{ prop.data.order.user.display_name }}</b></span>
 
-
+                                    <a href="javascript:void(0);"
+                                        class="hover:text-primary-700 cursor-pointer"
+                                        @click="store.toOrderDetails(prop.data.order.id)"
+                                    >
+                                        <b>{{ prop.data.order.user.display_name }}</b>
+                                    </a>
                                 </div>
                             </template>
 
