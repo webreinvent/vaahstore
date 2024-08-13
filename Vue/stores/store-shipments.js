@@ -1368,7 +1368,7 @@ export const useShipmentStore = defineStore({
                 data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
             }
 
-             this.shipped_items_list.forEach((currentItem, idx) => {
+             this.shipped_items_list.forEach((current_item, idx) => {
                  if (idx !== index) {
                      const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
                          if (otherIdx !== idx) {
