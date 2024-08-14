@@ -166,116 +166,7 @@ class Shipment extends VaahModel
         $query->whereBetween('updated_at', [$from, $to]);
     }
 
-    //-------------------------------------------------
-//    public static function createItem($request)
-//    {
-//        $inputs = $request->all();
-////        dd($inputs['taxonomy_id_shipment_status']);
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//        if (isset($inputs['orders'])){
-//        foreach ($inputs['orders'] as $order) {
-//            $order_items = $order['items'];
-//            foreach ($order_items as $order_item) {
-//                if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
-//                    if ($order_item['to_be_shipped'] > $order_item['pending']) {
-//                        return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$order_item['product_variation']['name']}"]];
-//                    }
-//                }
-//            }
-//        }
-//        }
-//        $item = new self();
-//        $item->fill($inputs);
-//        $item->save();
-//            foreach ($inputs['orders'] as $order) {
-//                $order_items = $order['items'];
-//                $order_id = $order['id'];
-//                foreach ($order_items as $order_item) {
-//                    $item_id = $order_item['id'];
-//                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
-//                        $item_shipped_quantity = $order_item['to_be_shipped'];
-//                        $item_pending_quantity = $order_item['pending'];
-////                        dd($item_pending_quantity);
-//                        $item->orders()->attach($order['id'], [
-//                            'vh_st_order_item_id' => $item_id,
-//                            'quantity' => $item_shipped_quantity,
-//                            'pending' => $item_pending_quantity-$item_shipped_quantity,
-//                            'created_at'=>now(),
-//                        ]);
-//                    }
-//                }
-//                $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
-//                $self_status_name=Taxonomy::where('id',$inputs['taxonomy_id_shipment_status'])->first();
-//                $order = Order::with('items')->findOrFail($order_id);
-//                $total_order_quantity = $order->items()->sum('quantity');
-//                $order_payment_status = $order->orderPaymentStatus()->first();
-//                if ($order_payment_status->slug === 'pending') {
-//                    switch ($self_status_name->slug) {
-//                        case 'pending':
-//                            $order->taxonomy_id_order_status = 'Placed';
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                        case 'delivered':
-//                            if ($shipped_order_quantity==$total_order_quantity){
-//                            $order->taxonomy_id_order_status = 'Payment Pending';
-//                            }
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                        default:
-//                            $order->taxonomy_id_order_status = $self_status_name->name;
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                    }
-//                    $order->save();
-//                }
-//                if ($order_payment_status->slug === 'partially-paid') {
-//                    switch ($self_status_name->slug) {
-//                        case 'pending':
-//                            $order->taxonomy_id_order_status = 'Placed';
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                        case 'delivered':
-//                            if ($shipped_order_quantity==$total_order_quantity) {
-//                                $order->taxonomy_id_order_status = 'Partially-Paid';
-//                            }
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                        default:
-//                            $order->taxonomy_id_order_status = $self_status_name->name;
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                    }
-//                    $order->save();
-//                }
-//                if ($order_payment_status->slug === 'paid') {
-//                    switch ($self_status_name->slug) {
-//                        case 'pending':
-//                            $order->taxonomy_id_order_status = 'Placed';
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                        case 'delivered':
-//                            if ($shipped_order_quantity==$total_order_quantity) {
-//                                $order->taxonomy_id_order_status = 'Completed';
-//                            }
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                        default:
-//                            $order->taxonomy_id_order_status = $self_status_name->name;
-//                            $order->shipment_status = $self_status_name->name;
-//                            break;
-//                    }
-//                    $order->save();
-//                }
-//            }
-//
-//        $response = self::getItem($item->id);
-//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-//        return $response;
-//
-//    }
+
 
 
     public static function createItem($request)
@@ -286,23 +177,12 @@ class Shipment extends VaahModel
             return $validation;
         }
 
-        if (isset($inputs['orders'])) {
-            foreach ($inputs['orders'] as $order) {
-                $order_items = $order['items'];
-                foreach ($order_items as $order_item) {
-                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped']) {
-                        if ($order_item['to_be_shipped'] > $order_item['pending'] ) {
-                            return [
-                                'success' => false,
-                                'errors' => [
-                                    "To be shipped quantity should not exceed pending quantity for item: {$order_item['product_variation']['name']}"
-                                ]
-                            ];
-                        }
-                    }
-                }
-            }
+        // Validate 'to_be_shipped' quantities
+        $validation_error = self::validateShippedQuantities($inputs);
+        if ($validation_error) {
+            return $validation_error;
         }
+
         $item = new self();
         $item->fill($inputs);
         $item->save();
@@ -326,21 +206,35 @@ class Shipment extends VaahModel
                 }
             }
 
-            // get total shipped quantity of items in order
-            $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
-            $shipment_status_name = Taxonomy::where('id', $inputs['taxonomy_id_shipment_status'])->value('name');
-            $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
-            // total order quantity to be shipped
-            $total_order_quantity = $order->items()->sum('quantity');
-            $order_payment_status_slug = $order->orderPaymentStatus->slug;
-
-
-            self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
+            // Update order status
+            self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
         }
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
     }
+    //-------------------------------------------------
+
+    private static function validateShippedQuantities($inputs)
+    {
+        if (isset($inputs['orders'])) {
+            foreach ($inputs['orders'] as $order) {
+                foreach ($order['items'] as $order_item) {
+                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped'] > $order_item['pending']) {
+                        return [
+                            'success' => false,
+                            'errors' => [
+                                "To be shipped quantity should not exceed pending quantity for item: {$order_item['product_variation']['name']}"
+                            ]
+                        ];
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    //-------------------------------------------------
+
     public static function updateOrderStatus($order, $payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity)
     {
         switch ($payment_status_slug) {
@@ -732,99 +626,6 @@ class Shipment extends VaahModel
 
     }
 
-
-
-
-
-
-
-    //-------------------------------------------------
-//    public static function updateItem($request, $id)
-//    {
-//        $inputs = $request->all();
-//
-//        $validation = self::validation($inputs);
-//        if (!$validation['success']) {
-//            return $validation;
-//        }
-//        // check if name exist
-//        $item = self::where('id', '!=', $id)
-//            ->withTrashed()
-//            ->where('name', $inputs['name'])->first();
-//
-//        if ($item) {
-//            $error_message = "This name is already exist".($item->deleted_at?' in trash.':'.');
-//            $response['success'] = false;
-//            $response['errors'][] = $error_message;
-//            return $response;
-//        }
-//
-//        $item_ids = [];
-//        foreach ($inputs['orders'] as $shipment_order) {
-//            foreach ($shipment_order['items'] as $item_single) {
-//                if ((isset($item_single['to_be_shipped'])) && ($item_single['to_be_shipped'] > $item_single['pending'])) {
-//                    return ['success' => false, 'errors' => ["to be shipped quantity should not exceeds pending quantity for item:{$item_single['product_variation']['name']}"]];
-//                }
-//                $quantity = $item_single['to_be_shipped'] ?? $item_single['shipped'] ?? 0;
-//                $order_item_id = $item_single['id'] ?? null;
-//                $order_id = $item_single['vh_st_order_id'] ?? null;
-//                $item_ids[$order_item_id] = [
-//                    'quantity' => $quantity,
-//                    'vh_st_order_item_id' => $order_item_id,
-//                    'vh_st_order_id' => $order_id,
-//                    'pending' => abs($item_single['quantity'] - $quantity),
-//                ];
-//            }
-//            $order_id = $shipment_order['id'];
-//            $order_items = $shipment_order['items'];
-//            $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
-//            $shipment_status_name = Taxonomy::where('id', $inputs['taxonomy_id_shipment_status'])->value('name');
-//            $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
-//            // total order quantity to be shipped
-//            $total_order_quantity = $order->items()->sum('quantity');
-////            dd($shipped_order_quantity,$total_order_quantity);
-//            $order_payment_status_slug = $order->orderPaymentStatus->slug;
-//
-//
-//            self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
-//        }
-//
-//        /* $item_ids = [];
-//
-//         foreach ($inputs['orders'] as $shipment_order_items) {
-//             foreach ($shipment_order_items['items'] as $item_single) {
-//                 // Check if 'to_be_shipped' is present and greater than 0
-//                 if (isset($item_single['to_be_shipped']) && $item_single['to_be_shipped'] > 0) {
-//                     $quantity = $item_single['to_be_shipped'];
-//                     $order_item_id = $item_single['id'] ?? null;
-//                     $order_id = $item_single['vh_st_order_id'] ?? null;
-//
-//                     $item_ids[$order_item_id] = [
-//                         'quantity' => $quantity,
-//                         'vh_st_order_item_id' => $order_item_id,
-//                         'vh_st_order_id' => $order_id,
-//                     ];
-//                 }
-//             }
-//         }*/
-//        $item = self::where('id', $id)->withTrashed()->first();
-//        $item->fill($inputs);
-//        $item->save();
-//        foreach ($item_ids as $order_item_id => $data) {
-//            $is_exist_order_item = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
-//                ->where('vh_st_shipment_id', '!=', $id)
-//                ->exists();
-//            if (!$is_exist_order_item) {
-//                $item->shipmentOrderItems()->sync($item_ids);
-//            }
-//        }
-//        $response = self::getItem($item->id);
-//        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-//        return $response;
-//
-//    }
-
-
     public static function updateItem($request, $id)
     {
         $inputs = $request->all();
@@ -851,46 +652,65 @@ class Shipment extends VaahModel
         $item_ids = [];
 
         foreach ($inputs['orders'] as $shipment_order) {
+            $order_id = $shipment_order['id'];
+
             foreach ($shipment_order['items'] as $item_single) {
-
-                $quantity = $item_single['to_be_shipped'] ?? $item_single['shipped'] ?? 0;
                 $order_item_id = $item_single['id'] ?? null;
-                $order_id = $item_single['vh_st_order_id'] ?? null;
-                $total_quantity_shipped = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
-                    ->sum('quantity');
+                $quantity = $item_single['to_be_shipped'] ?? $item_single['shipped'] ?? 0;
 
-                if (isset($item_single['to_be_shipped']) && $quantity > 0) {
-                    $item_ids[$order_item_id] = [
-                        'quantity' => $quantity,
-                        'vh_st_order_item_id' => $order_item_id,
-                        'vh_st_order_id' => $order_id,
-                        'pending' => abs($item_single['quantity'] - ($quantity + $total_quantity_shipped)),
-                    ];
+                if (isset($item_single['to_be_shipped'])) {
+                    $total_quantity_shipped = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
+                        ->sum('quantity');
 
-                } elseif (!isset($item_single['to_be_shipped'])) {
+                    $item_ids[$order_item_id] = self::calculateItemDataForSync($item_single, $quantity, $total_quantity_shipped, $order_id);
+                } else {
                     $is_exist_order_item = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
                         ->where('vh_st_shipment_id', $id)
                         ->exists();
+
                     if ($is_exist_order_item) {
-                        $item_ids[$order_item_id] = [
-                            'quantity' => $item_single['shipped'] ?? 0,
-                            'vh_st_order_item_id' => $order_item_id,
-                            'vh_st_order_id' => $order_id,
-                            'pending' => abs($item_single['quantity'] - ($item_single['shipped'] ?? 0 + $total_quantity_shipped )),
-                        ];
+                        $total_quantity_shipped = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
+                            ->sum('quantity');
+
+                        $item_ids[$order_item_id] = self::calculateItemDataForSync($item_single, $item_single['shipped'] ?? 0, $total_quantity_shipped, $order_id);
                     }
                 }
             }
 
-            $order_id = $shipment_order['id'];
-            $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
-            $shipment_status_name = Taxonomy::where('id', $inputs['taxonomy_id_shipment_status'])->value('name');
-            $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
-            $total_order_quantity = $order->items()->sum('quantity');
-            $order_payment_status_slug = $order->orderPaymentStatus->slug;
-
-            self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
+            // Update order status
+            self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
         }
+
+        // Update item and sync shipment order items
+        return self::updateAndSyncItem($id, $inputs, $item_ids);
+    }
+    //-------------------------------------------------
+
+    private static function calculateItemDataForSync($item_single, $quantity, $total_quantity_shipped, $order_id)
+    {
+        return [
+            'quantity' => $quantity,
+            'vh_st_order_item_id' => $item_single['id'],
+            'vh_st_order_id' => $order_id,
+            'pending' => abs($item_single['quantity'] - ($quantity + $total_quantity_shipped)),
+        ];
+    }
+    //-------------------------------------------------
+
+    private static function updateOrderStatusForShipment($taxonomy_id_shipment_status, $order_id)
+    {
+        $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
+        $shipment_status_name = Taxonomy::where('id', $taxonomy_id_shipment_status)->value('name');
+        $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
+        $total_order_quantity = $order->items()->sum('quantity');
+        $order_payment_status_slug = $order->orderPaymentStatus->slug;
+
+        self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
+    }
+    //-------------------------------------------------
+
+    private static function updateAndSyncItem($id, $inputs, $item_ids)
+    {
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
         $item->save();
@@ -899,6 +719,7 @@ class Shipment extends VaahModel
             $is_exist_order_item = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
                 ->where('vh_st_shipment_id', '!=', $id)
                 ->exists();
+
             if (!$is_exist_order_item) {
                 $item->shipmentOrderItems()->sync($item_ids);
             }
@@ -908,6 +729,7 @@ class Shipment extends VaahModel
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
     }
+
 
 
     //-------------------------------------------------
