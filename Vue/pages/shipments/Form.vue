@@ -242,47 +242,55 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                     </div>
                                 </template>
                             </Column>
-                            <template v-if=" store.item.id">
+                            <template v-if="store.item.id">
                             <Column  header="Edit Quanity">
                                 <template #body="prop">
-                                    <Button class="p-button-tiny p-button-text"
+                                    <Button v-if="prop.data.exists_in_shipment !== false" class="p-button-tiny p-button-text"
                                             data-testid="shipments-table-to-view"
                                             v-tooltip.top="'View'"
                                             @click="openShippingQuantityModal(store.item.id,prop.data.name,prop.data.id)"
                                             icon="pi pi-pencil" />
+                                    <div v-else>
+                                        <span>No shipment yet</span>
+                                    </div>
                                 </template>
                             </Column>
                             </template>
-                            <template v-if=" !store.item.id">
-                            <Column  header="To Be Shipped"  class="overflow-wrap-anywhere">
-                                <template #body="prop" >
+                            <template >
+                                <Column header="To Be Shipped" class="overflow-wrap-anywhere">
+                                    <template #body="prop">
+                                        <div v-if="(!store.item.id || prop.data.exists_in_shipment === false)">
+                                            <div class="p-inputgroup w-7rem max-w-full" v-if="prop.data.pending !== 0">
+                                                <InputNumber
+                                                    v-model="prop.data.to_be_shipped"
+                                                    buttonLayout="horizontal"
+                                                    :min="0"
+                                                    class="w-full"
+                                                    placeholder="Enter quantity"
+                                                    @input="store.updateQuantities($event, index, prop.data, order)"
+                                                />
+                                            </div>
+<!--                                            <div v-else>-->
 
-<!--                                    <div v-if="Number(prop.data.pending) === 0 && (Number(prop.data.overall_shipped_quantity) === Number(prop.data.quantity)) ">
-                                        <Button data-testid="vendors-document" icon="pi pi-info-circle"
-                                                href="https://vaah.dev/store"
-                                                class="p-button-sm"
-                                                v-tooltip.top="`Overall shipped quantity with other shipment is : ${prop.data.overall_shipped_quantity}`"
-                                               />
-                                    </div>-->
-<!--                                    <div class="p-inputgroup w-7rem max-w-full" v-else-if="((store.item.id && prop.data.pending ===0) || prop.data.pending !==0) && !store.item.id">-->
-                                    <div class="p-inputgroup w-7rem max-w-full" v-if="prop.data.pending !==0">
-                                        <InputNumber
+<!--                                                <span>No pending quantities</span>-->
+<!--                                            </div>-->
+                                        </div>
+                                        <div v-else-if="(store.item.id && prop.data.exists_in_shipment === true)">
+                                            <InputNumber  v-if="prop.data.pending !== 0"
+                                                v-model="prop.data.to_be_shipped"
+                                                buttonLayout="horizontal"
+                                                :min="0"
+                                                class="w-full"
+                                                placeholder="Enter quantity"
+                                                @input="store.updateQuantities($event, index, prop.data, order)"
+                                            />
 
-                                            v-model="prop.data.to_be_shipped"
-                                            buttonLayout="horizontal"
-                                            :min="0"
-                                            class="w-full"
-                                            placeholder="Enter quantity"
-
-                                            @input="store.updateQuantities($event,index,prop.data,order)"
-                                        ></InputNumber>
-                                    </div>
+                                        </div>
+                                    </template>
+                                </Column>
 
 
-                                </template>
 
-
-                            </Column>
 
                             </template>
 
