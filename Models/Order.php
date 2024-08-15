@@ -430,6 +430,9 @@ class Order extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::with('items')->whereIn('id', $items_id)->each(function ($item) {
+            $item->items()->forceDelete();
+        });
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -508,8 +511,13 @@ class Order extends VaahModel
                     ->each->restore();
                 break;
             case 'delete-all':
+                $items = self::withTrashed()->get();
+                foreach ($items as $item) {
+                    $item->items()->forceDelete();
+                }
                 $list->forceDelete();
                 break;
+
             case 'create-100-records':
             case 'create-1000-records':
             case 'create-5000-records':
@@ -612,8 +620,9 @@ class Order extends VaahModel
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
+        $item->items()->forceDelete();
         $item->forceDelete();
-        OrderItem::deleteOrder($item->id);
+
 
         $response['success'] = true;
         $response['data'] = [];
