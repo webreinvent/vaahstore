@@ -316,7 +316,7 @@ class Payment extends VaahModel
 
     //-------------------------------------------------
 
-    private static function validateOrderAndPayment($order, $order_data)
+    public static function validateOrderAndPayment($orders,$total_payment)
     {
         $errors = [];
         $successfully_paid_orders = [];
@@ -361,6 +361,7 @@ class Payment extends VaahModel
 
         return ['success' => true, 'successfully_paid_orders' => $successfully_paid_orders];
     }
+
 
 
     //-------------------------------------------------
