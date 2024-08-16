@@ -246,6 +246,12 @@ class Payment extends VaahModel
                     $order->is_paid = 1;
                     $order->save();
 
+                    $order_shipment = ShipmentItem::where('vh_st_order_id', $order_data['id'])->first();
+                    if ($order_shipment) {
+                        $order = $order_shipment->orders;
+                        self::updateOrderShipmentStatus($order, $taxonomy_payment_status_slug);
+                    }
+
                     $is_payment_for_all_orders = true;
                     $order_ids[] = $order->id;
                 } else {
@@ -268,6 +274,47 @@ class Payment extends VaahModel
         return $response;
 
     }
+
+    //-------------------------------------------------
+
+    public static function updateOrderShipmentStatus($order, $taxonomy_payment_status_slug)
+    {
+        $current_shipment_status = $order->order_shipment_status;
+
+        switch ($taxonomy_payment_status_slug) {
+            case 'pending':
+                if ($current_shipment_status === 'Delivered') {
+                    $order->order_status = 'Payment Pending';
+                }
+                break;
+
+            case 'partially-paid':
+                if ($current_shipment_status === 'Delivered') {
+                    $order->order_status = 'Partially Paid';
+                }
+                break;
+
+            case 'paid':
+                $total_quantity = $order->items()->sum('quantity');
+                $shipped_quantity = ShipmentItem::where('vh_st_order_id', $order->id)->sum('quantity');
+
+                // If all items are shipped and the current status is 'Partially Delivered'
+                if ($total_quantity === $shipped_quantity && ($current_shipment_status === 'Partially Delivered' || $current_shipment_status === 'Delivered')) {
+                    $order->order_status = 'Completed';
+                    $order->order_shipment_status = 'Delivered';
+
+                } else {
+                    $order->order_status = $current_shipment_status;
+                }
+                break;
+
+            default:
+                break;
+        }
+        $order->save();
+    }
+
+    //-------------------------------------------------
 
     private static function validateOrderAndPayment($order, $order_data)
     {
