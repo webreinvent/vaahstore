@@ -246,6 +246,12 @@ class Payment extends VaahModel
                     $order->is_paid = 1;
                     $order->save();
 
+                    $order_shipment = ShipmentItem::where('vh_st_order_id', $order_data['id'])->first();
+                    if ($order_shipment) {
+                        $order = $order_shipment->orders;
+                        self::updateOrderShipmentStatus($order, $taxonomy_payment_status_slug);
+                    }
+
                     $is_payment_for_all_orders = true;
                     $order_ids[] = $order->id;
                 } else {

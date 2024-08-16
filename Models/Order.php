@@ -31,7 +31,8 @@ class Order extends VaahModel
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-
+        'order_shipment_status',
+        'order_status',
         'status_notes',
         'is_active',
         'created_by',

@@ -101,4 +101,13 @@ class ShipmentItem extends VaahModel {
     {
         return $this->belongsTo(OrderItem::class, 'vh_st_order_item_id');
     }
+    //-------------------------------------------------
+
+    public function orders()
+    {
+        return $this->belongsTo(Order::class, 'vh_st_order_id');
+    }
+    //-------------------------------------------------
+    //-------------------------------------------------
+
 }
