@@ -751,6 +751,12 @@ class Order extends VaahModel
 
     //-------------------------------------------------
 
+    public static function getShippedOrderItems($id)
+    {
+        $order_items = OrderItem::where('vh_st_order_id', $id)
+            ->with('ProductVariation','product','vendor')
+            ->get();
+
         $total_quantities = [];
 
         $shipment_items = ShipmentItem::where('vh_st_order_id', $id)

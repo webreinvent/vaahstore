@@ -1028,13 +1028,13 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->value('pending');
     }
 
-    //-------------------------------------------------
+    /*//-------------------------------------------------
     private static function getPendingQuantity($itemId) {
         return DB::table('vh_st_shipment_items')
             ->where('vh_st_order_item_id', $itemId)
             ->orderByDesc('created_at')
             ->value('pending');
-    }
+    }*/
     //-------------------------------------------------
     public static function searchStatus($request){
         $query = $request->input('query');

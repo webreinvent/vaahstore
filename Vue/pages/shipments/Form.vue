@@ -197,9 +197,9 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                     </div>
                 </VhField>
                 <template v-for="(order, index) in store.order_list_tables" :key="index">
-<!--                    <VhField>-->
+                    <!--                    <VhField>-->
                     <div class="mb-4">
-                    <div class="mt-2 mb-2 p-1" style="font-size: 16px"><b>{{order.name}}</b>
+                        <div class="mt-2 mb-2 p-1" style="font-size: 16px"><b>{{order.name}}</b>
                             <i style="font-size: 15px" @click="store.removeOrderDetail(index)" class="pi pi-times-circle cursor-pointer text-danger  ml-2"></i>
                         </div>
                         <DataTable
@@ -222,7 +222,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                             <Column  field="quantity" header="Quantity">
                                 <template #footer="slotProps">
                                     <div class="ml-2">
-                                     {{ store.calculateTotalQuantity(order.items) }}
+                                        {{ store.calculateTotalQuantity(order.items) }}
                                     </div>
                                 </template>
                             </Column>
@@ -230,7 +230,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                             <Column field="shipped" header="Shipped">
                                 <template #footer="slotProps">
                                     <div class="ml-2">
-                                     {{ store.calculateTotalShipped(order.items) }}
+                                        {{ store.calculateTotalShipped(order.items) }}
                                     </div>
                                 </template>
                             </Column>
@@ -238,23 +238,23 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
 
                                 <template #footer="slotProps">
                                     <div class="ml-2">
-                                    {{ store.calculateTotalPending(order.items) }}
+                                        {{ store.calculateTotalPending(order.items) }}
                                     </div>
                                 </template>
                             </Column>
                             <template v-if="store.item.id">
-                            <Column  header="Edit Quanity">
-                                <template #body="prop">
-                                    <Button v-if="prop.data.exists_in_shipment !== false" class="p-button-tiny p-button-text"
-                                            data-testid="shipments-table-to-view"
-                                            v-tooltip.top="'View'"
-                                            @click="openShippingQuantityModal(store.item.id,prop.data.name,prop.data.id)"
-                                            icon="pi pi-pencil" />
-                                    <div v-else>
-                                        <span>No shipment yet</span>
-                                    </div>
-                                </template>
-                            </Column>
+                                <Column  header="Edit Quanity">
+                                    <template #body="prop">
+                                        <Button v-if="prop.data.exists_in_shipment !== false" class="p-button-tiny p-button-text"
+                                                data-testid="shipments-table-to-view"
+                                                v-tooltip.top="'View'"
+                                                @click="openShippingQuantityModal(store.item.id,prop.data.name,prop.data.id)"
+                                                icon="pi pi-pencil" />
+                                        <div v-else>
+                                            <span>No shipment yet</span>
+                                        </div>
+                                    </template>
+                                </Column>
                             </template>
                             <template >
                                 <Column header="To Be Shipped" class="overflow-wrap-anywhere">
@@ -270,36 +270,25 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                                     @input="store.updateQuantities($event, index, prop.data, order)"
                                                 />
                                             </div>
-<!--                                            <div v-else>-->
+                                            <!--                                            <div v-else>-->
 
-<!--                                                <span>No pending quantities</span>-->
-<!--                                            </div>-->
+                                            <!--                                                <span>No pending quantities</span>-->
+                                            <!--                                            </div>-->
                                         </div>
                                         <div v-else-if="(store.item.id && prop.data.exists_in_shipment === true)">
                                             <InputNumber  v-if="prop.data.pending !== 0"
-                                                v-model="prop.data.to_be_shipped"
-                                                buttonLayout="horizontal"
-                                                :min="0"
-                                                class="w-full"
-                                                placeholder="Enter quantity"
-                                                @input="store.updateQuantities($event, index, prop.data, order)"
+                                                          v-model="prop.data.to_be_shipped"
+                                                          buttonLayout="horizontal"
+                                                          :min="0"
+                                                          class="w-full"
+                                                          placeholder="Enter quantity"
+                                                          @input="store.updateQuantities($event, index, prop.data, order)"
                                             />
 
                                         </div>
                                     </template>
                                 </Column>
 
-                <VhField label="Select Order">
-                    <div class="flex justify-content-center">{{store.item.orders}}
-                        <AutoComplete
-                            v-model="store.item.orders"
-                            :suggestions="store.order_suggestion_list"
-                            multiple
-                            dropdown
-                            @complete="store.searchOrders($event)"
-                            optionLabel="name"
-                            placeholder="Select Order"
-                            display="chip"
 
 
 
@@ -307,7 +296,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
 
                         </DataTable>
                     </div>
-<!--                    </VhField>-->
+                    <!--                    </VhField>-->
                 </template>
 
                 <VhField label="Tracking Url">
@@ -319,8 +308,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                    v-model="store.item.tracking_url" required/>
 
                     </div>
-                    <div class="flex mt-4 mb-4 justify-content-between">
-                        <div style="width:40%;">
+                </VhField>
 
                 <VhField label="Tracking Key">
                     <div class="p-inputgroup">
