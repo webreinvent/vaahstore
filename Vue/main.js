@@ -100,6 +100,8 @@ import TreeSelect from 'primevue/treeselect';
 import TreeTable from 'primevue/treetable';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
 import VirtualScroller from 'primevue/virtualscroller';
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
 //-------------/PrimeVue Imports
 
 
@@ -219,6 +221,8 @@ app.component('TreeSelect', TreeSelect);
 app.component('TreeTable', TreeTable);
 app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('VirtualScroller', VirtualScroller);
+app.component('InputGroup', InputGroup);
+app.component('InputGroupAddon', InputGroupAddon);
 //-------------/PrimeVue Use
 
 

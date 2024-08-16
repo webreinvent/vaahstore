@@ -2,13 +2,14 @@
 import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
 
-import {useOrderStore} from '../../stores/store-orders'
+import {usePaymentStore} from '../../stores/store-payments'
 import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
+import Filters from './components/Filters.vue'
 
-const store = useOrderStore();
+const store = usePaymentStore();
 const root = useRootStore();
 const route = useRoute();
 
@@ -17,7 +18,8 @@ const confirm = useConfirm();
 
 
 onMounted(async () => {
-    document.title = 'Orders - Store';
+    document.title = 'Payments - Store';
+    store.item = null;
     /**
      * call onLoad action when List view loads
      */
@@ -71,7 +73,7 @@ const toggleCreateMenu = (event) => {
 
                     <div class="flex flex-row">
                         <div >
-                            <b class="mr-1">Orders</b>
+                            <b class="mr-1">Payments</b>
                             <Badge v-if="store.list && store.list.total > 0"
                                    :value="store.list.total">
                             </Badge>
@@ -85,15 +87,29 @@ const toggleCreateMenu = (event) => {
 
                     <div class="p-inputgroup">
 
+                    <Button data-testid="payments-list-create"
+                            class="p-button-sm"
+                            @click="store.toForm()">
+                        <i class="pi pi-plus mr-1"></i>
+                        Create
+                    </Button>
 
-
-                    <Button data-testid="orders-list-reload"
+                    <Button data-testid="payments-list-reload"
                             class="p-button-sm"
                             @click="store.getList()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
 
+                    <!--form_menu-->
 
+                    <Button v-if="root.assets && root.assets.module
+                                                && root.assets.module.is_dev"
+                        type="button"
+                        @click="toggleCreateMenu"
+                        class="p-button-sm"
+                        data-testid="payments-create-menu"
+                        icon="pi pi-angle-down"
+                        aria-haspopup="true"/>
 
                     <Menu ref="create_menu"
                           :model="store.list_create_menu"
@@ -111,6 +127,8 @@ const toggleCreateMenu = (event) => {
 
             </Panel>
         </div>
+
+         <Filters/>
 
         <RouterView/>
 

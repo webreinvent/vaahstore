@@ -971,12 +971,16 @@ class Cart extends VaahModel
     private static function createOrder($request)
     {
         $taxonomy_order_status = Taxonomy::getTaxonomyByType('order-status')->where('slug', 'pending')->value('id');
+        $taxonomy_payment_status_id = Taxonomy::getTaxonomyByType('order-payment-status')
+            ->where('slug', 'pending')
+            ->value('id');
 
         $order = new Order();
 
         $order->vh_user_id = $request->order_details['shipping_address']['vh_user_id'];
         $order->amount = $request->order_details['total_amount'];
         $order->taxonomy_id_order_status = $taxonomy_order_status;
+        $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
         $order->payable = $request->order_details['payable'];
         $order->discount = $request->order_details['discounts'];
         $order->taxes = $request->order_details['taxes'];
@@ -1054,64 +1058,89 @@ class Cart extends VaahModel
         public static function getOrderDetails($id)
         {
             $order = Order::find($id);
-            $order_items = OrderItem::where('vh_st_order_id', $order->id)->get();
-            $response = [];
-            if (!$order_items->isEmpty()) {
-                $response['success'] = true;
-                $response['data'] = [
-                    'product_details' => [],
-                    'order_items_shipping_address' => null,
-                    'order_items_billing_address' => null,
-                    'user' => null,
-                    'total_mrp' => 0,
-                    'ordered_at' => null,
-                    'unique__order_id' => null,
+
+            if (!$order) {
+                return [
+                    'success' => false,
+                    'message' => 'Order not found.',
+                    'data' => null,
                 ];
-
-                $user = $order->user;
-                $response['data']['user'] = $user;
-                $response['data']['ordered_at'] = $order->created_at;
-                $response['data']['unique__order_id'] = $order->uuid;
-
-                $shipping_address = Address::find($order_items->first()->vh_shipping_address_id);
-                $response['data']['order_items_shipping_address'] = $shipping_address;
-
-                $billing_address = Address::find($order_items->first()->vh_billing_address_id);
-                $response['data']['order_items_billing_address'] = $billing_address;
-
-                foreach ($order_items as $order_item) {
-                    $product = Product::find($order_item->vh_st_product_id);
-                    $product_variation = ProductVariation::find($order_item->vh_st_product_variation_id);
-                    if ($product && $product_variation) {
-                        $vendor = Vendor::find($order_item->vh_st_vendor_id);
-                        $quantity = $order_item->quantity;
-                        $price = $order_item->price;
-                        $variation_name =$product_variation->name;
-                        $product_media_ids = self::getProductMediaIdsAtOrder($product,$order_item->vh_st_product_variation_id);
-                        $image_urls = self::getImageUrls($product_media_ids);
-                        $response['data']['product_details'][] = [
-                            'product_id' => $product->id,
-                            'name' => $product->name,
-                            'description' => $product->description,
-                            'image_urls' => $image_urls,
-                            'pivot' => [
-                                'cart_product_variation' => $variation_name,
-                                'product_variation_id' => $product_variation->id,
-                                'price' => $price,
-                                'quantity' => $quantity,
-                                'selected_vendor_id' => $vendor->id,
-                            ],
-                        ];
-
-                        $response['data']['total_mrp'] += $price * $quantity;
-                    }
-                }
-            } else {
-                $response['success'] = false;
-                $response['data'] = null;
             }
 
+            $order_items = OrderItem::where('vh_st_order_id', $order->id)->get();
+
+            if ($order_items->isEmpty()) {
+                return [
+                    'success' => true,
+                    'message' => 'Order items not found.',
+                    'data' => [
+                        'order' => [
+                            'id' => $order->id,
+                            'uuid' => $order->uuid,
+                        ],
+                        'user' => null,
+                        'product_details' => [],
+                        'order_items_shipping_address' => null,
+                        'order_items_billing_address' => null,
+                        'total_mrp' => 0,
+                        'ordered_at' => $order->created_at,
+                    ],
+                ];
+            }
+
+            $user = $order->user;
+
+            $response = [
+                'success' => true,
+                'data' => [
+                    'order' => [
+                        'id' => $order->id,
+                        'uuid' => $order->uuid,
+                    ],
+                    'user' => $user,
+                    'ordered_at' => $order->created_at,
+                    'unique_order_id' => $order->uuid,
+                    'product_details' => [],
+                    'order_items_shipping_address' => Address::find($order_items->first()->vh_shipping_address_id),
+                    'order_items_billing_address' => Address::find($order_items->first()->vh_billing_address_id),
+                    'total_mrp' => 0,
+                ],
+            ];
+            $order_items_collection = collect($order_items);
+            foreach ($order_items_collection as $key => $order_item){
+                $product = Product::find($order_item->vh_st_product_id);
+                $product_variation = ProductVariation::find($order_item->vh_st_product_variation_id);
+
+                if ($product && $product_variation) {
+                    $vendor = Vendor::find($order_item->vh_st_vendor_id);
+                    $quantity = $order_item->quantity;
+                    $price = $order_item->price;
+
+                    $product_media_ids = self::getProductMediaIdsAtOrder($product, $order_item->vh_st_product_variation_id);
+                    $image_urls = self::getImageUrls($product_media_ids);
+
+                    $response['data']['product_details'][] = [
+                        'product_id' => $product->id,
+                        'name' => $product->name,
+                        'description' => $product->description,
+                        'image_urls' => $image_urls,
+                        'pivot' => [
+                            'cart_product_variation' => $product_variation->name,
+                            'product_variation_id' => $product_variation->id,
+                            'price' => $price,
+                            'quantity' => $quantity,
+                            'selected_vendor_id' => $vendor->id,
+                        ],
+                    ];
+
+                    $response['data']['total_mrp'] += $price * $quantity;
+                }
+            }
+            $response['data']['order_paid_amount'] = $order->payments()
+                ->sum('payment_amount');
+
             return $response;
+
         }
     //-------------------------------------------------
 

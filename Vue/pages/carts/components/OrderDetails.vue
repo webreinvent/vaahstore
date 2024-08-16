@@ -29,8 +29,7 @@ onMounted(async () => {
 
                 <DataTable :value="store.ordered_product"
                            dataKey="id"
-                           :rows="5"
-                           :paginator="true"
+
                            class="p-datatable-sm p-datatable-hoverable-rows"
                            :nullSortOrder="-1"
                            v-model:selection="store.action.items"
@@ -82,16 +81,18 @@ onMounted(async () => {
             </div>
             <div class="mx-auto max-w-2xl px-4 2xl:px-0">
                 <div class="flex justify-content-center  items-center">
-                    <Button @click="store.returnToProduct()" label="Return To Shopping" class="w-full"/>
-                    <Button label="Track Your Order" severity="secondary" outlined class="w-full"/>
+                    <Button @click="store.returnToProduct()" data-testid="order-details-to_product" label="Return To Shopping" class="w-full"/>
+                    <Button label="Track Your Order" data-testid="order-details-to_order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
                 </div>
                 <div class="flex flex-wrap justify-between">
 
                     <div class="w-full md:w-1/2 mb-6 md:mb-8">
 
                         <Card class="border-1 border-gray-200 w-20rem mt-5" :pt="{content: {class: 'pb-0'} }">
-                            <template #title> Order Summary</template>
-                            <template #subtitle>#{{ store.ordered_unique_id }}
+
+                            <template #title> Order Summary </template>
+
+                            <template #subtitle>#{{ store.order?.uuid }}
                                 <br>
                                 <div class="flex justify-content-between">
                                     <p class="m-0">
@@ -99,6 +100,14 @@ onMounted(async () => {
                                     </p>
                                     <p class="m-0">
                                         {{ store.formatDate(store.ordered_at) }}
+                                    </p>
+                                </div>
+                                <div class="flex justify-content-between">
+                                    <p class="m-0">
+                                        <b>Total Amount Paid :</b>
+                                    </p>
+                                    <p class="m-0">₹{{store.order_paid_amount}}
+
                                     </p>
                                 </div>
                             </template>
@@ -149,7 +158,6 @@ onMounted(async () => {
                         <Card class="border-1 border-gray-100 w-20rem mt-5" :pt="{content: {class: 'pb-0'} }">
                             <template #title>Shipping Address</template>
                             <template #content v-if="store && store.ordered_shipping_address">
-<!--                                <h3 class="text-center mb-2">Shipping Address</h3>-->
                                 <div class="flex align-items-center">
                                     <label class="ml-2"><b>{{ store.ordered_shipping_address.name }}</b></label>
                                 </div>

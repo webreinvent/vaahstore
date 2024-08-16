@@ -1468,22 +1468,25 @@ class ProductVariation extends VaahModel
             $response['errors'][] = $error_message;
             return $response;
         }
-
-        $user = self::findOrCreateUser($user_data);
-        $cart = self::findOrCreateCart($user);
-
         $selected_vendor = self::getSelectedVendor($product_variation);
-        $selected_vendor_id=$selected_vendor['id'];
-
-        $quantity_info = self::getItemQuantity($selected_vendor, $product_variation->vh_st_product_id, $product_variation_id);
-        if ($selected_vendor_id === null || $quantity_info['quantity']===0) {
-            $error_message = "This product variation is out of stock";
+        if ($selected_vendor === null || $selected_vendor['id'] === null) {
+            $error_message = "This product variation is out of stock.";
             $response['errors'][] = $error_message;
             return $response;
         }
+        $selected_vendor_id=$selected_vendor['id'];
+
+        $quantity_info = self::getItemQuantity($selected_vendor, $product_variation->vh_st_product_id, $product_variation_id);
+        if ($quantity_info['quantity'] === 0) {
+            $error_message = "This product variation is out of stock for selected vendor.";
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+        $user = self::findOrCreateUser($user_data);
+        $cart = self::findOrCreateCart($user);
+
 
         $existing_cart_item = self::findExistingCartItem($cart, $product_variation_id, $selected_vendor_id);
-
         if ($existing_cart_item) {
             if ($existing_cart_item->pivot->quantity < $request->input('product_variation.quantity')) {
                 $pivot_record = $cart->productVariations()

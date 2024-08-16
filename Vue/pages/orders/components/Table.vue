@@ -13,7 +13,7 @@ const useVaah = vaah();
         <!--table-->
          <DataTable :value="store.list.data"
                        dataKey="id"
-                    :rowClass="(rowData) => rowData.id == store.item.id || rowData.id == store.route.params.order_id ?'bg-yellow-100' : ''"
+                    :rowClass="(rowData) => rowData.id === store.item?.id ? 'bg-yellow-100' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    stripedRows
@@ -27,7 +27,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
             </Column>
 
-            <Column field="user.first_name" header="User"
+            <Column field="user.display_name" header="User"
                     :sortable="true">
 
                 <template #body="prop">
@@ -38,107 +38,57 @@ const useVaah = vaah();
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-else>
-                     {{prop.data.user.first_name}}
-                         </span>
+                    {{prop.data.user?.display_name}}<br><Button class="p-button-tiny p-button-text p-0 mr-2"
+                                                             data-testid="taxonomies-table-to-edit"
+
+                                                             @click="useVaah.copy(prop.data.user?.email)"
+                                                             icon="pi pi-copy"
+                    > {{prop.data.user?.email}}</Button>
+                    </span>
                     {{prop.data.name}}
                 </template>
 
             </Column>
+             <Column field="user.phone" header="Mobile No." v-if="store.isViewLarge()"
+                     :sortable="true">
 
-             <Column field="items" header="Products"
+                 <template #body="prop">
+                     {{prop.data.user?.phone}}
+
+                 </template>
+
+             </Column>
+             <Column field="items" header="Order Items"
                      :sortable="false"  >
 
                  <template #body="prop">
-                     {{prop.data.name}}
+
                      <div class="p-inputgroup">
-                         <span class="p-inputgroup-addon">
+                          <span class="p-inputgroup-addon cursor-pointer" v-tooltip.top="'View Order Items'" @click="store.toOrderDetails(prop.data)">
                              <b>
-                                {{prop.data.items.length}}
+                                {{prop.data.items_count}}
                             </b>
                          </span>
-                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 size="small"
-                                 v-tooltip.top="'Add Products'"
-                                 @click="store.toOrderItem(prop.data.id)" />
+                         <Button
+                             icon="pi pi-plus"
+                             severity="info"
+                             size="small"
+                             :disabled="parseFloat(prop.data.paid) >= parseFloat(prop.data.amount)"
+                             v-tooltip.top="'Create Payment'"
+                             @click="store.toOrderPayment(prop.data.id)"
+                         />
                      </div>
                  </template>
 
              </Column>
 
-<!--             <Column field="payment_method" header="Payment Method"-->
-<!--                     :sortable="true">-->
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <Badge v-if="prop.data.payment_method == null"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     <template v-else>-->
-<!--                         {{prop.data.payment_method.name}}-->
-<!--                     </template>-->
-<!--                 </template>-->
-
-<!--             </Column>-->
-
-<!--             <Column field="amount" header="Amount"-->
-<!--                     v-if="store.isViewLarge()"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     {{prop.data.amount}}-->
-<!--                 </template>-->
-
-<!--             </Column>-->
-
-<!--             <Column field="delivery_fee" header="Delivery Fee"-->
-<!--                     v-if="store.isViewLarge()"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     {{prop.data.delivery_fee}}-->
-<!--                 </template>-->
-
-<!--             </Column>-->
-
-<!--             <Column field="taxes" header="Taxes"-->
-<!--                     v-if="store.isViewLarge()"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     {{prop.data.taxes}}-->
-<!--                 </template>-->
-
-<!--             </Column>-->
-
-<!--             <Column field="discount" header="Discount"-->
-<!--                     v-if="store.isViewLarge()"-->
-<!--                     :sortable="true">-->
-
-<!--                 <template #body="prop">-->
-<!--                     <Badge v-if="prop.data.deleted_at"-->
-<!--                            value="Trashed"-->
-<!--                            severity="danger"></Badge>-->
-<!--                     {{prop.data.discount}}-->
-<!--                 </template>-->
-
-<!--             </Column>-->
 
              <Column field="payable" header="Payable"
                      v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge severity="info">{{prop.data.payable}}</Badge>
+                     <Badge severity="info">&#8377;{{prop.data.payable}}</Badge>
 
                  </template>
 
@@ -153,37 +103,72 @@ const useVaah = vaah();
                             value="0"
                             severity="danger"></Badge>
                      <Badge v-else-if="prop.data.paid > 0"
-                            :value="prop.data.paid"
-                            severity="info"></Badge>
+
+                            severity="info">&#8377;{{prop.data.paid}}</Badge>
                  </template>
 
              </Column>
 
-             <Column field="status.name" header="Status"
-                     :sortable="true">
+             <Column field="status.name" header="Order Status" :sortable="true"
+                     v-if="store.isViewLarge()">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
-                            severity="warning"> {{prop.data.status.name}} </Badge>
+                     <template v-if="prop.data.status">
+                         <Badge v-if="prop.data.status.slug === 'approved'" severity="success">
+                             {{ prop.data.status?.name }}
+                         </Badge>
+                         <Badge v-else-if="prop.data.status.slug === 'rejected'" severity="danger">
+                             {{ prop.data.status?.name }}
+                         </Badge>
+                         <Badge v-else severity="warning">
+                             {{ prop.data.status?.name }}
+                         </Badge>
+                     </template>
+                     <template v-else>
+                         <Badge severity="warning">
+                             {{ prop.data.status ? prop.data.status.name : '' }}
+                         </Badge>
+                     </template>
                  </template>
 
              </Column>
 
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
+             <Column header="Payment Status" :sortable="true"
+                     v-if="store.isViewLarge()">
+                 <template #body="prop">
+                     <template v-if="prop.data.order_payment_status">
+                         <Badge v-if="prop.data.order_payment_status.slug === 'paid'" severity="success">
+                             {{ prop.data.order_payment_status.name }}
+                         </Badge>
+                         <Badge v-else-if="prop.data.order_payment_status.slug === 'partially-paid'" severity="info">
+                             {{ prop.data.order_payment_status.name }}
+                         </Badge>
+                         <Badge v-else severity="danger">
+                             {{ prop.data.order_payment_status.name }}
+                         </Badge>
+                     </template>
+                     <template v-else>
+                         <Badge severity="danger">
 
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
+                         </Badge>
+                     </template>
+                 </template>
+             </Column>
 
-                </Column>
+             <Column  header="Shipping Status"
+                     :sortable="true" v-if="store.isViewLarge()">
+                 <template #body="prop">
+                     <Badge severity="warning">
+                         {{'Pending' }}
+                     </Badge>
+                 </template>
+
+
+             </Column>
+
+
+
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     style="width:100px;"
@@ -209,14 +194,14 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="orders-table-to-view"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="orders-table-to-edit"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />

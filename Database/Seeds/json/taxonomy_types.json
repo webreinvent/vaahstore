@@ -55,5 +55,11 @@
     },
     {
         "name": "Whishlists Status"
+    },
+    {
+        "name": "Payment Status"
+    },
+    {
+        "name": "Order Payment Status"
     }
 ]
