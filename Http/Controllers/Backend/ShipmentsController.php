@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Shipment;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
 class ShipmentsController extends Controller
@@ -30,7 +31,7 @@ class ShipmentsController extends Controller
             $data['fillable']['columns'] = Shipment::getFillableColumns();
             $data['fillable']['except'] = Shipment::getUnFillableColumns();
             $data['empty_item'] = Shipment::getEmptyItem();
-
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('shipment-status');
             $data['actions'] = [];
 
             $response['success'] = true;
@@ -262,6 +263,8 @@ class ShipmentsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+
     public function getShipmentItemList(Request $request,$id)
     {
         try{
@@ -278,10 +281,32 @@ class ShipmentsController extends Controller
             return $response;
         }
     }
+
+    //----------------------------------------------------------
+
     public function saveEditedShippedQuantity(Request $request)
     {
         try{
             return Shipment::saveEditedShippedQuantity($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function getOrders(Request $request)
+    {
+        try{
+            return Shipment::getOrders($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

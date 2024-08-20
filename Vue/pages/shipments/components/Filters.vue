@@ -37,6 +37,78 @@ const store = useShipmentStore();
 
                 </template>
 
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Orders By:</b>
+                    </template>
+                    <VhField label="Prder">
+                        <AutoComplete name="shipments-filters-orders"
+                                      data-testid="shipments-filters-orders"
+                                      v-model="store.selected_orders"
+                                      @change = "store.addOrdersFilter()"
+                                      option-label = "user.user_name"
+                                      multiple
+                                      :complete-on-focus = "true"
+                                      :suggestions="store.filter_order_suggestion"
+                                      @complete="store.getorders($event)"
+                                      placeholder="Search orders"
+                                      class="w-full "
+                                      append-to="self"
+                                      :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"/>
+                    </VhField>
+
+
+                </VhFieldVertical>
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Created Between:</b>
+                    </template>
+
+                    <Calendar v-model="store.selected_dates"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              :manualInput="false"
+                              class="w-full"
+                              append-to="self"
+                              data-testid="shipments-filters-create_date_range"
+                              placeholder="Select date range"
+                    />
+
+
+                </VhFieldVertical >
+
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Status By:</b>
+                    </template>
+                    <VhField label="Status">
+                        <MultiSelect
+                            v-model="store.query.filter.status"
+                            :options="store.status_option"
+                            filter
+                            optionValue="name"
+                            optionLabel="name"
+                            data-testid="shipments-filter-status"
+                            placeholder="Select status"
+                            display="chip"
+                            append-to="self"
+                            class="w-full relative" />
+                    </VhField>
+
+
+                </VhFieldVertical>
+
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>
