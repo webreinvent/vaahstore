@@ -238,10 +238,9 @@ const openVendorPage = (id) => {
                             <Column  header="Vendor">
                                 <template #body="prop">
                                     <div class="min-w-max">
-                                        <Button  @click="store.redirectToVendor(prop.data)"
-                                        >
-                                            {{prop.data.vendor.name}}
-                                        </Button>
+                                        <span style="color: #1d4ed8;  cursor: pointer;" @click="store.redirectToVendor(prop.data)">
+                                        <b>{{prop.data.vendor.name}}</b>
+                                    </span>
                                     </div>
                                 </template>
                             </Column>
@@ -261,13 +260,9 @@ const openVendorPage = (id) => {
                             </Column>
                             <template #groupheader="prop">
                                 <div class="flex items-center gap-2">
-
-                                    <a href="javascript:void(0);"
-                                        class="hover:text-primary-700 cursor-pointer"
-                                        @click="store.toOrderDetails(prop.data.order.id)"
-                                    >
+                                    <span style="color: #1d4ed8; text-decoration: underline; cursor: pointer;"  @click="store.toOrderDetails(prop.data.order.id)">
                                         <b>{{ prop.data.order.user.display_name }}</b>
-                                    </a>
+                                    </span>
                                 </div>
                             </template>
 
