@@ -49,9 +49,9 @@ const store = useShipmentStore();
                                       option-label = "user.user_name"
                                       multiple
                                       :complete-on-focus = "true"
-                                      :suggestions="store.filter_order_suggetion"
+                                      :suggestions="store.filter_order_suggestion"
                                       @complete="store.getorders($event)"
-                                      placeholder="Select Orders"
+                                      placeholder="Search orders"
                                       class="w-full "
                                       append-to="self"
                                       :pt="{
@@ -70,7 +70,23 @@ const store = useShipmentStore();
 
 
                 </VhFieldVertical>
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Created Between:</b>
+                    </template>
 
+                    <Calendar v-model="store.selected_dates"
+                              selectionMode="range"
+                              @date-select="store.setDateRange"
+                              :manualInput="false"
+                              class="w-full"
+                              append-to="self"
+                              data-testid="shipments-filters-create_date_range"
+                              placeholder="Select date range"
+                    />
+
+
+                </VhFieldVertical >
 
             <VhFieldVertical >
                 <template #label>

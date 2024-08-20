@@ -409,6 +409,28 @@ class Shipment extends VaahModel
         return $query;
     }
     //-------------------------------------------------
+    public function scopeDateFilter($query, $filter)
+    {
+        if(!isset($filter['date'])
+            || is_null($filter['date'])
+        )
+        {
+            return $query;
+        }
+
+        $dates = $filter['date'];
+        $from = \Carbon::parse($dates[0])
+            ->startOfDay()
+            ->toDateTimeString();
+
+        $to = \Carbon::parse($dates[1])
+            ->endOfDay()
+            ->toDateTimeString();
+
+        return $query->whereBetween('created_at', [$from, $to]);
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with( 'status')->withCount(['orders' => function ($query) {
@@ -417,6 +439,7 @@ class Shipment extends VaahModel
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->orderFilter($request->filter);
+        $list->dateFilter($request->filter);
         $list->searchFilter($request->filter);
 
         $rows = config('vaahcms.per_page');

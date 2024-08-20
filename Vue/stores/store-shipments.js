@@ -2,6 +2,7 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment-timezone/moment-timezone-utils";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Shipment';
 
@@ -73,8 +74,9 @@ export const useShipmentStore = defineStore({
         total_quantity_to_be_shipped:null,
         shipped_items_list:[],
         editingRows:[],
-        filter_order_suggetion:[],
+        filter_order_suggestion:[],
         selected_orders:null,
+        selected_dates:[],
 
 
     }),
@@ -154,6 +156,10 @@ export const useShipmentStore = defineStore({
              * Update query state with the query parameters of url
              */
             await this.updateQueryFromUrl(route);
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
         //---------------------------------------------------------------------
         setRowClass(data){
@@ -722,6 +728,7 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+            this.selected_dates = null;
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -1214,12 +1221,17 @@ export const useShipmentStore = defineStore({
                 );
             }
         },
+        //---------------------------------------------------------------------
+
         getShipmentItemListAfter(data,res){
              if (data){
                  this.shipped_items_list=data.shipment_items;
                  this.total_quantity_to_be_shipped=data.total_quantity_to_be_shipped;
              }
         },
+
+        //---------------------------------------------------------------------
+
         async saveShippedItemQuanity(type,item=null,params_id=null){
             // if (this.total_quantity_to_be_shipped< this.item.updated_total_shipped_quantity){
             //     vaah().toastErrors(['Updated shipping quantity should be less than equal to Total Item Quantity ']);
@@ -1256,11 +1268,16 @@ export const useShipmentStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         saveShippedItemQuanityAfter(data,res){
              if (data){
                  this.getItem(data.id);
              }
         },
+
+        //---------------------------------------------------------------------
+
         getMaxValue(currentIndex){
             const available_quantity_to_be_shipped = this.shipped_items_list.reduce((sum, item, index) => {
                 if (index !== currentIndex) {
@@ -1272,7 +1289,10 @@ export const useShipmentStore = defineStore({
             const max_value = current_item.total_quantity - available_quantity_to_be_shipped;
             return max_value;
         },
-         onRowEditSave(event)  {
+
+        //---------------------------------------------------------------------
+
+        onRowEditSave(event)  {
             let { newData, index } = event;
             if (newData.quantity > newData.total_quantity) {
                 return;
@@ -1282,7 +1302,9 @@ export const useShipmentStore = defineStore({
             this.updatePendingQuantity(newData, index);
 
         },
-         updatePendingQuantity(data,index)  {
+        //---------------------------------------------------------------------
+
+        updatePendingQuantity(data,index)  {
 
             const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
                 if (idx !== index) {
@@ -1311,6 +1333,7 @@ export const useShipmentStore = defineStore({
              //     }
              // });
         },
+        //---------------------------------------------------------------------
 
         async getorders(event) {
             const query = event;
@@ -1329,14 +1352,40 @@ export const useShipmentStore = defineStore({
         getOrdersAfter(data,res) {
             if(data)
             {
-                this.filter_order_suggetion = data;
+                this.filter_order_suggestion = data;
 
             }
         },
+        //---------------------------------------------------------------------
+
         addOrdersFilter() {
              const unique_order = Array.from(new Set(this.selected_orders.map(v => v.user.user_name)));
             this.selected_orders = unique_order.map(name => this.selected_orders.find(v => v.user.user_name === name));
             this.query.filter.order = this.selected_orders.map(v => v.user.user_name);
+        },
+        //---------------------------------------------------------------------
+
+        setDateRange() {
+
+            if (!this.selected_dates) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
         },
     }
 });
