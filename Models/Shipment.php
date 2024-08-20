@@ -393,6 +393,22 @@ class Shipment extends VaahModel
 
     }
     //-------------------------------------------------
+    public function scopeOrderFilter($query, $filter)
+    {
+        if(!isset($filter['order']))
+        {
+            return $query;
+        }
+        $order = $filter['order'];
+
+        if (is_array($order) && !empty($order)) {
+            $query->whereHas('orders.user', function ($q) use ($order) {
+                $q->whereIn('display_name', $order);
+            });
+        }
+        return $query;
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with( 'status')->withCount(['orders' => function ($query) {
@@ -400,6 +416,7 @@ class Shipment extends VaahModel
         }]);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
+        $list->orderFilter($request->filter);
         $list->searchFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
@@ -980,72 +997,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         $response['data'] = $orders;
         return $response;
     }
-//    public static function searchOrders($request)
-//    {
-//        // Base query for orders with necessary relationships
-//        $query = Order::with(['user:id,display_name as user_name', 'items:id,uuid,vh_st_order_id,vh_user_id,vh_st_product_variation_id,quantity', 'items.productVariation:id,name'])
-//            ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
-//            ->where('is_active', 1);
-//
-//        // Apply search filter if provided
-//        if ($request->has('query') && $request->input('query')) {
-//            $searchQuery = '%' . $request->input('query') . '%';
-//            $query->whereHas('user', function ($q) use ($searchQuery) {
-//                $q->where('display_name', 'LIKE', $searchQuery)
-//                    ->orWhere('first_name', 'LIKE', $searchQuery)
-//                    ->orWhere('email', 'LIKE', $searchQuery);
-//            });
-//        }
-//
-//        // Fetch orders with a limited number of results
-//        $orders = $query->limit(10)->get();
-//
-//        // Get all order IDs and item IDs to check against shipment items
-//        $order_item_pairs = $orders->flatMap(function ($order) {
-//            return $order->items->map(function ($item) use ($order) {
-//                return ['vh_st_order_id' => $order->id, 'vh_st_order_item_id' => $item->id];
-//            });
-//        });
-//        // Get shipment items in bulk
-//        $shipment_items = ShipmentItem::whereIn('vh_st_order_id', $order_item_pairs->pluck('vh_st_order_id')->unique())
-//            ->whereIn('vh_st_order_item_id', $order_item_pairs->pluck('vh_st_order_item_id')->unique())
-//            ->get()
-//            ->groupBy('vh_st_order_id')
-//            ->mapWithKeys(function ($group, $order_id) {
-//                return [$order_id => $group->pluck('vh_st_order_item_id')];
-//            });
-//
-//        // Process orders and items
-//        foreach ($orders as &$order) {
-//            foreach ($order->items as &$item) {
-//                if ($item->productVariation) {
-//                    $item->name = $item->productVariation->name;
-//
-//                    $shippedQuantity = static::getShippedQuantity($item->id);
-//                    $pendingQuantity = static::getPendingQuantity($item->id);
-//
-//                    $item->shipped = $shippedQuantity;
-//                    $item->pending = $pendingQuantity != 0 ? $pendingQuantity : ($item->quantity - $shippedQuantity);
-//                    $item->overall_shipped_quantity = $shippedQuantity;
-//
-//                    // Check if the item exists in shipmentItems
-//                    $item->exists_in_shipment = isset($shipment_items[$order->id]) && $shipment_items[$order->id]->contains($item->id);
-//
-//                    unset($item->productVariation);
-//                }
-//            }
-//            if ($order->user) {
-//                $order->user_name = $order->user->user_name;
-//                unset($order->user);
-//            }
-//        }
-//
-//        // Prepare response
-//        return [
-//            'success' => true,
-//            'data' => $orders
-//        ];
-//    }
+
 
 
     //-------------------------------------------------
@@ -1063,13 +1015,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->value('pending');
     }
 
-    /*//-------------------------------------------------
-    private static function getPendingQuantity($itemId) {
-        return DB::table('vh_st_shipment_items')
-            ->where('vh_st_order_item_id', $itemId)
-            ->orderByDesc('created_at')
-            ->value('pending');
-    }*/
+
     //-------------------------------------------------
     public static function searchStatus($request){
         $query = $request->input('query');
@@ -1093,6 +1039,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         return $response;
 
     }
+    //----------------------------------------------------------
 
     public static function getShipmentItemList($id){
         $shipment_items = ShipmentItem::where('vh_st_order_item_id', $id)
@@ -1118,6 +1065,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         return $response;
 
     }
+    //----------------------------------------------------------
 
     public static function saveEditedShippedQuantity($request){
         $items = $request->request->all();
@@ -1139,6 +1087,30 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         $response['success'] = true;
         $response['data'] = $shipment;
+        return $response;
+    }
+
+    //----------------------------------------------------------
+
+    public static function getOrders($request){
+        $query = Order::with(['user' => function ($query) {
+            $query->select('id', 'display_name as user_name');
+        }])
+
+            ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
+            ->where('is_active', 1);
+
+        if ($request->has('query') && $request->input('query')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%')
+                    ->orWhere('email', 'LIKE', '%' . $request->input('query') . '%');
+            });
+        }
+
+        $orders = $query->limit(10)->get();
+        $response['success'] = true;
+        $response['data'] = $orders;
         return $response;
     }
 }

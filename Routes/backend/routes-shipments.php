@@ -70,7 +70,9 @@ function () {
      */
     Route::any('/{id}/action/{action}', [ShipmentsController::class, 'itemAction'])
         ->name('vh.backend.store.shipments.item.action');
-
+    /**
+     * Search orders
+     */
     //---------------------------------------------------------
     Route::post('/search/orders', [ShipmentsController::class, 'searchOrders'])
         ->name('vh.backend.store.shipments.search.orders');
@@ -80,12 +82,22 @@ function () {
      */
     Route::any('/search/status',[ShipmentsController::class, 'searchStatus'])
         ->name('vh.backend.store.shipments.search.status');
+
     /**
-     * Search status
+     * get shipped order items
      */
     Route::get('/{id}/get-shipped-item-list',[ShipmentsController::class, 'getShipmentItemList'])
         ->name('vh.backend.store.shipments.get.shipped-item-list');
 
+    /**
+     * update shipped item quantities
+     */
     Route::post('/update-shipped-item-quantity', [ShipmentsController::class,'saveEditedShippedQuantity'])
         ->name('vh.backend.store.shipments.save.edited-shipped-quantity');
+
+    /**
+     * Search orders for filter
+     */
+    Route::post('/filter/search/orders', [ShipmentsController::class,'getOrders'])
+        ->name('vh.backend.store.shipments.get.filter.orders');
 });

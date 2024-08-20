@@ -37,6 +37,41 @@ const store = useShipmentStore();
 
                 </template>
 
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Orders By:</b>
+                    </template>
+                    <VhField label="Prder">
+                        <AutoComplete name="shipments-filters-orders"
+                                      data-testid="shipments-filters-orders"
+                                      v-model="store.selected_orders"
+                                      @change = "store.addOrdersFilter()"
+                                      option-label = "user.user_name"
+                                      multiple
+                                      :complete-on-focus = "true"
+                                      :suggestions="store.filter_order_suggetion"
+                                      @complete="store.getorders($event)"
+                                      placeholder="Select Orders"
+                                      class="w-full "
+                                      append-to="self"
+                                      :pt="{
+                                      token: {
+                                        class: 'max-w-full'
+                                      },
+                                      removeTokenIcon: {
+                                          class: 'min-w-max'
+                                      },
+                                      item: { style: {
+                                                    textWrap: 'wrap'
+                                                }  },
+                                       panel: { class: 'w-16rem ' }
+                                  }"/>
+                    </VhField>
+
+
+                </VhFieldVertical>
+
+
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>

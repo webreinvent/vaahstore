@@ -73,81 +73,8 @@ export const useShipmentStore = defineStore({
         total_quantity_to_be_shipped:null,
         shipped_items_list:[],
         editingRows:[],
-        order_list : [
-            { "name": "Order  1", "id": 1, "amount": 22, "deleted_at": null ,
-                "items": [{
-                    id: 101, name: 'Item 1', quantity: 2, order: {
-                        name: 'Order 1',
-                        id: 1,
-                    },
-                    shipped:0,
-                    pending:2,
-                    shippedQuantity:0
-                },{
-                    id: 102, name: 'Item 2', quantity: 2, order: {
-                        name: 'Order 1',
-                        id: 1,
-                    },
-                    shipped:0,
-                    pending:2,
-                    shippedQuantity:0
-                }] },
-            { "name": "Order  2", "id": 2, "amount": 22, "deleted_at": null,"items": [{
-                    id: 1000, name: 'Item 3', quantity: 2, order: {
-                        name: 'Order 2',
-                        id: 2,
-                    },
-                    shipped:1,
-                    pending:1,
-                    shippedQuantity:0
-                } ]},
-
-        ],
-        order_list1 : [
-
-            {
-                id: 1000, name: 'Item 1', quantity: 2, order: {
-                    name: 'Order 1',
-                    image: 'ionibowcher.png'
-                },
-                vendor:{
-                    id:106,
-                    name:'vendor 1',
-                },
-                shipped:2,
-                pending:0
-            },
-            {
-                id: 1000,
-                name: 'Item 2',
-                quantity: 2,
-                order: {
-                    name: 'Order 1',
-                    image: 'ionibowcher.png'
-                },
-                vendor:{
-                    id:106,
-                    name:'vendor 1',
-                },
-                shipped:2,
-                pending:0
-            },{
-                id: 1000,
-                name: 'Item 3',
-                quantity: 1,
-                order: {
-                    name: 'Order 2',
-                    image: 'ionibowcher.png'
-                },
-                vendor:{
-                    id:107,
-                    name:'vendor 2',
-                },
-                shipped:1,
-                pending:0
-            },
-
-        ],
+        filter_order_suggetion:[],
+        selected_orders:null,
 
 
     }),
@@ -785,6 +712,7 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_orders=null;
             //reset query strings
             await this.resetQueryString();
 
@@ -1384,6 +1312,32 @@ export const useShipmentStore = defineStore({
              // });
         },
 
+        async getorders(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/search/orders',
+                this.getOrdersAfter,
+                options
+            );
+        },
+     //---------------------------------------------------------------------
+        getOrdersAfter(data,res) {
+            if(data)
+            {
+                this.filter_order_suggetion = data;
+
+            }
+        },
+        addOrdersFilter() {
+             const unique_order = Array.from(new Set(this.selected_orders.map(v => v.user.user_name)));
+            this.selected_orders = unique_order.map(name => this.selected_orders.find(v => v.user.user_name === name));
+            this.query.filter.order = this.selected_orders.map(v => v.user.user_name);
+        },
     }
 });
 
