@@ -830,24 +830,40 @@ class Shipment extends VaahModel
 
     //-------------------------------------------------
     //-------------------------------------------------
-    public static function seedSampleItems($records=100)
+    public static function seedSampleItems($records = 100)
     {
-
         $i = 0;
 
-        while($i < $records)
-        {
+        while ($i < $records) {
             $inputs = self::fillItem(false);
 
-            $item =  new self();
+            $item = new self();
             $item->fill($inputs);
             $item->save();
 
+            if (isset($inputs['orders']) && is_array($inputs['orders'])) {
+                foreach ($inputs['orders'] as $order) {
+                    $order_id = $order['id'];
+                    $order_items = $order['items'] ?? [];
+                    foreach ($order_items as $order_item) {
+                            $item_id = $order_item['id'];
+
+                            $item_quantity_to_be_ship=$order_item['quantity'];
+                            $item->orders()->attach($order_id, [
+                                'vh_st_order_item_id' => $item_id,
+                                'quantity' => $item_quantity_to_be_ship,
+                                'pending' => $item_quantity_to_be_ship,
+                                'created_at' => now(),
+                            ]);
+                        }
+                    self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
+                }
+            }
+
             $i++;
-
         }
-
     }
+
 
 
     //-------------------------------------------------
@@ -864,7 +880,26 @@ class Shipment extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         $faker = Factory::create();
+        $taxonomy_status = Taxonomy::getTaxonomyByType('shipment-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $inputs['taxonomy_id_shipment_status'] = $status_id;
+        $status = $taxonomy_status->where('id',$status_id)->first();
+        $inputs['status']=$status;
 
+        $search_orders_request = new Request([
+            'query' => $inputs['query'] ?? null
+        ]);
+        $orders_response = self::searchOrders($search_orders_request);
+
+        if ($orders_response['success'] && $orders_response['data'] instanceof \Illuminate\Support\Collection) {
+            $orders = $orders_response['data'];
+            if ($orders->isNotEmpty()) {
+                $inputs['orders'][] = $orders->random();
+            }
+        } else {
+            $inputs['orders'][] = null;
+        }
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
