@@ -269,6 +269,7 @@ export const useShipmentStore = defineStore({
             if(data)
             {
                 this.assets = data;
+                this.status_option = data.taxonomy.status;
                 if(!this.query.rows && data.rows)
                 {
                     this.query.rows = data.rows;

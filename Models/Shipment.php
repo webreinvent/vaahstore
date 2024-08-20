@@ -431,6 +431,18 @@ class Shipment extends VaahModel
 
     }
     //-------------------------------------------------
+    public function scopeStatusFilter($query, $filter)
+    {
+
+        if (!isset($filter['status'])) {
+            return $query;
+        }
+        $status = $filter['status'];
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('name', $status);
+        });
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with( 'status')->withCount(['orders' => function ($query) {
@@ -440,6 +452,7 @@ class Shipment extends VaahModel
         $list->trashedFilter($request->filter);
         $list->orderFilter($request->filter);
         $list->dateFilter($request->filter);
+        $list->statusFilter($request->filter);
         $list->searchFilter($request->filter);
 
         $rows = config('vaahcms.per_page');

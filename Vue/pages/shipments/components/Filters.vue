@@ -88,6 +88,27 @@ const store = useShipmentStore();
 
                 </VhFieldVertical >
 
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Status By:</b>
+                    </template>
+                    <VhField label="Status">
+                        <MultiSelect
+                            v-model="store.query.filter.status"
+                            :options="store.status_option"
+                            filter
+                            optionValue="name"
+                            optionLabel="name"
+                            data-testid="shipments-filter-status"
+                            placeholder="Select status"
+                            display="chip"
+                            append-to="self"
+                            class="w-full relative" />
+                    </VhField>
+
+
+                </VhFieldVertical>
+
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>

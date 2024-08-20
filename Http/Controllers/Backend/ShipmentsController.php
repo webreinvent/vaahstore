@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Shipment;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 
 
 class ShipmentsController extends Controller
@@ -30,7 +31,7 @@ class ShipmentsController extends Controller
             $data['fillable']['columns'] = Shipment::getFillableColumns();
             $data['fillable']['except'] = Shipment::getUnFillableColumns();
             $data['empty_item'] = Shipment::getEmptyItem();
-
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('shipment-status');
             $data['actions'] = [];
 
             $response['success'] = true;
