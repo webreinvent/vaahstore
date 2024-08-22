@@ -557,6 +557,9 @@ class Shipment extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::with('orders')->whereIn('id', $items_id)->each(function ($item) {
+            $item->orders()->detach();
+        });
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -794,6 +797,7 @@ class Shipment extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
+        $item->orders()->detach();
         $item->forceDelete();
 
         $response['success'] = true;
