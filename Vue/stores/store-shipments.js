@@ -1319,20 +1319,20 @@ export const useShipmentStore = defineStore({
                 data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
             }
 
-             // this.shipped_items_list.forEach((current_item, idx) => {
-             //     if (idx !== index) {
-             //         const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
-             //             if (otherIdx !== idx) {
-             //                 return sum + item.quantity;
-             //             }
-             //             return sum;
-             //         }, 0);
-             //
-             //         if (current_item.total_quantity != null && current_item.quantity != null) {
-             //             current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
-             //         }
-             //     }
-             // });
+             this.shipped_items_list.forEach((current_item, idx) => {
+                 if (idx !== index) {
+                     const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
+                         if (otherIdx !== idx) {
+                             return sum + item.quantity;
+                         }
+                         return sum;
+                     }, 0);
+
+                     if (current_item.total_quantity != null && current_item.quantity != null) {
+                         current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
+                     }
+                 }
+             });
         },
         //---------------------------------------------------------------------
 

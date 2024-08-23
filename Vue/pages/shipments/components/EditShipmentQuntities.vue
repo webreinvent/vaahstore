@@ -93,7 +93,7 @@ watch(totalShipped, (newTotal) => {
             <Column field="quantity" header="Shipping Quantity" >
                 <template #footer="slotProps">
                     <div class="ml-2">
-                        Updated Shipping Quantity: {{ store.item.updated_total_shipped_quantity }}
+                        Total Shipping Quantity: {{ store.item.updated_total_shipped_quantity }}
                     </div>
                 </template>
                 <template #editor="{ data, field ,index}">
