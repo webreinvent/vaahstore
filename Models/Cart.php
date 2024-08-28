@@ -469,7 +469,6 @@ class Cart extends VaahModel
             $selected_vendor = Vendor::find($vendor_id);
             $is_quantity_available = self::isCartItemQuantityAvailable($selected_vendor,$product->id,$variation_id);
             $available_quantity = $is_quantity_available ? self::getAvailableQuantity($selected_vendor, $product->id, $variation_id) : 0;
-
             $pivot_quantity = $product->pivot->quantity;
             $is_pivot_quantity_valid = $pivot_quantity <= $available_quantity;
             $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
@@ -485,6 +484,7 @@ class Cart extends VaahModel
             $product->pivot->is_wishlisted = $is_wishlisted ? 1 : 0;
             $product->pivot->cart_product_variation = $variation_name;
             $product->pivot->price = $price;
+            $product->available_stock_quantity = $available_quantity;
 
         }
 
