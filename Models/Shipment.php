@@ -237,6 +237,22 @@ class Shipment extends VaahModel
 
     public static function updateOrderStatus($order, $payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity)
     {
+        $all_shipment_ids = ShipmentItem::where('vh_st_order_id', $order->id)
+            ->pluck('vh_st_shipment_id');
+
+        // Get the 'delivered' status ID from taxonomy
+        $taxonomy_id_shipment_status_delivered = Taxonomy::getTaxonomyByType('shipment-status')
+            ->where('slug', 'delivered')->value('id');
+
+        // Retrieve all shipment statuses for the given shipment IDs
+        $shipment_statuses = Shipment::whereIn('id', $all_shipment_ids)
+            ->pluck('taxonomy_id_shipment_status');
+
+        // Check if all statuses are the same
+        $all_delivered = $shipment_statuses->every(function ($status_id) use ($taxonomy_id_shipment_status_delivered) {
+            return $status_id == $taxonomy_id_shipment_status_delivered;
+        });
+
         switch ($payment_status_slug) {
             case 'pending':
                 switch ($shipment_status_name) {
@@ -244,14 +260,30 @@ class Shipment extends VaahModel
                         $order->order_status = 'Placed';
                         $order->order_shipment_status = $shipment_status_name;
                         break;
-                    case 'Delivered':
+                   /* case 'Delivered':
                         $order->order_status = 'Payment Pending';
                         if ($shipped_order_quantity != $total_order_quantity) {
                             $order->order_shipment_status = 'Partially Delivered';
                         } else {
                             $order->order_shipment_status = $shipment_status_name;
                         }
+                        break;*/
+
+                   /* default:
+                        $order->order_status = $shipment_status_name;
+                        $order->order_shipment_status = $shipment_status_name;
+                        break;*/
+                    case 'Delivered':
+                        $order->order_status = 'Payment Pending';
+                        if ($all_delivered) {
+                            $order->order_shipment_status = ($shipped_order_quantity != $total_order_quantity)
+                                ? 'Partially Delivered'
+                                : $shipment_status_name;                        }
+                        else {
+                            $order->order_shipment_status = 'Partially Delivered';
+                        }
                         break;
+
                     default:
                         $order->order_status = $shipment_status_name;
                         $order->order_shipment_status = $shipment_status_name;
@@ -287,12 +319,18 @@ class Shipment extends VaahModel
                         $order->order_shipment_status = $shipment_status_name;
                         break;
                     case 'Delivered':
-                        $order->order_status = 'Completed';
-                        if ($shipped_order_quantity != $total_order_quantity) {
-                            $order->order_status = 'Partially Delivered';
-                            $order->order_shipment_status = 'Partially Delivered';
+                        if ($all_delivered) {
+                            // If all shipments are delivered
+                            $order->order_status = ($shipped_order_quantity != $total_order_quantity)
+                                ? 'Partially Delivered'
+                                : 'Completed';
+                            $order->order_shipment_status = ($shipped_order_quantity != $total_order_quantity)
+                                ? 'Partially Delivered'
+                                : $shipment_status_name;
                         } else {
-                            $order->order_shipment_status = $shipment_status_name;
+
+//                            $order->order_status = 'Partially Delivered';
+                            $order->order_shipment_status = 'Partially Delivered';
                         }
                         break;
                     default:
@@ -704,7 +742,9 @@ class Shipment extends VaahModel
                 'errors' => [$error_message]
             ];
         }
-
+        $item = self::where('id', $id)->withTrashed()->first();
+        $item->fill($inputs);
+        $item->save();
         $item_ids = [];
 
         foreach ($inputs['orders'] as $shipment_order) {
@@ -760,7 +800,6 @@ class Shipment extends VaahModel
         $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
         $total_order_quantity = $order->items()->sum('quantity');
         $order_payment_status_slug = $order->orderPaymentStatus->slug;
-
         self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
     }
     //-------------------------------------------------
@@ -768,8 +807,8 @@ class Shipment extends VaahModel
     private static function updateAndSyncItem($id, $inputs, $item_ids)
     {
         $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->save();
+//        $item->fill($inputs);
+//        $item->save();
 
         foreach ($item_ids as $order_item_id => $data) {
             $is_exist_order_item = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
