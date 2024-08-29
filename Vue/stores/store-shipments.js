@@ -165,6 +165,9 @@ export const useShipmentStore = defineStore({
         setRowClass(data){
             return [{ 'bg-gray-200': data.id == this.route.params.id }];
         },
+        setShippedRowClass(data){
+            return [{ 'bg-gray-200': data.vh_st_shipment_id == this.route.params.id }];
+        },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {

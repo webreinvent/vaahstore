@@ -23,14 +23,8 @@ onMounted(() => {
 
 
 
-const rowClass = (data) => {
-    return {
-        '!bg-primary !text-primary-contrast': data.vh_st_shipment_id === Number(route.params.id)
-    };
-};
-const rowStyle = (data) => {
-    return data.vh_st_shipment_id === Number(route.params.id) ? { fontWeight: 'bold', fontStyle: 'italic' } : {};
-};
+
+
 
 const totalShipped = computed(() => {
     if (Array.isArray(store.shipped_items_list)) {
@@ -58,7 +52,7 @@ watch(totalShipped, (newTotal) => {
         <Message :closable="false" severity="warn">This will impact quantity on other shipments as well.</Message>
     </div>
     <div v-if="store.item">
-        <DataTable v-model:editingRows="store.editingRows" :rows="10"  :rowClass="store.rowClass" :rowStyle="rowStyle"
+        <DataTable v-model:editingRows="store.editingRows" :rows="10"  :rowClass="store.setShippedRowClass"
                    :paginator="true" :value="store.shipped_items_list" editMode="row" dataKey="id" @row-edit-save="store.onRowEditSave"
                    :pt="{
 
