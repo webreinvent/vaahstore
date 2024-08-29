@@ -42,7 +42,7 @@ const store = useWishlistStore();
                     data-testid="wishlists-user-filter"
                     v-model="store.selected_users"
                     @change="store.setFilterSelectedUsers()"
-                    option-label = "first_name"
+                    option-label = "username"
                     multiple
                     :complete-on-focus = "true"
                     :suggestions="store.user_suggestion"

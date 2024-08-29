@@ -165,6 +165,9 @@ export const useShipmentStore = defineStore({
         setRowClass(data){
             return [{ 'bg-gray-200': data.id == this.route.params.id }];
         },
+        setShippedRowClass(data){
+            return [{ 'bg-gray-200': data.vh_st_shipment_id == this.route.params.id }];
+        },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
@@ -1234,15 +1237,11 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
 
         async saveShippedItemQuanity(type,item=null,params_id=null){
-            // if (this.total_quantity_to_be_shipped< this.item.updated_total_shipped_quantity){
-            //     vaah().toastErrors(['Updated shipping quantity should be less than equal to Total Item Quantity ']);
-            //     return;
-            // }
+
             if(!item)
             {
                 item = this.item;
             }
-            console.log(params_id)
             this.action.type = type;
             let ajax_url = this.ajax_url;
 
@@ -1273,6 +1272,7 @@ export const useShipmentStore = defineStore({
 
         saveShippedItemQuanityAfter(data,res){
              if (data){
+                 this.updatePendingQuantity();
                  this.getItem(data.id);
              }
         },
@@ -1305,34 +1305,37 @@ export const useShipmentStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        updatePendingQuantity(data,index)  {
-
-            const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
-                if (idx !== index) {
-                    return sum + item.quantity;
-                }
-                return sum;
-            }, 0);
-
-
-            if (data.total_quantity != null && data.quantity != null) {
-                data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
-            }
-
-             this.shipped_items_list.forEach((current_item, idx) => {
-                 if (idx !== index) {
-                     const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
-                         if (otherIdx !== idx) {
-                             return sum + item.quantity;
-                         }
-                         return sum;
-                     }, 0);
-
-                     if (current_item.total_quantity != null && current_item.quantity != null) {
-                         current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
+        updatePendingQuantity(data=null,index=null)  {
+             if (data !== null && index !== null) {
+                 const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
+                     if (idx !== index) {
+                         return sum + item.quantity;
                      }
+                     return sum;
+                 }, 0);
+                 if (data.total_quantity != null && data.quantity != null) {
+                     data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
                  }
-             });
+
+                 this.shipped_items_list.forEach((current_item, idx) => {
+                     if (idx !== index) {
+                         const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
+                             if (otherIdx !== idx) {
+                                 return sum + item.quantity;
+                             }
+                             return sum;
+                         }, 0);
+
+
+                         if (current_item.total_quantity != null && current_item.quantity != null) {
+                             current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
+                         }
+                     }
+                 });
+             }
+            this.total_shipped_quantity = this.shipped_items_list.reduce((sum, item) => {
+                return sum + (item.quantity || 0);
+            }, 0);
         },
         //---------------------------------------------------------------------
 

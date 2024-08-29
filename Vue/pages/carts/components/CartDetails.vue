@@ -60,28 +60,17 @@ const allProductsOutOfStock = computed(() => {
                 <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
                 </Column>
 
-                <Column field="product_name" header="Product Name" class="overflow-wrap-anywhere " :sortable="true" :style="{width: '150px'}">
+                <Column field="product_name" header="Product Name" class="overflow-wrap-anywhere "  :style="{width: '200px'}">
                     <template #body="prop">
                         {{ prop.data.pivot.cart_product_variation !== null ? prop.data.name + ' - ' + prop.data.pivot.cart_product_variation : prop.data.name }}
-<!--                        <Badge v-if="prop.data.pivot.is_stock_available === 0"  value="Out of Stock"
-                               severity="danger"></Badge>
-
-                        <Badge v-if="prop.data.pivot.is_stock_available === 0"   class="ml-2"
-                               severity="danger">Qty:{{prop.data.available_stock_quantity}}</Badge>-->
-<!--                        avail. Qty.->{{prop.data.available_stock_quantity}}-->
                     </template>
                 </Column>
                 <Column  header="" class="overflow-wrap-anywhere" >
                     <template #body="prop">
                         <div class=" w-full" v-if="prop.data.pivot.is_stock_available === 0">
-                            <Badge   value="Out of Stock"
-                                   severity="danger"></Badge>
-
-                            <Badge    class="ml-2"
-                                   severity="danger">Available Qty:{{prop.data.available_stock_quantity}}</Badge>
+                            <Badge   value="Out of Stock"severity="danger"></Badge>
+                            <Badge class="ml-2" severity="danger">Available Qty:{{prop.data.available_stock_quantity}}</Badge>
                         </div>
-
-                        <!--                        avail. Qty.->{{prop.data.available_stock_quantity}}-->
                     </template>
                 </Column>
 
@@ -90,7 +79,11 @@ const allProductsOutOfStock = computed(() => {
                 <Column field="product_quantity" header="Product Quantity" class="overflow-wrap-anywhere" >
                     <template #body="prop">
                         <div class="p-inputgroup w-8rem max-w-full" >
-                            <InputNumber  v-model="prop.data.pivot.quantity" buttonLayout="horizontal" showButtons :min="1" :max="1000000" @input="store.updateQuantity(prop.data.pivot,$event)">
+                            <InputNumber  v-model="prop.data.pivot.quantity"
+                                          buttonLayout="horizontal"
+                                          showButtons :min="1"
+                                          :max="1000000"
+                                          @input="store.updateQuantity(prop.data.pivot,$event)">
                                 <template #incrementbuttonicon>
                                     <span class="pi pi-plus" />
                                 </template>
@@ -106,22 +99,22 @@ const allProductsOutOfStock = computed(() => {
 
                 <Column field="product_price" header="Product Price"
                         class="overflow-wrap-anywhere"
-                        :sortable="true">
+                        >
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>{{ prop.data.pivot.price  }}</p>
+                            <p>&#8377;{{ prop.data.pivot.price  }}</p>
                         </div>
                     </template>
 
                 </Column>
                 <Column field="product_price" header="Amount"
-                        class="overflow-wrap-anywhere" 
-                        :sortable="true">
+                        class="overflow-wrap-anywhere"
+                        >
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>{{ prop.data.pivot.price * prop.data.pivot.quantity}}</p>
+                            <p>&#8377;{{ prop.data.pivot.price * prop.data.pivot.quantity}}</p>
                         </div>
                     </template>
 
@@ -162,7 +155,7 @@ const allProductsOutOfStock = computed(() => {
             </DataTable>
             </div>
             <div class="table_bottom mr-4">
-                <p><b>Total Amount: </b>{{ store.total_amount_at_detail_page }}</p>
+                <p><b>Total Amount: </b>&#8377;{{ store.total_amount_at_detail_page }}</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"

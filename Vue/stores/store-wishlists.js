@@ -1404,12 +1404,12 @@ export const useWishlistStore = defineStore({
             const check_names = new Set();
 
             for (const users of this.selected_users) {
-                if (!check_names.has(users.first_name)) {
+                if (!check_names.has(users.username)) {
                     unique_users.push(users);
-                    check_names.add(users.first_name);
+                    check_names.add(users.username);
                 }
             }
-            const users_slug = unique_users.map(users => users.first_name);
+            const users_slug = unique_users.map(users => users.username);
             this.selected_users = unique_users;
             this.query.filter.users = users_slug;
 

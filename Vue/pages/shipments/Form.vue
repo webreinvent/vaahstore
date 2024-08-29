@@ -51,7 +51,9 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
             header: product,
 
             style: {
-                width: '50vw',
+                width: '70vw',
+                borderRadius: '10px',
+                overflow: 'hidden'
             },
             breakpoints:{
                 '960px': '75vw',

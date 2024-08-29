@@ -74,7 +74,7 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
 
     public function user(){
-        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name']);
+        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name','username']);
     }
     //-------------------------------------------------
     public static function getUnFillableColumns()
@@ -943,11 +943,12 @@ class Wishlist extends VaahModel
     public static function searchVaahUsers($request)
     {
         $query = $request->input('query');
-        $search_approved = User::select('id', 'first_name')->where('is_active', '1');
+        $search_approved = User::select('id', 'first_name','username')->where('is_active', '1');
         if($request->has('query') && $request->input('query')){
             $query = $request->input('query');
             $search_approved->where(function($q) use ($query) {
-                $q->where('first_name', 'LIKE', '%' . $query . '%');
+
+                $q->where('username', 'LIKE', '%' . $query . '%');
             });
         }
         $search_approved = $search_approved->limit(10)->get();
@@ -1034,7 +1035,7 @@ class Wishlist extends VaahModel
         $users = $filter['users'];
 
         return $query->whereHas('user', function ($query) use ($users) {
-            $query->whereIn('first_name', $users);
+            $query->whereIn('username', $users);
         });
     }
 
@@ -1079,8 +1080,8 @@ class Wishlist extends VaahModel
 
         $query = $request['filter']['user'];
 
-        $users = User::whereIn('first_name',$query)
-            ->select('id','first_name')->get();
+        $users = User::whereIn('username',$query)
+            ->select('id','username')->get();
 
         $response['success'] = true;
         $response['data'] = $users;
