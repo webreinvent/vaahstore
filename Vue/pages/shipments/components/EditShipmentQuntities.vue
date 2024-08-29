@@ -10,36 +10,21 @@ const injectedCategories = ref({ shipment_item_id: [] });
 const header = ref('');
 const dialogRef = inject('dialogRef');
 const route = useRoute();
-onMounted(() => {
+onMounted(async () => {
 
     if (dialogRef && dialogRef.value && dialogRef.value.data) {
         injectedCategories.value = dialogRef.value.data;
         header.value = dialogRef.value.options.props.header;
-        store.getShipmentItemList(dialogRef.value.data.shipment_item_id)
+        await store.getShipmentItemList(dialogRef.value.data.shipment_item_id)
+        store.updatePendingQuantity();
     }
 })
 
-
-
-
-
-
-
-
-const totalShipped = computed(() => {
-    if (Array.isArray(store.shipped_items_list)) {
-        return store.shipped_items_list.reduce((total, item) => total + (parseFloat(item.quantity) || 0), 0);
-    }
-    return 0;
-});
-watch(totalShipped, (newTotal) => {
-    store.item.updated_total_shipped_quantity = newTotal;
-});
 </script>
 
 
 <template>
-    <div class="flex justify-content-end">
+    <div class="flex justify-content-end mb-2">
         <Button label="Save"
                 class="p-button-sm"
                 v-if="store.item && store.item.id"
@@ -48,22 +33,24 @@ watch(totalShipped, (newTotal) => {
                 icon="pi pi-save"/>
     </div>
 
+    <div style="width: 40rem" class="flex justify-content-between ml-8">
+        <b>Total Shipping Quantity: {{ store.total_quantity_to_be_shipped }}</b>
+        <b>Total Shipped Quantity: {{ store.total_shipped_quantity }}</b>
+        <b>Total Pending Quantity: {{ store.total_quantity_to_be_shipped-store.total_shipped_quantity }}</b>
+    </div>
+
     <div class="card">
         <Message :closable="false" severity="warn">This will impact quantity on other shipments as well.</Message>
     </div>
     <div v-if="store.item">
-        <DataTable v-model:editingRows="store.editingRows" :rows="10"  :rowClass="store.setShippedRowClass"
-                   :paginator="true" :value="store.shipped_items_list" editMode="row" dataKey="id" @row-edit-save="store.onRowEditSave"
-                   :pt="{
-
-                column: {
-                    bodycell: ({ state }) => ({
-                        style:  state['d_editing']&&'padding-top: 0.75rem; padding-bottom: 0.75rem'
-                    })
-                },
-
-            }"
-        >
+        <DataTable v-model:editingRows="store.editingRows"
+                   :rows="10"
+                   :rowClass="store.setShippedRowClass"
+                   :paginator="true"
+                   :value="store.shipped_items_list"
+                   editMode="row"
+                   dataKey="id"
+                   @row-edit-save="store.onRowEditSave" >
             <Column header="Sr No" >
                 <template #body="props">
                     {{ props.index + 1 }}
@@ -75,25 +62,16 @@ watch(totalShipped, (newTotal) => {
                 </template>
             </Column>
             <Column  header="Total Quantity" >
-                <template #footer="slotProps">
-                    <div class="ml-2">
-                         Total Item Quantity: {{ store.total_quantity_to_be_shipped }}
-                    </div>
-                </template>
                 <template #body="props">
                     {{ props.data.total_quantity }}
                 </template>
             </Column>
             <Column field="quantity" header="Shipping Quantity" >
-                <template #footer="slotProps">
-                    <div class="ml-2">
-                        Total Shipping Quantity: {{ store.item.updated_total_shipped_quantity }}
-                    </div>
-                </template>
                 <template #editor="{ data, field ,index}">
                     <InputNumber
                         v-model="data[field]"
                         @input="store.updatePendingQuantity(data, index)"
+                        data-testid="edit-shipments-quantity"
                         mode="decimal"
                         :min="0"
                         :max="store.getMaxValue(index)"

@@ -1276,6 +1276,7 @@ export const useShipmentStore = defineStore({
 
         saveShippedItemQuanityAfter(data,res){
              if (data){
+                 this.updatePendingQuantity();
                  this.getItem(data.id);
              }
         },
@@ -1308,34 +1309,38 @@ export const useShipmentStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        updatePendingQuantity(data,index)  {
-
-            const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
-                if (idx !== index) {
-                    return sum + item.quantity;
-                }
-                return sum;
-            }, 0);
-
-
-            if (data.total_quantity != null && data.quantity != null) {
-                data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
-            }
-
-             this.shipped_items_list.forEach((current_item, idx) => {
-                 if (idx !== index) {
-                     const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
-                         if (otherIdx !== idx) {
-                             return sum + item.quantity;
-                         }
-                         return sum;
-                     }, 0);
-
-                     if (current_item.total_quantity != null && current_item.quantity != null) {
-                         current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
+        updatePendingQuantity(data=null,index=null)  {
+            if (data !== null && index !== null) {
+                 const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
+                     if (idx !== index) {
+                         return sum + item.quantity;
                      }
+                     return sum;
+                 }, 0);
+                 if (data.total_quantity != null && data.quantity != null) {
+                     data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
                  }
-             });
+
+                 this.shipped_items_list.forEach((current_item, idx) => {
+                     if (idx !== index) {
+                         const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
+                             if (otherIdx !== idx) {
+                                 return sum + item.quantity;
+                             }
+                             return sum;
+                         }, 0);
+
+
+                         if (current_item.total_quantity != null && current_item.quantity != null) {
+                             current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
+                         }
+                     }
+                 });
+             }
+            this.total_shipped_quantity = this.shipped_items_list.reduce((sum, item) => {
+                return sum + (item.quantity || 0);
+            }, 0);
+            console.log(this.total_shipped_quantity)
         },
         //---------------------------------------------------------------------
 

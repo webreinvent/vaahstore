@@ -1147,7 +1147,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
     //----------------------------------------------------------
 
     public static function saveEditedShippedQuantity($request){
-        $items = $request->request->all();
+        $items = $request->all();
         foreach ($items['shipment_items'] as $item) {
             $order_item = OrderItem::where('id', $item['vh_st_order_item_id'])->first();
             if ($item['quantity'] > $order_item->quantity){
