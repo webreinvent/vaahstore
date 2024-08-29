@@ -1237,15 +1237,11 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
 
         async saveShippedItemQuanity(type,item=null,params_id=null){
-            // if (this.total_quantity_to_be_shipped< this.item.updated_total_shipped_quantity){
-            //     vaah().toastErrors(['Updated shipping quantity should be less than equal to Total Item Quantity ']);
-            //     return;
-            // }
+
             if(!item)
             {
                 item = this.item;
             }
-            console.log(params_id)
             this.action.type = type;
             let ajax_url = this.ajax_url;
 
@@ -1310,7 +1306,7 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
 
         updatePendingQuantity(data=null,index=null)  {
-            if (data !== null && index !== null) {
+             if (data !== null && index !== null) {
                  const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
                      if (idx !== index) {
                          return sum + item.quantity;
@@ -1340,7 +1336,6 @@ export const useShipmentStore = defineStore({
             this.total_shipped_quantity = this.shipped_items_list.reduce((sum, item) => {
                 return sum + (item.quantity || 0);
             }, 0);
-            console.log(this.total_shipped_quantity)
         },
         //---------------------------------------------------------------------
 

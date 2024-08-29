@@ -34,7 +34,7 @@ onMounted(async () => {
     </div>
 
     <div style="width: 40rem" class="flex justify-content-between ml-8">
-        <b>Total Shipping Quantity: {{ store.total_quantity_to_be_shipped }}</b>
+        <b>Total Shipment Quantity: {{ store.total_quantity_to_be_shipped }}</b>
         <b>Total Shipped Quantity: {{ store.total_shipped_quantity }}</b>
         <b>Total Pending Quantity: {{ store.total_quantity_to_be_shipped-store.total_shipped_quantity }}</b>
     </div>
@@ -83,7 +83,7 @@ onMounted(async () => {
             <Column field="pending" header="Pending Quantity" >
 
                 <template #editor="{ data, field }">
-                    <InputText readonly v-model="data[field]" fluid />
+                    <InputNumber readonly v-model="data[field]" fluid />
 
                 </template>
             </Column>
