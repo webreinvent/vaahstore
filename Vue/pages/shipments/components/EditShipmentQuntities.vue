@@ -44,9 +44,7 @@ onMounted(async () => {
     </div>
     <div v-if="store.item">
         <DataTable v-model:editingRows="store.editingRows"
-                   :rows="10"
                    :rowClass="store.setShippedRowClass"
-                   :paginator="true"
                    :value="store.shipped_items_list"
                    editMode="row"
                    dataKey="id"
@@ -82,10 +80,7 @@ onMounted(async () => {
 
             <Column field="pending" header="Pending Quantity" >
 
-                <template #editor="{ data, field }">
-                    <InputNumber readonly v-model="data[field]" fluid />
 
-                </template>
             </Column>
 
             <Column header="Click To Edit" :rowEditor="true" style="width: 10%; min-width: 8rem" bodyStyle="text-align:center"></Column>
