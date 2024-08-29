@@ -121,7 +121,7 @@ const toggleFormMenu = (event) => {
                         data-testid="wishlists-user"
                         name="wishlists-user"
                         :dropdown="true"
-                        optionLabel="first_name"
+                        optionLabel="username"
                         forceSelection
                         :pt="{
                           token: {
