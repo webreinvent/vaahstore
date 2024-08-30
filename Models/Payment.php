@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use Ramsey\Uuid\Uuid;
+use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
@@ -280,31 +281,13 @@ class Payment extends VaahModel
     public static function updateOrderShipmentStatus($order, $taxonomy_payment_status_slug)
     {
         $current_shipment_status = $order->order_shipment_status;
-
-        $all_shipment_ids = ShipmentItem::where('vh_st_order_id', $order->id)
-            ->pluck('vh_st_shipment_id');
-
-        // Get the 'delivered' status ID from taxonomy
-        $taxonomy_id_shipment_status_delivered = Taxonomy::getTaxonomyByType('shipment-status')
-            ->where('slug', 'delivered')->value('id');
-
-        // Retrieve all shipment statuses for the given shipment IDs
-        $shipment_statuses = Shipment::whereIn('id', $all_shipment_ids)
-            ->pluck('taxonomy_id_shipment_status');
-
-        // Check if all statuses are the same
-        $all_shipments_delivered = $shipment_statuses->every(function ($status_id) use ($taxonomy_id_shipment_status_delivered) {
-            return $status_id == $taxonomy_id_shipment_status_delivered;
-        });
-
-
+        $all_shipments_delivered = OrderStatusHelper::areAllShipmentsDelivered($order->id);
         switch ($taxonomy_payment_status_slug) {
             case 'pending':
                 if ($current_shipment_status === 'Delivered') {
                     $order->order_status = 'Payment Pending';
                 }
                 break;
-
             case 'partially-paid':
                 if ($current_shipment_status === 'Delivered') {
                     $order->order_status = 'Partially Paid';

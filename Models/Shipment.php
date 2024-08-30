@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\TaxonomyType;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -237,21 +238,7 @@ class Shipment extends VaahModel
 
     public static function updateOrderStatus($order, $payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity)
     {
-        $all_shipment_ids = ShipmentItem::where('vh_st_order_id', $order->id)
-            ->pluck('vh_st_shipment_id');
-
-        // Get the 'delivered' status ID from taxonomy
-        $taxonomy_id_shipment_status_delivered = Taxonomy::getTaxonomyByType('shipment-status')
-            ->where('slug', 'delivered')->value('id');
-
-        // Retrieve all shipment statuses for the given shipment IDs
-        $shipment_statuses = Shipment::whereIn('id', $all_shipment_ids)
-            ->pluck('taxonomy_id_shipment_status');
-
-        // Check if all statuses are the same
-        $all_delivered = $shipment_statuses->every(function ($status_id) use ($taxonomy_id_shipment_status_delivered) {
-            return $status_id == $taxonomy_id_shipment_status_delivered;
-        });
+        $all_delivered = OrderStatusHelper::areAllShipmentsDelivered($order->id);
 
         switch ($payment_status_slug) {
             case 'pending':
@@ -260,19 +247,6 @@ class Shipment extends VaahModel
                         $order->order_status = 'Placed';
                         $order->order_shipment_status = $shipment_status_name;
                         break;
-                   /* case 'Delivered':
-                        $order->order_status = 'Payment Pending';
-                        if ($shipped_order_quantity != $total_order_quantity) {
-                            $order->order_shipment_status = 'Partially Delivered';
-                        } else {
-                            $order->order_shipment_status = $shipment_status_name;
-                        }
-                        break;*/
-
-                   /* default:
-                        $order->order_status = $shipment_status_name;
-                        $order->order_shipment_status = $shipment_status_name;
-                        break;*/
                     case 'Delivered':
                         $order->order_status = 'Payment Pending';
                         if ($all_delivered) {
@@ -328,8 +302,6 @@ class Shipment extends VaahModel
                                 ? 'Partially Delivered'
                                 : $shipment_status_name;
                         } else {
-
-//                            $order->order_status = 'Partially Delivered';
                             $order->order_shipment_status = 'Partially Delivered';
                         }
                         break;
