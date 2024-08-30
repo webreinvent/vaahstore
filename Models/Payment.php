@@ -280,37 +280,13 @@ class Payment extends VaahModel
 
     public static function updateOrderShipmentStatus($order, $taxonomy_payment_status_slug)
     {
-        $current_shipment_status = $order->order_shipment_status;
-        $all_shipments_delivered = OrderStatusHelper::areAllShipmentsDelivered($order->id);
-        switch ($taxonomy_payment_status_slug) {
-            case 'pending':
-                if ($current_shipment_status === 'Delivered') {
-                    $order->order_status = 'Payment Pending';
-                }
-                break;
-            case 'partially-paid':
-                if ($current_shipment_status === 'Delivered') {
-                    $order->order_status = 'Partially Paid';
-                }
-                break;
+        $statuses = OrderStatusHelper::getOrderStatusBasedOnPayment(
+            $order,
+            $taxonomy_payment_status_slug
+        );
+        $order->order_status = $statuses['order_status'];
+        $order->order_shipment_status = $statuses['order_shipment_status'];
 
-            case 'paid':
-                $total_quantity = $order->items()->sum('quantity');
-                $shipped_quantity = ShipmentItem::where('vh_st_order_id', $order->id)->sum('quantity');
-
-                // If all items are shipped and the current status is 'Partially Delivered'
-                if ($total_quantity === $shipped_quantity && ($current_shipment_status === 'Partially Delivered' || $current_shipment_status === 'Delivered')) {
-                    $order->order_status = $all_shipments_delivered ? 'Completed' : 'Partially Delivered';
-                    $order->order_shipment_status = 'Delivered';
-
-                } else {
-                    $order->order_status = $current_shipment_status;
-                }
-                break;
-
-            default:
-                break;
-        }
         $order->save();
     }
 

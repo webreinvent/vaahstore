@@ -239,10 +239,7 @@ class Shipment extends VaahModel
     public static function updateOrderStatus($order, $payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity)
     {
         $all_delivered = OrderStatusHelper::areAllShipmentsDelivered($order->id);
-
-
-
-        $statuses =OrderStatusHelper::getOrderStatusWithShipment(
+        $statuses =OrderStatusHelper::getOrderStatusBasedOnShipment(
             $payment_status_slug,
             $shipment_status_name,
             $shipped_order_quantity,

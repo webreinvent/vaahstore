@@ -3,6 +3,7 @@
 namespace VaahCms\Modules\Store\Helpers;
 
 
+use VaahCms\Modules\Store\Models\Order;
 use VaahCms\Modules\Store\Models\Shipment;
 use VaahCms\Modules\Store\Models\ShipmentItem;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -46,7 +47,7 @@ class OrderStatusHelper
      * @param  bool   $all_delivered
      * @return array
      */
-    public static function getOrderStatusWithShipment($payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity, $all_delivered)
+    public static function getOrderStatusBasedOnShipment($payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity, $all_delivered)
     {
         $order_status = $shipment_status_name;
         $order_shipment_status = $shipment_status_name;
@@ -110,6 +111,57 @@ class OrderStatusHelper
                 $order_shipment_status = $shipment_status_name;
                 break;
         }
+        return [
+            'order_status' => $order_status,
+            'order_shipment_status' => $order_shipment_status,
+        ];
+    }
+
+    /**
+     * Update the order status based on payment status and shipment status.
+     *
+     * @param  Order  $order
+     * @param  string $payment_status_slug
+     * @return array
+     */
+    public static function getOrderStatusBasedOnPayment(Order $order,$payment_status_slug) {
+        $current_shipment_status = $order->order_shipment_status;
+        $all_shipments_delivered = self::areAllShipmentsDelivered($order->id);
+        $order_status = $current_shipment_status;
+        $order_shipment_status = $current_shipment_status;
+        // Get total and shipped quantities
+        $total_quantity = $order->items()->sum('quantity');
+        $shipped_quantity = ShipmentItem::where('vh_st_order_id', $order->id)->sum('quantity');
+
+        switch ($payment_status_slug) {
+            case 'pending':
+                if ($current_shipment_status === 'Delivered') {
+                    $order_status = 'Payment Pending';
+                }
+                break;
+
+            case 'partially-paid':
+                if ($current_shipment_status === 'Delivered') {
+                    $order_status = 'Partially Paid';
+                }
+                break;
+
+            case 'paid':
+                if ($total_quantity === $shipped_quantity &&
+                    ($current_shipment_status === 'Partially Delivered' || $current_shipment_status === 'Delivered')) {
+
+                    $order_status = $all_shipments_delivered ? 'Completed' : 'Partially Delivered';
+                    $order_shipment_status = 'Delivered';
+                } else {
+                    $order_status = $current_shipment_status;
+                }
+                break;
+
+            default:
+                // No status update for other payment statuses
+                break;
+        }
+
         return [
             'order_status' => $order_status,
             'order_shipment_status' => $order_shipment_status,
