@@ -281,6 +281,23 @@ class Payment extends VaahModel
     {
         $current_shipment_status = $order->order_shipment_status;
 
+        $all_shipment_ids = ShipmentItem::where('vh_st_order_id', $order->id)
+            ->pluck('vh_st_shipment_id');
+
+        // Get the 'delivered' status ID from taxonomy
+        $taxonomy_id_shipment_status_delivered = Taxonomy::getTaxonomyByType('shipment-status')
+            ->where('slug', 'delivered')->value('id');
+
+        // Retrieve all shipment statuses for the given shipment IDs
+        $shipment_statuses = Shipment::whereIn('id', $all_shipment_ids)
+            ->pluck('taxonomy_id_shipment_status');
+
+        // Check if all statuses are the same
+        $all_shipments_delivered = $shipment_statuses->every(function ($status_id) use ($taxonomy_id_shipment_status_delivered) {
+            return $status_id == $taxonomy_id_shipment_status_delivered;
+        });
+
+
         switch ($taxonomy_payment_status_slug) {
             case 'pending':
                 if ($current_shipment_status === 'Delivered') {
@@ -300,7 +317,7 @@ class Payment extends VaahModel
 
                 // If all items are shipped and the current status is 'Partially Delivered'
                 if ($total_quantity === $shipped_quantity && ($current_shipment_status === 'Partially Delivered' || $current_shipment_status === 'Delivered')) {
-                    $order->order_status = 'Completed';
+                    $order->order_status = $all_shipments_delivered ? 'Completed' : 'Partially Delivered';
                     $order->order_shipment_status = 'Delivered';
 
                 } else {
