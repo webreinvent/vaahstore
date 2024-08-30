@@ -76,7 +76,7 @@ export const useShipmentStore = defineStore({
         editingRows:[],
         filter_order_suggestion:[],
         selected_orders:null,
-        selected_dates:[],
+        selected_dates:null,
 
 
     }),
@@ -1371,7 +1371,8 @@ export const useShipmentStore = defineStore({
 
         setDateRange() {
 
-            if (!this.selected_dates) {
+
+            if (!this.selected_dates || !Array.isArray(this.selected_dates)) {
                 return false;
             }
             const dates = [];
@@ -1381,7 +1382,7 @@ export const useShipmentStore = defineStore({
                     continue;
                 }
                 let search_date = moment(selected_date)
-                var UTC_date = search_date.format('YYYY-MM-DD');
+                const UTC_date = search_date.format('YYYY-MM-DD');
 
                 if (UTC_date) {
                     dates.push(UTC_date);

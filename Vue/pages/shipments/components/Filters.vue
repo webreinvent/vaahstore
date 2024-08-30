@@ -79,8 +79,8 @@ const store = useShipmentStore();
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               :manualInput="false"
+                              showIcon iconDisplay="input"
                               class="w-full"
-                              append-to="self"
                               data-testid="shipments-filters-create_date_range"
                               placeholder="Select date range"
                     />
