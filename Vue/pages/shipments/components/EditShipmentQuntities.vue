@@ -33,11 +33,12 @@ onMounted(async () => {
                 icon="pi pi-save"/>
     </div>
 
-    <div style="width: 40rem" class="flex justify-content-between ml-8">
-        <b>Total Shipment Quantity: {{ store.total_quantity_to_be_shipped }}</b>
-        <b>Total Shipped Quantity: {{ store.total_shipped_quantity }}</b>
-        <b>Total Pending Quantity: {{ store.total_quantity_to_be_shipped-store.total_shipped_quantity }}</b>
+    <div  class="flex justify-content-between ">
+        <b style="border: 1px solid gray; padding: 5px;">Total Shipment Quantity: {{ store.total_quantity_to_be_shipped }}</b>
+        <b style="border: 1px solid gray; padding: 5px;">Total Shipped Quantity: {{ store.total_shipped_quantity }}</b>
+        <b style="border: 1px solid gray; padding: 5px;">Total Pending Quantity: {{ store.total_quantity_to_be_shipped - store.total_shipped_quantity }}</b>
     </div>
+
 
     <div class="card">
         <Message :closable="false" severity="warn">This will impact quantity on other shipments as well.</Message>

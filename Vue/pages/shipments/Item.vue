@@ -231,7 +231,7 @@ const openVendorPage = (id) => {
                             <Column field="name" header="Order Item">
                                 <template #body="prop">
                                     <div class="min-w-max">
-                                    {{prop.data.product_variation.name}}
+                                    {{prop.data.product_variation?.name}}
                                     </div>
                                 </template>
                             </Column>
@@ -239,7 +239,7 @@ const openVendorPage = (id) => {
                                 <template #body="prop">
                                     <div class="min-w-max">
                                         <span style="color: #1d4ed8;  cursor: pointer;" @click="store.redirectToVendor(prop.data)">
-                                        <b>{{prop.data.vendor.name}}</b>
+                                        <b>{{prop.data.vendor?.name}}</b>
                                     </span>
                                     </div>
                                 </template>

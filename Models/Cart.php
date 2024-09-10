@@ -1130,7 +1130,7 @@ class Cart extends VaahModel
                             'product_variation_id' => $product_variation->id,
                             'price' => $price,
                             'quantity' => $quantity,
-                            'selected_vendor_id' => $vendor->id,
+                            'selected_vendor_id' => $vendor?->id,
                         ],
                     ];
 
