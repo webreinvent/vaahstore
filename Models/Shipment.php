@@ -634,6 +634,11 @@ class Shipment extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+        // Validate 'to_be_shipped' quantities
+        $validation_error = self::validateShippedQuantities($inputs);
+        if ($validation_error) {
+            return $validation_error;
+        }
 
         // Check if name exists
         $item = self::where('id', '!=', $id)
@@ -714,12 +719,10 @@ class Shipment extends VaahModel
         $item = self::where('id', $id)->withTrashed()->first();
 //        $item->fill($inputs);
 //        $item->save();
-
         foreach ($item_ids as $order_item_id => $data) {
             $is_exist_order_item = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
                 ->where('vh_st_shipment_id', '!=', $id)
                 ->exists();
-
             if (!$is_exist_order_item) {
                 $item->shipmentOrderItems()->sync($item_ids);
             }
@@ -986,15 +989,13 @@ $order_item_pairs = $orders->flatMap(function ($order) {
 
     //-------------------------------------------------
     private static function getShippedQuantity($itemId) {
-        return DB::table('vh_st_shipment_items')
-            ->where('vh_st_order_item_id', $itemId)
+        return ShipmentItem::where('vh_st_order_item_id', $itemId)
             ->sum('quantity');
     }
 
     //-------------------------------------------------
     private static function getPendingQuantity($itemId) {
-        return DB::table('vh_st_shipment_items')
-            ->where('vh_st_order_item_id', $itemId)
+        return ShipmentItem::where('vh_st_order_item_id', $itemId)
             ->orderByDesc('created_at')
             ->value('pending');
     }

@@ -87,9 +87,18 @@ export const useShipmentStore = defineStore({
          addOrdersToShipment () {
             this.order_list_tables = this.item.orders.map(order => ({
                 name: order.user_name,
+                id:order.id,
                 items: order.items
             }));
         },
+        removeOrders(event) {
+            const id_to_remove = event.value.id;
+            this.order_list_tables = this.order_list_tables.filter(order => {
+                return order.id !== id_to_remove;
+            });
+
+        },
+
 
         removeOrderDetail(index) {
             this.item.orders.splice(index, 1);
@@ -1060,58 +1069,7 @@ export const useShipmentStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async openOrdersPanel(item)
-        {
-            this.show_orders_panel = true;
-            // this.product_id=item.id;
-            // this.product_name=item.name;
-            // if (item.id) {
-            //     await vaah().ajax(
-            //         ajax_url + '/get-vendors-list'+'/' + item.id,
-            //         this.openVendorsPanelAfter
-            //     );
-            // }
-        },
-        async getDomainFilterMenu() {
 
-            this.shipping_status_menu = [
-                {
-                    label: 'Pending',
-                    command: async () => {
-                        await this.updateDomainFilter('Pending')
-                    }
-                },
-                {
-                    label: 'Picked',
-                    command: async () => {
-                        await this.updateDomainFilter('Picked')
-                    }
-                },
-                {
-                    label: 'In Transit',
-                    command: async () => {
-                        await this.updateDomainFilter('InTransit')
-                    }
-                },
-                {
-                    label: 'Delivered',
-                    command: async () => {
-                        await this.updateDomainFilter('Delivered')
-                    }
-                }
-            ]
-
-        },
-        async updateDomainFilter(name)
-        {
-            this.shipping_status = name;
-        },
-        // searchOrders(event) {
-        //     const query = event.query.toLowerCase();
-        //     this.order_suggestion_list = this.order_list.filter(item => {
-        //         return item.name.toLowerCase().includes(query);
-        //     });
-        // },
         async searchOrders(event){
             const query = event;
             const options = {
@@ -1139,46 +1097,7 @@ export const useShipmentStore = defineStore({
 
 
 
-        async addOrders() {
-            const unique_orders = [];
-            const check_names = new Set();
 
-            for (const order of this.item.orders) {
-                if (!check_names.has(order.name)) {
-                    unique_orders.push(order);
-                    check_names.add(order.name);
-                }
-                else {
-                    this.item.orders = unique_orders;
-                    vaah().toastErrors(['This Currency is already added']);
-                    return false;
-                }
-            }
-            if(unique_orders.length == 0)
-            {
-                await this.getItem(this.route.params.id);
-                return false;
-            }
-            this.item.orders = unique_orders;
-            if ( this.route.name === 'view' && this.item.id ) {
-                await this.itemAction('save');
-            }
-        },
-        toViewVendor(product)
-        {
-            const query = {
-                page: 1,
-                rows: 20,
-                filter: {
-                    q: product.vendor.id
-                }
-            };
-            const route = {
-                name: 'vendors.index',
-                query: query
-            };
-            this.$router.push(route);
-        },
         //---------------------------------------------------------------------
         async searchStatus(event) {
             const query = event;

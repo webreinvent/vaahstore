@@ -30,7 +30,7 @@ onMounted(async () => {
     {
         await store.getItem(route.params.id);
     }
-    store.getDomainFilterMenu();
+
 });
 
 //--------toggle item menu

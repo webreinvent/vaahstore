@@ -184,6 +184,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                             multiple
 
                             @complete="store.searchOrders($event)"
+                            @item-unselect="store.removeOrders($event)"
                             optionLabel="user_name"
                             placeholder="Select orders"
                             display="chip"

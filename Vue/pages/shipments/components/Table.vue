@@ -5,9 +5,7 @@ import { useShipmentStore } from '../../../stores/store-shipments'
 import {onMounted, ref} from "vue";
 const store = useShipmentStore();
 const useVaah = vaah();
-onMounted(async () => {
-    store.getDomainFilterMenu();
-});
+
 const selected_shipping_status = ref();
 const toggleQuickFilterState = (event) => {
     selected_shipping_status.value.toggle(event);

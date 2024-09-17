@@ -1182,7 +1182,7 @@ class Cart extends VaahModel
             [
                 'uuid' => Str::uuid(),
                 'name' => $user_detail['username'] . "'s Wishlist",
-                'slug' => Str::slug($user_detail['first_name'] . "'s Wishlist"),
+                'slug' => Str::slug($user_detail['username'] . "'s Wishlist"),
                 'taxonomy_id_whishlists_status' => $taxonomy_wishlist_status,
                 'is_default' => true,
                 'status_notes' => 'Created automatically',
