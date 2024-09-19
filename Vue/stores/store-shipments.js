@@ -84,66 +84,8 @@ export const useShipmentStore = defineStore({
 
     },
     actions: {
-         addOrdersToShipment () {
-            this.order_list_tables = this.item.orders.map(order => ({
-                name: order.user_name,
-                id:order.id,
-                items: order.items
-            }));
-        },
-        removeOrders(event) {
-            const id_to_remove = event.value.id;
-            this.order_list_tables = this.order_list_tables.filter(order => {
-                return order.id !== id_to_remove;
-            });
-
-        },
 
 
-        removeOrderDetail(index) {
-            this.item.orders.splice(index, 1);
-            this.order_list_tables.splice(index, 1);
-        },
-         updateQuantities (event,index,item,order) {
-
-            const shipped = parseFloat(event.value) || 0;
-
-            if (shipped >= item.pending) {
-                item.to_be_shipped = item.pending;
-            }
-
-
-
-        },
-        calculateTotalToBeShipped(order){
-            if (!order || !Array.isArray(order.items) || order.items.length === 0) {
-                return 0;
-            }
-            return order.items.reduce((total, item) => total + (item.to_be_shipped || 0), 0);
-
-
-        },
-        calculateTotalShippedas(){
-           return 12;
-        },
-        calculateTotalQuantity(items) {
-            if (!Array.isArray(items) || items.length === 0) {
-                return 0;
-            }
-            return items.reduce((total, item) => total + item.quantity, 0);
-        },
-        calculateTotalShipped(items) {
-            if (!Array.isArray(items) || items.length === 0) {
-                return 0;
-            }
-            return items.reduce((acc, item) => acc + parseInt(item.shipped), 0);
-        },calculateTotalPending(items) {
-            if (!Array.isArray(items) || items.length === 0) {
-                return 0;
-            }
-            return items.reduce((acc, item) => acc + parseInt(item.pending), 0);
-
-        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -1134,7 +1076,42 @@ export const useShipmentStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        addOrdersToShipment () {
+            this.order_list_tables = this.item.orders.map(order => ({
+                name: order.user_name,
+                id:order.id,
+                items: order.items
+            }));
+        },
+        //---------------------------------------------------------------------
 
+        removeOrders(event) {
+            const id_to_remove = event.value.id;
+            this.order_list_tables = this.order_list_tables.filter(order => {
+                return order.id !== id_to_remove;
+            });
+
+        },
+        //---------------------------------------------------------------------
+
+
+        removeOrderDetail(index) {
+            this.item.orders.splice(index, 1);
+            this.order_list_tables.splice(index, 1);
+        },
+        //---------------------------------------------------------------------
+
+        updateQuantities (event,index,item,order) {
+
+            const shipped = parseFloat(event.value) || 0;
+
+            if (shipped >= item.pending) {
+                item.to_be_shipped = item.pending;
+            }
+
+
+
+        },
         //---------------------------------------------------------------------
         async getShipmentItemList(shipment_item_id){
             if(shipment_item_id){
@@ -1311,6 +1288,9 @@ export const useShipmentStore = defineStore({
                 }
             }
         },
+        //---------------------------------------------------------------------
+        //---------------------------------------------------------------------
+
     }
 });
 
