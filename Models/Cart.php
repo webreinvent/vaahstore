@@ -3,6 +3,7 @@
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -655,6 +656,7 @@ class Cart extends VaahModel
 
         if ($variation_id === null) {
             $cart->products()->detach($request['cart_product_details']['vh_st_product_id']);
+            Session::forget('vh_user_id');
         } else {
             $cart_product_table_ids = $cart->products()
                 ->wherePivot('vh_st_cart_id', $cart_id)
@@ -663,10 +665,10 @@ class Cart extends VaahModel
                 ->wherePivot('vh_st_vendor_id', $vendor_id)
                 ->pluck('vh_st_cart_products.id')
                 ->toArray();
-
             if (!empty($cart_product_table_ids)) {
                 foreach ($cart_product_table_ids as $cart_product_id) {
                     $cart->cartItems()->detach($cart_product_id);
+                    Session::forget('vh_user_id');
                 }
             }
         }
@@ -1050,7 +1052,7 @@ class Cart extends VaahModel
         $is_empty_cart = $cart->products->isEmpty();
 
         if ($is_empty_cart) {
-            $cart->delete();
+            $cart->forceDelete();
         }
     }
 
