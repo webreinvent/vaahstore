@@ -1092,8 +1092,8 @@ export const useShipmentStore = defineStore({
             });
 
         },
-        //---------------------------------------------------------------------
 
+        //---------------------------------------------------------------------
 
         removeOrderDetail(index) {
             this.item.orders.splice(index, 1);
@@ -1110,6 +1110,31 @@ export const useShipmentStore = defineStore({
             }
 
 
+
+        },
+        //---------------------------------------------------------------------
+
+        calculateTotalQuantity(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((total, item) => total + item.quantity, 0);
+        },
+        //---------------------------------------------------------------------
+
+        calculateTotalShipped(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((acc, item) => acc + parseInt(item.shipped), 0);
+        },
+        //---------------------------------------------------------------------
+
+        calculateTotalPending(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((acc, item) => acc + parseInt(item.pending), 0);
 
         },
         //---------------------------------------------------------------------
