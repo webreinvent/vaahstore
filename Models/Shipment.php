@@ -390,9 +390,7 @@ class Shipment extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with( 'status')->withCount(['orders' => function ($query) {
-            $query->select(DB::raw('count(distinct vh_st_order_id)'));
-        }]);
+        $list = self::getSorted($request->filter)->with( 'status','orders');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->orderFilter($request->filter);

@@ -1314,6 +1314,17 @@ export const useShipmentStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+        distinctOrdersCount(orders)
+        {
+
+            if (!orders || orders.length === 0) {
+                return 0;
+            }
+            const distinct_order_ids = new Set(orders.map(order => order.id));
+
+            return distinct_order_ids.size;
+
+        },
         //---------------------------------------------------------------------
 
     }
