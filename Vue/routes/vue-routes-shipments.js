@@ -27,13 +27,7 @@ routes_list = {
         }
     ]
 };
-// let shipment_form ={
-//     path: 'form/:id?',
-//     name: 'shipments.form',
-//     component: Form,
-//     props: true,
-// };
-// routes.push(shipment_form);
+
 routes.push(routes_list);
 
 export default routes;

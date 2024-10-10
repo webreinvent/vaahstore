@@ -125,6 +125,8 @@ class Shipment extends VaahModel
         return $this->belongsToMany(Order::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_id')
             ->withPivot('quantity','pending');
     }
+    //-------------------------------------------------
+
     public  function shipmentOrderItems()
     {
         return $this->belongsToMany(OrderItem::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_item_id')
@@ -717,8 +719,7 @@ class Shipment extends VaahModel
     private static function updateAndSyncItem($id, $inputs, $item_ids)
     {
         $item = self::where('id', $id)->withTrashed()->first();
-//        $item->fill($inputs);
-//        $item->save();
+
         foreach ($item_ids as $order_item_id => $data) {
             $is_exist_order_item = ShipmentItem::where('vh_st_order_item_id', $order_item_id)
                 ->where('vh_st_shipment_id', '!=', $id)
@@ -962,14 +963,9 @@ $order_item_pairs = $orders->flatMap(function ($order) {
                     $shippedQuantity = static::getShippedQuantity($item->id);
                     $pending_quantity = static::getPendingQuantity($item->id);
                     $item->shipped = $shippedQuantity;
-//                    if ($pending_quantity != 0) {
-//
-//                        $item->pending = $pending_quantity;
-//                    } else {
                         $item->pending = $item->quantity - $shippedQuantity;
-//                    }
                     $item->overall_shipped_quantity = static::getShippedQuantity($item->id);
-     $item->exists_in_shipment = isset($shipment_items[$order->id]) && $shipment_items[$order->id]->contains($item->id);
+                    $item->exists_in_shipment = isset($shipment_items[$order->id]) && $shipment_items[$order->id]->contains($item->id);
                     unset($item->productVariation);
 
                 }
@@ -1029,7 +1025,6 @@ $order_item_pairs = $orders->flatMap(function ($order) {
     public static function getShipmentItemList($id){
         $shipment_items = ShipmentItem::where('vh_st_order_item_id', $id)
             ->get();
-//        dd($shipment_items);
         if (!$shipment_items) {
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");

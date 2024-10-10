@@ -52,9 +52,7 @@ const openLinkInNewTab = (url) => {
              <Column header="Tracking Key"  :sortable="true">
 
                  <template #body="prop">
-<!--                     <Button @click="useVaah.copy('af75851e-9623-41ce-b4fc')">-->
                          {{prop.data.tracking_key}}
-<!--                     </Button>-->
                  </template>
              </Column>
              <Column header="Tracking Value"  :sortable="true">
@@ -101,7 +99,6 @@ const openLinkInNewTab = (url) => {
                      <span v-else style="padding-left: 5px;">
                       No
                     </span>
-                     <!--                     Yes-->
                  </template>
 
              </Column>
@@ -116,21 +113,7 @@ const openLinkInNewTab = (url) => {
 
                 </Column>
 
-<!--            <Column field="is_active" v-if="store.isViewLarge()"
-                    :sortable="true"
-                    style="width:100px;"
-                    header="Is Active">
 
-                <template #body="prop">
-                    <InputSwitch v-model.bool="prop.data.is_active"
-                                 data-testid="shipments-table-is-active"
-                                 v-bind:false-value="0"  v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
-                                 @input="store.toggleIsActive(prop.data)">
-                    </InputSwitch>
-                </template>
-
-            </Column>-->
 
             <Column field="actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
@@ -139,19 +122,7 @@ const openLinkInNewTab = (url) => {
                 <template #body="prop">
                     <div class="p-inputgroup justify-content-center">
 
-<!--                        <Button class="p-button-tiny p-button-text"
-                                data-testid="shipments-table-to-view"
-                                v-tooltip.top="'Track Your Shipment'"
-                                :disabled="prop.data.is_trackable !== 1"
-                                @click="openLinkInNewTab(prop.data.tracking_url)"
-                                icon="pi pi-globe"
-                                 />-->
-<!--                            <a href="https://www.delhivery.com/"-->
-<!--                                target="_blank"-->
-<!--                                class=" ml-2 pi pi-globe">-->
 
-<!--                            </a>-->
-<!--                        </Button>-->
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'View'"

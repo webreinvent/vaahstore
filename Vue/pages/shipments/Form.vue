@@ -245,20 +245,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                     </div>
                                 </template>
                             </Column>
-<!--                            <template v-if="store.item.id">-->
-<!--                                <Column  header="Edit Quanity">-->
-<!--                                    <template #body="prop">-->
-<!--                                        <Button v-if="prop.data.exists_in_shipment !== false" class="p-button-tiny p-button-text"-->
-<!--                                                data-testid="shipments-table-to-view"-->
-<!--                                                v-tooltip.top="'View'"-->
-<!--                                                @click="openShippingQuantityModal(store.item.id,prop.data.name,prop.data.id)"-->
-<!--                                                icon="pi pi-pencil" />-->
-<!--                                        <div v-else>-->
-<!--                                            <span>No shipment yet</span>-->
-<!--                                        </div>-->
-<!--                                    </template>-->
-<!--                                </Column>-->
-<!--                            </template>-->
+
                             <template >
                                 <Column header="To Be Shipped" class="overflow-wrap-anywhere">
                                     <template #body="prop">
@@ -273,10 +260,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                                     @input="store.updateQuantities($event, index, prop.data, order)"
                                                 />
                                             </div>
-                                            <!--                                            <div v-else>-->
 
-                                            <!--                                                <span>No pending quantities</span>-->
-                                            <!--                                            </div>-->
                                         </div>
                                         <div v-else-if="(store.item.id && prop.data.exists_in_shipment === true)">
                                             <InputNumber  v-if="prop.data.pending !== 0"
