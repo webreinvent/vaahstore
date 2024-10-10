@@ -223,13 +223,32 @@ class Shipment extends VaahModel
         if (isset($inputs['orders'])) {
             foreach ($inputs['orders'] as $order) {
                 foreach ($order['items'] as $order_item) {
-                    if (isset($order_item['to_be_shipped']) && $order_item['to_be_shipped'] > $order_item['pending']) {
+                    $orderItem = OrderItem::find($order_item['id']);
+                    if (!$orderItem) {
                         return [
                             'success' => false,
                             'errors' => [
-                                "To be shipped quantity should not exceed pending quantity for item: {$order_item['product_variation']['name']}"
+                                "Order item not found for ID: {$order_item['id']}"
                             ]
                         ];
+                    }
+                    if (isset($order_item['to_be_shipped'])) {
+                        if ( $order_item['to_be_shipped'] > $orderItem->quantity) {
+                            return [
+                                'success' => false,
+                                'errors' => [
+                                    "To beas shipped quantity should not exceed total quantity for item: {$order_item['product_variation']['name']}"
+                                ]
+                            ];
+                        }
+                        if ( $order_item['to_be_shipped'] > $order_item['pending']) {
+                            return [
+                                'success' => false,
+                                'errors' => [
+                                    "To be shipped quantity should not exceed pending quantity for item: {$order_item['product_variation']['name']}"
+                                ]
+                            ];
+                        }
                     }
                 }
             }
@@ -1045,28 +1064,67 @@ $order_item_pairs = $orders->flatMap(function ($order) {
     }
     //----------------------------------------------------------
 
-    public static function saveEditedShippedQuantity($request){
+
+
+    public static function saveEditedShippedQuantity($request)
+    {
         $items = $request->all();
+        $available_quantity = $items['available_quantity'];
+        $total_quantity = 0;
+
+        $response = [
+            'success' => true,
+            'errors' => [],
+        ];
+
         foreach ($items['shipment_items'] as $item) {
-            $order_item = OrderItem::where('id', $item['vh_st_order_item_id'])->first();
-            if ($item['quantity'] > $order_item->quantity){
-                $response['success'] = false;
-                $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
-                return $response;
-            }
+            $total_quantity += $item['quantity'];
+
             $shipment_item = ShipmentItem::find($item['id']);
-            $shipment_item->update([
-                'quantity' => $item['quantity'],
-                'pending' => $item['pending'],
-                'updated_at' => now(),
-            ]);
+            $order_item = OrderItem::find($item['vh_st_order_item_id']);
+
+            if (!$shipment_item) {
+                $response['success'] = false;
+                $response['errors'][] = trans("vaahcms-general.record_does_not_exist") . " for shipment item ID: {$item['id']}";
+                continue;
+            }
+
+            if (!$order_item) {
+                $response['success'] = false;
+                $response['errors'][] = trans("vaahcms-general.record_does_not_exist") . " for order item ID: {$item['vh_st_order_item_id']}";
+                continue;
+            }
+
+            if ($item['quantity'] > $order_item->quantity) {
+                $response['success'] = false;
+                $response['errors'][] = "Shipment quantity exceeds available quantity for item ID: {$item['vh_st_order_item_id']}";
+
+            }
         }
-        $shipment=self::find($items['shipment_id']);
-        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-        $response['success'] = true;
-        $response['data'] = $shipment;
+
+        if ($total_quantity > $available_quantity) {
+            $response['success'] = false;
+            $response['errors'][] = "Total shipment quantity exceeds available quantity.";
+        }
+
+        if ($response['success']) {
+            foreach ($items['shipment_items'] as $item) {
+                $shipment_item = ShipmentItem::find($item['id']);
+                $shipment_item->update([
+                    'quantity' => $item['quantity'],
+                    'pending' => $item['pending'],
+                    'updated_at' => now(),
+                ]);
+            }
+
+            $shipment = self::find($items['shipment_id']);
+            $response['messages'][] = trans("vaahcms-general.saved_successfully");
+            $response['data'] = $shipment;
+        }
+
         return $response;
     }
+
 
     //----------------------------------------------------------
 

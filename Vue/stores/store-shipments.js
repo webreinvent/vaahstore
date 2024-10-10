@@ -1178,6 +1178,7 @@ export const useShipmentStore = defineStore({
                     options.method = 'POST';
                     options.params = {
                         shipment_items: item,
+                        available_quantity: this.total_quantity_to_be_shipped,
                         shipment_id: params_id
                     };
                     ajax_url += '/update-shipped-item-quantity'
