@@ -6,6 +6,7 @@ use VaahCms\Modules\Store\Http\Controllers\Backend\ShipmentsController;
 Route::group(
     [
         'prefix' => 'store/shipments',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,17 @@ function () {
     Route::any('/{id}/action/{action}', [ShipmentsController::class, 'itemAction'])
         ->name('vh.backend.store.api.shipments.item.action');
 
+    /**
+     * Get Shipped Order Item List
+     */
+    Route::get('/{id}/get-shipped-item-list',[ShipmentsController::class, 'getShipmentItemList'])
+        ->name('vh.backend.store..api.shipments.get.shipped-item-list');
+
+    /**
+     * Update Shipped Item Quantities
+     */
+    Route::post('/update-shipped-item-quantity', [ShipmentsController::class,'saveEditedShippedQuantity'])
+        ->name('vh.backend.store.shipments.save.edited-shipped-quantity');
 
 
 });

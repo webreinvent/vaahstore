@@ -6,6 +6,7 @@
 Route::group(
     [
         'prefix' => 'store/settings',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -26,6 +27,16 @@ function () {
     Route::match(['put', 'patch'], '/', 'SettingsController@updateList')
         ->name('vh.backend.store.api.settings.list.update');
 
+    /**
+     * Create Bulk Records
+     */
+    Route::any('/fill/bulk/method', 'SettingsController@createBulkRecords')
+        ->name('vh.backend.store.settings.create.bulk.records');
 
+    /**
+     * Get Crud Records Count
+     */
+    Route::get('/get/all-item/count', 'SettingsController@getItemsCount')
+        ->name('vh.backend.store.settings.get.items.count');
 
 });
