@@ -1,7 +1,7 @@
 <?php
 use VaahCms\Modules\Store\Http\Controllers\Backend\ShipmentsController;
 /*
- * API url will be: <base-url>/public/api/store/shipments
+ * API url will be: <base-url>/api/store/shipments
  */
 Route::group(
     [

@@ -1,7 +1,7 @@
 <?php
 use VaahCms\Modules\Store\Http\Controllers\Backend\CartsController;
 /*
- * API url will be: <base-url>/public/api/store/carts
+ * API url will be: <base-url>/api/store/carts
  */
 Route::group(
     [

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/orders
+ * API url will be: <base-url>/api/store/orders
  */
 Route::group(
     [

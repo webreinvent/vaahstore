@@ -1,11 +1,12 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/warehouses
+ * API url will be: <base-url>/api/store/warehouses
  */
 Route::group(
     [
         'prefix' => 'store/warehouses',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {

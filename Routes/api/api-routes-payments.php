@@ -1,7 +1,7 @@
 <?php
 use VaahCms\Modules\Store\Http\Controllers\Backend\PaymentsController;
 /*
- * API url will be: <base-url>/public/api/store/payments
+ * API url will be: <base-url>/api/store/payments
  */
 Route::group(
     [
