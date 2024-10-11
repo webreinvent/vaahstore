@@ -6,6 +6,7 @@
 Route::group(
     [
         'prefix' => 'store/paymentmethods',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {

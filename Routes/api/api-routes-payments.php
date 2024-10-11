@@ -6,6 +6,7 @@ use VaahCms\Modules\Store\Http\Controllers\Backend\PaymentsController;
 Route::group(
     [
         'prefix' => 'store/payments',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,10 @@ function () {
     Route::any('/{id}/action/{action}', [PaymentsController::class, 'itemAction'])
         ->name('vh.backend.store.api.payments.item.action');
 
-
+    /**
+     * search orders for make payment
+     */
+    Route::post('/search/orders', [PaymentsController::class, 'searchOrders'])
+        ->name('vh.backend.store.payments.search.orders');
 
 });

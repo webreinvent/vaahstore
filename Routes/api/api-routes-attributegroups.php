@@ -6,6 +6,7 @@
 Route::group(
     [
         'prefix' => 'store/attributegroups',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
