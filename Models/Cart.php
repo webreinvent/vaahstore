@@ -3,6 +3,7 @@
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -469,7 +470,6 @@ class Cart extends VaahModel
             $selected_vendor = Vendor::find($vendor_id);
             $is_quantity_available = self::isCartItemQuantityAvailable($selected_vendor,$product->id,$variation_id);
             $available_quantity = $is_quantity_available ? self::getAvailableQuantity($selected_vendor, $product->id, $variation_id) : 0;
-
             $pivot_quantity = $product->pivot->quantity;
             $is_pivot_quantity_valid = $pivot_quantity <= $available_quantity;
             $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
@@ -485,6 +485,7 @@ class Cart extends VaahModel
             $product->pivot->is_wishlisted = $is_wishlisted ? 1 : 0;
             $product->pivot->cart_product_variation = $variation_name;
             $product->pivot->price = $price;
+            $product->available_stock_quantity = $available_quantity;
 
         }
 
@@ -655,6 +656,7 @@ class Cart extends VaahModel
 
         if ($variation_id === null) {
             $cart->products()->detach($request['cart_product_details']['vh_st_product_id']);
+            Session::forget('vh_user_id');
         } else {
             $cart_product_table_ids = $cart->products()
                 ->wherePivot('vh_st_cart_id', $cart_id)
@@ -663,10 +665,10 @@ class Cart extends VaahModel
                 ->wherePivot('vh_st_vendor_id', $vendor_id)
                 ->pluck('vh_st_cart_products.id')
                 ->toArray();
-
             if (!empty($cart_product_table_ids)) {
                 foreach ($cart_product_table_ids as $cart_product_id) {
                     $cart->cartItems()->detach($cart_product_id);
+                    Session::forget('vh_user_id');
                 }
             }
         }
@@ -979,8 +981,9 @@ class Cart extends VaahModel
 
         $order->vh_user_id = $request->order_details['shipping_address']['vh_user_id'];
         $order->amount = $request->order_details['total_amount'];
-        $order->taxonomy_id_order_status = $taxonomy_order_status;
+        $order->order_status = 'Placed';
         $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
+        $order->order_shipment_status = 'Pending';
         $order->payable = $request->order_details['payable'];
         $order->discount = $request->order_details['discounts'];
         $order->taxes = $request->order_details['taxes'];
@@ -1049,7 +1052,7 @@ class Cart extends VaahModel
         $is_empty_cart = $cart->products->isEmpty();
 
         if ($is_empty_cart) {
-            $cart->delete();
+            $cart->forceDelete();
         }
     }
 
@@ -1129,7 +1132,7 @@ class Cart extends VaahModel
                             'product_variation_id' => $product_variation->id,
                             'price' => $price,
                             'quantity' => $quantity,
-                            'selected_vendor_id' => $vendor->id,
+                            'selected_vendor_id' => $vendor?->id,
                         ],
                     ];
 
@@ -1180,8 +1183,8 @@ class Cart extends VaahModel
             ['vh_user_id' => $user_detail['id']],
             [
                 'uuid' => Str::uuid(),
-                'name' => $user_detail['first_name'] . "'s Wishlist",
-                'slug' => Str::slug($user_detail['first_name'] . "'s Wishlist"),
+                'name' => $user_detail['username'] . "'s Wishlist",
+                'slug' => Str::slug($user_detail['username'] . "'s Wishlist"),
                 'taxonomy_id_whishlists_status' => $taxonomy_wishlist_status,
                 'is_default' => true,
                 'status_notes' => 'Created automatically',

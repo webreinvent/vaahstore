@@ -179,17 +179,11 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     <td><b>Payment Status</b></td>
                                     <td  colspan="2" >
                                         <template v-if="store.item.status">
-                                            <Badge v-if="store.item.status.slug == 'approved'" severity="success">
-                                                {{store.item.status.name}}
+                                            <Badge v-if="store.item.status?.slug == 'success'" severity="success">
+                                                {{store.item.status?.name}}
                                             </Badge>
-                                            <Badge v-else-if="store.item.status.slug == 'pending'"  severity="warning">
-                                                {{store.item.status.name}}
-                                            </Badge>
-                                            <Badge v-else-if="store.item.status.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
-                                                {{store.item.status.name}}
-                                            </Badge>
-                                            <Badge v-else severity="success">
-                                                {{store.item.status.name}}
+                                            <Badge v-else severity="primary">
+                                                {{store.item.status?.name}}
                                             </Badge>
                                         </template>
                                     </td>

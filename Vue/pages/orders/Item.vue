@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import { onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import { useOrderStore } from '../../stores/store-orders'
@@ -156,10 +156,10 @@ const toggleItemMenu = (event) => {
                             column === 'order_payment_status'|| column === 'paid' ||
                             column === 'discount'|| column === 'taxonomy_id_payment_status'||
                             column === 'payable' || column === 'user'|| column === 'payment_method'||
-                            column === 'status'|| column === 'status_order'|| column === 'amount'||
+                            column === 'status'|| column === 'status_order'|| column === 'amount'||column === 'items_count'||
                             column === 'is_active_order_item' || column == 'is_invoice_available'
                             || column == 'meta' || column == 'deleted_by' || column == 'status_notes'
-                             || column == 'slug' || column === 'payments'">
+                             || column === 'order_shipment_status' || column === 'payments'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -179,14 +179,21 @@ const toggleItemMenu = (event) => {
 
 
 
-                        <template v-else-if="column === 'taxonomy_id_order_status'">
+                        <template v-else-if="column === 'order_status'">
                             <tr>
-                                <td><b>Order Payment Status</b></td>
+                                <td><b>Order Status</b></td>
                                 <td  colspan="2" >
-                                    <Badge v-if="store.item.order_payment_status.slug === 'paid'" severity="success">
+                                    <Badge class="word-overflow" :severity="store.item.order_status === 'Completed' ? 'success' : ''">
+                                        {{store.item.order_status}}</Badge>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Payment Status</b></td>
+                                <td  colspan="2" >
+                                    <Badge v-if="store.item.order_payment_status?.slug === 'paid'" severity="success">
                                         {{store.item.order_payment_status?.name}}
                                     </Badge>
-                                    <Badge v-else-if="store.item.order_payment_status.slug === 'partially-paid'" severity="info">
+                                    <Badge v-else-if="store.item.order_payment_status?.slug === 'partially-paid'" severity="info">
                                         {{store.item.order_payment_status?.name}}
                                     </Badge>
                                     <Badge v-else severity="danger">
@@ -197,14 +204,12 @@ const toggleItemMenu = (event) => {
                             <tr>
                                 <td><b>Shipping Status</b></td>
                                 <td  colspan="2" >
-                                    <Badge class="word-overflow">
-                                        {{'Pending'}}</Badge>
+                                    <Badge class="word-overflow" :severity="store.item.order_shipment_status === 'Delivered' ? 'success' : 'warning'">
+                                        {{store.item.order_shipment_status}}</Badge>
                                 </td>
                             </tr>
-                            <VhViewRow label="Order Status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
+
+
                         </template>
 
                         <template v-else-if="column === 'vh_st_payment_method_id'">
@@ -290,13 +295,23 @@ const toggleItemMenu = (event) => {
                             </tr>
 
 
+
+                            <tr >
+                                <td><b>Order Items</b></td>
+                                <td colspan="2">
+                                <Badge  class=" cursor-pointer" v-tooltip.top="'View Order Details'" @click="store.toOrderDetails(store.item)">
+                             <b>
+                                {{store.item.items_count}}
+                            </b>
+                         </Badge>
+                                </td>
+                            </tr>
+
+
                         </template>
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
+
                         </template>
 
                         <template v-else>

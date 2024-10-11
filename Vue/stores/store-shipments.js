@@ -1,13 +1,14 @@
-import {toRaw,watch} from 'vue'
+import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment-timezone/moment-timezone-utils";
 
-let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
+let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Shipment';
 
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
-let ajax_url = base_url + "/store/orders";
+let ajax_url = base_url + "/store/shipments";
 
 let empty_states = {
     query: {
@@ -26,8 +27,8 @@ let empty_states = {
     }
 };
 
-export const useOrderStore = defineStore({
-    id: 'orders',
+export const useShipmentStore = defineStore({
+    id: 'shipments',
     state: () => ({
         base_url: base_url,
         ajax_url: ajax_url,
@@ -49,7 +50,7 @@ export const useOrderStore = defineStore({
         },
         route: null,
         watch_stopper: null,
-        route_prefix: 'orders.',
+        route_prefix: 'shipments.',
         view: 'large',
         show_filters: false,
         list_view_width: 12,
@@ -58,6 +59,8 @@ export const useOrderStore = defineStore({
             action: null,
             is_button_loading: null
         },
+        options:[{ name: 'Yes', value: 1 },
+            { name: 'No', value: 0 }],
         is_list_loading: null,
         count_filters: 0,
         list_selected_menu: [],
@@ -65,30 +68,23 @@ export const useOrderStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        suggestion: null,
-        status_suggestion: null,
-        status_order_items_suggestion: null,
-        payment_method_suggestion: null,
-        user_suggestion: null,
-        type_suggestion: null,
-        products: null,
-        vendor_suggestion: null,
-        customer_group_suggestion: null,
         form_menu_list: [],
-        types : null,
-        filtered_product_variations : null,
-        filtered_venders :null,
-        vendors : null,
-        filtered_customer_groups : null,
-        filtered_users : null,
+        order_list_tables:[],
+        status_suggestion:null,
+        total_quantity_to_be_shipped:null,
+        shipped_items_list:[],
+        editingRows:[],
+        filter_order_suggestion:[],
+        selected_orders:null,
+        selected_dates:null,
 
-        order_list_table_with_vendor:null,
-        order_name:null,
+
     }),
     getters: {
 
     },
     actions: {
+
 
         //---------------------------------------------------------------------
         async onLoad(route)
@@ -101,48 +97,49 @@ export const useOrderStore = defineStore({
             /**
              * Update with view and list css column number
              */
-            this.setViewAndWidth(route.name);
+            await this.setViewAndWidth(route.name);
+
+            await(this.query = vaah().clone(this.empty_query));
+
+            await this.countFilters(this.query);
 
             /**
              * Update query state with the query parameters of url
              */
-            this.updateQueryFromUrl(route);
+            await this.updateQueryFromUrl(route);
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
         },
-
         //---------------------------------------------------------------------
-
-
-
+        setRowClass(data){
+            return [{ 'bg-gray-200': data.id == this.route.params.id }];
+        },
+        setShippedRowClass(data){
+            return [{ 'bg-gray-200': data.vh_st_shipment_id == this.route.params.id }];
+        },
         //---------------------------------------------------------------------
-
-
-        //---------------------------------------------------------------------
-
-
-        //---------------------------------------------------------------------
-
-
-        //---------------------------------------------------------------------
-
-
-
-
-
         setViewAndWidth(route_name)
         {
             switch(route_name)
             {
-                case 'orders.index':
+                case 'shipments.index':
                     this.view = 'large';
                     this.list_view_width = 12;
                     break;
-                case 'orders.view':
+                case 'shipments.form':
+                    this.view = 'small';
+                    this.list_view_width = 5;
+                    break;
+                case 'shipments.view':
                     this.view = 'small';
                     this.list_view_width = 5;
                     break;
                 default:
                     this.view = 'small';
                     this.list_view_width = 6;
+                    this.show_filters = false;
                     break
             }
         },
@@ -157,6 +154,9 @@ export const useOrderStore = defineStore({
                     {
                         this.query[key] = route.query[key]
                     }
+                    if(this.query.rows){
+                        this.query.rows = parseInt(this.query.rows);
+                    }
                     this.countFilters(route.query);
                 }
             }
@@ -168,13 +168,14 @@ export const useOrderStore = defineStore({
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
 
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.includes(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
                     }
 
                     this.route = newVal;
+
                     if(newVal.params.id){
                         this.getItem(newVal.params.id);
                     }
@@ -193,18 +194,18 @@ export const useOrderStore = defineStore({
                 },{deep: true}
             )
         },
-        // //---------------------------------------------------------------------
-
-
-
         //---------------------------------------------------------------------
-
+         watchItem(name)
+          {
+              if(name && name !== "")
+              {
+                  this.item.name = vaah().capitalising(name);
+                  this.item.slug = vaah().strToSlug(name);
+              }else{
+                  this.item.slug = name;
+              }
+          },
         //---------------------------------------------------------------------
-
-
-
-        //---------------------------------------------------------------------
-
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -222,13 +223,11 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-
-
-                this.payment_methods = data.payment_methods;
-
-                if(data.rows)
+                this.status_option = data.taxonomy.status;
+                if(!this.query.rows && data.rows)
                 {
                     this.query.rows = data.rows;
+                    this.empty_query.rows = data.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -272,9 +271,49 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.item = data;
+
+
             }else{
-                this.$router.push({name: 'orders.index'});
+                this.$router.push({name: 'shipments.index',query:this.query});
             }
+
+            let uniqueOrders = [];
+
+            for (let item of this.item.shipment_order_items) {
+                let order = item.order;
+                let existingOrder = uniqueOrders.find(o => o.id === order.id);
+
+                let formattedItem = {
+                    ...item,
+                    shipped: item.pivot.quantity,
+                    // pending: item.quantity - item.pivot.quantity,
+                    is_exist:item.is_items_exist_already,
+                    pending:item.pivot.pending,
+                    name: item.product_variation.name
+                };
+
+                if (!existingOrder) {
+                    uniqueOrders.push({
+                        ...order,
+                        user_name: order.user.display_name,
+                        items: [formattedItem],
+                    });
+                } else {
+                    existingOrder.items.push(formattedItem);
+                }
+            }
+
+            this.item.orders = uniqueOrders;
+
+            if (this.item.orders){
+
+                this.order_list_tables = this.item.orders.map(order => ({
+                    name: order.user_name,
+                    items: order.items
+                }));
+            }
+
+
             await this.getItemMenu();
             await this.getFormMenu();
         },
@@ -377,15 +416,8 @@ export const useOrderStore = defineStore({
                 options
             );
         },
-
         //---------------------------------------------------------------------
-
-
-
-        //---------------------------------------------------------------------
-
         async itemAction(type, item=null){
-
             if(!item)
             {
                 item = this.item;
@@ -409,12 +441,12 @@ export const useOrderStore = defineStore({
                  * Create a record, hence method is `POST`
                  * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
                  */
-                // case 'create-and-new':
-                // case 'create-and-close':
-                // case 'create-and-clone':
-                //     options.method = 'POST';
-                //     options.params = item;
-                //     break;
+                case 'create-and-new':
+                case 'create-and-close':
+                case 'create-and-clone':
+                    options.method = 'POST';
+                    options.params = item;
+                    break;
 
                 /**
                  * Update a record with many columns, hence method is `PUT`
@@ -426,11 +458,6 @@ export const useOrderStore = defineStore({
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
-                    break;
-                case 'order-items':
-                    options.method = 'POST';
-                    options.params = item;
-                    ajax_url += '/items'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
@@ -474,26 +501,28 @@ export const useOrderStore = defineStore({
         {
             switch (this.form.action)
             {
-
-
+                case 'create-and-new':
                 case 'save-and-new':
-
                     this.setActiveItemAsEmpty();
                     break;
-
+                case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
-                    this.$router.push({name: 'orders.index'});
+                    this.$router.push({name: 'shipments.index',query:this.query});
                     break;
                 case 'save-and-clone':
-
+                case 'create-and-clone':
                     this.item.id = null;
+                    this.$router.push({name: 'shipments.form',query:this.query,params: { id: null }});
                     await this.getFormMenu();
                     break;
                 case 'trash':
                 case 'restore':
                 case 'save':
-                    this.item = data;
+                    if(this.item && this.item.id){
+                        this.getItem(this.item.id);
+                        this.item = data;
+                    }
                     break;
                 case 'delete':
                     this.item = null;
@@ -524,7 +553,6 @@ export const useOrderStore = defineStore({
             await this.getList();
         },
         //---------------------------------------------------------------------
-
         async getFormInputs () {
             let params = {
                 model_namespace: this.model,
@@ -560,6 +588,8 @@ export const useOrderStore = defineStore({
         setActiveItemAsEmpty()
         {
             this.item = vaah().clone(this.assets.empty_item);
+            this.order_list_tables=null;
+            this.item.orders=null;
         },
         //---------------------------------------------------------------------
         confirmDelete()
@@ -577,6 +607,13 @@ export const useOrderStore = defineStore({
         {
             this.action.type = 'delete-all';
             vaah().confirmDialogDelete(this.listAction);
+        },
+        //---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -636,6 +673,7 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+            this.selected_orders=null;
             //reset query strings
             await this.resetQueryString();
 
@@ -645,6 +683,7 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         async resetQueryString()
         {
+            this.selected_dates = null;
             for(let key in this.query.filter)
             {
                 this.query.filter[key] = null;
@@ -654,47 +693,45 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         closeForm()
         {
-            this.$router.push({name: 'orders.index'})
+            this.$router.push({name: 'shipments.index',query:this.query})
         },
         //---------------------------------------------------------------------
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
-            this.$router.push({name: 'orders.index'})
+            this.$router.push({name: 'shipments.index',query:this.query})
+            this.order_list_tables=null;
+            this.item.orders=null;
         },
         //---------------------------------------------------------------------
-
+        toForm()
+        {
+            this.item = vaah().clone(this.assets.empty_item);
+            this.getFormMenu();
+            this.$router.push({name: 'shipments.form',query:this.query})
+            this.order_list_tables=null;
+            this.item.orders=null;
+        },
         //---------------------------------------------------------------------
-
         toView(item)
         {
-            this.item = vaah().clone(item);
-            this.$router.push({name: 'orders.view', params:{id:item.id}})
+            if(!this.item || !this.item.id || this.item.id !== item.id){
+                this.item = vaah().clone(item);
+            }
+            this.$router.push({name: 'shipments.view', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
         toEdit(item)
         {
-            this.item = item;
-            this.$router.push({name: 'orders.form', params:{id:item.id}})
+            if(!this.item || !this.item.id || this.item.id !== item.id){
+                this.item = vaah().clone(item);
+            }
+            this.$router.push({name: 'shipments.form', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
         isViewLarge()
         {
             return this.view === 'large';
-        },
-        //---------------------------------------------------------------------
-        getIdWidth()
-        {
-            let width = 20;
-
-            if(this.list && this.list.total)
-            {
-                let chrs = this.list.total.toString();
-                chrs = chrs.length;
-                width = chrs*20;
-            }
-
-            return width+'px';
         },
         //---------------------------------------------------------------------
         getActionWidth()
@@ -767,13 +804,13 @@ export const useOrderStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -783,14 +820,14 @@ export const useOrderStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -899,6 +936,7 @@ export const useOrderStore = defineStore({
 
             if(this.item && this.item.id)
             {
+                let is_deleted = !!this.item.deleted_at;
                 form_menu = [
                     {
                         label: 'Save & Close',
@@ -917,43 +955,49 @@ export const useOrderStore = defineStore({
 
                         }
                     },
-
+                    {
+                        label: is_deleted ? 'Restore': 'Trash',
+                        icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
+                        command: () => {
+                            this.itemAction(is_deleted ? 'restore': 'trash');
+                        }
+                    },
+                    {
+                        label: 'Delete',
+                        icon: 'pi pi-trash',
+                        command: () => {
+                            this.confirmDeleteItem('delete');
+                        }
+                    },
                 ];
-                if(this.item.deleted_at)
-                {
-                    form_menu.push({
-                        label: 'Restore',
-                        icon: 'pi pi-replay',
-                        command: () => {
-                            this.itemAction('restore');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
-                else {
-                    form_menu.push({
-                        label: 'Trash',
-                        icon: 'pi pi-times',
-                        command: () => {
-                            this.itemAction('trash');
-                            this.item = null;
-                            this.toList();
-                        }
-                    },)
-                }
 
-                form_menu.push({
-                    label: 'Delete',
-                    icon: 'pi pi-trash',
-                    command: () => {
-                        this.confirmDeleteItem('delete');
+            } else{
+                form_menu = [
+                    {
+                        label: 'Create & Close',
+                        icon: 'pi pi-check',
+                        command: () => {
+                            this.itemAction('create-and-close');
+                        }
+                    },
+                    {
+                        label: 'Create & Clone',
+                        icon: 'pi pi-copy',
+                        command: () => {
+
+                            this.itemAction('create-and-clone');
+
+                        }
+                    },
+                    {
+                        label: 'Reset',
+                        icon: 'pi pi-refresh',
+                        command: () => {
+                            this.setActiveItemAsEmpty();
+                        }
                     }
-                },)
-
-
+                ];
             }
-
 
             form_menu.push({
                 label: 'Fill',
@@ -968,75 +1012,322 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        toOrderDetails(order){
-            this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
-
-        },
-        //---------------------------------------------------------------------
-
-        formatDateTime (datetimeString) {
-            if (!datetimeString) return '';
-
-            const datetime = new Date(datetimeString);
-
+        async searchOrders(event){
+            const query = event;
             const options = {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
+                params: query,
+                method: 'post',
             };
 
-            return datetime.toLocaleDateString('en-US', options);
+            await vaah().ajax(
+                this.ajax_url+'/search/orders',
+                this.searchOrdersAfter,
+                options
+            );
+        },
+        searchOrdersAfter(data,res){
+            this.order_suggestion_list=data;
+            if (data && this.item.orders) {
+                this.order_suggestion_list = data.filter((item) => {
+                    return !this.item.orders.some((activeItem) => {
+                        return activeItem.id === item.id;
+                    });
+                });
+            }
+        },
+
+
+
+
+
+        //---------------------------------------------------------------------
+        async searchStatus(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/status',
+                this.searchStatusAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+        searchStatusAfter(data,res) {
+            if(data)
+            {
+                this.status_suggestion = data;
+            }
+        },
+        //---------------------------------------------------------------------
+        setStatus(event){
+            let status = toRaw(event.value);
+            this.item.taxonomy_id_shipment_status = status.id;
+        },
+        //---------------------------------------------------------------------
+        toOrderDetails(order_id){
+            this.$router.push({name: 'orders.view',params:{id:order_id}})
+
+        },//---------------------------------------------------------------------
+        redirectToVendor(item){
+            this.$router.push({name: 'vendors.view',params:{id:item.vh_st_vendor_id}})
+
+        },
+        //---------------------------------------------------------------------
+        addOrdersToShipment () {
+            this.order_list_tables = this.item.orders.map(order => ({
+                name: order.user_name,
+                id:order.id,
+                items: order.items
+            }));
         },
         //---------------------------------------------------------------------
 
-        toPaymentHistory(payment,user){
-            const query = {
-                filter: {
-                    order: [user.name]
-                }
-            };
-            const route = {
-                name: 'payments.view',
-                params: { id: payment.id },
-                query: query
-            };
-            this.$router.push(route);
-
-        },
-        //---------------------------------------------------------------------
-
-        toOrderPayment(order_id) {
-            this.$router.push({
-                name: 'payments.form',
-                query:{ order_id : order_id}
+        removeOrders(event) {
+            const id_to_remove = event.value.id;
+            this.order_list_tables = this.order_list_tables.filter(order => {
+                return order.id !== id_to_remove;
             });
+
         },
 
-        async openOrderItems(item)
-        {
-            this.show_orders_panel = true;
-            this.order_id=item.id;
-            this.order_name=item.user.display_name;
+        //---------------------------------------------------------------------
 
-            if (item.id) {
+        removeOrderDetail(index) {
+            this.item.orders.splice(index, 1);
+            this.order_list_tables.splice(index, 1);
+        },
+        //---------------------------------------------------------------------
+
+        updateQuantities (event,index,item,order) {
+
+            const shipped = parseFloat(event.value) || 0;
+
+            if (shipped >= item.pending) {
+                item.to_be_shipped = item.pending;
+            }
+
+
+
+        },
+        //---------------------------------------------------------------------
+
+        calculateTotalQuantity(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((total, item) => total + item.quantity, 0);
+        },
+        //---------------------------------------------------------------------
+
+        calculateTotalShipped(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((acc, item) => acc + parseInt(item.shipped), 0);
+        },
+        //---------------------------------------------------------------------
+
+        calculateTotalPending(items) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return 0;
+            }
+            return items.reduce((acc, item) => acc + parseInt(item.pending), 0);
+
+        },
+        //---------------------------------------------------------------------
+        async getShipmentItemList(shipment_item_id){
+            if(shipment_item_id){
                 await vaah().ajax(
-                    ajax_url + '/get-order-items'+'/' + item.id,
-                    this.openVendorsPanelAfter
+                    ajax_url+'/'+shipment_item_id+'/get-shipped-item-list',
+                    this.getShipmentItemListAfter
                 );
             }
         },
-        openVendorsPanelAfter(data, res) {
+        //---------------------------------------------------------------------
 
-            if (data) {
-                this.order_list_table_with_vendor=data;
-            } else {
-                this.$router.push({name: 'orders.index', query: this.query});
+        getShipmentItemListAfter(data,res){
+             if (data){
+                 this.shipped_items_list=data.shipment_items;
+                 this.total_quantity_to_be_shipped=data.total_quantity_to_be_shipped;
+             }
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveShippedItemQuanity(type,item=null,params_id=null){
+
+            if(!item)
+            {
+                item = this.item;
+            }
+            this.action.type = type;
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                method: 'post',
+            };
+            switch (type) {
+                /**
+                 * Create a record, hence method is `POST`
+                 * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
+                 */
+                case 'update-shipped-item-quantity':
+                    options.method = 'POST';
+                    options.params = {
+                        shipment_items: item,
+                        available_quantity: this.total_quantity_to_be_shipped,
+                        shipment_id: params_id
+                    };
+                    ajax_url += '/update-shipped-item-quantity'
+                    break;
+            }
+            await vaah().ajax(
+                ajax_url,
+                this.saveShippedItemQuanityAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        saveShippedItemQuanityAfter(data,res){
+             if (data){
+                 this.updatePendingQuantity();
+                 this.getItem(data.id);
+             }
+        },
+
+        //---------------------------------------------------------------------
+
+        getMaxValue(currentIndex){
+            const available_quantity_to_be_shipped = this.shipped_items_list.reduce((sum, item, index) => {
+                if (index !== currentIndex) {
+                    return sum + item.quantity;
+                }
+                return sum;
+            }, 0);
+            const current_item = this.shipped_items_list[currentIndex];
+            const max_value = current_item.total_quantity - available_quantity_to_be_shipped;
+            return max_value;
+        },
+
+        //---------------------------------------------------------------------
+
+        onRowEditSave(event)  {
+            let { newData, index } = event;
+            if (newData.quantity > newData.total_quantity) {
+                return;
+            }
+             this.shipped_items_list[index] = newData;
+
+            this.updatePendingQuantity(newData, index);
+
+        },
+        //---------------------------------------------------------------------
+
+        updatePendingQuantity(data=null,index=null)  {
+             if (data !== null && index !== null) {
+                 const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, idx) => {
+                     if (idx !== index) {
+                         return sum + item.quantity;
+                     }
+                     return sum;
+                 }, 0);
+                 if (data.total_quantity != null && data.quantity != null) {
+                     data.pending = data.total_quantity - (total_shipped_quantity_of_others + data.quantity);
+                 }
+
+                 this.shipped_items_list.forEach((current_item, idx) => {
+                     if (idx !== index) {
+                         const total_shipped_quantity_of_others = this.shipped_items_list.reduce((sum, item, otherIdx) => {
+                             if (otherIdx !== idx) {
+                                 return sum + item.quantity;
+                             }
+                             return sum;
+                         }, 0);
+
+
+                         if (current_item.total_quantity != null && current_item.quantity != null) {
+                             current_item.pending = current_item.total_quantity - (total_shipped_quantity_of_others + current_item.quantity);
+                         }
+                     }
+                 });
+             }
+            this.total_shipped_quantity = this.shipped_items_list.reduce((sum, item) => {
+                return sum + (item.quantity || 0);
+            }, 0);
+        },
+        //---------------------------------------------------------------------
+
+        async getorders(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/filter/search/orders',
+                this.getOrdersAfter,
+                options
+            );
+        },
+     //---------------------------------------------------------------------
+        getOrdersAfter(data,res) {
+            if(data)
+            {
+                this.filter_order_suggestion = data;
+
             }
         },
+        //---------------------------------------------------------------------
+
+        addOrdersFilter() {
+             const unique_order = Array.from(new Set(this.selected_orders.map(v => v.user.user_name)));
+            this.selected_orders = unique_order.map(name => this.selected_orders.find(v => v.user.user_name === name));
+            this.query.filter.order = this.selected_orders.map(v => v.user.user_name);
+        },
+        //---------------------------------------------------------------------
+
+        setDateRange() {
+
+
+            if (!this.selected_dates || !Array.isArray(this.selected_dates)) {
+                return false;
+            }
+            const dates = [];
+            for (const selected_date of this.selected_dates) {
+
+                if (!selected_date) {
+                    continue;
+                }
+                let search_date = moment(selected_date)
+                const UTC_date = search_date.format('YYYY-MM-DD');
+
+                if (UTC_date) {
+                    dates.push(UTC_date);
+                }
+                if (dates[0] != null && dates[1] != null) {
+                    this.query.filter.date = dates;
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+        distinctOrdersCount(orders)
+        {
+
+            if (!orders || orders.length === 0) {
+                return 0;
+            }
+            const distinct_order_ids = new Set(orders.map(order => order.id));
+
+            return distinct_order_ids.size;
+
+        },
+        //---------------------------------------------------------------------
+
     }
 });
 
@@ -1044,5 +1335,5 @@ export const useOrderStore = defineStore({
 
 // Pinia hot reload
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useOrderStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useShipmentStore, import.meta.hot))
 }

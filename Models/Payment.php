@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use Ramsey\Uuid\Uuid;
+use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
@@ -246,6 +247,12 @@ class Payment extends VaahModel
                     $order->is_paid = 1;
                     $order->save();
 
+                    $order_shipment = ShipmentItem::where('vh_st_order_id', $order_data['id'])->first();
+                    if ($order_shipment) {
+                        $order = $order_shipment->orders;
+                        self::updateOrderShipmentStatus($order, $taxonomy_payment_status_slug);
+                    }
+
                     $is_payment_for_all_orders = true;
                     $order_ids[] = $order->id;
                 } else {
@@ -271,6 +278,19 @@ class Payment extends VaahModel
 
     //-------------------------------------------------
 
+    public static function updateOrderShipmentStatus($order, $taxonomy_payment_status_slug)
+    {
+        $statuses = OrderStatusHelper::getOrderStatusBasedOnPayment(
+            $order,
+            $taxonomy_payment_status_slug
+        );
+        $order->order_status = $statuses['order_status'];
+        $order->order_shipment_status = $statuses['order_shipment_status'];
+
+        $order->save();
+    }
+
+    //-------------------------------------------------
 
     public static function validateOrderAndPayment($orders,$total_payment)
     {
@@ -317,6 +337,7 @@ class Payment extends VaahModel
 
         return ['success' => true, 'successfully_paid_orders' => $successfully_paid_orders];
     }
+
 
 
     //-------------------------------------------------

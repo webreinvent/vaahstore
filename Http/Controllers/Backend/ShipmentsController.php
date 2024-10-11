@@ -2,16 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use VaahCms\Modules\Store\Models\Order;
-use VaahCms\Modules\Store\Models\CustomerGroup;
-use VaahCms\Modules\Store\Models\OrderItem;
-use VaahCms\Modules\Store\Models\PaymentMethod;
-use VaahCms\Modules\Store\Models\Product;
-use VaahCms\Modules\Store\Models\ProductVariation;
-use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Shipment;
 use WebReinvent\VaahCms\Entities\Taxonomy;
-use WebReinvent\VaahCms\Entities\User;
-class OrdersController extends Controller
+
+
+class ShipmentsController extends Controller
 {
 
 
@@ -33,16 +28,11 @@ class OrdersController extends Controller
             $data['permission'] = [];
             $data['rows'] = config('vaahcms.per_page');
 
-            $data['fillable']['columns'] = Order::getFillableColumns();
-            $data['fillable']['except'] = Order::getUnFillableColumns();
-            $data['empty_item'] = Order::getEmptyItem();
-            $data['taxonomy'] = [
-                "order_payment_status" => Taxonomy::getTaxonomyByType('order-payment-status'),
-            ];
+            $data['fillable']['columns'] = Shipment::getFillableColumns();
+            $data['fillable']['except'] = Shipment::getUnFillableColumns();
+            $data['empty_item'] = Shipment::getEmptyItem();
+            $data['taxonomy']['status'] = Taxonomy::getTaxonomyByType('shipment-status');
             $data['actions'] = [];
-
-            $data['payment_methods'] = self::getPaymentMethods();
-
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -60,16 +50,12 @@ class OrdersController extends Controller
 
         return $response;
     }
-    public static function getPaymentMethods(){
-        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
-        return $payment_methods ?? null;
-    }
 
     //----------------------------------------------------------
     public function getList(Request $request)
     {
         try{
-            return Order::getList($request);
+            return Shipment::getList($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -86,7 +72,7 @@ class OrdersController extends Controller
     public function updateList(Request $request)
     {
         try{
-            return Order::updateList($request);
+            return Shipment::updateList($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -100,26 +86,13 @@ class OrdersController extends Controller
             return $response;
         }
     }
-
     //----------------------------------------------------------
-
-
-
-    //----------------------------------------------------------
-
-
-
-    //----------------------------------------------------------
-
-    //----------------------------------------------------------
-
-
     public function listAction(Request $request, $type)
     {
 
 
         try{
-            return Order::listAction($request, $type);
+            return Shipment::listAction($request, $type);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -127,39 +100,17 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
 
         }
     }
-
     //----------------------------------------------------------
-
-    public function createOrderItems(Request $request)
-    {
-        try{
-            return Order::createOrderItem($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-                return $response;
-            }
-        }
-
-    }
-
-    //----------------------------------------------------------
-
     public function deleteList(Request $request)
     {
         try{
-            return Order::deleteList($request);
+            return Shipment::deleteList($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -167,151 +118,16 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
-
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
     }
-
     //----------------------------------------------------------
-
-    public function searchProduct(Request $request)
-    {
-        try {
-
-            return Order::searchProduct($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
-    public function searchUser(Request $request)
-    {
-        try {
-
-            return Order::searchUser($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
-
-    public function searchCustomerGroup(Request $request)
-    {
-
-        try {
-
-            return Order::searchCustomerGroup($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
-
-    public function searchProductVariation(Request $request)
-    {
-        try {
-
-            return Order::searchProductVariation($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
-    public function searchVendor(Request $request)
-    {
-        try {
-
-            return Order::searchVendor($request);
-        }
-        catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = 'Something went wrong.';
-
-            }
-            return $response;
-        }
-
-    }
-
-    //----------------------------------------------------------
-
-
     public function fillItem(Request $request)
     {
         try{
-            return Order::fillItem($request);
+            return Shipment::fillItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -319,7 +135,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -328,7 +144,7 @@ class OrdersController extends Controller
     public function createItem(Request $request)
     {
         try{
-            return Order::createItem($request);
+            return Shipment::createItem($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -336,7 +152,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -345,7 +161,7 @@ class OrdersController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Order::getItem($id);
+            return Shipment::getItem($id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -353,7 +169,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -362,7 +178,7 @@ class OrdersController extends Controller
     public function updateItem(Request $request,$id)
     {
         try{
-            return Order::updateItem($request,$id);
+            return Shipment::updateItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -370,7 +186,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -379,7 +195,7 @@ class OrdersController extends Controller
     public function deleteItem(Request $request,$id)
     {
         try{
-            return Order::deleteItem($request,$id);
+            return Shipment::deleteItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -387,7 +203,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -396,7 +212,7 @@ class OrdersController extends Controller
     public function itemAction(Request $request,$id,$action)
     {
         try{
-            return Order::itemAction($request,$id,$action);
+            return Shipment::itemAction($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -404,16 +220,17 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
     }
     //----------------------------------------------------------
-    public function getShippedOrderItems(Request $request, $id)
+
+    public function searchOrders(Request $request)
     {
         try{
-            return Order::getShippedOrderItems($id);
+            return Shipment::searchOrders($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -427,4 +244,79 @@ class OrdersController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+
+    public function searchStatus(Request $request)
+    {
+        try{
+            return Shipment::searchStatus($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function getShipmentItemList(Request $request,$id)
+    {
+        try{
+            return Shipment::getShipmentItemList($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function saveEditedShippedQuantity(Request $request)
+    {
+        try{
+            return Shipment::saveEditedShippedQuantity($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function getOrders(Request $request)
+    {
+        try{
+            return Shipment::getOrders($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 }
