@@ -1,11 +1,12 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/productvariations
+ * API url will be: <base-url>/api/store/productvariations
  */
 Route::group(
     [
         'prefix' => 'store/productvariations',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,15 @@ function () {
     Route::any('/{id}/action/{action}', 'ProductVariationsController@itemAction')
         ->name('vh.backend.store.api.productvariations.item.action');
 
+    /**
+     * Add To Cart
+     */
+    Route::post('/add/variation-to-cart', 'ProductVariationsController@addVariationToCart')
+        ->name('vh.backend.store.api.productvariations.add.variation-to-cart');
 
-
+    /**
+     * Disable active cart session
+     */
+    Route::post('/disable/active-cart', 'ProductsController@disableActiveCart')
+        ->name('vh.backend.store.api.productvariations.disable.active-cart');
 });

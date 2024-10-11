@@ -1,11 +1,12 @@
 <?php
 use VaahCms\Modules\Store\Http\Controllers\Backend\CategoriesController;
 /*
- * API url will be: <base-url>/public/api/store/categories
+ * API url will be: <base-url>/api/store/categories
  */
 Route::group(
     [
         'prefix' => 'store/categories',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {

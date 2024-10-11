@@ -1,11 +1,12 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/orders
+ * API url will be: <base-url>/api/store/orders
  */
 Route::group(
     [
         'prefix' => 'store/orders',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,10 @@ function () {
     Route::any('/{id}/action/{action}', 'OrdersController@itemAction')
         ->name('vh.backend.store.api.orders.item.action');
 
-
+    /**
+     * Get Shipped Order Items
+     */
+    Route::get('/get-order-items/{id}', 'OrdersController@getShippedOrderItems')
+        ->name('vh.backend.store.orders.get.order-items');
 
 });

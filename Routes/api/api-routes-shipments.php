@@ -1,11 +1,12 @@
 <?php
 use VaahCms\Modules\Store\Http\Controllers\Backend\ShipmentsController;
 /*
- * API url will be: <base-url>/public/api/store/shipments
+ * API url will be: <base-url>/api/store/shipments
  */
 Route::group(
     [
         'prefix' => 'store/shipments',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,23 @@ function () {
     Route::any('/{id}/action/{action}', [ShipmentsController::class, 'itemAction'])
         ->name('vh.backend.store.api.shipments.item.action');
 
+    /**
+     * Get Shipped Order Item List
+     */
+    Route::get('/{id}/get-shipped-item-list',[ShipmentsController::class, 'getShipmentItemList'])
+        ->name('vh.backend.store..api.shipments.get.shipped-item-list');
 
+    /**
+     * Update Shipped Item Quantities
+     */
+    Route::post('/update-shipped-item-quantity', [ShipmentsController::class,'saveEditedShippedQuantity'])
+        ->name('vh.backend.store.shipments.save.edited-shipped-quantity');
+
+    /**
+     * Search/get Orders with the Quantities Records
+     */
+    //---------------------------------------------------------
+    Route::post('/search/orders', [ShipmentsController::class, 'searchOrders'])
+        ->name('vh.backend.store.shipments.search.orders');
 
 });

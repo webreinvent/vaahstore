@@ -1,11 +1,12 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/productmedias
+ * API url will be: <base-url>/api/store/productmedias
  */
 Route::group(
     [
         'prefix' => 'store/productmedias',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -32,21 +33,13 @@ function () {
         ->name('vh.backend.store.api.productmedias.list.delete');
 
 
-    /**
-     * Create Item
-     */
-    Route::post('/', 'ProductMediasController@createItem')
-        ->name('vh.backend.store.api.productmedias.create');
+
     /**
      * Get Item
      */
     Route::get('/{id}', 'ProductMediasController@getItem')
         ->name('vh.backend.store.api.productmedias.read');
-    /**
-     * Update Item
-     */
-    Route::match(['put', 'patch'], '/{id}', 'ProductMediasController@updateItem')
-        ->name('vh.backend.store.api.productmedias.update');
+
     /**
      * Delete Item
      */

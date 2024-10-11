@@ -1,11 +1,12 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/vendors
+ * API url will be: <base-url>/api/store/vendors
  */
 Route::group(
     [
         'prefix' => 'store/vendors',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,16 @@ function () {
     Route::any('/{id}/action/{action}', 'VendorsController@itemAction')
         ->name('vh.backend.store.api.vendors.item.action');
 
+    /**
+     * Attach With Product
+     */
+    Route::post('/add/product', 'VendorsController@createProduct')
+        ->name('vh.backend.store.api.vendors.createProduct');
 
+    /**
+     * Attach Users With Roles
+     */
+    Route::post('/add/user', 'VendorsController@createVendorUser')
+        ->name('vh.backend.store.vendors.createVendorUser');
 
 });
