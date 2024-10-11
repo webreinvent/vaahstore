@@ -78,5 +78,11 @@ function () {
     Route::post('/update-shipped-item-quantity', [ShipmentsController::class,'saveEditedShippedQuantity'])
         ->name('vh.backend.store.shipments.save.edited-shipped-quantity');
 
+    /**
+     * Search/get Orders with the Quantities Records
+     */
+    //---------------------------------------------------------
+    Route::post('/search/orders', [ShipmentsController::class, 'searchOrders'])
+        ->name('vh.backend.store.shipments.search.orders');
 
 });
