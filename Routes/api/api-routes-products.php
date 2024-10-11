@@ -6,6 +6,7 @@
 Route::group(
     [
         'prefix' => 'store/products',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,46 @@ function () {
     Route::any('/{id}/action/{action}', 'ProductsController@itemAction')
         ->name('vh.backend.store.api.products.item.action');
 
+    /**
+     * Attach With Vendor
+     */
+    Route::post('/vendor', 'ProductsController@createVendor')
+        ->name('vh.backend.store.api.products.vendor');
 
+    /**
+     * Get Vendors List for Item
+     */
+    Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
+        ->name('vh.backend.store.api.products.get.vendors-list');
+
+    /**
+     * Action Product Vendor i.e preferred or notpreferred
+     */
+    Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
+        ->name('vh.backend.store.api.products.preferred-vendor');
+
+    /**
+     * Retrieve Active Attributes
+     */
+    Route::post('/getAttributeList', 'ProductsController@getAttributeList')
+        ->name('vh.backend.store.api.products.getAttributeList');
+
+    /**
+     * Retrieve Active AttributeValues
+     */
+    Route::post('/getAttributeValue', 'ProductsController@getAttributeValue')
+        ->name('vh.backend.store.api.products.getAttributeValue');
+
+    /**
+     * Create Variation
+     */
+    Route::post('/variation', 'ProductsController@createVariation')
+        ->name('vh.backend.store.products.createVariation');
+
+    /**
+     * Add To Cart
+     */
+    Route::post('/add/product-to-cart', 'ProductsController@addProductToCart')
+        ->name('vh.backend.store.products.save.user-info');
 
 });
