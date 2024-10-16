@@ -1842,41 +1842,80 @@ class Product extends VaahModel
 
 
 
-    public static function addProductToCart($request)
+    public static function addProductToCart($request)   
     {
         $response = [];
 
+        // Retrieve the selected vendor from the request
         $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
-        if ($selected_vendor === null) {
-             $response['errors'][] ="This product is out of stock";return $response;
+        $default_vendor = Vendor::where('is_default', 1)->first();
+        $active_selected_vendor = self::getPriceRangeOfProduct($request->product['id'])['data'] ?? null;
+
+        // Check if there's an active selected vendor
+        if ($active_selected_vendor) {
+            $req_selected_vendor_id = $selected_vendor['id'] ?? null;
+
+            // Ensure the active selected vendor ID is available
+            if (isset($active_selected_vendor['selected_vendor']['id'])) {
+                // If the requested selected vendor ID doesn't match, return an error
+                if ($req_selected_vendor_id !== $active_selected_vendor['selected_vendor']['id']) {
+                    $response['errors'][] = "The selected vendor ID mismatch";
+                    return $response;
+                }
+            } else {
+                // If there's no active selected vendor ID, fallback to default vendor
+                if ($default_vendor === null) {
+                    $response['errors'][] = "This product is out of stock";
+                    return $response;
+                }
+                $selected_vendor = $default_vendor;
+            }
+        } else {
+            // If there's no active selected vendor, fallback to default vendor
+            if ($default_vendor === null) {
+                $response['errors'][] = "This product is out of stock";
+                return $response;
+            }
+            $selected_vendor = $default_vendor;
         }
 
+        // Validate user information
         $user_info = $request->input('user_info');
-        $product_id = $request->input('product.id');
-        $product = Product::find($product_id);
-
         if (!$user_info) {
-            $response['errors'][] ="Please enter valid user";return $response;
+            $response['errors'][] = "Please enter valid user";
+            return $response;
         }
 
+        // Find or create the user and cart
         $user = self::findOrCreateUser(['id' => $user_info['id']]);
         $cart = self::findOrCreateCart($user);
+
+        // Fetch the product and its variants
+        $product_id = $request->input('product.id');
+        $product = Product::find($product_id);
         $product_with_variants = self::getDefaultVariation($product);
 
+        // Check for valid product variations
         if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-            $response['errors'][] ="No product variation is default";return $response;
+            $response['errors'][] = "No product variation is default";
+            return $response;
         }
 
+        // Handle adding the product to the cart and updating the session
         self::handleCart($cart, $product, $product_with_variants, $selected_vendor);
-
         self::updateSession($user);
 
+        // Prepare a success response
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
-        $response['data'] = $user;
-        $response['data']['selected_vendor_id'] = $selected_vendor['id'];
+        $response['data'] = [
+            'user' => $user,
+            'selected_vendor_id' => $selected_vendor['id'],
+        ];
 
         return $response;
     }
+
+
 
     //----------------------------------------------------------
 
