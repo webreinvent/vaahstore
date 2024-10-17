@@ -1459,29 +1459,33 @@ class ProductVariation extends VaahModel
         $response = [];
 
         $user_info = $request->input('user_info');
-        $product_variation_id = $request->input('product_variation.id');
-        $product_variation = ProductVariation::find($product_variation_id);
-        $user_data = ['id' => $user_info['id']];
-
-        if (!$user_data) {
-            $error_message = "Please enter valid user";
-            $response['errors'][] = $error_message;
+        if (empty($user_info) || !isset($user_info['id'])) {
+            $response['errors'][] = "Please provide valid user information.";
             return $response;
         }
+        $product_variation_id = $request->input('product_variation.id');
+        if (empty($product_variation_id)) {
+            $response['errors'][] = "Please provide a valid product variation ID.";
+            return $response;
+        }
+        $product_variation = ProductVariation::find($product_variation_id);
+        if (empty($product_variation)) {
+            $response['errors'][] = "Product variation not found for ID:{$product_variation_id}";
+            return $response;
+        }
+        $user_data = ['id' => $user_info['id']];
         $selected_vendor = self::getSelectedVendor($product_variation);
         if ($selected_vendor === null || $selected_vendor['id'] === null) {
-            $error_message = "This product variation is out of stock.";
-            $response['errors'][] = $error_message;
-            return $response;
+            $default_vendor = Vendor::where('is_default', 1)->first();
+            if ($default_vendor === null) {
+                $response['errors'][] = "This product is out of stock";
+                return $response;
+            }
+            $selected_vendor = $default_vendor;
+
         }
         $selected_vendor_id=$selected_vendor['id'];
 
-        $quantity_info = self::getItemQuantity($selected_vendor, $product_variation->vh_st_product_id, $product_variation_id);
-        if ($quantity_info['quantity'] === 0) {
-            $error_message = "This product variation is out of stock for selected vendor.";
-            $response['errors'][] = $error_message;
-            return $response;
-        }
         $user = self::findOrCreateUser($user_data);
         $cart = self::findOrCreateCart($user);
 
