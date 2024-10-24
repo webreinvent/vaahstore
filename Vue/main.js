@@ -1,7 +1,7 @@
 import {createApp, markRaw} from 'vue';
 import { createPinia, PiniaVuePlugin  } from 'pinia'
 
-
+import VueApexCharts from 'vue3-apexcharts';
 //-------------PrimeVue Imports
 
 import PrimeVue from "primevue/config";
@@ -119,6 +119,7 @@ pinia.use(({ store }) => {
 app.use(pinia);
 app.use(PiniaVuePlugin);
 app.use(router);
+
 //-------------/APP
 
 
@@ -223,6 +224,7 @@ app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('VirtualScroller', VirtualScroller);
 app.component('InputGroup', InputGroup);
 app.component('InputGroupAddon', InputGroupAddon);
+app.component('apexchart', VueApexCharts);
 //-------------/PrimeVue Use
 
 

@@ -776,5 +776,167 @@ class Order extends VaahModel
         ];
     }
 
+    //-------------------------------------------------
+
+    public static function fetchOrdersCountChartData(Request $request)
+    {
+        $date_column = 'created_at';
+        $count = 'COUNT';
+        $group_by_column = 'DATE_FORMAT(created_at, "%m")';
+
+        // Query Order model
+        $list = Order::query();
+
+        // Apply filters to the list
+        $filtered_data = self::appliedFilters($list, $request);
+
+        // Query for chart data
+        $order_data_query = $filtered_data->selectRaw("$group_by_column as month")
+            ->selectRaw("$count($date_column) as total_count") // Total orders count
+            ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_count")
+            ->selectRaw("SUM(CASE WHEN order_status != 'Completed' THEN 1 ELSE 0 END) as pending_count");
+
+        $chart_data = $order_data_query->groupBy('month')->orderBy('month')->get();
+
+        $total_orders = $chart_data->sum('total_count');
+
+        $data = [
+            ['name' => 'Total Orders', 'data' => array_fill(0, 12, 0)],
+            ['name' => 'Completed Orders', 'data' => array_fill(0, 12, 0)],
+        ];
+
+        $labels = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $labels[] = date('F', strtotime("2024-$month-01"));
+        }
+
+        foreach ($chart_data as $item) {
+            $month_index = (int)$item->month - 1;
+            $data[0]['data'][$month_index] = $item->total_count;
+            $data[1]['data'][$month_index] = $item->completed_count;
+        }
+
+        return [
+            'data' => [
+                'chart_series' => $data,
+            ],
+            'chart_options' => [
+                'chart' => [
+                    'id' => 'dynamic-chart',
+                    'background' => '#fff',
+                    'toolbar' => ['show' => true],
+                    'zoom' => ['enabled' => false],
+                ],
+                'stroke' => [
+                    'curve' => 'smooth',
+                ],
+                'xaxis' => [
+                    'type' => 'category',
+                    'categories' => $labels,
+
+                ],
+                'yaxis' => [
+                    'title' => [
+                        'text' => 'Orders Count',
+                        'color' => '#008FFB',
+                        'rotate' => -90,
+                        'style' => [
+                            'fontFamily' => 'Arial, sans-serif',
+                            'fontWeight' => 'bold',
+                        ],
+                    ],
+                ],
+                'title' => [
+                    'text' => 'Monthly Orders',
+                    'align' => 'center',
+                ],
+                'subtitle' => [
+                    'text' => 'Total Orders ' .  $total_orders,
+                    'align' => 'center',
+                    'style' => [
+                        'fontSize' => '12px',
+                        'color' => '#666',
+                        'fontFamily' => 'Arial, sans-serif',
+                    ],
+                ],
+                'legend' => [
+                    'position' => 'top',
+                    'horizontalAlign' => 'center',
+                    'onItemClick' => [
+                        'toggleDataSeries' => true,
+                    ],
+                ],
+                'grid' => [
+                    'borderColor' => '#e0e0e0',
+                    'strokeDashArray' => 0,
+                    'position' => 'back',
+                    'xaxis' => [
+                        'lines' => [
+                            'show' => false,
+                        ],
+                    ],
+                    'yaxis' => [
+                        'lines' => [
+                            'show' => false,
+                        ],
+                    ],
+                    'padding' => [
+                        'top' => 0,
+                        'right' => 0,
+                        'bottom' => 0,
+                        'left' => 0,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    //-------------------------------------------------
+
+    public static function fetchOrdersStatusCountData(Request $request)
+    {
+
+        $query = self::select('order_status')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('order_status');
+
+        $query = self::appliedFilters($query, $request);
+
+        $orderStatusCounts = $query->pluck('count', 'order_status')->toArray();
+
+        return [
+            'data' => [
+                'chart_series' => array_values($orderStatusCounts),
+                'chart_options' => [
+                    'labels' => array_keys($orderStatusCounts),
+                    'chart' => [
+                        'id' => 'pie-chart',
+                        'background' => '#fff',
+                        'toolbar' => ['show' => true],
+                        'zoom' => ['enabled' => false],
+                    ],
+
+                    'dataLabels' => [
+                        'enabled' => true,
+                        'style' => [
+                            'fontSize' => '08px',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+    }
+
+
+
+// Function to apply filters to the query
+    private static function appliedFilters($list, $request)
+    {
+        if (isset($request->filter)) {
+            $list = $list->paymentStatusFilter($request->filter);
+        }
+        return $list;
+    }
 
 }

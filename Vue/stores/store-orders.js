@@ -84,6 +84,12 @@ export const useOrderStore = defineStore({
 
         order_list_table_with_vendor:null,
         order_name:null,
+        chartOptions: {},
+        chartSeries: [],
+
+        pieChartOptions: {},
+        pieChartSeries: [],
+        selection: 'one_month'
     }),
     getters: {
 
@@ -254,6 +260,8 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.fetchCustomerCountChartData();
+                this.fetchOrdersStatusCountData();
             }
         },
         //---------------------------------------------------------------------
@@ -641,6 +649,7 @@ export const useOrderStore = defineStore({
 
             //reload page list
             await this.getList();
+            await this.fetchCustomerCountChartData();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -1036,6 +1045,135 @@ export const useOrderStore = defineStore({
             } else {
                 this.$router.push({name: 'orders.index', query: this.query});
             }
+        },
+
+        async fetchOrdersCountChartData() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/data',
+                this.fetchOrdersCountChartDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+        fetchOrdersCountChartDataAfter(data,res){
+            if (!data || !Array.isArray(data.chart_series)) {
+                return;
+            }
+            const seriesData = data.chart_series.map(series => ({
+                name: series.name ,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            this.updateChartSeries(seriesData);
+            const updatedOptions = {
+                ...res.data.chart_options, // Merge existing options
+
+            };
+            this.updateChartOptions(updatedOptions);
+        },
+        //---------------------------------------------------
+        updateChartOptions(newOptions) {
+            this.chartOptions = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+        //---------------------------------------------------
+
+
+
+
+        async fetchOrdersStatusCountData() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/status-data',
+                this.fetchOrdersStatusCountDataAfter,
+                options
+            );
+        },
+
+
+
+        fetchOrdersStatusCountDataAfter(data, res) {
+            if (!data || !Array.isArray(data.chart_series)) {
+                return;
+            }
+
+            this.updatePieChartSeries(data.chart_series);
+
+            // Prepare custom colors based on labels
+
+
+            const updatedOptions = {
+                ...data.chart_options, // Merge existing options
+                title: {
+                    text: 'Order Status Distribution', // Add your chart title here
+                    align: 'center', // You can adjust alignment: 'left', 'center', 'right'
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '14px',
+                    formatter: function (val, opts) {
+                        return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
+                    },
+
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '60%',
+                            labels: {
+                                show: true,
+                                name: {
+                                    show: true,
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    color: '#263238',
+                                },
+                                value: {
+                                    show: true,  // Show value
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    color: '#000',  // Color for the value
+                                    formatter: function(val) {
+                                        return val; // Return only the value without percentage
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+                // Optional: Set custom colors if required
+            };
+
+            this.updatePieChartOptions(updatedOptions);
+        },
+
+        //---------------------------------------------------
+        updatePieChartOptions(newOptions) {
+            this.pieChartOptions = newOptions;
+        },
+
+        //---------------------------------------------------
+        updatePieChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.pieChartSeries = [...newSeries]; // Shallow copy to trigger reactivity
         },
     }
 });
