@@ -1210,29 +1210,30 @@ export const useOrderStore = defineStore({
             );
         },
 
+        
         fetchSalesChartDataAfter(data, res) {
-            // Check if data is valid
             if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
                 return;
             }
 
-            // Update chart series
             this.updateSalesChartSeries([
                 {
-                    name: "Total Item Sold", // Optional series name
-                    data: data.chart_series.orders_sales_chart_data
+                    name: "Total Item Sold",
+                    data: data.chart_series.orders_sales_chart_data // [{ x: timestamp, y: sales }]
                 }
             ]);
 
-            // Prepare updated chart options
             const updated_sales_chart_options = {
-                ...data.chart_options, // Use chart options from the API response
+                ...data.chart_options,
+                xaxis: {
+                    type: 'datetime', // Set x-axis to datetime
+                },
                 stroke: {
                     curve: 'smooth',
                     width: 3,
                 },
                 title: {
-                    text: 'Total Sales', // Chart title
+                    text: 'Total Sales',
                     align: 'center',
                     offsetY: 12,
                     style: {
@@ -1254,7 +1255,6 @@ export const useOrderStore = defineStore({
                 }
             };
 
-            // Update chart options in the store
             this.updateSalesChartOptions(updated_sales_chart_options);
         },
 
