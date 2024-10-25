@@ -73,7 +73,7 @@ const toggleQuickFilterState = (event) => {
     <Card class="max-w-max">
         <template #title>
             <div class="flex align-items-center justify-content-between">
-                <h2 class="text-lg">Top Products</h2>
+                <h2 class="text-lg">Top Selling Products</h2>
                 <Chip
                     v-if="store.query.filter.time?.length"
                     class="white-space-nowrap align-items-center"

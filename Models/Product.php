@@ -2336,43 +2336,43 @@ class Product extends VaahModel
 
     public static function topSellingProducts($request)
     {
-        $limit = 10; // Default to 10 if no limit is provided
+        $limit = 10;
+        $query = OrderItem::query();
 
-        // Start building the OrderItem query
-        $query = OrderItem::query(); // Start with the OrderItem model
-
-        // Apply the quick filter only if it exists in the request
         if (isset($request->filter)) {
-            $query = $query->quickFilter($request->filter); // Call quickFilter on OrderItem
+            $query = $query->quickFilter($request->filter);
         }
 
-        // Now select and group the result after applying filters
         $top_selling_variations = $query
             ->select('vh_st_product_variation_id')
+            ->with(['productVariation' => function ($q) {
+                $q->with('medias');
+            }])
             ->groupBy('vh_st_product_variation_id')
-            ->with('productVariation') // Eager load the related product variation
-            ->get()
-            ->map(function ($item) {
-                // Get the total sales count for each product variation
-//                $totalSales = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id)->count();
-                $total_sales = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id)
-                    ->sum('quantity'); // Summing the quantity instead of counting
-                // Get media IDs through pivot
-                $product_media_ids = $item->productVariation->medias->map(function ($media) {
-                    return $media->pivot->vh_st_product_media_id; // Access the media ID from the pivot table
-                });
+            ->get();
 
-                // Retrieve image URLs using the product media IDs
-                $image_urls = self::getImageUrls($product_media_ids);
+        $top_selling_variations = $top_selling_variations->map(function ($item) use ($request) {
+            $sales_query = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id);
 
-                return [
-                    'id' => $item->productVariation->id,
-                    'name' => $item->productVariation->name,
-                    'slug' => $item->productVariation->slug,
-                    'total_sales' => $total_sales,
-                    'image_urls' => $image_urls,
-                ];
-            })
+            if (isset($request->filter)) {
+                $sales_query = $sales_query->quickFilter($request->filter);
+            }
+
+            $total_sales = $sales_query->sum('quantity');
+            $product_variation = $item->productVariation;
+            $product_media_ids = $product_variation->medias->map(function ($media) {
+                return $media->pivot->vh_st_product_media_id;
+            });
+            $image_urls = self::getImageUrls($product_media_ids);
+
+            return [
+                'id' => $product_variation->id,
+                'name' => $product_variation->name,
+                'slug' => $product_variation->slug,
+                'total_sales' => $total_sales,
+                'image_urls' => $image_urls,
+            ];
+        })
             ->sortByDesc('total_sales')
             ->take($limit)
             ->values();
@@ -2381,6 +2381,9 @@ class Product extends VaahModel
             'data' => $top_selling_variations,
         ];
     }
+
+
+
     //----------------------------------------------------------
 
     private static function getImageUrls($product_media_ids)
