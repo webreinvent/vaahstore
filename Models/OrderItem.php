@@ -118,5 +118,38 @@ class OrderItem extends VaahModel
         return $query->select(array_diff($this->getTableColumns(), $columns));
     }
 
+    public function scopeQuickFilter($query, $filter)
+    {
+        // Return unmodified query if 'time' filter is not set or is null
+        if (!isset($filter['time']) || is_null($filter['time']) || $filter['time'] === 'null') {
+            return $query;
+        }
 
+        // Define the end date as the end of today
+        $end_date = Carbon::now()->endOfDay();
+        $start_date = null;
+
+        // Set start date based on filter values
+        switch ($filter['time']) {
+            case 'today':
+                $start_date = Carbon::now()->startOfDay();
+                break;
+            case 'last-7-days':
+                $start_date = Carbon::now()->subDays(7)->startOfDay();
+                break;
+            case 'last-1-month':
+                $start_date = Carbon::now()->subMonth()->startOfDay();
+                break;
+            case 'last-1-year':
+                $start_date = Carbon::now()->subYear()->startOfDay();
+                break;
+            default:
+                // Optional: handle unknown filter values
+                return $query;
+        }
+
+        // Apply the date range filter
+
+        return $query->whereBetween('created_at', [$start_date, $end_date]);
+    }
 }

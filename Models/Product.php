@@ -2334,7 +2334,66 @@ class Product extends VaahModel
 
     //----------------------------------------------------------
 
+    public static function topSellingProducts($request)
+    {
+        $limit = 10; // Default to 10 if no limit is provided
 
+        // Start building the OrderItem query
+        $query = OrderItem::query(); // Start with the OrderItem model
+
+        // Apply the quick filter only if it exists in the request
+        if (isset($request->filter)) {
+            $query = $query->quickFilter($request->filter); // Call quickFilter on OrderItem
+        }
+
+        // Now select and group the result after applying filters
+        $top_selling_variations = $query
+            ->select('vh_st_product_variation_id')
+            ->groupBy('vh_st_product_variation_id')
+            ->with('productVariation') // Eager load the related product variation
+            ->get()
+            ->map(function ($item) {
+                // Get the total sales count for each product variation
+//                $totalSales = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id)->count();
+                $total_sales = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id)
+                    ->sum('quantity'); // Summing the quantity instead of counting
+                // Get media IDs through pivot
+                $product_media_ids = $item->productVariation->medias->map(function ($media) {
+                    return $media->pivot->vh_st_product_media_id; // Access the media ID from the pivot table
+                });
+
+                // Retrieve image URLs using the product media IDs
+                $image_urls = self::getImageUrls($product_media_ids);
+
+                return [
+                    'id' => $item->productVariation->id,
+                    'name' => $item->productVariation->name,
+                    'slug' => $item->productVariation->slug,
+                    'total_sales' => $total_sales,
+                    'image_urls' => $image_urls,
+                ];
+            })
+            ->sortByDesc('total_sales')
+            ->take($limit)
+            ->values();
+
+        return [
+            'data' => $top_selling_variations,
+        ];
+    }
+    //----------------------------------------------------------
+
+    private static function getImageUrls($product_media_ids)
+    {
+        $image_urls = [];
+        foreach ($product_media_ids as $product_media_id) {
+            $product_media_image = ProductMediaImage::where('vh_st_product_media_id', $product_media_id)->first();
+            if ($product_media_image) {
+                $image_urls[] = $product_media_image->url;
+            }
+        }
+        return $image_urls;
+    }
 
 
 

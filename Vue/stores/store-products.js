@@ -134,6 +134,8 @@ export const useProductStore = defineStore({
         product_detail:null,
         active_user:null,
         total_cart_product:0,
+        top_selling_variations:null,
+        quick_filter_menu:[],
 
     }),
     getters: {
@@ -945,6 +947,7 @@ export const useProductStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
+                this.topSellingProducts();
             }
         },
         viewCart(id){
@@ -2320,7 +2323,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
 
-       
+
         //---------------------------------------------------------------------
 
 
@@ -2743,6 +2746,60 @@ export const useProductStore = defineStore({
             return `${minPrice} - ${maxPrice}`;
         },
         //---------------------------------------------------------------------
+        async topSellingProducts() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-products',
+                this.topSellingProductsAfter,
+                options
+            );
+        },
+        topSellingProductsAfter(data,res){
+            if (data) {
+                this.top_selling_variations = data;
+            }
+        },
+
+
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+                {
+                    label: 'Today',
+
+                    command: () => {
+                        this.updateQuickFilter('today');
+                    }
+                },
+                {
+                    label: 'Last 7 Days',
+                    command: () => {
+                        this.updateQuickFilter('last-7-days');
+                    }
+                },
+                {
+                    label: 'Last 1 Month',
+                    command: () => {
+                        this.updateQuickFilter('last-1-month');
+                    }
+                },
+                {
+                    label: 'Last 1 Year',
+                    command: () => {
+                        this.updateQuickFilter('last-1-year');
+                    }
+                },
+
+            ];
+
+        },
+        updateQuickFilter(time)
+        {
+            this.query.filter.time = time;
+        },
         //---------------------------------------------------------------------
 
     }
