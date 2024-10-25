@@ -873,47 +873,38 @@ class Order extends VaahModel
 
 
 
+
+
     public static function fetchSalesChartData($request)
     {
-        // Start with a base query for OrderItem
         $query = OrderItem::query();
 
-        // Apply date filters if provided
-
-
-        // Apply additional filters if provided
         if (isset($request->filter)) {
             $query = $query->quickFilter($request->filter);
         }
 
-        // Aggregate total sales over a specified time period
-        // Example: Group by day
         $sales_data = $query
-            ->selectRaw('DATE(created_at) as date') // Select date, formatting as needed
-            ->selectRaw('SUM(quantity) as total_sales') // Calculate total sales per date
+            ->selectRaw('DATE(created_at) as date')
+            ->selectRaw('SUM(quantity) as total_sales')
             ->groupBy('date')
-            ->orderBy('date') // Order by date
+            ->orderBy('date')
             ->get();
 
-        // Prepare labels and sales values for chart display
-        /*$labels = $sales_data->pluck('date')->map(function ($date) {
-            return \Carbon\Carbon::parse($date)->format('Y-m-d'); // Format date as needed
-        });*/
-        $labels = $sales_data->pluck('date')->map(function ($date) {
-            return \Carbon\Carbon::parse($date)->format('d M Y'); // Format date as "23 Jan 2024"
+        $time_series_data = $sales_data->map(function ($item) {
+            return [
+                'x' => \Carbon\Carbon::parse($item->date)->timestamp * 1000, // Convert date to JavaScript timestamp
+                'y' => $item->total_sales,
+            ];
         });
-
-        $total_sales = $sales_data->pluck('total_sales');
 
         return [
             'data' => [
                 'chart_series' => [
-                    'orders_sales_chart_data' => $total_sales,
+                    'orders_sales_chart_data' => $time_series_data,
                 ],
                 'chart_options' => [
                     'xaxis' => [
-                        'type' => 'category',
-                        'categories' => $labels,
+                        'type' => 'datetime',
                     ],
                     'yaxis' => [
                         'title' => [
@@ -929,9 +920,7 @@ class Order extends VaahModel
                 ],
             ],
         ];
-
     }
-
 
 // Function to apply filters to the query
     private static function appliedFilters($list, $request)
