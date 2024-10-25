@@ -23,8 +23,7 @@ onMounted(async () => {
      */
     await store.onLoad(route);
 
-    await store.fetchOrdersCountChartData();
-    await store.fetchOrdersStatusCountData();
+    await store.fetchOrdersChartData();
     /**
      * watch routes to update view, column width
      * and get new item when routes get changed
@@ -61,41 +60,44 @@ const toggleCreateMenu = (event) => {
 
 </script>
 <template>
-    <div class="flex justify-content-between">
 
-
-        <Charts
-            type="donut"
-            :chartOptions="store.pieChartOptions"
-            :chartSeries="store.pieChartSeries"
-            height=200 width=400
-            titleAlign="center"
-
-        />
-        <Charts
-            type="pie"
-            :chartOptions="store.pieChartOptions"
-            :chartSeries="store.pieChartSeries"
-            height=200 width=400
-            titleAlign="center"
-
-        />
-    <Charts
-        type="line"
-        :chartOptions="store.chartOptions"
-        :chartSeries="store.chartSeries"
-        height=200 width=400
-        ref="chart"
-        titleAlign="center"
-
-    />
-
-
-
-    </div>
     <div class="grid" v-if="store.assets">
 
         <div :class="'col-'+store.list_view_width">
+            <div class="flex justify-content-center ">
+
+
+                <Charts
+                    type="donut"
+                    :chartOptions="store.pieChartOptions"
+                    :chartSeries="store.pieChartSeries"
+                    height=250 width=400
+                    titleAlign="center"
+
+                />
+<!--                <Charts
+                    type="pie"
+                    :chartOptions="store.pieChartOptions"
+                    :chartSeries="store.pieChartSeries"
+                    height=350 width=400
+                    titleAlign="center"
+
+                />-->
+                <Charts
+                    type="area"
+                    :chartOptions="store.chartOptions"
+                    :chartSeries="store.chartSeries"
+                    height=250 width=400
+                    titleAlign="center"
+                    title="Orders Count Over Months"
+
+                />
+
+
+
+
+
+            </div>
             <Panel class="is-small">
 
                 <template class="p-1" #header>

@@ -77,4 +77,7 @@ function () {
     Route::get('/get-order-items/{id}', 'OrdersController@getShippedOrderItems')
         ->name('vh.backend.store.orders.get.order-items');
 
+    Route::post('/charts/data', 'OrdersController@fetchOrdersChartData')
+        ->name('vh.backend.store.users.count-chart-data');
+
 });
