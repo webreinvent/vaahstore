@@ -260,8 +260,7 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.list = data;
-                this.fetchCustomerCountChartData();
-                this.fetchOrdersStatusCountData();
+                this.fetchOrdersChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -649,7 +648,7 @@ export const useOrderStore = defineStore({
 
             //reload page list
             await this.getList();
-            await this.fetchCustomerCountChartData();
+            await this.fetchOrdersChartData();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -1047,73 +1046,73 @@ export const useOrderStore = defineStore({
             }
         },
 
-        async fetchOrdersCountChartData() {
+        async fetchOrdersChartData() {
             const options = {
                 method: 'post',
                 query: vaah().clone(this.query)
             };
             await vaah().ajax(
                 this.ajax_url + '/charts/data',
-                this.fetchOrdersCountChartDataAfter,
+                this.fetchOrdersChartDataAfter,
                 options
             );
         },
         //---------------------------------------------------
-        fetchOrdersCountChartDataAfter(data,res){
-            if (!data || !Array.isArray(data.chart_series)) {
+        fetchOrdersChartDataAfter(data,res){
+            if (!data || !Array.isArray(data.chart_series?.orders_count_bar_chart)) {
                 return;
             }
-            const seriesData = data.chart_series.map(series => ({
+            const series_data = data.chart_series?.orders_count_bar_chart.map(series => ({
                 name: series.name ,
                 data: Array.isArray(series.data) ? series.data : [],
             }));
-            this.updateChartSeries(seriesData);
-            const updatedOptions = {
-                ...res.data.chart_options, // Merge existing options
-
+            this.updateChartSeries(series_data);
+            const updated_bar_chart_options = {
+                ...data.chart_options, // Merge existing options
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                // chart:{
+                //     background:'#fff',
+                // },
+                title: {
+                    text: 'Orders Count Over Months', // Chart title
+                    align: 'center', // Title alignment
+                    offsetY: 12, // Add margin between title and chart/toolbar
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                toolbar: {
+                    show: true,
+                    offsetX: 0, // Adjust toolbar position horizontally if needed
+                    offsetY: 40, // Set margin between title and toolbar
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '14px',
+                    formatter: function (val, opts) {
+                        const seriesIndex = opts.seriesIndex; // Get the series index
+                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
+                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
+                        return `${val} - ${sum}`; // Return the legend text with the sum
+                    }
+                }
             };
-            this.updateChartOptions(updatedOptions);
-        },
-        //---------------------------------------------------
-        updateChartOptions(newOptions) {
-            this.chartOptions = newOptions;
-        },
-
-        //---------------------------------------------------
-        updateChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
-        },
-        //---------------------------------------------------
+            this.updateChartOptions(updated_bar_chart_options);
 
 
-
-
-        async fetchOrdersStatusCountData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
-            await vaah().ajax(
-                this.ajax_url + '/charts/status-data',
-                this.fetchOrdersStatusCountDataAfter,
-                options
-            );
-        },
-
-
-
-        fetchOrdersStatusCountDataAfter(data, res) {
-            if (!data || !Array.isArray(data.chart_series)) {
-                return;
-            }
-
-            this.updatePieChartSeries(data.chart_series);
+            this.updatePieChartSeries(data.chart_series?.orders_statuses_pie_chart);
 
             // Prepare custom colors based on labels
 
 
-            const updatedOptions = {
+            const updated_pie_chart_options = {
                 ...data.chart_options, // Merge existing options
                 title: {
                     text: 'Order Status Distribution', // Add your chart title here
@@ -1124,11 +1123,14 @@ export const useOrderStore = defineStore({
                         color: '#263238'
                     }
                 },
+                // chart:{
+                //     background:'#fff',
+                // },
                 legend: {
-                    position: 'right',
+                    position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    fontSize: '14px',
+                    fontSize: '12px',
                     formatter: function (val, opts) {
                         return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
                     },
@@ -1162,8 +1164,19 @@ export const useOrderStore = defineStore({
                 // Optional: Set custom colors if required
             };
 
-            this.updatePieChartOptions(updatedOptions);
+            this.updatePieChartOptions(updated_pie_chart_options);
         },
+        //---------------------------------------------------
+        updateChartOptions(newOptions) {
+            this.chartOptions = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+        //---------------------------------------------------
 
         //---------------------------------------------------
         updatePieChartOptions(newOptions) {

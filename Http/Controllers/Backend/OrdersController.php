@@ -426,10 +426,10 @@ class OrdersController extends Controller
             return $response;
         }
     }
-    public function fetchOrdersCountChartData(Request $request)
+    public function fetchOrdersChartData(Request $request)
     {
         try{
-            return Order::fetchOrdersCountChartData($request);
+            return Order::fetchOrdersChartData($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -442,20 +442,5 @@ class OrdersController extends Controller
             return $response;
         }
     }
-    public function fetchOrdersStatusCountData(Request $request)
-    {
-        try{
-            return Order::fetchOrdersStatusCountData($request);
-        }catch (\Exception $e){
-            $response = [];
-            $response['success'] = false;
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-            }
-            return $response;
-        }
-    }
+
 }

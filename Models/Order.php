@@ -778,7 +778,7 @@ class Order extends VaahModel
 
     //-------------------------------------------------
 
-    public static function fetchOrdersCountChartData(Request $request)
+    public static function fetchOrdersChartData(Request $request)
     {
         $date_column = 'created_at';
         $count = 'COUNT';
@@ -805,7 +805,7 @@ class Order extends VaahModel
             ['name' => 'Completed Orders', 'data' => array_fill(0, 12, 0)],
         ];
 
-        $labels = [];
+        /*$labels = [];
         for ($month = 1; $month <= 12; $month++) {
             $labels[] = date('F', strtotime("2024-$month-01"));
         }
@@ -814,119 +814,65 @@ class Order extends VaahModel
             $month_index = (int)$item->month - 1;
             $data[0]['data'][$month_index] = $item->total_count;
             $data[1]['data'][$month_index] = $item->completed_count;
+        }*/
+        $labels = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $labels[] = date('M', strtotime("2024-$month-01")); // 'M' gives the short month name
         }
+
+        foreach ($chart_data as $item) {
+            $month_index = (int)$item->month - 1;
+            $data[0]['data'][$month_index] = $item->total_count;
+            $data[1]['data'][$month_index] = $item->completed_count;
+        }
+
+
+        $orders_statuses_count = self::select('order_status')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('order_status');
+
+        $orders_statuses_count = self::appliedFilters($orders_statuses_count, $request);
+
+        $order_status_counts_pie_chart_data = $orders_statuses_count->pluck('count', 'order_status')->toArray();
+
 
         return [
             'data' => [
-                'chart_series' => $data,
-            ],
-            'chart_options' => [
-                'chart' => [
-                    'id' => 'dynamic-chart',
-                    'background' => '#fff',
-                    'toolbar' => ['show' => true],
-                    'zoom' => ['enabled' => false],
-                ],
-                'stroke' => [
-                    'curve' => 'smooth',
-                ],
-                'xaxis' => [
-                    'type' => 'category',
-                    'categories' => $labels,
+//                'chart_series' => $data,
+                'chart_series' => [
+                    'orders_count_bar_chart'=>$data,
+                    'orders_statuses_pie_chart'=>array_values($order_status_counts_pie_chart_data),
+                    ],
+                'chart_options' => [
+                    'labels' => array_keys($order_status_counts_pie_chart_data),
 
-                ],
-                'yaxis' => [
-                    'title' => [
-                        'text' => 'Orders Count',
-                        'color' => '#008FFB',
-                        'rotate' => -90,
-                        'style' => [
-                            'fontFamily' => 'Arial, sans-serif',
-                            'fontWeight' => 'bold',
-                        ],
-                    ],
-                ],
-                'title' => [
-                    'text' => 'Monthly Orders',
-                    'align' => 'center',
-                ],
-                'subtitle' => [
-                    'text' => 'Total Orders ' .  $total_orders,
-                    'align' => 'center',
-                    'style' => [
-                        'fontSize' => '12px',
-                        'color' => '#666',
-                        'fontFamily' => 'Arial, sans-serif',
-                    ],
-                ],
-                'legend' => [
-                    'position' => 'top',
-                    'horizontalAlign' => 'center',
-                    'onItemClick' => [
-                        'toggleDataSeries' => true,
-                    ],
-                ],
-                'grid' => [
-                    'borderColor' => '#e0e0e0',
-                    'strokeDashArray' => 0,
-                    'position' => 'back',
                     'xaxis' => [
-                        'lines' => [
-                            'show' => false,
-                        ],
+                        'type' => 'category',
+                        'categories' => $labels,
+
                     ],
                     'yaxis' => [
-                        'lines' => [
-                            'show' => false,
+                        'title' => [
+                            'text' => 'Orders Count',
+                            'color' => '#008FFB',
+                            'rotate' => -90,
+                            'style' => [
+                                'fontFamily' => 'Arial, sans-serif',
+                                'fontWeight' => 'bold',
+                            ],
                         ],
                     ],
-                    'padding' => [
-                        'top' => 0,
-                        'right' => 0,
-                        'bottom' => 0,
-                        'left' => 0,
-                    ],
+
                 ],
             ],
+
         ];
     }
 
     //-------------------------------------------------
 
-    public static function fetchOrdersStatusCountData(Request $request)
-    {
 
-        $query = self::select('order_status')
-            ->selectRaw('COUNT(*) as count')
-            ->groupBy('order_status');
 
-        $query = self::appliedFilters($query, $request);
-
-        $orderStatusCounts = $query->pluck('count', 'order_status')->toArray();
-
-        return [
-            'data' => [
-                'chart_series' => array_values($orderStatusCounts),
-                'chart_options' => [
-                    'labels' => array_keys($orderStatusCounts),
-                    'chart' => [
-                        'id' => 'pie-chart',
-                        'background' => '#fff',
-                        'toolbar' => ['show' => true],
-                        'zoom' => ['enabled' => false],
-                    ],
-
-                    'dataLabels' => [
-                        'enabled' => true,
-                        'style' => [
-                            'fontSize' => '08px',
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-    }
 
 
 
