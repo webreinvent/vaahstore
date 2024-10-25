@@ -1067,7 +1067,7 @@ export const useOrderStore = defineStore({
                 data: Array.isArray(series.data) ? series.data : [],
             }));
             this.updateChartSeries(series_data);
-            const updated_bar_chart_options = {
+            const updated_area_chart_options = {
                 ...data.chart_options, // Merge existing options
                 stroke: {
                     curve: 'smooth',
@@ -1102,9 +1102,15 @@ export const useOrderStore = defineStore({
                         const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
                         return `${val} - ${sum}`; // Return the legend text with the sum
                     }
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
                 }
             };
-            this.updateChartOptions(updated_bar_chart_options);
+            this.updateChartOptions(updated_area_chart_options);
 
 
             this.updatePieChartSeries(data.chart_series?.orders_statuses_pie_chart);
