@@ -22,7 +22,7 @@ onMounted(async () => {
      * call onLoad action when List view loads
      */
     await store.onLoad(route);
-
+    await store.topSellingProducts();
     /**
      * watch routes to update view, column width
      * and get new item when routes get changed
@@ -46,7 +46,7 @@ onMounted(async () => {
      * fetch list of records
      */
     await store.getList();
-
+    store.getQuickFilterMenu();
     await store.getListCreateMenu();
     await store.watchQuantity();
 
@@ -62,10 +62,101 @@ const toggleCreateMenu = (event) => {
     create_menu.value.toggle(event);
 };
 //--------/form_menu
-
+const quick_filter_menu_state = ref();
+const toggleQuickFilterState = (event) => {
+    quick_filter_menu_state.value.toggle(event);
+};
 
 </script>
 <template>
+
+    <Card class="max-w-max">
+        <template #title>
+            <div class="flex align-items-center justify-content-between">
+                <h2 class="text-lg">Top Products</h2>
+                <Chip
+                    v-if="store.query.filter.time?.length"
+                    class="white-space-nowrap align-items-center"
+                    :style="{
+                                                        fontSize: '11px',
+                                                        marginRight: '5px',
+                                                        padding: '1px 8px',
+                                                        fontWeight:'600',
+                                                      }"
+                    :pt="{
+                                                        removeIcon: {
+                                                            style: {
+                                                                width: '12px',
+                                                                height: '12px',
+                                                                marginLeft: '6px'
+                                                            }
+                                                        }
+                                                      }"
+                    :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
+                    removable
+                    @remove="store.query.filter.time=null;"
+                />
+                <Button
+                    data-testid="inventories-quick_filter"
+                    type="button"
+                    @click="toggleQuickFilterState($event)"
+                    aria-haspopup="true"
+                    aria-controls="quick_filter_menu_state"
+                    class="ml-1 p-button-sm px-1"
+
+                    icon="pi pi-filter"
+                >
+                </Button>
+                <Menu ref="quick_filter_menu_state"
+                      :model="store.quick_filter_menu"
+                      :popup="true"/>
+            </div>
+        </template>
+
+        <template #content>
+            <DataTable
+                :value="store.top_selling_variations"
+                dataKey="id"
+                :rows="4"
+                :paginator="true"
+                class="p-datatable-sm p-datatable-hoverable-rows"
+                :nullSortOrder="-1"
+                v-model:selection="store.action.items"
+                stripedRows
+                responsiveLayout="scroll"
+            >
+                <Column field="variation_name" header="" class="overflow-wrap-anywhere" >
+                    <template #body="prop">
+                        <div class="flex ">
+                            <div class="product_img">
+                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
+                                    <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
+                                        <Image preview
+                                               :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                               alt="Error" class="shadow-4" width="35"/>
+                                    </div>
+                                </div>
+                                <div v-else>
+                                    <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
+                                         alt="Error" class="shadow-4" width="35"/>
+                                </div>
+                            </div>
+                            <div class="product_desc ml-3" >
+                                <h4>{{ prop.data.name }}</h4>
+                                <p><b> {{ prop.data.total_sales }}</b> Items</p>
+                            </div>
+                        </div>
+                    </template>
+                </Column>
+                <template #empty>
+                    <div class="text-center py-3">
+                        No records found.
+                    </div>
+                </template>
+            </DataTable>
+        </template>
+    </Card>
+
     <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success"  :sticky="true" :life="1000"  @close="store.disableActiveCart()">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
