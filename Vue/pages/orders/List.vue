@@ -24,6 +24,7 @@ onMounted(async () => {
     await store.onLoad(route);
 
     await store.fetchOrdersChartData();
+    await store.fetchSalesChartData();
     /**
      * watch routes to update view, column width
      * and get new item when routes get changed
@@ -92,7 +93,15 @@ const toggleCreateMenu = (event) => {
                     title="Orders Count Over Months"
 
                 />
+                <Charts
+                    type="area"
+                    :chartOptions="store.salesChartOptions"
+                    :chartSeries="store.salesChartSeries"
+                    height=250 width=400
+                    titleAlign="center"
 
+
+                />
 
 
 

@@ -89,6 +89,8 @@ export const useOrderStore = defineStore({
 
         pieChartOptions: {},
         pieChartSeries: [],
+        salesChartOptions: {},
+        salesChartSeries: [],
         selection: 'one_month'
     }),
     getters: {
@@ -261,6 +263,7 @@ export const useOrderStore = defineStore({
             {
                 this.list = data;
                 this.fetchOrdersChartData();
+                this.fetchSalesChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -1077,7 +1080,7 @@ export const useOrderStore = defineStore({
                 //     background:'#fff',
                 // },
                 title: {
-                    text: 'Orders Count Over Months', // Chart title
+                    text: 'Orders Over Months', // Chart title
                     align: 'center', // Title alignment
                     offsetY: 12, // Add margin between title and chart/toolbar
                     style: {
@@ -1194,6 +1197,74 @@ export const useOrderStore = defineStore({
             // Ensure chartSeries is updated reactively
             this.pieChartSeries = [...newSeries]; // Shallow copy to trigger reactivity
         },
+
+        async fetchSalesChartData() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/total-sales-data',
+                this.fetchSalesChartDataAfter,
+                options
+            );
+        },
+
+        fetchSalesChartDataAfter(data, res) {
+            // Check if data is valid
+            if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
+                return;
+            }
+
+            // Update chart series
+            this.updateSalesChartSeries([
+                {
+                    name: "Total Item Sold", // Optional series name
+                    data: data.chart_series.orders_sales_chart_data
+                }
+            ]);
+
+            // Prepare updated chart options
+            const updated_sales_chart_options = {
+                ...data.chart_options, // Use chart options from the API response
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: 'Total Sales', // Chart title
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                toolbar: {
+                    show: true,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            // Update chart options in the store
+            this.updateSalesChartOptions(updated_sales_chart_options);
+        },
+
+        updateSalesChartSeries(series) {
+            this.salesChartSeries = series;
+        },
+        updateSalesChartOptions(options) {
+            this.salesChartOptions = options;
+        }
+
     }
 });
 
