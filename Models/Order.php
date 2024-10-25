@@ -873,7 +873,64 @@ class Order extends VaahModel
 
 
 
+    public static function fetchSalesChartData($request)
+    {
+        // Start with a base query for OrderItem
+        $query = OrderItem::query();
 
+        // Apply date filters if provided
+
+
+        // Apply additional filters if provided
+        if (isset($request->filter)) {
+            $query = $query->quickFilter($request->filter);
+        }
+
+        // Aggregate total sales over a specified time period
+        // Example: Group by day
+        $sales_data = $query
+            ->selectRaw('DATE(created_at) as date') // Select date, formatting as needed
+            ->selectRaw('SUM(quantity) as total_sales') // Calculate total sales per date
+            ->groupBy('date')
+            ->orderBy('date') // Order by date
+            ->get();
+
+        // Prepare labels and sales values for chart display
+        /*$labels = $sales_data->pluck('date')->map(function ($date) {
+            return \Carbon\Carbon::parse($date)->format('Y-m-d'); // Format date as needed
+        });*/
+        $labels = $sales_data->pluck('date')->map(function ($date) {
+            return \Carbon\Carbon::parse($date)->format('d M Y'); // Format date as "23 Jan 2024"
+        });
+
+        $total_sales = $sales_data->pluck('total_sales');
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'orders_sales_chart_data' => $total_sales,
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'category',
+                        'categories' => $labels,
+                    ],
+                    'yaxis' => [
+                        'title' => [
+                            'text' => 'Sales Count',
+                            'color' => '#008FFB',
+                            'rotate' => -90,
+                            'style' => [
+                                'fontFamily' => 'Arial, sans-serif',
+                                'fontWeight' => 'bold',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+    }
 
 
 // Function to apply filters to the query
