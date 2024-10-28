@@ -941,43 +941,7 @@ class Order extends VaahModel
         ];
     }
 
-//    public static function fetchOrderPaymentsData($request){
-//        $query = OrderPayment::query();
-//       /* $count = $query->where('remaining_payable_amount', 0)->count();
-//
-//        return [
-//            'total_paid_orders' => $count,
-//        ];*/
-//
-//        $current_count = $query->where('remaining_payable_amount', 0)->count();
-//
-//        // Calculate the previous period's date range (adjust as needed)
-//        $previous_from = now()->subMonth()->startOfMonth(); // Example: one month before
-//        $previous_to = now()->subMonth()->endOfMonth(); // Example: end of that month
-//
-//        // Count the number of orders where remaining_payable_amount is 0 in the previous period
-//        $previous_count = OrderPayment::query()
-//            ->whereBetween('created_at', [$previous_from, $previous_to])
-//            ->where('remaining_payable_amount', 0)
-//            ->count();
-//
-//        // Calculate growth rate (avoid division by zero)
-//        $growth_rate = 0;
-//
-//// If previous count is greater than zero, calculate growth
-//        if ($previous_count > 0) {
-//            $growth_rate = (($current_count - $previous_count) / $previous_count) * 100; // Calculate percentage growth
-//        } elseif ($current_count > 0) {
-//            // If previous count is zero but current count is positive, treat it as 100% growth
-//            $growth_rate = 100;
-//        }
-//
-//        return [
-//            'total_orders_with_no_remaining_amount' => $current_count,
-//            'previous_orders_count' => $previous_count,
-//            'growth_rate' => $growth_rate,
-//        ];
-//    }
+
 
 
     public static function fetchOrderPaymentsData($request) {
@@ -1022,10 +986,7 @@ class Order extends VaahModel
             ->orderBy('date') // Order by date for chronological data
             ->get();
 
-        // Debug: Check the raw payments data
-        // dd($payments_data->toArray());
 
-        // Map to desired format for the chart
         $time_series_data = $payments_data->map(function ($item) {
             return [
 //                'x' => \Carbon\Carbon::parse($item->date)->timestamp * 1000, // Convert date to JavaScript timestamp
@@ -1037,28 +998,51 @@ class Order extends VaahModel
         // Get overall count of fully paid orders
         $overall_count = OrderPayment::where('remaining_payable_amount', 0)->count();
 
+
+
+        /**
+         * Orders Income Chart Data
+         */
+        $orders_income = OrderPayment::selectRaw('DATE(created_at) as created_date, SUM(payment_amount) as total_income')
+            ->groupBy('created_date')
+            ->orderBy('created_date') // Optional: order the results by date
+            ->get();
+        $time_series_data_income = $orders_income->map(function ($item) {
+            return [
+//                'x' => \Carbon\Carbon::parse($item->created_date)->timestamp * 1000, // Convert date to JavaScript timestamp
+                'x' =>$item->created_date,
+                'y' => $item->total_income,
+            ];
+        });
+
+        $overall_income = $orders_income->sum('total_income');
+
+        $previous_month_income = OrderPayment::selectRaw('SUM(payment_amount) as total_income')
+                ->whereMonth('created_at', now()->subMonth()->month)
+                ->whereYear('created_at', now()->year)
+                ->first()->total_income ?? 0;
+
+        $income_growth_rate = 0;
+        if ($previous_month_income > 0) {
+            $income_growth_rate = (($overall_income - $previous_month_income) / $previous_month_income) * 100; // Calculate percentage growth
+        } elseif ($overall_income > 0) {
+            $income_growth_rate = 100;
+        }
         return [
             'data' => [
                 'order_payments_chart_series' => [
                     'orders_payment_chart_data' => $time_series_data,
+                    'orders_payment_income_chart_data' => $time_series_data_income,
                     'order_payments_growth_rate' => $growth_rate,
                     'overall_paid' => $overall_count,
+                    'overall_income' => $overall_income,
+                    'income_growth_rate' => $income_growth_rate,
                 ],
                 'chart_options' => [
                     'xaxis' => [
                         'type' => 'datetime',
                     ],
-                    'yaxis' => [
-                        'title' => [
-                            'text' => 'Paid Orders Count',
-                            'color' => '#008FFB',
-                            'rotate' => -90,
-                            'style' => [
-                                'fontFamily' => 'Arial, sans-serif',
-                                'fontWeight' => 'bold',
-                            ],
-                        ],
-                    ],
+
                 ],
             ],
         ];
