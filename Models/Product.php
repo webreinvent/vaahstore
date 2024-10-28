@@ -2336,7 +2336,7 @@ class Product extends VaahModel
 
     public static function topSellingProducts($request)
     {
-        $limit = 10;
+        $limit = 5;
         $query = OrderItem::query();
 
         if (isset($request->filter)) {
@@ -2381,6 +2381,8 @@ class Product extends VaahModel
             'data' => $top_selling_variations,
         ];
     }
+
+
 
 
 
