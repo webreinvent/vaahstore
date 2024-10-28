@@ -95,7 +95,8 @@ export const useOrderStore = defineStore({
         orderPaymentsChartSeries: [],orderPaymentsIncomeChartOptions: {},
         orderPaymentsIncomeChartSeries: [],
         order_payments_chart_series:null,
-        selection: 'one_month'
+        selection: 'one_month',
+        quick_filter_menu:[],
     }),
     getters: {
 
@@ -1479,7 +1480,42 @@ export const useOrderStore = defineStore({
             this.orderPaymentsIncomeChartOptions = options;
         },
 
+        getQuickFilterMenu() {
 
+            this.quick_filter_menu = [
+                {
+                    label: 'Today',
+
+                    command: () => {
+                        this.updateQuickFilter('today');
+                    }
+                },
+                {
+                    label: 'Last 7 Days',
+                    command: () => {
+                        this.updateQuickFilter('last-7-days');
+                    }
+                },
+                {
+                    label: 'Last 1 Month',
+                    command: () => {
+                        this.updateQuickFilter('last-1-month');
+                    }
+                },
+                {
+                    label: 'Last 1 Year',
+                    command: () => {
+                        this.updateQuickFilter('last-1-year');
+                    }
+                },
+
+            ];
+
+        },
+        updateQuickFilter(time)
+        {
+            this.query.filter.time = time;
+        },
     }
 });
 
