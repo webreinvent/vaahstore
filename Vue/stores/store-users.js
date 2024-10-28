@@ -125,7 +125,9 @@ export const useUserStore = defineStore({
             class:'',
             msg:''
 
-        }
+        },
+        chartOptions: {},
+        chartSeries: [],
     }),
     getters: {
 
@@ -311,6 +313,7 @@ export const useUserStore = defineStore({
             if (data) {
                 this.list = data;
                 this.firstElement = this.query.rows * (this.query.page - 1);
+                await this.fetchCustomerCountChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -1300,7 +1303,67 @@ export const useUserStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        async fetchCustomerCountChartData() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/data',
+                this.fetchCustomerCountChartDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+        fetchCustomerCountChartDataAfter(data,res){
+            if (!data || !Array.isArray(data.chart_series)) {
+                return;
+            }
+            const seriesData = data.chart_series.map(series => ({
+                name: series.name ,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            this.updateChartSeries(seriesData);
+            const updatedOptions = {
+                ...res.data.chart_options, // Merge existing options
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '14px',
+                    formatter: function (val, opts) {
+                        const seriesIndex = opts.seriesIndex; // Get the series index
+                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
+                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
+                        return `${val} - ${sum}`; // Return the legend text with the sum
+                    },
+                },
+                title: {
+                    text: 'Monthly Customers Count', // Chart title
+                    align: 'center', // Title alignment
+                    offsetY: 12, // Add margin between title and chart/toolbar
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                // If you want to add or modify other sections like yaxis, grid, etc., you can do it here
+            };
+            this.updateChartOptions(updatedOptions);
+            // this.updateChartOptions(res.data.chart_options); // Update options based on response
+        },
+        //---------------------------------------------------
+        updateChartOptions(newOptions) {
+            this.chartOptions = newOptions;
+        },
 
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+        //---------------------------------------------------
 
     }
 });

@@ -6,7 +6,7 @@ import {useUserStore} from '../../stores/store-users'
 import {useRootStore} from "../../stores/root";
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-
+import Charts from "../../components/Charts.vue";
 const store = useUserStore();
 const root = useRootStore();
 const route = useRoute();
@@ -21,7 +21,7 @@ onMounted(async () => {
      */
      document.title = 'Customers - Store';
     await store.onLoad(route);
-
+    store.fetchCustomerCountChartData();
     /**
      * watch routes to update view, column width
      * and get new item when routes get changed
@@ -57,6 +57,19 @@ const toggleCreateMenu = (event) => {
 };
 </script>
 <template>
+    <div class="flex justify-content-between">
+    <Charts
+        type="line"
+        :chartOptions="store.chartOptions"
+        :chartSeries="store.chartSeries"
+        height=250 width=520
+
+        titleAlign="center"
+
+    />
+
+
+    </div>
     <div class="grid">
         <div :class="'col-'+store.list_view_width">
             <Panel class="is-small">
