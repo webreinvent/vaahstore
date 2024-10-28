@@ -1066,23 +1066,23 @@ export const useOrderStore = defineStore({
             );
         },
         //---------------------------------------------------
-        fetchOrdersChartDataAfter(data,res){
+        fetchOrdersChartDataAfter(data, res) {
             if (!data || !Array.isArray(data.chart_series?.orders_count_bar_chart)) {
                 return;
             }
-            const series_data = data.chart_series?.orders_count_bar_chart.map(series => ({
-                name: series.name ,
+
+            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
+                name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
             }));
+
             this.updateChartSeries(series_data);
+
             const updated_area_chart_options = {
                 ...data.chart_options, // Merge existing options
                 stroke: {
                     curve: 'smooth',
                     width: 3,
-                },
-                chart:{
-                    // background:'#fff',
                 },
                 title: {
                     text: 'Orders Over Months', // Chart title
@@ -1118,13 +1118,9 @@ export const useOrderStore = defineStore({
                     show: false,
                 }
             };
+
             this.updateChartOptions(updated_area_chart_options);
-
-
             this.updatePieChartSeries(data.chart_series?.orders_statuses_pie_chart);
-
-            // Prepare custom colors based on labels
-
 
             const updated_pie_chart_options = {
                 ...data.chart_options, // Merge existing options
@@ -1137,9 +1133,6 @@ export const useOrderStore = defineStore({
                         color: '#263238'
                     }
                 },
-                chart:{
-                    // background:'#fff',
-                },
                 legend: {
                     position: 'bottom',
                     horizontalAlign: 'center',
@@ -1148,7 +1141,6 @@ export const useOrderStore = defineStore({
                     formatter: function (val, opts) {
                         return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
                     },
-
                 },
                 plotOptions: {
                     pie: {
@@ -1175,12 +1167,267 @@ export const useOrderStore = defineStore({
                         },
                     },
                 },
-                // Optional: Set custom colors if required
             };
 
             this.updatePieChartOptions(updated_pie_chart_options);
         },
         //---------------------------------------------------
+
+
+        async fetchSalesChartData() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/total-sales-data',
+                this.fetchSalesChartDataAfter,
+                options
+            );
+        },
+
+
+        fetchSalesChartDataAfter(data, res) {
+            if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
+                return;
+            }
+
+            this.chart_series = data.chart_series;
+            this.overall_sales = data.chart_series?.overall_total_sales;
+            this.growth_rate = data.chart_series?.growth_rate;
+
+            this.updateSalesChartSeries([
+                {
+                    name: "Total Item Sold",
+                    data: data.chart_series.orders_sales_chart_data // [{ x: timestamp, y: sales }]
+                }
+            ]);
+
+            const updated_sales_chart_options = {
+                ...data.chart_options,
+                chart: {
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                },
+                xaxis: {
+                    type: 'datetime', // Set x-axis to datetime
+                    labels: {
+                        show: false, // Hide x-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide x-axis border if desired
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false, // Hide y-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide y-axis border if desired
+                    },
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: '', // Set text to an empty string to hide the title
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateSalesChartOptions(updated_sales_chart_options);
+        },
+
+
+
+
+        async fetchOrderPaymentsData() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/order-payments-data',
+                this.fetchOrderPaymentsDataAfter,
+                options
+            );
+        },
+
+        fetchOrderPaymentsDataAfter(data, res) {
+            if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_chart_data)) {
+                return;
+            }
+
+            this.order_payments_chart_series = data.order_payments_chart_series;
+            this.overall_paid = data.order_payments_chart_series?.overall_paid;
+            this.order_payments_growth_rate = data.order_payments_chart_series?.order_payments_growth_rate;
+            this.overall_income = data.order_payments_chart_series?.overall_income;
+            this.income_growth_rate = data.order_payments_chart_series?.income_growth_rate;
+
+            const formatted_payments_data = data.order_payments_chart_series.orders_payment_chart_data.map(item => ({
+                x: new Date(item.x).getTime(), // Convert date string to timestamp
+                y: item.y
+            }));
+
+            this.updateOrderPaymentsChartSeries([
+
+                {
+                    name: "Paid",
+                    data: formatted_payments_data // Use the formatted data here
+                }
+            ]);
+
+            const updated_order_payments_chart_options = {
+                ...data.chart_options,
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                },
+                tooltip: {
+                    shared: true, // Show tooltip for multiple series
+                    intersect: false, // Allow tooltip to show for all points
+                    x: {
+                        formatter: function(value) {
+                            // Format the x-axis value for the tooltip
+                            return new Date(value).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            }); // e.g., 'February 12, 2018'
+                        }
+                    },
+                },
+                xaxis: {
+                    type: 'datetime', // Set x-axis to datetime
+                    labels: {
+                        show: false, // Hide x-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide x-axis border if desired
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false, // Hide y-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide y-axis border if desired
+                    },
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: '', // Set text to an empty string to hide the title
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateOrderPaymentsChartOptions(updated_order_payments_chart_options);
+
+            const formattedData = data.order_payments_chart_series.orders_payment_income_chart_data.map(item => ({
+                x: new Date(item.x).getTime(), // Convert date string to timestamp
+                y: item.y
+            }));
+            this.updateOrderPaymentsIncomeChartSeries([
+                // {
+                //     name: "Payment",
+                //     data: data.order_payments_chart_series.orders_payment_income_chart_data // [{ x: timestamp, y: sales }]
+                // }
+                {
+                    name: "Payment",
+                    data: formattedData // Use the formatted data here
+                }
+            ]);
+
+            const updated_order_payments_income_chart_options = {
+                ...data.chart_options,
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                },
+                tooltip: {
+                    shared: true, // Show tooltip for multiple series
+                    intersect: false, // Allow tooltip to show for all points
+                    x: {
+                        formatter: function(value) {
+                            // Format the x-axis value for the tooltip
+                            return new Date(value).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            }); // e.g., 'February 12, 2018'
+                        }
+                    },
+                },
+                xaxis: {
+                    type: 'datetime', // Set x-axis to datetime
+                    labels: {
+                        show: false, // Hide x-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide x-axis border if desired
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false, // Hide y-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide y-axis border if desired
+                    },
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: '', // Set text to an empty string to hide the title
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateOrderPaymentsIncomeChartOptions(updated_order_payments_income_chart_options);
+        },
+
+
         updateChartOptions(newOptions) {
             this.chartOptions = newOptions;
         },
@@ -1202,255 +1449,32 @@ export const useOrderStore = defineStore({
             // Ensure chartSeries is updated reactively
             this.pieChartSeries = [...newSeries]; // Shallow copy to trigger reactivity
         },
-
-        async fetchSalesChartData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
-            await vaah().ajax(
-                this.ajax_url + '/charts/total-sales-data',
-                this.fetchSalesChartDataAfter,
-                options
-            );
+        updateOrderPaymentsChartSeries(series) {
+            this.orderPaymentsChartSeries = series;
         },
+        //---------------------------------------------------
 
-
-        fetchSalesChartDataAfter(data, res) {
-            if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
-                return;
-            }
-
-            this.chart_series=data.chart_series;
-            this.overall_sales=data.chart_series?.overall_total_sales;
-            this.growth_rate=data.chart_series?.growth_rate;
-            this.updateSalesChartSeries([
-                {
-                    name: "Total Item Sold",
-                    data: data.chart_series.orders_sales_chart_data // [{ x: timestamp, y: sales }]
-                }
-            ]);
-
-            const updated_sales_chart_options = {
-                ...data.chart_options,
-                chart:{
-                    // background:'#fff',
-                    toolbar: {
-                        show: false, // Ensure toolbar is set to false here
-                    },
-                },
-                xaxis: {
-                    type: 'datetime', // Set x-axis to datetime
-                    labels: {
-                        show: false, // Hide x-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide x-axis border if desired
-                    },
-                },
-                yaxis: {
-                    labels: {
-                        show: false, // Hide y-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide y-axis border if desired
-                    },
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
-                },
-                title: {
-                    text: '', // Set text to an empty string to hide the title
-                },
-                /*title: {
-                    text: 'Total Sales',
-                    align: 'center',
-                    offsetY: 12,
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#263238'
-                    }
-                },*/
-
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-                dataLabels: {
-                    enabled: false,
-                },
-                grid: {
-                    show: false,
-                }
-            };
-
-            this.updateSalesChartOptions(updated_sales_chart_options);
+        updateOrderPaymentsChartOptions(options) {
+            this.orderPaymentsChartOptions = options;
         },
+        //---------------------------------------------------
 
         updateSalesChartSeries(series) {
             this.salesChartSeries = series;
         },
+        //---------------------------------------------------
+
         updateSalesChartOptions(options) {
             this.salesChartOptions = options;
         },
-
-
-        async fetchOrderPaymentsData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
-            await vaah().ajax(
-                this.ajax_url + '/charts/order-payments-data',
-                this.fetchOrderPaymentsDataAfter,
-                options
-            );
-        },
-
-        fetchOrderPaymentsDataAfter(data,res){
-            if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_chart_data)) {
-                return;
-            }
-a
-            this.order_payments_chart_series=data.order_payments_chart_series;
-            this.overall_paid=data.order_payments_chart_series?.overall_paid;
-            this.order_payments_growth_rate=data.order_payments_chart_series?.order_payments_growth_rate;
-            this.overall_income=data.order_payments_chart_series?.overall_income;
-            this.income_growth_rate=data.order_payments_chart_series?.income_growth_rate;
-
-
-            this.updateOrderPaymentsChartSeries([
-                {
-                    name: "Orders Paid",
-                    data: data.order_payments_chart_series.orders_payment_chart_data // [{ x: timestamp, y: sales }]
-                }
-            ]);
-
-            const updated_order_payments_chart_options = {
-                ...data.chart_options,
-                chart:{
-                    background:'#fff',
-                    toolbar: {
-                        show: false, // Ensure toolbar is set to false here
-                    },
-                },
-                xaxis: {
-                    type: 'datetime', // Set x-axis to datetime
-                    labels: {
-                        show: false, // Hide x-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide x-axis border if desired
-                    },
-
-                },
-                yaxis: {
-                    labels: {
-                        show: false, // Hide y-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide y-axis border if desired
-                    },
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
-                },
-                title: {
-                    text: '', // Set text to an empty string to hide the title
-                },
-
-
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-                dataLabels: {
-                    enabled: false,
-                },
-                grid: {
-                    show: false,
-                }
-            };
-
-            this.updateOrderPaymentsChartOptions(updated_order_payments_chart_options);
-
-            this.updateOrderPaymentsIncomeChartSeries([
-                {
-                    name: "payment",
-                    data: data.order_payments_chart_series.orders_payment_income_chart_data // [{ x: timestamp, y: sales }]
-                }
-            ]);
-
-            const updated_order_payments_income_chart_options = {
-                ...data.chart_options,
-                chart:{
-                    background:'#fff',
-                    toolbar: {
-                        show: false, // Ensure toolbar is set to false here
-                    },
-                },
-                xaxis: {
-                    type: 'datetime', // Set x-axis to datetime
-                    labels: {
-                        show: false, // Hide x-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide x-axis border if desired
-                    },
-
-                },
-                yaxis: {
-                    labels: {
-                        show: false, // Hide y-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide y-axis border if desired
-                    },
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
-                },
-                title: {
-                    text: '', // Set text to an empty string to hide the title
-                },
-
-
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-                dataLabels: {
-                    enabled: false,
-                },
-                grid: {
-                    show: false,
-                }
-            };
-
-            this.updateOrderPaymentsIncomeChartOptions(updated_order_payments_income_chart_options);
-
-        },
-
-        updateOrderPaymentsChartSeries(series) {
-            this.orderPaymentsChartSeries = series;
-        },
-        updateOrderPaymentsChartOptions(options) {
-            this.orderPaymentsChartOptions = options;
-        },
-
-
+        //---------------------------------------------------
 
 
         updateOrderPaymentsIncomeChartSeries(series) {
             this.orderPaymentsIncomeChartSeries = series;
         },
+        //---------------------------------------------------
+
         updateOrderPaymentsIncomeChartOptions(options) {
             this.orderPaymentsIncomeChartOptions = options;
         },

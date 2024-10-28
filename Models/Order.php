@@ -944,6 +944,9 @@ class Order extends VaahModel
 
 
 
+
+
+
     public static function fetchOrderPaymentsData($request) {
         // Initialize the query for OrderPayment
         $query = OrderPayment::query();
@@ -953,44 +956,46 @@ class Order extends VaahModel
             $query = $query->quickFilter($request->filter);
         }
 
-        // Get current month data
-        $current_count = $query->clone() // Clone the query to avoid modifying the original query
-        ->where('remaining_payable_amount', 0)
-            ->whereMonth('created_at', now()->month) // Filter by current month
-            ->count();
+        // Retrieve the latest two dates with order payments
+        // Retrieve the latest two dates with order payments
+        $latest_dates = $query->where('remaining_payable_amount', 0)
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as total_paid_orders')
+            ->groupBy('date')
+            ->orderByDesc('date')
+            ->limit(2)
+            ->get();
 
-        // Calculate the previous month's date range
-        $previous_from = now()->subMonth()->startOfMonth();
-        $previous_to = now()->subMonth()->endOfMonth();
-
-        // Count the number of orders where remaining_payable_amount is 0 in the previous period
-        $previous_count = OrderPayment::query()
-            ->whereBetween('created_at', [$previous_from, $previous_to])
-            ->where('remaining_payable_amount', 0)
-            ->count();
-
-        // Calculate growth rate
-        $growth_rate = 0;
-        if ($previous_count > 0) {
-            $growth_rate = (($current_count - $previous_count) / $previous_count) * 100; // Calculate percentage growth
-        } elseif ($current_count > 0) {
-            // If previous count is zero but current count is positive, treat it as 100% growth
-            $growth_rate = 100;
+        if ($latest_dates->count() === 2) {
+            $current_total_sales = $latest_dates[0]->total_paid_orders;
+            $previous_total_sales = $latest_dates[1]->total_paid_orders;
+        } else {
+            $current_total_sales = $latest_dates->first()->total_paid_orders ?? 0;
+            $previous_total_sales = 0;
         }
 
+        if ($previous_total_sales > 0) {
+            $growth_rate = (($current_total_sales - $previous_total_sales) / $previous_total_sales) * 100;
+        } else if ($current_total_sales > 0) {
+            $growth_rate = 100;
+        } else {
+            $growth_rate = 0;
+        }
+
+
         // Prepare data for the chart including all dates
-        $payments_data = $query->selectRaw('DATE(created_at) as date')
-            ->selectRaw('COUNT(*) as total_paid_orders')
-            ->where('remaining_payable_amount', 0) // Only consider fully paid orders
-            ->groupBy('date') // Group by date to aggregate counts
-            ->orderBy('date') // Order by date for chronological data
+        $payments_data = $query->selectRaw('DATE(created_at) as created_date, COUNT(*) as total_paid_orders')
+            ->where('remaining_payable_amount', 0)
+            ->groupBy('created_date')
+            ->orderBy('created_date')
             ->get();
+
+
 
 
         $time_series_data = $payments_data->map(function ($item) {
             return [
-//                'x' => \Carbon\Carbon::parse($item->date)->timestamp * 1000, // Convert date to JavaScript timestamp
-                'x' => $item->date, // Convert date to JavaScript timestamp
+                'x' => $item->created_date,
+
                 'y' => $item->total_paid_orders,
             ];
         });
@@ -998,36 +1003,38 @@ class Order extends VaahModel
         // Get overall count of fully paid orders
         $overall_count = OrderPayment::where('remaining_payable_amount', 0)->count();
 
-
-
         /**
          * Orders Income Chart Data
          */
         $orders_income = OrderPayment::selectRaw('DATE(created_at) as created_date, SUM(payment_amount) as total_income')
             ->groupBy('created_date')
-            ->orderBy('created_date') // Optional: order the results by date
+            ->orderBy('created_date')
             ->get();
+
         $time_series_data_income = $orders_income->map(function ($item) {
             return [
-//                'x' => \Carbon\Carbon::parse($item->created_date)->timestamp * 1000, // Convert date to JavaScript timestamp
-                'x' =>$item->created_date,
+                'x' => $item->created_date,
                 'y' => $item->total_income,
             ];
         });
 
         $overall_income = $orders_income->sum('total_income');
 
-        $previous_month_income = OrderPayment::selectRaw('SUM(payment_amount) as total_income')
-                ->whereMonth('created_at', now()->subMonth()->month)
-                ->whereYear('created_at', now()->year)
-                ->first()->total_income ?? 0;
-
+        // Calculate income growth rate based on the last two available dates
+        $latest_incomes = $orders_income->sortByDesc('created_date')->take(2)->pluck('total_income');
         $income_growth_rate = 0;
-        if ($previous_month_income > 0) {
-            $income_growth_rate = (($overall_income - $previous_month_income) / $previous_month_income) * 100; // Calculate percentage growth
-        } elseif ($overall_income > 0) {
-            $income_growth_rate = 100;
+
+        if ($latest_incomes->count() == 2) {
+            $current_income = $latest_incomes->first();
+            $previous_income = $latest_incomes->last();
+
+            if ($previous_income > 0) {
+                $income_growth_rate = (($current_income - $previous_income) / $previous_income) * 100;
+            } elseif ($current_income > 0) {
+                $income_growth_rate = 100; // 100% growth if previous income was zero
+            }
         }
+
         return [
             'data' => [
                 'order_payments_chart_series' => [
@@ -1042,13 +1049,10 @@ class Order extends VaahModel
                     'xaxis' => [
                         'type' => 'datetime',
                     ],
-
                 ],
             ],
         ];
     }
-
-
 
 // Function to apply filters to the query
     private static function appliedFilters($list, $request)
