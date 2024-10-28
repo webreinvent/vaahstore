@@ -84,4 +84,7 @@ function () {
     Route::post('/charts/total-sales-data', 'OrdersController@fetchSalesChartData')
         ->name('vh.backend.store.users.count-chart-data');
 
+    Route::post('/charts/order-payments-data', 'OrdersController@fetchOrderPaymentsData')
+        ->name('vh.backend.store.users.count-chart-data');
+
 });

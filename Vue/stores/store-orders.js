@@ -91,6 +91,9 @@ export const useOrderStore = defineStore({
         pieChartSeries: [],
         salesChartOptions: {},
         salesChartSeries: [],
+        orderPaymentsChartOptions: {},
+        orderPaymentsChartSeries: [],
+        order_payments_chart_series:null,
         selection: 'one_month'
     }),
     getters: {
@@ -264,6 +267,7 @@ export const useOrderStore = defineStore({
                 this.list = data;
                 this.fetchOrdersChartData();
                 this.fetchSalesChartData();
+                this.fetchOrderPaymentsData();
             }
         },
         //---------------------------------------------------------------------
@@ -1076,9 +1080,9 @@ export const useOrderStore = defineStore({
                     curve: 'smooth',
                     width: 3,
                 },
-                // chart:{
-                //     background:'#fff',
-                // },
+                chart:{
+                    // background:'#fff',
+                },
                 title: {
                     text: 'Orders Over Months', // Chart title
                     align: 'center', // Title alignment
@@ -1132,9 +1136,9 @@ export const useOrderStore = defineStore({
                         color: '#263238'
                     }
                 },
-                // chart:{
-                //     background:'#fff',
-                // },
+                chart:{
+                    // background:'#fff',
+                },
                 legend: {
                     position: 'bottom',
                     horizontalAlign: 'center',
@@ -1210,12 +1214,15 @@ export const useOrderStore = defineStore({
             );
         },
 
-        
+
         fetchSalesChartDataAfter(data, res) {
             if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
                 return;
             }
 
+            this.chart_series=data.chart_series;
+            this.overall_sales=data.chart_series?.overall_total_sales;
+            this.growth_rate=data.chart_series?.growth_rate;
             this.updateSalesChartSeries([
                 {
                     name: "Total Item Sold",
@@ -1225,14 +1232,37 @@ export const useOrderStore = defineStore({
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
+                chart:{
+                    // background:'#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                },
                 xaxis: {
                     type: 'datetime', // Set x-axis to datetime
+                    labels: {
+                        show: false, // Hide x-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide x-axis border if desired
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false, // Hide y-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide y-axis border if desired
+                    },
                 },
                 stroke: {
                     curve: 'smooth',
                     width: 3,
                 },
                 title: {
+                    text: '', // Set text to an empty string to hide the title
+                },
+                /*title: {
                     text: 'Total Sales',
                     align: 'center',
                     offsetY: 12,
@@ -1241,9 +1271,10 @@ export const useOrderStore = defineStore({
                         fontWeight: 'bold',
                         color: '#263238'
                     }
-                },
+                },*/
+
                 toolbar: {
-                    show: true,
+                    show: false,
                     offsetX: 0,
                     offsetY: 40,
                 },
@@ -1263,7 +1294,93 @@ export const useOrderStore = defineStore({
         },
         updateSalesChartOptions(options) {
             this.salesChartOptions = options;
-        }
+        },
+
+
+        async fetchOrderPaymentsData() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/order-payments-data',
+                this.fetchOrderPaymentsDataAfter,
+                options
+            );
+        },
+
+        fetchOrderPaymentsDataAfter(data,res){
+            if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_chart_data)) {
+                return;
+            }
+a
+            this.order_payments_chart_series=data.order_payments_chart_series;
+            this.overall_paid=data.order_payments_chart_series?.overall_paid;
+            this.order_payments_growth_rate=data.order_payments_chart_series?.order_payments_growth_rate;
+            this.updateOrderPaymentsChartSeries([
+                {
+                    name: "Orders Paid",
+                    data: data.order_payments_chart_series.orders_payment_chart_data // [{ x: timestamp, y: sales }]
+                }
+            ]);
+
+            const updated_order_payments_chart_options = {
+                ...data.chart_options,
+                chart:{
+                    background:'#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                },
+                xaxis: {
+                    type: 'datetime', // Set x-axis to datetime
+                    labels: {
+                        show: false, // Hide x-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide x-axis border if desired
+                    },
+
+                },
+                yaxis: {
+                    labels: {
+                        show: false, // Hide y-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide y-axis border if desired
+                    },
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: '', // Set text to an empty string to hide the title
+                },
+
+
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateOrderPaymentsChartOptions(updated_order_payments_chart_options);
+        },
+
+        updateOrderPaymentsChartSeries(series) {
+            this.orderPaymentsChartSeries = series;
+        },
+        updateOrderPaymentsChartOptions(options) {
+            this.orderPaymentsChartOptions = options;
+        },
 
     }
 });

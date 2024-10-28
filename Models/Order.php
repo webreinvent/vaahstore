@@ -897,10 +897,29 @@ class Order extends VaahModel
             ];
         });
 
+
+        $overall_total_sales = $sales_data->sum('total_sales');
+        $latest_date_in_period = $sales_data->last()->date ?? null;
+//        dd($earliest_date);
+        // Fetch the most recent available data prior to the current period
+        $previous_sales_data = OrderItem::query()
+            ->where('created_at', '<', $latest_date_in_period)
+            ->selectRaw('SUM(quantity) as previous_total_sales')
+            ->first();
+
+        $previous_total_sales = $previous_sales_data->previous_total_sales ?? 0;
+
+        // Calculate the percentage growth or decline
+        $growth_rate = $previous_total_sales > 0
+            ? (($overall_total_sales - $previous_total_sales) / $previous_total_sales) * 100
+            : 0;
+
         return [
             'data' => [
                 'chart_series' => [
                     'orders_sales_chart_data' => $time_series_data,
+                    'overall_total_sales' => $overall_total_sales,
+                    'growth_rate' => $growth_rate,
                 ],
                 'chart_options' => [
                     'xaxis' => [
@@ -921,6 +940,131 @@ class Order extends VaahModel
             ],
         ];
     }
+
+//    public static function fetchOrderPaymentsData($request){
+//        $query = OrderPayment::query();
+//       /* $count = $query->where('remaining_payable_amount', 0)->count();
+//
+//        return [
+//            'total_paid_orders' => $count,
+//        ];*/
+//
+//        $current_count = $query->where('remaining_payable_amount', 0)->count();
+//
+//        // Calculate the previous period's date range (adjust as needed)
+//        $previous_from = now()->subMonth()->startOfMonth(); // Example: one month before
+//        $previous_to = now()->subMonth()->endOfMonth(); // Example: end of that month
+//
+//        // Count the number of orders where remaining_payable_amount is 0 in the previous period
+//        $previous_count = OrderPayment::query()
+//            ->whereBetween('created_at', [$previous_from, $previous_to])
+//            ->where('remaining_payable_amount', 0)
+//            ->count();
+//
+//        // Calculate growth rate (avoid division by zero)
+//        $growth_rate = 0;
+//
+//// If previous count is greater than zero, calculate growth
+//        if ($previous_count > 0) {
+//            $growth_rate = (($current_count - $previous_count) / $previous_count) * 100; // Calculate percentage growth
+//        } elseif ($current_count > 0) {
+//            // If previous count is zero but current count is positive, treat it as 100% growth
+//            $growth_rate = 100;
+//        }
+//
+//        return [
+//            'total_orders_with_no_remaining_amount' => $current_count,
+//            'previous_orders_count' => $previous_count,
+//            'growth_rate' => $growth_rate,
+//        ];
+//    }
+
+
+    public static function fetchOrderPaymentsData($request) {
+        // Initialize the query for OrderPayment
+        $query = OrderPayment::query();
+
+        // Apply filters if any
+        if (isset($request->filter)) {
+            $query = $query->quickFilter($request->filter);
+        }
+
+        // Get current month data
+        $current_count = $query->clone() // Clone the query to avoid modifying the original query
+        ->where('remaining_payable_amount', 0)
+            ->whereMonth('created_at', now()->month) // Filter by current month
+            ->count();
+
+        // Calculate the previous month's date range
+        $previous_from = now()->subMonth()->startOfMonth();
+        $previous_to = now()->subMonth()->endOfMonth();
+
+        // Count the number of orders where remaining_payable_amount is 0 in the previous period
+        $previous_count = OrderPayment::query()
+            ->whereBetween('created_at', [$previous_from, $previous_to])
+            ->where('remaining_payable_amount', 0)
+            ->count();
+
+        // Calculate growth rate
+        $growth_rate = 0;
+        if ($previous_count > 0) {
+            $growth_rate = (($current_count - $previous_count) / $previous_count) * 100; // Calculate percentage growth
+        } elseif ($current_count > 0) {
+            // If previous count is zero but current count is positive, treat it as 100% growth
+            $growth_rate = 100;
+        }
+
+        // Prepare data for the chart including all dates
+        $payments_data = $query->selectRaw('DATE(created_at) as date')
+            ->selectRaw('COUNT(*) as total_paid_orders')
+            ->where('remaining_payable_amount', 0) // Only consider fully paid orders
+            ->groupBy('date') // Group by date to aggregate counts
+            ->orderBy('date') // Order by date for chronological data
+            ->get();
+
+        // Debug: Check the raw payments data
+        // dd($payments_data->toArray());
+
+        // Map to desired format for the chart
+        $time_series_data = $payments_data->map(function ($item) {
+            return [
+//                'x' => \Carbon\Carbon::parse($item->date)->timestamp * 1000, // Convert date to JavaScript timestamp
+                'x' => $item->date, // Convert date to JavaScript timestamp
+                'y' => $item->total_paid_orders,
+            ];
+        });
+
+        // Get overall count of fully paid orders
+        $overall_count = OrderPayment::where('remaining_payable_amount', 0)->count();
+
+        return [
+            'data' => [
+                'order_payments_chart_series' => [
+                    'orders_payment_chart_data' => $time_series_data,
+                    'order_payments_growth_rate' => $growth_rate,
+                    'overall_paid' => $overall_count,
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                    ],
+                    'yaxis' => [
+                        'title' => [
+                            'text' => 'Paid Orders Count',
+                            'color' => '#008FFB',
+                            'rotate' => -90,
+                            'style' => [
+                                'fontFamily' => 'Arial, sans-serif',
+                                'fontWeight' => 'bold',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+
 
 // Function to apply filters to the query
     private static function appliedFilters($list, $request)
