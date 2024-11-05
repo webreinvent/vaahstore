@@ -99,6 +99,7 @@ export const useVendorStore = defineStore({
         selected_vendor_role:null,
         default_vendor_message:null,
         total_product_count:0,
+        top_selling_vendors:[],
 
     }),
     getters: {
@@ -535,6 +536,7 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.vendorsBySales();
                 this.first_element = this.query.rows * (this.query.page - 1);
             }
         },
@@ -1779,6 +1781,22 @@ export const useVendorStore = defineStore({
             }
         },
 
+        async vendorsBySales() {
+            const options = {
+                method: 'post',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/vendors-by-sales',
+                this.vendorsBySalesAfter,
+                options
+            );
+        },
+        vendorsBySalesAfter(data,res){
+            if (data){
+                this.top_selling_vendors=data;
+            }
+        },
 
 
 
