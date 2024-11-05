@@ -100,6 +100,7 @@ export const useVendorStore = defineStore({
         default_vendor_message:null,
         total_product_count:0,
         top_selling_vendors:[],
+        quick_filter_menu:[],
 
     }),
     getters: {
@@ -1798,6 +1799,48 @@ export const useVendorStore = defineStore({
             }
         },
 
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+                {
+                    label: 'Today',
+
+                    command: () => {
+                        this.updateQuickFilter('today');
+                    }
+                },
+                {
+                    label: 'Last 7 Days',
+                    command: () => {
+                        this.updateQuickFilter('last-7-days');
+                    }
+                },
+                {
+                    label: 'Last 1 Month',
+                    command: () => {
+                        this.updateQuickFilter('last-1-month');
+                    }
+                },
+                {
+                    label: 'Last 1 Year',
+                    command: () => {
+                        this.updateQuickFilter('last-1-year');
+                    }
+                },
+                {
+                    label: 'All',
+                    command: () => {
+                        this.updateQuickFilter('all');
+                    }
+                },
+
+            ];
+
+        },
+        updateQuickFilter(time)
+        {
+            this.query.filter.time = time;
+        },
 
 
     }

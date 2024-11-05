@@ -46,6 +46,7 @@ onMounted(async () => {
      * fetch list of records
      */
     await store.getList();
+    store.getQuickFilterMenu();
     await store.getListCreateMenu();
 });
 
@@ -55,7 +56,10 @@ const toggleCreateMenu = (event) => {
     create_menu.value.toggle(event);
 };
 //--------/form_menu
-
+const quick_filter_menu_state = ref();
+const toggleQuickFilterState = (event) => {
+    quick_filter_menu_state.value.toggle(event);
+};
 
 </script>
 <template>
@@ -69,7 +73,42 @@ const toggleCreateMenu = (event) => {
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
                             <h2 class="text-lg">Top Vendors By Sales</h2>
+                            <Chip
+                                v-if="store.query.filter.time?.length"
+                                class="white-space-nowrap align-items-center"
+                                :style="{
+                                                        fontSize: '11px',
+                                                        marginRight: '5px',
+                                                        padding: '1px 8px',
+                                                        fontWeight:'600',
+                                                      }"
+                                :pt="{
+                                                        removeIcon: {
+                                                            style: {
+                                                                width: '12px',
+                                                                height: '12px',
+                                                                marginLeft: '6px'
+                                                            }
+                                                        }
+                                                      }"
+                                :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
+                                removable
+                                @remove="store.query.filter.time=null;"
+                            />
+                            <Button
+                                data-testid="inventories-quick_filter"
+                                type="button"
+                                @click="toggleQuickFilterState($event)"
+                                aria-haspopup="true"
+                                aria-controls="quick_filter_menu_state"
+                                class="ml-1 p-button-sm px-1"
 
+                                icon="pi pi-filter"
+                            >
+                            </Button>
+                            <Menu ref="quick_filter_menu_state"
+                                  :model="store.quick_filter_menu"
+                                  :popup="true"/>
                         </div>
                     </template>
 

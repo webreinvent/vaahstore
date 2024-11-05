@@ -72,19 +72,20 @@ const toggleQuickFilterState = (event) => {
 
         <div :class="'col-'+store.list_view_width">
 
-<Accordion>
-    <AccordionTab header="Stats">
-<div class="flex justify-content-end">
-    <Chip
-        v-if="store.query.filter.time?.length"
-        class="white-space-nowrap align-items-center"
-        :style="{
+<!--<Accordion>-->
+<!--    <AccordionTab header="Stats">-->
+
+        <div class="flex justify-content-end" v-if="store.isViewLarge()">
+            <Chip
+                v-if="store.query.filter.time?.length"
+                class="white-space-nowrap align-items-center"
+                :style="{
                                                         fontSize: '11px',
                                                         marginRight: '5px',
                                                         padding: '1px 8px',
                                                         fontWeight:'600',
                                                       }"
-        :pt="{
+                :pt="{
                                                         removeIcon: {
                                                             style: {
                                                                 width: '12px',
@@ -93,28 +94,27 @@ const toggleQuickFilterState = (event) => {
                                                             }
                                                         }
                                                       }"
-        :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
-        removable
-        @remove="store.query.filter.time=null;"
-    />
-    <Button
-        data-testid="inventories-quick_filter"
-        type="button"
-        @click="toggleQuickFilterState($event)"
-        aria-haspopup="true"
-        aria-controls="quick_filter_menu_state"
-        class="ml-1 p-button-sm px-1"
+                :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
+                removable
+                @remove="store.query.filter.time=null;"
+            />
+            <Button
+                data-testid="inventories-quick_filter"
+                type="button"
+                @click="toggleQuickFilterState($event)"
+                aria-haspopup="true"
+                aria-controls="quick_filter_menu_state"
+                class="ml-1 p-button-sm px-1"
 
-        icon="pi pi-filter"
-    >
-    </Button>
-    <Menu ref="quick_filter_menu_state"
-          :model="store.quick_filter_menu"
-          :popup="true"/>
-</div>
-
-       <div class="flex w-full mt-2 mb-4">
-                <div class="w-18rem h-12rem">
+                icon="pi pi-filter"
+            >
+            </Button>
+            <Menu ref="quick_filter_menu_state"
+                  :model="store.quick_filter_menu"
+                  :popup="true"/>
+        </div>
+       <div class="flex w-full  mb-4" v-if="store.isViewLarge()">
+                <div class="w-26rem h-12rem">
                     <Card
                         v-if="store.isViewLarge()"
                         class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
@@ -179,7 +179,7 @@ const toggleQuickFilterState = (event) => {
                                         type="area"
                                         :chartOptions="store.salesChartOptions"
                                         :chartSeries="store.salesChartSeries"
-                                        height=100 width=200
+                                        height=100 width=300
                                         titleAlign="center"
 
 
@@ -192,7 +192,7 @@ const toggleQuickFilterState = (event) => {
                     </Card>
 
                 </div>
-                <div class="w-18rem h-12rem">
+                <div class="w-26rem h-12rem">
                     <Card
                         v-if="store.isViewLarge()"
                         class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
@@ -257,7 +257,7 @@ const toggleQuickFilterState = (event) => {
                                         type="bar"
                                         :chartOptions="store.orderPaymentsChartOptions"
                                         :chartSeries="store.orderPaymentsChartSeries"
-                                        height=100 width=200
+                                        height=100 width=300
                                         titleAlign="center"
 
 
@@ -270,7 +270,7 @@ const toggleQuickFilterState = (event) => {
                     </Card>
                 </div>
 
-                <div class="w-18rem h-12rem">
+                <div class="w-26rem h-12rem">
                     <Card
                         v-if="store.isViewLarge()"
                         class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
@@ -298,11 +298,11 @@ const toggleQuickFilterState = (event) => {
                                     <div class="min-w-max">
                                         <span
                                             :style="{color: 'gray', flexWrap: 'nowrap', fontSize: store.show_filters ? '10px' : '13px' }">
-                                                           Orders Income
+                                                           Payment Received
 
                                                         </span>
                                         <p :style="{fontSize: store.show_filters ? '14px' : '18px' }">
-                                            <b>{{
+                                            <b>₹{{
                                                 store.overall_paid > 0 ?
                                                 store.overall_income?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
                                                 '0'
@@ -335,7 +335,7 @@ const toggleQuickFilterState = (event) => {
                                         type="area"
                                         :chartOptions="store.orderPaymentsIncomeChartOptions"
                                         :chartSeries="store.orderPaymentsIncomeChartSeries"
-                                        height=100 width=200
+                                        height=100 width=300
                                         titleAlign="center"
 
 
@@ -348,27 +348,20 @@ const toggleQuickFilterState = (event) => {
                     </Card>
                 </div>
 
-            </div>
+       </div >
 
-        <div class="flex justify-content-center ">
+        <div class="flex justify-content-center " v-if="store.isViewLarge()">
 
 
             <Charts
-                type="donut"
+                type="pie"
                 :chartOptions="store.pieChartOptions"
                 :chartSeries="store.pieChartSeries"
                 height=250 width=400
                 titleAlign="center"
 
             />
-            <!--                <Charts
-                                type="pie"
-                                :chartOptions="store.pieChartOptions"
-                                :chartSeries="store.pieChartSeries"
-                                height=350 width=400
-                                titleAlign="center"
-
-                            />-->
+            
             <Charts
                 type="area"
                 :chartOptions="store.chartOptions"
@@ -378,21 +371,13 @@ const toggleQuickFilterState = (event) => {
                 title="Orders Count Over Months"
 
             />
-            <Charts
-                type="area"
-                :chartOptions="store.salesChartOptions"
-                :chartSeries="store.salesChartSeries"
-                height=250 width=390
-                titleAlign="center"
 
-
-            />
 
 
         </div>
 
-    </AccordionTab>
-</Accordion>
+<!--    </AccordionTab>-->
+<!--</Accordion>-->
 
             <Panel class="is-small">
 

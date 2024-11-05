@@ -1558,14 +1558,17 @@ class Vendor extends VaahModel
                     'total_sales' => $total_sales,
                 ];
             })
-            ->sortByDesc('total_sales')
-            ->take($limit)
-            ->values(); 
+            ->sortByDesc('total_sales');
+
+        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
+            $top_selling_vendors = $top_selling_vendors->take($limit);
+        }
 
         return [
-            'data' => $top_selling_vendors,
+            'data' => $top_selling_vendors->values(),
         ];
     }
+
 
 
     private static function appliedFilters($list, $request)
