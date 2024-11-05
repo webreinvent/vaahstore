@@ -1095,10 +1095,10 @@ export const useOrderStore = defineStore({
                         color: '#263238'
                     }
                 },
-                toolbar: {
-                    show: true,
-                    offsetX: 0, // Adjust toolbar position horizontally if needed
-                    offsetY: 40, // Set margin between title and toolbar
+                chart: {
+                    toolbar: {
+                        show: false, // This should be under the chart key
+                    },
                 },
                 legend: {
                     position: 'top',
@@ -1249,6 +1249,9 @@ export const useOrderStore = defineStore({
             };
 
             this.updateSalesChartOptions(updated_sales_chart_options);
+
+
+
         },
 
 
