@@ -1529,4 +1529,50 @@ class Vendor extends VaahModel
 
 
 
+    public static function vendorsBySales($request)
+    {
+        $limit = 5;
+
+        $query = OrderItem::query();
+
+        if (isset($request->filter)) {
+            $query = $query->quickFilter($request->filter);
+        }
+
+        $top_selling_vendors = $query
+            ->select('vh_st_vendor_id')
+            ->groupBy('vh_st_vendor_id')
+            ->with(['vendor']) // Load the vendor relationship
+            ->get()
+            ->map(function ($item) use ($request) {
+                $total_sales = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
+                    ->when(isset($request->filter), function ($query) use ($request) {
+                        return $query->quickFilter($request->filter);
+                    })
+                    ->sum('quantity');
+
+                return [
+                    'id' => $item->vendor->id,
+                    'name' => $item->vendor->name,
+                    'slug' => $item->vendor->slug,
+                    'total_sales' => $total_sales,
+                ];
+            })
+            ->sortByDesc('total_sales')
+            ->take($limit)
+            ->values(); 
+
+        return [
+            'data' => $top_selling_vendors,
+        ];
+    }
+
+
+    private static function appliedFilters($list, $request)
+    {
+        if (isset($request->filter)) {
+            $list = $list->paymentStatusFilter($request->filter);
+        }
+        return $list;
+    }
 }
