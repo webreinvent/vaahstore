@@ -1571,6 +1571,77 @@ class Vendor extends VaahModel
 
 
 
+    public static function vendorSalesByRange($request)
+    {
+        $inputs = $request->all();
+
+        // Set initial date range, defaulting to October 1, 2024, to the current date
+        $startDate = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $endDate = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+//        $startDate = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : null;
+//        $endDate = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : null;
+
+
+
+
+        // Generate date labels for x-axis
+        $period = new \DatePeriod($startDate, new \DateInterval('P1D'), $endDate->addDay());
+        $labels = [];
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+        // Query vendor sales data
+        $topSellingVendors = OrderItem::select('vh_st_vendor_id')
+            ->groupBy('vh_st_vendor_id')
+            ->with('vendor') // Load the vendor relationship
+            ->get()
+            ->map(function ($item) use ($startDate, $endDate, $request, $labels) {
+                // Get sales data per day for the vendor within the date range
+                $salesData = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->when(isset($request->filter), function ($query) use ($request) {
+                        return $query->quickFilter($request->filter); // Apply custom filter if exists
+                    })
+                    ->selectRaw('DATE(created_at) as sales_date')
+                    ->selectRaw('SUM(quantity) as total_sales')
+                    ->groupBy('sales_date')
+                    ->orderBy('sales_date')
+                    ->get()
+                    ->keyBy('sales_date'); // Key by date for easy lookup
+
+                // Generate sales data with zero values for missing dates
+                $formattedData = [];
+                foreach ($labels as $dateString) {
+                    $formattedData[] = [
+                        'x' => $dateString, // Date in ms for ApexCharts
+                        'y' => isset($salesData[$dateString]) ? (int) $salesData[$dateString]->total_sales : 0, // Use 0 if no sales
+                    ];
+                }
+
+                return [
+                    'name' => $item->vendor->name,
+                    'data' => $formattedData,
+                ];
+            });
+
+        return [
+            'data' => [
+                'chart_series' => $topSellingVendors,
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+
+
+
+
     private static function appliedFilters($list, $request)
     {
         if (isset($request->filter)) {

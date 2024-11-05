@@ -101,6 +101,11 @@ export const useVendorStore = defineStore({
         total_product_count:0,
         top_selling_vendors:[],
         quick_filter_menu:[],
+        chartOptions: {},
+        chartSeries: [],
+        filter_start_date: new Date(),
+        filter_end_date: new Date(),
+        // date_filter_between:[],
 
     }),
     getters: {
@@ -538,6 +543,7 @@ export const useVendorStore = defineStore({
             {
                 this.list = data;
                 this.vendorsBySales();
+                this.vendorSalesByRange();
                 this.first_element = this.query.rows * (this.query.page - 1);
             }
         },
@@ -1787,6 +1793,8 @@ export const useVendorStore = defineStore({
                 method: 'post',
                 query: vaah().clone(this.query)
             };
+
+
             await vaah().ajax(
                 this.ajax_url + '/charts/vendors-by-sales',
                 this.vendorsBySalesAfter,
@@ -1799,6 +1807,138 @@ export const useVendorStore = defineStore({
             }
         },
 
+
+        async vendorSalesByRange() {
+
+
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/sales-by-range',
+                this.vendorSalesByRangeAfter,
+                options
+            );
+        },
+
+        vendorSalesByRangeAfter(data,res){
+             this.updateDateFilter();
+            const series_data = data.chart_series.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options, // Merge existing options
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: 'Sales Over Over Selected Date Range', // Chart title
+                    align: 'center', // Title alignment
+                    offsetY: 12, // Add margin between title and chart/toolbar
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+                    toolbar: {
+                        show: false, // This should be under the chart key
+                    },
+                    background: '#ffffff',
+                },
+                legend: {
+                    show: false,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '14px',
+                    /*formatter: function (val, opts) {
+                        const seriesIndex = opts.seriesIndex; // Get the series index
+                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
+                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
+                        return `${val} - ${sum}`; // Return the legend text with the sum
+                    }*/
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateChartOptions(updated_area_chart_options);
+        },
+        updateChartOptions(newOptions) {
+            this.chartOptions = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+
+
+        async updateDateFilter(start_date = null, end_date = null) {
+            start_date = start_date || this.filter_start_date;
+            end_date = end_date || this.filter_end_date;
+            this.date_filter_between.length = 0;
+            let currentDate = new Date(start_date);
+            this.date_filter_between.push(0);
+            while (currentDate <= end_date) {
+                const formatted_date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+
+                if (!this.date_filter_between.includes(formatted_date)) {
+                    this.date_filter_between.push(formatted_date);
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            await this.vendorSalesByRange();
+            // this.chartOptions = await this.vendorsBySales();
+        },
+
+        async getCampaignReport() {
+
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            let ajax_url = this.ajax_url + '/campaigns-report'
+            await vaah().ajax(
+                ajax_url,
+                this.afterGetCampaignReport,
+                options
+            );
+        },
+
+//---------------------------------------------------------------------
+        async afterGetCampaignReport(data, res) {
+            if (data) {
+                this.campaign_report_data = data;
+
+                await this.updateDateFilter();
+            }
+        },
         getQuickFilterMenu() {
 
             this.quick_filter_menu = [

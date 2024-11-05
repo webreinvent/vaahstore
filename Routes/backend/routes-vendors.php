@@ -142,4 +142,7 @@ Route::group(
 
         Route::post('/charts/vendors-by-sales', 'VendorsController@vendorsBySales')
             ->name('vh.backend.store.users.count-chart-data');
+
+        Route::post('/charts/sales-by-range', 'VendorsController@vendorSalesByRange')
+            ->name('vh.backend.store.users.count-chart-data');
     });

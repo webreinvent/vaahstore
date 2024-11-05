@@ -951,10 +951,10 @@ class Order extends VaahModel
         // Initialize the query for OrderPayment
         $query = OrderPayment::query();
 
-        // Apply filters if any
+       /* // Apply filters if any
         if (isset($request->filter)) {
             $query = $query->quickFilter($request->filter);
-        }
+        }*/
 
         // Retrieve the latest two dates with order payments
         // Retrieve the latest two dates with order payments
