@@ -2792,6 +2792,12 @@ export const useProductStore = defineStore({
                         this.updateQuickFilter('last-1-year');
                     }
                 },
+                {
+                    label: 'All',
+                    command: () => {
+                        this.updateQuickFilter('all');
+                    }
+                },
 
             ];
 
