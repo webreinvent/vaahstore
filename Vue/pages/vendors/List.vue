@@ -186,12 +186,12 @@ const today = ref(new Date());
                                         :minDate="store.filter_start_date"
                                         v-model="store.filter_end_date"
                                         showIcon/>
-
+                                    <Button
+                                        @click="store.vendorSalesByRange"
+                                        label="Get Sales report"
+                                    />
                                 </div>
-                                <Button
-                                    @click="store.vendorSalesByRangeas"
-                                    label="Get report"
-                                />
+
                             </div>
                             <div class="flex justify-content-between align-items-start" v-if=" store.isViewLarge()">
 

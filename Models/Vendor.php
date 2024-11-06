@@ -1594,9 +1594,6 @@ class Vendor extends VaahModel
                 // Get sales data per day for the vendor within the date range
                 $sales_data = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
                     ->whereBetween('created_at', [$start_date, $end_date])
-                    ->when(isset($request->filter), function ($query) use ($request) {
-                        return $query->quickFilter($request->filter); // Apply custom filter if exists
-                    })
                     ->selectRaw('DATE(created_at) as sales_date')
                     ->selectRaw('SUM(quantity) as total_sales')
                     ->groupBy('sales_date')
