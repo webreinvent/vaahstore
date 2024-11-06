@@ -70,7 +70,7 @@ const toggleQuickFilterState = (event) => {
 </script>
 <template>
 
-    <Card class="max-w-max">
+    <Card class="max-w-max border-round-xl shadow-md">
         <template #title>
             <div class="flex align-items-center justify-content-between">
                 <h2 class="text-lg">Top Selling Products</h2>
@@ -117,8 +117,7 @@ const toggleQuickFilterState = (event) => {
             <DataTable
                 :value="store.top_selling_variations"
                 dataKey="id"
-                :rows="4"
-                :paginator="true"
+
                 class="p-datatable-sm p-datatable-hoverable-rows"
                 :nullSortOrder="-1"
                 v-model:selection="store.action.items"

@@ -2373,14 +2373,17 @@ class Product extends VaahModel
                 'image_urls' => $image_urls,
             ];
         })
-            ->sortByDesc('total_sales')
-            ->take($limit)
-            ->values();
+            ->sortByDesc('total_sales');
+
+        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
+            $top_selling_variations = $top_selling_variations->take($limit);
+        }
 
         return [
-            'data' => $top_selling_variations,
+            'data' => $top_selling_variations->values(),
         ];
     }
+
 
 
 
