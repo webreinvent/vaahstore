@@ -1829,7 +1829,7 @@ export const useVendorStore = defineStore({
         },
 
         vendorSalesByRangeAfter(data,res){
-             this.updateDateFilter();
+             // this.updateDateFilter();
             const series_data = data.chart_series.map(series => ({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
