@@ -85,7 +85,7 @@ class OrderItem extends VaahModel
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name', 'slug');
+        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name', 'slug','vh_st_brand_id');
     }
     //-------------------------------------------------
     public function vendor()

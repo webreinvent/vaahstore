@@ -2440,6 +2440,63 @@ class Product extends VaahModel
         ];
     }
 
+    public static function topSellingCategories($request)
+    {
+        $limit = 5;
+        $query = OrderItem::query();
+
+        if (isset($request->filter)) {
+            $query = $query->quickFilter($request->filter);
+        }
+
+        $top_categories_by_product = $query
+            ->select('vh_st_product_id')
+            ->with(['product' => function ($query) {
+                $query->with('productCategories'); // Eager load productCategories relation
+            }])
+            ->groupBy('vh_st_product_id')
+            ->get();
+
+        $top_categories_by_product = $top_categories_by_product->map(function ($item) use ($request) {
+            $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
+
+            if (isset($request->filter)) {
+                $sales_query = $sales_query->quickFilter($request->filter);
+            }
+
+            // Calculate total sales for the product
+            $total_sales = $sales_query->sum('quantity');
+            $product = $item->product;
+
+            if ($product) {
+                // Get the first category related to the product
+                $category = $product->productCategories->first();
+
+                $parent_category = $category ? $category->getFinalParentCategory() : null;
+
+                return [
+                    'total_sales' => $total_sales,
+
+                    'slug' => $parent_category?->slug,
+                    'parent_id' => $parent_category?->id,
+                    'name' => $parent_category?->name,
+                ];
+            }
+            return null;
+        })
+            ->filter()
+            ->sortByDesc('total_sales');
+
+        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
+            $top_categories_by_product = $top_categories_by_product->take($limit);
+        }
+
+        return [
+            'data' => [
+                'top_selling_categories' => $top_categories_by_product->values(),
+            ]
+        ];
+    }
 
 
     //----------------------------------------------------------

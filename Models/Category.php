@@ -126,6 +126,17 @@ class Category extends VaahModel
         return $this->belongsTo(self::class, 'parent_id', 'id');
     }
     //-------------------------------------------------
+    public function getFinalParentCategory()
+    {
+        $current_category = $this;
+
+        while ($current_category->parent_id) {
+            $current_category = $current_category->parentCategory;
+        }
+
+        return $current_category;
+    }
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()

@@ -244,4 +244,10 @@ function () {
     Route::get('/charts/top-selling-brands', 'ProductsController@topSellingBrands')
         ->name('vh.backend.store.users.count-chart-data');
 
+    /**
+     * Top Categories By product
+     */
+    Route::get('/charts/top-selling-categories', 'ProductsController@topSellingCategories')
+        ->name('vh.backend.store.users.count-chart-data');
+
 });
