@@ -168,8 +168,8 @@ const today = ref(new Date());
                                 </DataTable>
                             </template>
                         </Card>
-                        <div class="w-full ">
-                            <div class="flex justify-content-between" v-if=" store.isViewLarge()">
+                        <div class="w-full bg-white border-round-2xl shadow-2">
+                            <div class="flex justify-content-between mt-1 ml-2" v-if=" store.isViewLarge()">
                                 <div class="flex gap-2">
                                     <Calendar
                                         placeholder="Select Start Date"
@@ -189,7 +189,7 @@ const today = ref(new Date());
 
                                 </div>
                                 <Button
-                                    @click="store.vendorSalesByRange"
+                                    @click="store.vendorSalesByRangeas"
                                     label="Get report"
                                 />
                             </div>
@@ -197,9 +197,10 @@ const today = ref(new Date());
 
                                 <Charts
                                     type="line"
+
                                     :chartOptions="store.chartOptions"
                                     :chartSeries="store.chartSeries"
-                                    height=300 width=700
+                                    height=250 width=700
                                     titleAlign="center"
                                     title="Sales By Vendor"
 

@@ -1529,7 +1529,7 @@ class Vendor extends VaahModel
 
 
 
-    public static function vendorsBySales($request)
+    public static function topSellingVendorsData($request)
     {
         $limit = 5;
 
@@ -1575,31 +1575,25 @@ class Vendor extends VaahModel
     {
         $inputs = $request->all();
 
-        // Set initial date range, defaulting to October 1, 2024, to the current date
-        $startDate = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
-        $endDate = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
-//        $startDate = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : null;
-//        $endDate = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : null;
-
-
-
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
 
         // Generate date labels for x-axis
-        $period = new \DatePeriod($startDate, new \DateInterval('P1D'), $endDate->addDay());
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->addDay());
         $labels = [];
         foreach ($period as $date) {
             $labels[] = $date->format('Y-m-d');
         }
 
         // Query vendor sales data
-        $topSellingVendors = OrderItem::select('vh_st_vendor_id')
+        $vendor_sales = OrderItem::select('vh_st_vendor_id')
             ->groupBy('vh_st_vendor_id')
             ->with('vendor') // Load the vendor relationship
             ->get()
-            ->map(function ($item) use ($startDate, $endDate, $request, $labels) {
+            ->map(function ($item) use ($start_date, $end_date, $request, $labels) {
                 // Get sales data per day for the vendor within the date range
-                $salesData = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
-                    ->whereBetween('created_at', [$startDate, $endDate])
+                $sales_data = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
+                    ->whereBetween('created_at', [$start_date, $end_date])
                     ->when(isset($request->filter), function ($query) use ($request) {
                         return $query->quickFilter($request->filter); // Apply custom filter if exists
                     })
@@ -1611,23 +1605,23 @@ class Vendor extends VaahModel
                     ->keyBy('sales_date'); // Key by date for easy lookup
 
                 // Generate sales data with zero values for missing dates
-                $formattedData = [];
-                foreach ($labels as $dateString) {
-                    $formattedData[] = [
-                        'x' => $dateString, // Date in ms for ApexCharts
-                        'y' => isset($salesData[$dateString]) ? (int) $salesData[$dateString]->total_sales : 0, // Use 0 if no sales
+                $formatted_data = [];
+                foreach ($labels as $date_string) {
+                    $formatted_data[] = [
+                        'x' => $date_string, // Date in ms for ApexCharts
+                        'y' => isset($sales_data[$date_string]) ? (int) $sales_data[$date_string]->total_sales : 0, // Use 0 if no sales
                     ];
                 }
 
                 return [
                     'name' => $item->vendor->name,
-                    'data' => $formattedData,
+                    'data' => $formatted_data,
                 ];
             });
 
         return [
             'data' => [
-                'chart_series' => $topSellingVendors,
+                'chart_series' => $vendor_sales,
                 'chart_options' => [
                     'xaxis' => [
                         'type' => 'datetime',
@@ -1638,15 +1632,4 @@ class Vendor extends VaahModel
         ];
     }
 
-
-
-
-
-    private static function appliedFilters($list, $request)
-    {
-        if (isset($request->filter)) {
-            $list = $list->paymentStatusFilter($request->filter);
-        }
-        return $list;
-    }
 }

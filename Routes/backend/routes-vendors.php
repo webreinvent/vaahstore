@@ -140,7 +140,7 @@ Route::group(
         Route::get('/get/product/count', 'VendorsController@getProductCount')
             ->name('vh.backend.store.vendors.get.product_count');
 
-        Route::post('/charts/vendors-by-sales', 'VendorsController@vendorsBySales')
+        Route::post('/charts/vendors-by-sales', 'VendorsController@topSellingVendorsData')
             ->name('vh.backend.store.users.count-chart-data');
 
         Route::post('/charts/sales-by-range', 'VendorsController@vendorSalesByRange')
