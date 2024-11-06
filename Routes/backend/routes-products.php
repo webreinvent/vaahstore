@@ -232,7 +232,16 @@ function () {
     Route::get('/get/categories', 'ProductsController@getCategories')
         ->name('vh.backend.store.products.get.categories');
 
-    Route::post('/charts/top-selling-products', 'ProductsController@topSellingProducts')
+    /**
+     * Top Selling products
+     */
+    Route::get('/charts/top-selling-products', 'ProductsController@topSellingProducts')
+        ->name('vh.backend.store.users.count-chart-data');
+
+    /**
+     * Top Brands By product
+     */
+    Route::get('/charts/top-selling-brands', 'ProductsController@topSellingBrands')
         ->name('vh.backend.store.users.count-chart-data');
 
 });

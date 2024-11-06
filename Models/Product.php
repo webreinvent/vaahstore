@@ -2380,12 +2380,65 @@ class Product extends VaahModel
         }
 
         return [
-            'data' => $top_selling_variations->values(),
+            'data' => [
+                'top_selling_products'=>$top_selling_variations->values(),]
         ];
     }
 
 
 
+
+    public static function topSellingBrands($request)
+    {
+        $limit = 5;
+        $query = OrderItem::query();
+
+        if (isset($request->filter)) {
+            $query = $query->quickFilter($request->filter);
+        }
+
+        $top_brands_by_product = $query
+            ->select('vh_st_product_id')
+            ->with(['product' => function ($query) {
+                $query->with('brand');
+            }])
+            ->groupBy('vh_st_product_id')
+            ->get();
+
+        $top_brands_by_product = $top_brands_by_product->map(function ($item) use ($request) {
+            $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
+
+            if (isset($request->filter)) {
+                $sales_query = $sales_query->quickFilter($request->filter);
+            }
+            // Calculate total sales for the product
+            $total_sales = $sales_query->sum('quantity');
+            $product = $item->product;
+
+            if ($product) {
+                $brand = $product->brand;
+
+                return [
+                    'total_sales' => $total_sales,
+                    'id' => $brand?->id,
+                    'name' => $brand?->name,
+                    'slug' => $brand?->slug,
+                ];
+            }
+            return null;
+        })
+            ->filter()
+            ->sortByDesc('total_sales');
+
+        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
+            $top_brands_by_product = $top_brands_by_product->take($limit);
+        }
+        return [
+            'data' => [
+                'top_selling_brands' => $top_brands_by_product->values(),
+            ]
+        ];
+    }
 
 
 

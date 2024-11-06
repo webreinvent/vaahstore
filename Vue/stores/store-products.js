@@ -135,6 +135,7 @@ export const useProductStore = defineStore({
         active_user:null,
         total_cart_product:0,
         top_selling_variations:null,
+        top_selling_brands:null,
         quick_filter_menu:[],
 
     }),
@@ -948,6 +949,7 @@ export const useProductStore = defineStore({
                 this.list = data;
                 this.query.rows=data.per_page;
                 this.topSellingProducts();
+                this.topSellingBrands();
             }
         },
         viewCart(id){
@@ -2748,7 +2750,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async topSellingProducts() {
             const options = {
-                method: 'post',
+                method: 'get',
                 query: vaah().clone(this.query)
             };
             await vaah().ajax(
@@ -2759,10 +2761,26 @@ export const useProductStore = defineStore({
         },
         topSellingProductsAfter(data,res){
             if (data) {
-                this.top_selling_variations = data;
+                this.top_selling_variations = data.top_selling_products;
             }
         },
 
+        async topSellingBrands() {
+            const options = {
+                method: 'get',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-brands',
+                this.topSellingBrandsAfter,
+                options
+            );
+        },
+        topSellingBrandsAfter(data,res){
+            if (data) {
+                this.top_selling_brands = data.top_selling_brands;
+            }
+        },
 
         getQuickFilterMenu() {
 
