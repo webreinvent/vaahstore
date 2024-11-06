@@ -595,10 +595,10 @@ class VendorsController extends Controller
         }
     }
 
-    public function vendorsBySales(Request $request)
+    public function topSellingVendorsData(Request $request)
     {
         try{
-            return Vendor::vendorsBySales($request);
+            return Vendor::topSellingVendorsData($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

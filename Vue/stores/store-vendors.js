@@ -542,7 +542,7 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.list = data;
-                this.vendorsBySales();
+                this.topSellingVendorsData();
                 this.vendorSalesByRange();
                 this.first_element = this.query.rows * (this.query.page - 1);
             }
@@ -1788,7 +1788,7 @@ export const useVendorStore = defineStore({
             }
         },
 
-        async vendorsBySales() {
+        async topSellingVendorsData() {
             const options = {
                 method: 'post',
                 query: vaah().clone(this.query)
@@ -1797,11 +1797,11 @@ export const useVendorStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url + '/charts/vendors-by-sales',
-                this.vendorsBySalesAfter,
+                this.topSellingVendorsDataAfter,
                 options
             );
         },
-        vendorsBySalesAfter(data,res){
+        topSellingVendorsDataAfter(data,res){
             if (data){
                 this.top_selling_vendors=data;
             }
@@ -1844,7 +1844,7 @@ export const useVendorStore = defineStore({
                     width: 3,
                 },
                 title: {
-                    text: 'Sales Over Over Selected Date Range', // Chart title
+                    text: 'Vendor Sales Over Selected Date Range', // Chart title
                     align: 'center', // Title alignment
                     offsetY: 12, // Add margin between title and chart/toolbar
                     style: {
@@ -1854,11 +1854,14 @@ export const useVendorStore = defineStore({
                     }
                 },
                 chart: {
+
                     toolbar: {
                         show: false, // This should be under the chart key
                     },
                     background: '#ffffff',
+
                 },
+
                 legend: {
                     show: false,
                     position: 'bottom',
