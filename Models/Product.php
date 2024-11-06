@@ -2452,44 +2452,38 @@ class Product extends VaahModel
         $top_categories_by_product = $query
             ->select('vh_st_product_id')
             ->with(['product' => function ($query) {
-                $query->with('productCategories'); // Eager load productCategories relation
+                $query->with('productCategories.parentCategory');
             }])
             ->groupBy('vh_st_product_id')
             ->get();
 
-        $top_categories_by_product = $top_categories_by_product->map(function ($item) use ($request) {
-            $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
-
-            if (isset($request->filter)) {
-                $sales_query = $sales_query->quickFilter($request->filter);
-            }
-
-            // Calculate total sales for the product
-            $total_sales = $sales_query->sum('quantity');
+        // Process each product to gather all unique final parent categories
+        $top_categories_by_product = $top_categories_by_product->map(function ($item) {
             $product = $item->product;
 
             if ($product) {
-                // Get the first category related to the product
-                $category = $product->productCategories->first();
+                // Map through each category to find its final parent category
+                $parent_categories = $product->productCategories->map(function ($category) {
+                    $final_parent = $category;
+                    while ($final_parent && $final_parent->parentCategory) {
+                        $final_parent = $final_parent->parentCategory;
+                    }
+                    return $final_parent;
+                })->unique('id');
 
-                $parent_category = $category ? $category->getFinalParentCategory() : null;
-
-                return [
-                    'total_sales' => $total_sales,
-
-                    'slug' => $parent_category?->slug,
-                    'parent_id' => $parent_category?->id,
-                    'name' => $parent_category?->name,
-                ];
+                return $parent_categories->map(function ($parent_category) {
+                    return [
+                        'id' => $parent_category?->id,
+                        'slug' => $parent_category?->slug,
+                        'name' => $parent_category?->name,
+                    ];
+                });
             }
             return null;
         })
             ->filter()
-            ->sortByDesc('total_sales');
-
-        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
-            $top_categories_by_product = $top_categories_by_product->take($limit);
-        }
+            ->flatten(1)
+            ->take($limit);
 
         return [
             'data' => [

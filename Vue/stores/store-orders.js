@@ -1096,8 +1096,9 @@ export const useOrderStore = defineStore({
                     }
                 },
                 chart: {
+                    background: '#fff',
                     toolbar: {
-                        show: false, // This should be under the chart key
+                        show: false, // Ensure toolbar is set to false here
                     },
                 },
                 legend: {
@@ -1133,6 +1134,12 @@ export const useOrderStore = defineStore({
                         fontWeight: 'bold',
                         color: '#263238'
                     }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
                 },
                 legend: {
                     position: 'bottom',
