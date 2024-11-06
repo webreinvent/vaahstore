@@ -7,7 +7,6 @@ import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-
 const store = useProductStore();
 const root = useRootStore();
 const route = useRoute();
@@ -144,7 +143,7 @@ const toggleQuickFilterState = (event) => {
                                 </div>
                                 <div class="product_desc ml-3">
                                     <h4>{{ prop.data.name }}</h4>
-                                    <p><b> {{ prop.data.total_sales }}</b> Items</p>
+                                    <p><b> {{ prop.data.total_sales }}</b> Sold</p>
                                 </div>
                             </div>
                         </template>
@@ -162,42 +161,7 @@ const toggleQuickFilterState = (event) => {
         <template #title>
             <div class="flex align-items-center justify-content-between">
                 <h2 class="text-lg">Top Brands</h2>
-                <Chip
-                    v-if="store.query.filter.time?.length"
-                    class="white-space-nowrap align-items-center"
-                    :style="{
-                                                        fontSize: '11px',
-                                                        marginRight: '5px',
-                                                        padding: '1px 8px',
-                                                        fontWeight:'600',
-                                                      }"
-                    :pt="{
-                                                        removeIcon: {
-                                                            style: {
-                                                                width: '12px',
-                                                                height: '12px',
-                                                                marginLeft: '6px'
-                                                            }
-                                                        }
-                                                      }"
-                    :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
-                    removable
-                    @remove="store.query.filter.time=null;"
-                />
-                <Button
-                    data-testid="inventories-quick_filter"
-                    type="button"
-                    @click="toggleQuickFilterState($event)"
-                    aria-haspopup="true"
-                    aria-controls="quick_filter_menu_state"
-                    class="ml-1 p-button-sm px-1"
 
-                    icon="pi pi-filter"
-                >
-                </Button>
-                <Menu ref="quick_filter_menu_state"
-                      :model="store.quick_filter_menu"
-                      :popup="true"/>
             </div>
         </template>
 
@@ -230,7 +194,7 @@ const toggleQuickFilterState = (event) => {
                             </div>
                             <div class="product_desc ml-3">
                                 <h4>{{ prop.data.name }}</h4>
-                                <p><b> {{ prop.data.total_sales }}</b> Items</p>
+<!--                                <p><b> {{ prop.data.total_sales }}</b> Items</p>-->
                             </div>
                         </div>
                     </template>
@@ -247,42 +211,7 @@ const toggleQuickFilterState = (event) => {
         <template #title>
             <div class="flex align-items-center justify-content-between">
                 <h2 class="text-lg">Top Categories</h2>
-                <Chip
-                    v-if="store.query.filter.time?.length"
-                    class="white-space-nowrap align-items-center"
-                    :style="{
-                                                        fontSize: '11px',
-                                                        marginRight: '5px',
-                                                        padding: '1px 8px',
-                                                        fontWeight:'600',
-                                                      }"
-                    :pt="{
-                                                        removeIcon: {
-                                                            style: {
-                                                                width: '12px',
-                                                                height: '12px',
-                                                                marginLeft: '6px'
-                                                            }
-                                                        }
-                                                      }"
-                    :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
-                    removable
-                    @remove="store.query.filter.time=null;"
-                />
-                <Button
-                    data-testid="inventories-quick_filter"
-                    type="button"
-                    @click="toggleQuickFilterState($event)"
-                    aria-haspopup="true"
-                    aria-controls="quick_filter_menu_state"
-                    class="ml-1 p-button-sm px-1"
 
-                    icon="pi pi-filter"
-                >
-                </Button>
-                <Menu ref="quick_filter_menu_state"
-                      :model="store.quick_filter_menu"
-                      :popup="true"/>
             </div>
         </template>
 
@@ -315,7 +244,7 @@ const toggleQuickFilterState = (event) => {
                             </div>
                             <div class="product_desc ml-3">
                                 <h4>{{ prop.data.name }}</h4>
-                                <p><b> {{ prop.data.total_sales }}</b> Items</p>
+<!--                                <p><b> {{ prop.data.total_sales }}</b> Items</p>-->
                             </div>
                         </div>
                     </template>
@@ -328,6 +257,7 @@ const toggleQuickFilterState = (event) => {
             </DataTable>
         </template>
     </Card>
+
 </div>
     <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :sticky="true" :life="1000"
              @close="store.disableActiveCart()">
