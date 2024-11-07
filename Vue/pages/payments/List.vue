@@ -78,21 +78,21 @@ const toggleCreateMenu = (event) => {
 
 
                     </div>
-                    <div class="flex justify-content-center gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
+                    <div class="flex justify-content-center gap-8 align-items-start mt-3" v-if=" store.isViewLarge()">
 
                         <Charts
-                            class="border-1 border-gray-200 border-round-sm overflow-hidden"
+                            class="border-1 border-gray-200 border-round-sm overflow-hidden shadow-2 "
                             type="pie"
                             :chartOptions="store.chartOptions"
                             :chartSeries="store.chartSeries"
-                            height=250 width=400
+                            height=220 width=400
                             titleAlign="center"
                         />
-                        <div class="flex w-full  mb-4" v-if="store.isViewLarge()">
-                            <div class="w-26rem h-16rem">
+                        <div class="flex " v-if="store.isViewLarge()">
+                            <div class="w-26rem h-12rem">
                                 <Card
                                     v-if="store.isViewLarge()"
-                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
+                                    class="border-1 border-gray-200 border-round-sm overflow-hidden min-h-full" style="margin-right:20px;"
                                     :pt="{
                                         content: {
                                             class: 'py-0'
