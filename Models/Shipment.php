@@ -1347,6 +1347,81 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         ];
     }
 
+    public static function ordersShipmentItemsByDateRange($request)
+    {
+        $inputs = $request->all();
+
+        // Define start and end dates
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+
+        $previous_date = $start_date->copy()->subDay(); // Subtract 1 day from the start date
+
+        $period = new \DatePeriod($previous_date, new \DateInterval('P1D'), $end_date); // Now includes previous date
+        $labels = [];
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+        // Query shipped items data and sum their quantities, grouped by shipment date
+        $shipped_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
+            ->selectRaw('DATE(created_at) as shipment_date')
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->groupBy('shipment_date')
+            ->orderBy('shipment_date')
+            ->get()
+            ->keyBy('shipment_date'); // Key by date for easy lookup
+
+        $total_shipment_quantity = OrderItem::sum('quantity'); // This will return the sum of the 'quantity' column
+
+
+        $cumulative_shipped_quantity = 0;
+
+        $formatted_shipped_data = [];
+        $formatted_pending_data = [];
+
+
+        foreach ($labels as $index => $date_string) {
+            $shipped_quantity = isset($shipped_data[$date_string]) ? (int) $shipped_data[$date_string]->total_quantity : 0;
+            $cumulative_shipped_quantity += $shipped_quantity; // Update cumulative shipped quantity
+
+            $formatted_shipped_data[] = [
+                'x' => $date_string,
+                'y' => $cumulative_shipped_quantity,
+            ];
+
+            $pending_quantity = $total_shipment_quantity - $cumulative_shipped_quantity;
+
+            $formatted_pending_data[] = [
+                'x' => $date_string,
+                'y' => $pending_quantity < 0 ? 0 : $pending_quantity,
+            ];
+        }
+
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    [
+                        'name' => 'Pending Shipment Quantity',
+                        'data' => $formatted_pending_data,
+                    ],
+                    [
+                        'name' => 'Total Shipped Quantity',
+                        'data' => $formatted_shipped_data,
+                    ],
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels,
+                    ],
+                ],
+            ]
+        ];
+    }
+
+
 
 
 

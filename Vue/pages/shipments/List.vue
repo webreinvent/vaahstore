@@ -100,7 +100,7 @@ const today = ref(new Date());
                                 v-model="store.filter_end_date"
                                 showIcon/>
                             <Button
-                                @click="store.ordersShipmentByDateRange"
+                                @click="store.getChartData()"
                                 label="Get Report"
                             />
                         </div>
@@ -112,6 +112,13 @@ const today = ref(new Date());
                             type="area"
                             :chartOptions="store.chartOptions"
                             :chartSeries="store.chartSeries"
+                            height=200 width=380
+                            titleAlign="center"
+                        />
+                        <Charts
+                            type="area"
+                            :chartOptions="store.shipmentItemsChartOptions"
+                            :chartSeries="store.shipmentItemsSeries"
                             height=200 width=380
                             titleAlign="center"
                         />

@@ -103,4 +103,7 @@ function () {
 
     Route::post('/charts/orders-shipments-by-range', [ShipmentsController::class,'ordersShipmentByDateRange'])
         ->name('vh.backend.store.users.count-chart-data');
+
+    Route::post('/charts/shipment-items-by-range', [ShipmentsController::class,'ordersShipmentItemsByDateRange'])
+        ->name('vh.backend.store.users.count-chart-data');
 });
