@@ -89,4 +89,7 @@ function () {
      */
     Route::post('/filter/order-by-user-name', [PaymentsController::class, 'getOrdersByName'])
         ->name('vh.backend.store.payments.search.filter-order-by-user-name');
+
+    Route::get('/charts/payment-methods-pie-chart-data', [PaymentsController::class,'paymentMethodsPieChartData'])
+        ->name('vh.backend.store.users.count-chart-data');
 });
