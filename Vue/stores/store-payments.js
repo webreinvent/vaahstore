@@ -71,6 +71,8 @@ export const usePaymentStore = defineStore({
         payment_method_suggestion: null,
         order_filter_key:'',
         selected_order:null,
+        chartOptions: {},
+        chartSeries: [],
 
     }),
     getters: {
@@ -249,6 +251,7 @@ export const usePaymentStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.paymentMethodsPieChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -1134,6 +1137,91 @@ export const usePaymentStore = defineStore({
                 this.selected_order= data;
             }
         },
+
+        async paymentMethodsPieChartData() {
+
+
+            const options = {
+                method: 'get',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/payment-methods-pie-chart-data',
+                this.paymentMethodsPieChartDataAfter,
+                options
+            );
+        },
+
+        paymentMethodsPieChartDataAfter(data,res){
+            // this.updateDateFilter();
+            this.updateChartSeries(data.chart_series?.payment_methods_pie_chart);
+
+            const updated_pie_chart_options = {
+                ...data.chart_options, // Merge existing options
+                title: {
+                    text: 'Payment Methods Used', // Add your chart title here
+                    align: 'center', // You can adjust alignment: 'left', 'center', 'right'
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                },
+                legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '12px',
+                    formatter: function (val, opts) {
+                        return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
+                    },
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '60%',
+                            labels: {
+                                show: false,
+                                name: {
+                                    show: true,
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    color: '#263238',
+                                },
+                                value: {
+                                    show: true,  // Show value
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    color: '#000',  // Color for the value
+                                    formatter: function(val) {
+                                        return val; // Return only the value without percentage
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+
+            this.updateChartOptions(updated_pie_chart_options);
+        },
+        updateChartOptions(newOptions) {
+            this.chartOptions = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+
+
     }
 });
 

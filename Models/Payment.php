@@ -968,5 +968,32 @@ class Payment extends VaahModel
     }
     //-------------------------------------------------
 
+    public static function paymentMethodsPieChartData()
+    {
+        $payment_data = Payment::query()
+            ->selectRaw('vh_st_payment_method_id, COUNT(*) as total')
+            ->groupBy('vh_st_payment_method_id')
+            ->with('paymentMethod:id,name')
+            ->get();
+
+        $order_status_counts_pie_chart_data = [];
+
+        foreach ($payment_data as $data) {
+            $order_status_counts_pie_chart_data[$data->paymentMethod->name ?? 'Unknown'] = (int) $data->total;
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'payment_methods_pie_chart' => array_values($order_status_counts_pie_chart_data),
+                ],
+                'chart_options' => [
+                    'labels' => array_keys($order_status_counts_pie_chart_data),
+                ],
+            ]
+        ];
+    }
+
+
 
 }
