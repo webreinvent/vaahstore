@@ -79,6 +79,8 @@ export const useShipmentStore = defineStore({
         selected_dates:null,
         chartOptions: {},
         chartSeries: [],
+        shipmentItemsChartOptions:{},
+        shipmentItemsSeries:[],
         filter_start_date: new Date(),
         filter_end_date: new Date(),
 
@@ -258,6 +260,7 @@ export const useShipmentStore = defineStore({
             {
                 this.list = data;
                 this.ordersShipmentByDateRange();
+                this.ordersShipmentItemsByDateRange();
             }
         },
         //---------------------------------------------------------------------
@@ -1369,7 +1372,7 @@ export const useShipmentStore = defineStore({
                     width: 3,
                 },
                 title: {
-                    text: 'Orders Shipped Over Selected Date Range', // Chart title
+                    text: 'Orders Shipment Over Date Range', // Chart title
                     align: 'center', // Title alignment
                     offsetY: 12, // Add margin between title and chart/toolbar
                     style: {
@@ -1444,7 +1447,113 @@ export const useShipmentStore = defineStore({
             // this.chartOptions = await this.vendorsBySales();
         },
         //---------------------------------------------------------------------
+        async ordersShipmentItemsByDateRange() {
 
+
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/shipment-items-by-range',
+                this.ordersShipmentItemsByDateRangeAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        ordersShipmentItemsByDateRangeAfter(data,res){
+            // this.updateDateFilter();
+            const series_data = data.chart_series.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateShipmentItemsChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options, // Merge existing options
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: 'Quantity Shipped Over Date Range', // Chart title
+                    align: 'center', // Title alignment
+                    offsetY: 12, // Add margin between title and chart/toolbar
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+
+                    toolbar: {
+                        show: false, // This should be under the chart key
+                    },
+                    background: '#ffffff',
+
+                },
+
+                legend: {
+                    show: false,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '14px',
+                    /*formatter: function (val, opts) {
+                        const seriesIndex = opts.seriesIndex; // Get the series index
+                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
+                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
+                        return `${val} - ${sum}`; // Return the legend text with the sum
+                    }*/
+                },
+                markers: {
+                    size: 5,  // Size of the dot
+                    // colors: ['#FF4560', '#00E396'], // Customize colors for each series
+                    strokeColor: '#fff',  // Optional: Dot border color
+                    strokeWidth: 2,  // Optional: Border width of the dot
+                    hover: {
+                        size: 7,  // Size on hover
+                    },
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                tooltip: {
+                    enabled: true,
+                    shared: true,
+                    style: { fontSize: '14px' },
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateShipmentItemsChartOptions(updated_area_chart_options);
+        },
+        //---------------------------------------------------------------------
+        updateShipmentItemsChartOptions(newOptions) {
+            this.shipmentItemsChartOptions = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateShipmentItemsChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.shipmentItemsSeries = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+        //---------------------------------------------------------------------
+        async getChartData(){
+            await this.ordersShipmentByDateRange();
+            await this.ordersShipmentItemsByDateRange();
+        }
     }
 });
 
