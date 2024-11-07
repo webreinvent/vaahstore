@@ -80,9 +80,10 @@ const today = ref(new Date());
 
         <div :class="'col-'+(store.show_filters?9:store.list_view_width)">
 
-            <div class="flex gap-2">
-                <div class="w-full bg-white border-round-2xl shadow-2">
-                    <div class="flex justify-content-between mt-1 ml-2" v-if=" store.isViewLarge()">
+            <div class="flex gap-2 mb-1">
+                <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
+                    <div class="flex justify-content-between " v-if=" store.isViewLarge()">
+                        <p><b>Shipments Dashboard</b></p>
                         <div class="flex gap-2">
                             <Calendar
                                 placeholder="Select Start Date"
@@ -101,50 +102,30 @@ const today = ref(new Date());
                                 showIcon/>
                             <Button
                                 @click="store.getChartData()"
-                                label="Get Report"
+                                label="Get Chart Data"
                             />
                         </div>
 
                     </div>
-                    <div class="flex justify-content-between align-items-start" v-if=" store.isViewLarge()">
+                    <div class="flex flex-wrap gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
 
                         <Charts
+                            class="border-1 border-gray-200 border-round-sm overflow-hidden"
                             type="area"
                             :chartOptions="store.chartOptions"
                             :chartSeries="store.chartSeries"
-                            height=200 width=380
+                            height=200 width=550
                             titleAlign="center"
                         />
                         <Charts
+                            class="border-1 border-gray-200 border-round-sm overflow-hidden"
                             type="area"
                             :chartOptions="store.shipmentItemsChartOptions"
                             :chartSeries="store.shipmentItemsSeries"
-                            height=200 width=380
+                            height=200 width=550
                             titleAlign="center"
                         />
 
-<!--                        <div class="flex  mt-4 " v-if="store.isViewLarge()">
-
-
-                            <div class="scrollable-legend flex-1 bg-gray-100 border-round-xl px-3 py-2 max-h-10rem overflow-y-auto h-full">
-                                <ul class="legend-items">
-
-                                    <li
-                                        v-for="(dataset, index) in store?.chartSeries"
-                                        :key="index"
-                                        class="legend-item flex align-items-center mb-2 gap-2"
-                                        :style="{ textDecoration: dataset.hidden ? 'line-through' : 'none' }"
-                                        style="cursor: pointer;"
-                                        @click="toggleDatasetVisibility(index)"
-                                    >
-
-                                        <span class="legend-label text-blue-500 hover:text-gray-700">{{ dataset.name }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-
-                        </div>-->
                     </div>
                 </div>
             </div>
