@@ -75,7 +75,8 @@ const toggleQuickFilterState = (event) => {
 <!--<Accordion>-->
 <!--    <AccordionTab header="Stats">-->
 
-        <div class="flex justify-content-end" v-if="store.isViewLarge()">
+        <div class="flex justify-content-between" v-if="store.isViewLarge()">
+            <p><b>Orders Dashboard</b></p>
             <Chip
                 v-if="store.query.filter.time?.length"
                 class="white-space-nowrap align-items-center"
@@ -350,7 +351,7 @@ const toggleQuickFilterState = (event) => {
 
        </div >
 
-        <div class="flex justify-content-center " v-if="store.isViewLarge()">
+        <div class="flex justify-content-center gap-4" v-if="store.isViewLarge()">
 
 
             <Charts
@@ -361,7 +362,7 @@ const toggleQuickFilterState = (event) => {
                 titleAlign="center"
 
             />
-            
+
             <Charts
                 type="area"
                 :chartOptions="store.chartOptions"
