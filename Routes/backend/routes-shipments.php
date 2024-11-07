@@ -100,4 +100,7 @@ function () {
      */
     Route::post('/filter/search/orders', [ShipmentsController::class,'getOrders'])
         ->name('vh.backend.store.shipments.get.filter.orders');
+
+    Route::post('/charts/orders-shipments-by-range', [ShipmentsController::class,'ordersShipmentByDateRange'])
+        ->name('vh.backend.store.users.count-chart-data');
 });

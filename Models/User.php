@@ -952,7 +952,7 @@ class User extends UserBase
 
         $labels = [];
         for ($month = 1; $month <= 12; $month++) {
-            $labels[] = date('F', strtotime("2024-$month-01"));
+            $labels[] = date('M', strtotime("2024-$month-01"));
         }
 
         foreach ($chart_data as $item) {
@@ -978,9 +978,7 @@ class User extends UserBase
                     'toolbar' => ['show' => true],
                     'zoom' => ['enabled' => false],
                 ],
-                'stroke' => [
-                    'curve' => 'smooth', // Set the curve to smooth to make the lines smooth
-                ],
+
                 'xaxis' => [
                     'type' => 'category',
                     'categories' => $labels,
