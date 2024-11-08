@@ -1623,7 +1623,7 @@ export const useShipmentStore = defineStore({
                                 },
                 plotOptions: {
                     bar: {
-                        barHeight: '100%',
+                        barHeight: '80%',
                         distributed: true,
                         horizontal: true,
                         dataLabels: {

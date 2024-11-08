@@ -80,4 +80,7 @@ function () {
     Route::any('/get/default/vendor', 'WarehousesController@defaultVendor')
         ->name('vh.backend.store.warehouses.search.default.vendor');
 
+    Route::post('/charts/warehouse-stocks-bar-chart-data', 'WarehousesController@warehouseStockInBarChart')
+        ->name('vh.backend.store.warehouses.chart.stocks');
+
 });
