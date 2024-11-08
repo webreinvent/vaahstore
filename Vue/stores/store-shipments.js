@@ -79,6 +79,8 @@ export const useShipmentStore = defineStore({
         selected_dates:null,
         chartOptions: {},
         chartSeries: [],
+        shipment_items_by_status_chart_options: {},
+        shipment_items_by_status_chart_series: [],
         shipmentItemsChartOptions:{},
         shipmentItemsSeries:[],
         filter_start_date: new Date(),
@@ -261,6 +263,7 @@ export const useShipmentStore = defineStore({
                 this.list = data;
                 this.ordersShipmentByDateRange();
                 this.ordersShipmentItemsByDateRange();
+                this.shipmentItemsByStatusBarChart();
             }
         },
         //---------------------------------------------------------------------
@@ -1372,7 +1375,7 @@ export const useShipmentStore = defineStore({
                     width: 3,
                 },
                 title: {
-                    text: 'Orders Shipment Over Date Range', // Chart title
+                    text: 'Order In Shipment Over Date Range', // Chart title
                     align: 'center', // Title alignment
                     offsetY: 12, // Add margin between title and chart/toolbar
                     style: {
@@ -1389,7 +1392,16 @@ export const useShipmentStore = defineStore({
                     background: '#ffffff',
 
                 },
-
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                xaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
                 legend: {
                     show: false,
                     position: 'bottom',
@@ -1501,7 +1513,16 @@ export const useShipmentStore = defineStore({
                     background: '#ffffff',
 
                 },
-
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                xaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
                 legend: {
                     show: false,
                     position: 'bottom',
@@ -1549,10 +1570,145 @@ export const useShipmentStore = defineStore({
             // Ensure chartSeries is updated reactively
             this.shipmentItemsSeries = [...newSeries]; // Shallow copy to trigger reactivity
         },
+
+//---------------------------------------------------
+
+        async shipmentItemsByStatusBarChart() {
+
+
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/shipment-items-by-status',
+                this.shipmentItemsByStatusBarChartAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        shipmentItemsByStatusBarChartAfter(data,res){
+            // this.updateDateFilter();
+            const series_data = [{
+                name: 'Item Qty.',
+                data: Array.isArray(data.chart_series?.quantity_data) ? data.chart_series?.quantity_data : [],
+            }];
+
+
+            this.updateShipmentItemsByStatusChartSeries(series_data);
+
+            const updated_bar_chart_options = {
+                ...data.chart_options, // Merge existing options
+                chart: {
+                    background: '#ffffff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                dataLabels: {
+                                    enabled: true,
+                                    textAnchor: 'start',
+                                    style: {
+                                        colors: ['#000'],
+                                    },
+                                    formatter: function (val, opt) {
+                                        const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';
+                                        return `${category}: ${val}`;
+                                    },
+                                    offsetX: 0,
+                                    dropShadow: {
+                                        enabled: false,
+                                    },
+                                },
+                plotOptions: {
+                    bar: {
+                        barHeight: '100%',
+                        distributed: true,
+                        horizontal: true,
+                        dataLabels: {
+                            position: 'bottom',
+                        },
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                title: {
+                    text: 'Shipped Quantity Status',
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238',
+                    },
+                },
+
+                subtitle: {
+                    text: 'Status as DataLabels inside bars',
+                    align: 'center',
+                },
+
+                markers: {
+                    size: 5,
+                    strokeColor: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    },
+                },
+                tooltip: {
+                    theme: 'dark',
+                    enabled: true,
+                    shared: true,
+                    intersect: false,
+                    x: {
+                        show: true,
+                    },
+                    /*y: {
+                        title: {
+                            formatter: function () {
+                                return '';
+                            },
+                        },
+                    },*/
+                    style: { fontSize: '14px' },
+                },
+                legend: {
+                    show: false,
+
+                },
+
+
+
+            };
+
+            this.updateShipmentItemsByStatusChartOptions(updated_bar_chart_options);
+        },
+
+        updateShipmentItemsByStatusChartOptions(newOptions) {
+            this.shipment_items_by_status_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateShipmentItemsByStatusChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.shipment_items_by_status_chart_series = [...newSeries]; // Shallow copy to trigger reactivity
+        },
         //---------------------------------------------------------------------
         async getChartData(){
             await this.ordersShipmentByDateRange();
             await this.ordersShipmentItemsByDateRange();
+            await this.shipmentItemsByStatusBarChart();
         }
     }
 });

@@ -1421,6 +1421,43 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         ];
     }
 
+    public static function shipmentItemsByStatusBarChart($request)
+    {
+        $shipment_data_with_status = self::with('status')
+            ->select('taxonomy_id_shipment_status')
+            ->selectRaw("SUM(vh_st_shipment_items.quantity) as total_quantity") // Use selectRaw to sum quantity
+            ->join('vh_st_shipment_items', 'vh_st_shipment_items.vh_st_shipment_id', '=', 'vh_st_shipments.id') // Join with shipment items
+            ->withCount([
+                'orders as distinct_orders_count' => function ($query) {
+                    $query->distinct('vh_st_order_id'); // Count distinct orders for each shipment
+                }
+            ])
+            ->groupBy('taxonomy_id_shipment_status')
+            ->get()
+            ->map(function ($shipment) {
+                return [
+                    'status' => $shipment->status->name,               // Shipment status
+                    'order_count' => $shipment->distinct_orders_count, // Distinct count of orders
+                    'total_quantity' => $shipment->total_quantity      // Sum of quantity
+                ];
+            });
+            return [
+            'data' => [
+                    'chart_series' => [
+                        'quantity_data' => $shipment_data_with_status->pluck('total_quantity'), // Data for quantity
+
+                    ],
+                    'chart_options' => [
+                        'xaxis' => [
+
+                        'categories' => $shipment_data_with_status->pluck('status'), // Use status names as labels
+                        ],
+                    ]
+                   ],
+                ];
+    }
+
+
 
 
 
