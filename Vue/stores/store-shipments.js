@@ -1375,7 +1375,7 @@ export const useShipmentStore = defineStore({
                     width: 3,
                 },
                 title: {
-                    text: 'Order In Shipment Over Date Range', // Chart title
+                    text: 'Orders In Shipment Over Date Range', // Chart title
                     align: 'center', // Title alignment
                     offsetY: 12, // Add margin between title and chart/toolbar
                     style: {
@@ -1397,17 +1397,19 @@ export const useShipmentStore = defineStore({
                         show: false,
                     },
                 },
+                colors: ['#d4526e',  '#13d8aa',
+                ],
                 xaxis: {
                     labels: {
                         show: false,
                     },
                 },
                 legend: {
-                    show: false,
+                    show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    fontSize: '14px',
+                    fontSize: '11px',
                     /*formatter: function (val, opts) {
                         const seriesIndex = opts.seriesIndex; // Get the series index
                         const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
@@ -1416,7 +1418,7 @@ export const useShipmentStore = defineStore({
                     }*/
                 },
                 dataLabels: {
-                    enabled: true,
+                    enabled: false,
                 },
                 tooltip: {
                     enabled: true,
@@ -1524,11 +1526,11 @@ export const useShipmentStore = defineStore({
                     },
                 },
                 legend: {
-                    show: false,
+                    show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
-                    fontSize: '14px',
+                    fontSize: '11px',
                     /*formatter: function (val, opts) {
                         const seriesIndex = opts.seriesIndex; // Get the series index
                         const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
@@ -1536,15 +1538,7 @@ export const useShipmentStore = defineStore({
                         return `${val} - ${sum}`; // Return the legend text with the sum
                     }*/
                 },
-                markers: {
-                    size: 5,  // Size of the dot
-                    // colors: ['#FF4560', '#00E396'], // Customize colors for each series
-                    strokeColor: '#fff',  // Optional: Dot border color
-                    strokeWidth: 2,  // Optional: Border width of the dot
-                    hover: {
-                        size: 7,  // Size on hover
-                    },
-                },
+
                 dataLabels: {
                     enabled: false,
                 },
