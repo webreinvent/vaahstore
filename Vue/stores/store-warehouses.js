@@ -79,7 +79,11 @@ export const useWarehouseStore = defineStore({
         form_menu_list: [],
         selected_dates : null,
         prev_list:[],
-        current_list:[]
+        current_list:[],
+        filter_start_date: new Date(),
+        filter_end_date: new Date(),
+        warehouse_stock_bar_chart_options:{},
+        warehouse_stock_bar_chart_series:[],
     }),
     getters: {
 
@@ -274,7 +278,9 @@ export const useWarehouseStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
+
             }
+            this.warehouseStockInBarChart();
         },
         //---------------------------------------------------------------------
 
@@ -1135,7 +1141,148 @@ export const useWarehouseStore = defineStore({
         getDefaultVendorAfter(data,res) {
             this.item.vendor = data ? data : [];
         },
-    }
+
+        async warehouseStockInBarChart() {
+
+
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/warehouse-stocks-bar-chart-data',
+                this.warehouseStockInBarChartAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        warehouseStockInBarChartAfter(data,res){
+            // this.updateDateFilter();
+            const series_data = [{
+                name: 'Item Qty.',
+                data: Array.isArray(data.chart_series?.quantity_data) ? data.chart_series?.quantity_data : [],
+            }];
+
+
+
+            this.updateWarehouseStocksBarChartSeries(series_data);
+
+            const updated_bar_chart_options = {
+                ...data.chart_options, // Merge existing options
+                chart: {
+                    background: '#ffffff',
+
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                dataLabels: {
+                    enabled: true,
+                    textAnchor: 'center',
+                    style: {
+                        colors: ['#000'],
+                    },
+                    formatter: function (val, opt) {
+                        const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';
+                        return `${category}: ${val}`;
+                    },
+                    offsetX: 0,
+                    dropShadow: {
+                        enabled: false,
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        barHeight: '80%',
+                        distributed: true,
+                            horizontal: true,
+                        dataLabels: {
+                            position: 'bottom',
+                        },
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                title: {
+                    text: 'Stocks Available In Warehouse',
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238',
+                    },
+                },
+
+                subtitle: {
+                    text: 'Qty. DataLabels With Warehouse inside bars',
+                    align: 'center',
+                },
+
+                markers: {
+                    size: 5,
+                    strokeColor: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    },
+                },
+
+                legend: {
+                    show: false,
+
+                },
+
+
+
+            };
+
+            this.updateWarehouseStocksBarChartOptions(updated_bar_chart_options);
+        },
+
+
+        updateWarehouseStocksBarChartOptions(newOptions) {
+            this.warehouse_stock_bar_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateWarehouseStocksBarChartSeries(newSeries) {
+            // Ensure chartSeries is updated reactively
+            this.warehouse_stock_bar_chart_series = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+        async updateDateFilter(start_date = null, end_date = null) {
+            start_date = start_date || this.filter_start_date;
+            end_date = end_date || this.filter_end_date;
+            this.date_filter_between.length = 0;
+            let currentDate = new Date(start_date);
+            this.date_filter_between.push(0);
+            while (currentDate <= end_date) {
+                const formatted_date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+
+                if (!this.date_filter_between.includes(formatted_date)) {
+                    this.date_filter_between.push(formatted_date);
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            await this.warehouseStockInBarChart();
+            // this.chartOptions = await this.vendorsBySales();
+        },
+
+        async getChartData(){
+            await this.warehouseStockInBarChart();
+
+        }
+    },
 });
 
 
