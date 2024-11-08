@@ -1338,7 +1338,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             'data' => [
                 'chart_series' => [
                     ['name' => 'Pending Orders Shipment', 'data' => $formatted_pending_data],
-                    ['name' => 'Orders Shipped', 'data' => $formatted_shipped_data],
+                    ['name' => 'Orders In Shipment', 'data' => $formatted_shipped_data],
                 ],
                 'chart_options' => [
                     'xaxis' => ['type' => 'datetime', 'categories' => $labels],
