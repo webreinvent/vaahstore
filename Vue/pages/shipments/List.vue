@@ -107,14 +107,14 @@ const today = ref(new Date());
                         </div>
 
                     </div>
-                    <div class="flex flex-wrap gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
+                    <div class="flex flex-wrap justify-content-between gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
 
                         <Charts
                             class="border-1 border-gray-200 border-round-sm overflow-hidden"
                             type="area"
                             :chartOptions="store.chartOptions"
                             :chartSeries="store.chartSeries"
-                            height=200 width=550
+                            height=200 width=350
                             titleAlign="center"
                         />
                         <Charts
@@ -122,7 +122,15 @@ const today = ref(new Date());
                             type="area"
                             :chartOptions="store.shipmentItemsChartOptions"
                             :chartSeries="store.shipmentItemsSeries"
-                            height=200 width=550
+                            height=200 width=350
+                            titleAlign="center"
+                        />
+                        <Charts
+                            class="border-1 border-gray-200 border-round-sm overflow-hidden"
+                            type="bar"
+                            :chartOptions="store.shipment_items_by_status_chart_options"
+                            :chartSeries="store.shipment_items_by_status_chart_series"
+                            height=200 width=350
                             titleAlign="center"
                         />
 
