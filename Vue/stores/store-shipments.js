@@ -1662,20 +1662,6 @@ export const useShipmentStore = defineStore({
                 },
                 tooltip: {
                     theme: 'dark',
-                    enabled: true,
-                    shared: true,
-                    intersect: false,
-                    x: {
-                        show: true,
-                    },
-                    /*y: {
-                        title: {
-                            formatter: function () {
-                                return '';
-                            },
-                        },
-                    },*/
-                    style: { fontSize: '14px' },
                 },
                 legend: {
                     show: false,

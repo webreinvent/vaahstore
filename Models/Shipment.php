@@ -1423,6 +1423,11 @@ $order_item_pairs = $orders->flatMap(function ($order) {
 
     public static function shipmentItemsByStatusBarChart($request)
     {
+        $inputs = $request->all();
+
+        // Define the date range for filtering
+        $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
+        $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
         $shipment_data_with_status = self::with('status')
             ->select('taxonomy_id_shipment_status')
             ->selectRaw("SUM(vh_st_shipment_items.quantity) as total_quantity") // Use selectRaw to sum quantity
@@ -1432,6 +1437,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
                     $query->distinct('vh_st_order_id'); // Count distinct orders for each shipment
                 }
             ])
+            ->whereBetween('vh_st_shipments.created_at', [$start_date, $end_date])
             ->groupBy('taxonomy_id_shipment_status')
             ->get()
             ->map(function ($shipment) {
