@@ -112,7 +112,7 @@ const today = ref(new Date());
                             type="bar"
                             :chartOptions="store.warehouse_stock_bar_chart_options"
                             :chartSeries="store.warehouse_stock_bar_chart_series"
-                            height=280 width=450
+                            height=300 width=600
                             titleAlign="center"
                         />
                     </div>

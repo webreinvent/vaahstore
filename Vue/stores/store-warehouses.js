@@ -1166,7 +1166,7 @@ export const useWarehouseStore = defineStore({
         warehouseStockInBarChartAfter(data,res){
             // this.updateDateFilter();
             const series_data = [{
-                name: 'Item Qty.',
+                name: 'Stocks Available',
                 data: Array.isArray(data.chart_series?.quantity_data) ? data.chart_series?.quantity_data : [],
             }];
 
@@ -1176,10 +1176,33 @@ export const useWarehouseStore = defineStore({
 
             const updated_bar_chart_options = {
                 ...data.chart_options, // Merge existing options
-                chart: {
-                    background: '#ffffff',
 
-                    toolbar: {
+
+                title: {
+                    text: 'Stocks Available In Warehouse',
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238',
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        barHeight: '80%',
+                        distributed: true,
+                        horizontal: true,
+                        dataLabels: {
+                            position: 'bottom',
+                        },
+                    },
+                },
+                legend: {
+                    show: false,
+                },
+                yaxis: {
+                    labels: {
                         show: false,
                     },
                 },
@@ -1198,52 +1221,6 @@ export const useWarehouseStore = defineStore({
                         enabled: false,
                     },
                 },
-                plotOptions: {
-                    bar: {
-                        barHeight: '80%',
-                        distributed: true,
-                            horizontal: true,
-                        dataLabels: {
-                            position: 'bottom',
-                        },
-                    },
-                },
-                yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                },
-                title: {
-                    text: 'Stocks Available In Warehouse',
-                    align: 'center',
-                    offsetY: 12,
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#263238',
-                    },
-                },
-
-                subtitle: {
-                    text: 'Qty. DataLabels With Warehouse inside bars',
-                    align: 'center',
-                },
-
-                markers: {
-                    size: 5,
-                    strokeColor: '#fff',
-                    strokeWidth: 2,
-                    hover: {
-                        size: 7,
-                    },
-                },
-
-                legend: {
-                    show: false,
-
-                },
-
-
 
             };
 
