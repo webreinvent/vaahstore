@@ -85,7 +85,7 @@ const today = ref(new Date());
 <!--            <Accordion>-->
 <!--                <AccordionTab header="Stats" v-if=" store.isViewLarge()">-->
 
-                    <div class="flex gap-2">
+                    <div class="flex gap-2"  v-if=" store.isViewLarge()">
                         <Card class="min-w-max border-round-xl shadow-md">
                             <template #title>
                                 <div class="flex align-items-center justify-content-between">

@@ -1168,7 +1168,7 @@ export const useOrderStore = defineStore({
 
             this.updateSalesChartSeries([
                 {
-                    name: "Total Item Sold",
+                    name: "Total Sale",
                     data: data.chart_series.orders_sales_chart_data // [{ x: timestamp, y: sales }]
                 }
             ]);
