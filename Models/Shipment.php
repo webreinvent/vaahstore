@@ -1311,23 +1311,25 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->get()
             ->keyBy('shipment_date');
 
-        // Get total shipped orders
-        $overall_order_shipped = ShipmentItem::distinct('vh_st_order_id')->count('vh_st_order_id');
-        $total_orders = Order::count(); // Total orders for the range
+        // Get total orders to calculate initial pending count
+        $total_orders = Order::count();
+
+        // Get overall shipped orders
+        $overall_shipped_orders = ShipmentItem::distinct('vh_st_order_id')->count('vh_st_order_id');
 
         // Prepare data for the chart
         $shipped_orders_so_far = 0;
         $formatted_shipped_data = [];
         $formatted_pending_data = [];
 
-        foreach ($labels as $index => $date_string) {
+        foreach ($labels as $date_string) {
             $shipped_orders = $shipment_data[$date_string]->shipped_orders ?? 0;
             $shipped_orders_so_far += $shipped_orders;
 
             // Calculate pending orders
-            $pending_orders = ($inputs['end_date'] == $inputs['start_date'] && $index === 0)
-                ? $overall_order_shipped - $shipped_orders_so_far
-                : $total_orders - $shipped_orders_so_far;
+            $pending_orders = ($inputs['start_date'] === $inputs['end_date'])
+                ? max($total_orders - $overall_shipped_orders, 0)
+                : max($total_orders - $shipped_orders_so_far, 0);
 
             // Store formatted data for chart
             $formatted_shipped_data[] = ['x' => $date_string, 'y' => $shipped_orders];
@@ -1346,6 +1348,9 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ]
         ];
     }
+
+
+
 
     public static function ordersShipmentItemsByDateRange($request)
     {
@@ -1372,8 +1377,9 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->get()
             ->keyBy('shipment_date'); // Key by date for easy lookup
 
-        $total_shipment_quantity = OrderItem::sum('quantity'); // This will return the sum of the 'quantity' column
+        $total_shipment_quantity_available = OrderItem::sum('quantity');
 
+        $overall_shipped_quantity=ShipmentItem::sum('quantity');
 
         $cumulative_shipped_quantity = 0;
 
@@ -1390,7 +1396,9 @@ $order_item_pairs = $orders->flatMap(function ($order) {
                 'y' => $cumulative_shipped_quantity,
             ];
 
-            $pending_quantity = $total_shipment_quantity - $cumulative_shipped_quantity;
+            $pending_quantity = ($inputs['start_date'] === $inputs['end_date'])
+                ? max($total_shipment_quantity_available  - $overall_shipped_quantity, 0)
+                : max($total_shipment_quantity_available - $cumulative_shipped_quantity, 0);
 
             $formatted_pending_data[] = [
                 'x' => $date_string,
