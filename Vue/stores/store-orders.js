@@ -97,6 +97,8 @@ export const useOrderStore = defineStore({
         order_payments_chart_series:null,
         selection: 'one_month',
         quick_filter_menu:[],
+        filter_start_date: null,
+        filter_end_date: null,
     }),
     getters: {
 
@@ -270,6 +272,7 @@ export const useOrderStore = defineStore({
                 this.fetchOrdersChartData();
                 this.fetchSalesChartData();
                 this.fetchOrderPaymentsData();
+                this.fetchOrdersCountChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -1056,10 +1059,16 @@ export const useOrderStore = defineStore({
         },
 
         async fetchOrdersChartData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
             await vaah().ajax(
                 this.ajax_url + '/charts/data',
                 this.fetchOrdersChartDataAfter,
@@ -1068,60 +1077,7 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------
         fetchOrdersChartDataAfter(data, res) {
-            if (!data || !Array.isArray(data.chart_series?.orders_count_bar_chart)) {
-                return;
-            }
 
-            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
-                name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
-            }));
-
-            this.updateChartSeries(series_data);
-
-            const updated_area_chart_options = {
-                ...data.chart_options, // Merge existing options
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
-                },
-                title: {
-                    text: 'Orders Over Months', // Chart title
-                    align: 'center', // Title alignment
-                    offsetY: 12, // Add margin between title and chart/toolbar
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#263238'
-                    }
-                },
-                chart: {
-                    background: '#fff',
-                    toolbar: {
-                        show: false, // Ensure toolbar is set to false here
-                    },
-                },
-                legend: {
-                    position: 'top',
-                    horizontalAlign: 'center',
-                    floating: false,
-                    fontSize: '14px',
-                    formatter: function (val, opts) {
-                        const seriesIndex = opts.seriesIndex; // Get the series index
-                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
-                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
-                        return `${val} - ${sum}`; // Return the legend text with the sum
-                    }
-                },
-                dataLabels: {
-                    enabled: false,
-                },
-                grid: {
-                    show: false,
-                }
-            };
-
-            this.updateChartOptions(updated_area_chart_options);
             this.updatePieChartSeries(data.chart_series?.orders_statuses_pie_chart);
 
             const updated_pie_chart_options = {
@@ -1183,10 +1139,16 @@ export const useOrderStore = defineStore({
 
 
         async fetchSalesChartData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
             await vaah().ajax(
                 this.ajax_url + '/charts/total-sales-data',
                 this.fetchSalesChartDataAfter,
@@ -1265,10 +1227,16 @@ export const useOrderStore = defineStore({
 
 
         async fetchOrderPaymentsData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
             await vaah().ajax(
                 this.ajax_url + '/charts/order-payments-data',
                 this.fetchOrderPaymentsDataAfter,
@@ -1526,6 +1494,117 @@ export const useOrderStore = defineStore({
         {
             this.query.filter.time = time;
         },
+
+        async fetchOrdersCountChartData() {
+            let params = {
+
+                start_date: this.filter_start_date ?? null,
+                end_date: this.filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/orders-count-by-range',
+                this.fetchOrdersCountChartDataAfter,
+                options
+            );
+        },
+        fetchOrdersCountChartDataAfter(data,res){
+            if (!data || !Array.isArray(data.chart_series?.orders_count_bar_chart)) {
+                return;
+            }
+
+            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options, // Merge existing options
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: '', // Chart title
+
+                },
+
+                xaxis: {
+                    type: 'datetime',
+                    // Set x-axis to datetime
+                    labels: {
+                        show: false, // Hide x-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide x-axis border if desired
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false, // Hide y-axis labels
+                    },
+                    axisBorder: {
+                        show: false, // Hide y-axis border if desired
+                    },
+                },
+
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                    height:100
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+                legend: {
+                    show: false
+                }
+
+            };
+
+            this.updateChartOptions(updated_area_chart_options);
+        },
+
+        async updateDateFilter(start_date = null, end_date = null) {
+            start_date = start_date || this.filter_start_date;
+            end_date = end_date || this.filter_end_date;
+            this.date_filter_between.length = 0;
+            let currentDate = new Date(start_date);
+            this.date_filter_between.push(0);
+            while (currentDate <= end_date) {
+                const formatted_date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
+
+                if (!this.date_filter_between.includes(formatted_date)) {
+                    this.date_filter_between.push(formatted_date);
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+        },
+        async getChartData(){
+            await this.fetchOrdersCountChartData();
+            await this.fetchSalesChartData();
+            await this.fetchOrderPaymentsData();
+            await this.fetchOrdersChartData();
+
+        }
     }
 });
 
