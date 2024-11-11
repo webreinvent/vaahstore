@@ -828,9 +828,10 @@ class Order extends VaahModel
         $labels = [];
         if ($start_date && $end_date) {
             // Only generate labels if start and end dates are available
-            foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
+            foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date) as $date) {
                 $labels[] = $date->format('Y-m-d');
             }
+
         }
 
         $query = OrderItem::query();
@@ -844,7 +845,7 @@ class Order extends VaahModel
         if ($start_date && $end_date) {
             $sales_data = $query
                 ->selectRaw('DATE(created_at) as date')
-                ->selectRaw('SUM(quantity) as total_sales')
+                ->selectRaw('SUM(quantity * price) as total_sales')
                 ->whereBetween('created_at', [$start_date, $end_date]) // Apply the date range filter
                 ->groupBy('date')
                 ->orderBy('date')
@@ -853,7 +854,7 @@ class Order extends VaahModel
             // Otherwise, fetch all sales data without any date filtering
             $sales_data = $query
                 ->selectRaw('DATE(created_at) as date')
-                ->selectRaw('SUM(quantity) as total_sales')
+                ->selectRaw('SUM(quantity * price) as total_sales')
                 ->groupBy('date')
                 ->orderBy('date')
                 ->get();
@@ -892,7 +893,7 @@ class Order extends VaahModel
         // Prepare time-series data for the chart
         $time_series_data = $sales_data->map(function ($item) {
             return [
-                'x' => \Carbon\Carbon::parse($item->date)->timestamp * 1000, // Convert date to JavaScript timestamp
+                'x' => $item->date, // Convert date to JavaScript timestamp
                 'y' => $item->total_sales,
             ];
         });
@@ -900,14 +901,16 @@ class Order extends VaahModel
         // Calculate the overall total sales in the selected date range
         $overall_total_sales = $sales_data->sum('total_sales');
         $latest_date_in_period = $sales_data->last()->date ?? null;
-
+//        dd($latest_date_in_period);
         // Check if the latest date is available before querying for previous sales
         if ($latest_date_in_period) {
             // Fetch the most recent available data prior to the current period
             $previous_sales_data = OrderItem::query()
                 ->where('created_at', '<', $latest_date_in_period)
-                ->selectRaw('SUM(quantity) as previous_total_sales')
+                ->selectRaw('SUM(quantity * price) as previous_total_sales')
                 ->first();
+
+//            dd($previous_sales_data->previous_total_sales);
 
             $previous_total_sales = $previous_sales_data->previous_total_sales ?? 0;
 
