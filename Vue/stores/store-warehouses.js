@@ -1205,7 +1205,26 @@ export const useWarehouseStore = defineStore({
                     labels: {
                         show: false,
                     },
-                },
+                },responsive: [
+                    {
+                        breakpoint: 1000,
+                        options: {
+                            plotOptions: {
+                                bar: {
+                                    horizontal: false
+                                }
+                            },
+                            legend: {
+                                position: "bottom"
+                            }
+                            ,
+                            dataLabels:{
+                                enabled: false,
+                            }
+                        }
+                    }
+                ],
+
                 dataLabels: {
                     enabled: true,
                     textAnchor: 'center',
