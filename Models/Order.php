@@ -821,114 +821,73 @@ class Order extends VaahModel
 
     public static function fetchSalesChartData($request)
     {
-        // Get the start and end date from the request, with fallback to default if not provided
-        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : null;
-        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : null;
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
 
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
         $labels = [];
-        if ($start_date && $end_date) {
-            // Only generate labels if start and end dates are available
-            foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date) as $date) {
-                $labels[] = $date->format('Y-m-d');
-            }
 
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
         }
+
 
         $query = OrderItem::query();
 
-        // Apply quick filter if exists in the request
-        // if (isset($request->filter)) {
-        //    $query = $query->quickFilter($request->filter);
-        // }
+        $sales_data = $query
+            ->selectRaw('DATE(created_at) as date')
+            ->selectRaw('SUM(quantity * price) as total_sales');
 
-        // If both start_date and end_date are provided, apply the date range filter
-        if ($start_date && $end_date) {
-            $sales_data = $query
-                ->selectRaw('DATE(created_at) as date')
-                ->selectRaw('SUM(quantity * price) as total_sales')
-                ->whereBetween('created_at', [$start_date, $end_date]) // Apply the date range filter
-                ->groupBy('date')
-                ->orderBy('date')
-                ->get();
-        } else {
-            // Otherwise, fetch all sales data without any date filtering
-            $sales_data = $query
-                ->selectRaw('DATE(created_at) as date')
-                ->selectRaw('SUM(quantity * price) as total_sales')
-                ->groupBy('date')
-                ->orderBy('date')
-                ->get();
+
+        if ($inputs['start_date'] && $inputs['end_date']) {
+            $sales_data = $sales_data->whereBetween('created_at', [$start_date, $end_date]);
+        }
+        $sales_data = $sales_data->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        $total_sales_chart_data = [];
+        foreach ($sales_data as $item) {
+            $date = Carbon::parse($item->date); // Parse the string to Carbon instance
+
+            $total_sales_chart_data[] = ['x' => $item->date, 'y' => (int)$item->total_sales];
+        }
+        $all_dates = array_flip($labels);
+        foreach ($total_sales_chart_data as $sale) {
+            if (isset($all_dates[$sale['x']])) {
+                unset($all_dates[$sale['x']]);
+            }
         }
 
-        // Check if there's any sales data
-        if ($sales_data->isEmpty()) {
-            // Handle the case where no sales data is returned, maybe returning zero or an empty array
-            return [
-                'data' => [
-                    'chart_series' => [
-                        'orders_sales_chart_data' => [],
-                        'overall_total_sales' => 0,
-                        'growth_rate' => 0,
-                    ],
-                    'chart_options' => [
-                        'xaxis' => [
-                            'type' => 'datetime',
-                        ],
-                        'yaxis' => [
-                            'title' => [
-                                'text' => 'Sales Count',
-                                'color' => '#008FFB',
-                                'rotate' => -90,
-                                'style' => [
-                                    'fontFamily' => 'Arial, sans-serif',
-                                    'fontWeight' => 'bold',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ];
+        foreach (array_keys($all_dates) as $missing_date) {
+            $total_sales_chart_data[] = ['x' => $missing_date, 'y' => 0];
         }
 
-        // Prepare time-series data for the chart
-        $time_series_data = $sales_data->map(function ($item) {
-            return [
-                'x' => $item->date, // Convert date to JavaScript timestamp
-                'y' => $item->total_sales,
-            ];
+        usort($total_sales_chart_data, function ($a, $b) {
+            return strcmp($a['x'], $b['x']);
         });
-
-        // Calculate the overall total sales in the selected date range
         $overall_total_sales = $sales_data->sum('total_sales');
-        $latest_date_in_period = $sales_data->last()->date ?? null;
-//        dd($latest_date_in_period);
-        // Check if the latest date is available before querying for previous sales
-        if ($latest_date_in_period) {
-            // Fetch the most recent available data prior to the current period
-            $previous_sales_data = OrderItem::query()
-                ->where('created_at', '<', $latest_date_in_period)
-                ->selectRaw('SUM(quantity * price) as previous_total_sales')
-                ->first();
+        $first_sale = $total_sales_chart_data[0]['y'] ?? 0;
+        $last_sale = end($total_sales_chart_data)['y'] ?? 0;
 
-//            dd($previous_sales_data->previous_total_sales);
 
-            $previous_total_sales = $previous_sales_data->previous_total_sales ?? 0;
+        $growth_rate = 0;
 
-            // Calculate the percentage growth or decline
-            $growth_rate = $previous_total_sales > 0
-                ? (($overall_total_sales - $previous_total_sales) / $previous_total_sales) * 100
-                : 0;
-        } else {
-            // If no latest date is available, assume no previous sales data and 0 growth
-            $previous_total_sales = 0;
-            $growth_rate = 0;
+        if ($first_sale > 0) {
+            $growth_rate = (($last_sale - $first_sale) / $first_sale) * 100;
+        } elseif ($first_sale === 0 && $last_sale > 0) {
+            $growth_rate = 100;
         }
 
-        // Return the chart data with series, total sales, and growth rate
         return [
             'data' => [
                 'chart_series' => [
-                    'orders_sales_chart_data' => $time_series_data,
+                    'orders_sales_chart_data' => [
+                        [
+                            'name' => 'Total Sale',
+                            'data' => $total_sales_chart_data,
+                        ]
+                    ],
                     'overall_total_sales' => $overall_total_sales,
                     'growth_rate' => $growth_rate,
                 ],
@@ -937,17 +896,7 @@ class Order extends VaahModel
                         'type' => 'datetime',
                         'categories' => $labels
                     ],
-                    'yaxis' => [
-                        'title' => [
-                            'text' => 'Sales Count',
-                            'color' => '#008FFB',
-                            'rotate' => -90,
-                            'style' => [
-                                'fontFamily' => 'Arial, sans-serif',
-                                'fontWeight' => 'bold',
-                            ],
-                        ],
-                    ],
+
                 ],
             ],
         ];
