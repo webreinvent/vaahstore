@@ -869,6 +869,7 @@ class Order extends VaahModel
         $overall_total_sales = $sales_data->sum('total_sales');
         $first_sale = $total_sales_chart_data[0]['y'] ?? 0;
         $last_sale = end($total_sales_chart_data)['y'] ?? 0;
+//        $last_sale = $total_sales_chart_data[count($total_sales_chart_data) - 2]['y'] ?? 0;;
 
 
         $growth_rate = 0;
@@ -952,7 +953,6 @@ class Order extends VaahModel
         // Prepare data in the requested format [{x: "2024-10-31", y: 88}, ...]
         $total_orders = [];
         $completed_orders = [];
-        $pending_orders = [];
 
         // Prepare the labels (formatted as 'Y-m-d') and fill in the data for the chart
         foreach ($chart_data as $item) {
@@ -1013,104 +1013,79 @@ class Order extends VaahModel
 
 
     public static function fetchOrderPaymentsData($request) {
-        // Get the start and end date from the request, with fallback to default if not provided
-        $start_date = isset($request->start_date) ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : \Carbon\Carbon::now()->startOfDay();
-        $end_date = isset($request->end_date) ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : \Carbon\Carbon::now()->endOfDay();
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
 
-        // Initialize the query for OrderPayment
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
+        $labels = [];
+
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
         $query = OrderPayment::query();
 
-        // Retrieve the latest two dates with order payments
-        $latest_dates = $query->where('remaining_payable_amount', 0)
-            ->whereBetween('created_at', [$start_date, $end_date]) // Apply the date range filter
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as total_paid_orders')
-            ->groupBy('date')
-            ->orderByDesc('date')
-            ->limit(2)
-            ->get();
-
-        if ($latest_dates->count() === 2) {
-            $current_total_sales = $latest_dates[0]->total_paid_orders;
-            $previous_total_sales = $latest_dates[1]->total_paid_orders;
-        } else {
-            $current_total_sales = $latest_dates->first()->total_paid_orders ?? 0;
-            $previous_total_sales = 0;
+        $orders_income = $query
+            ->selectRaw('DATE(created_at) as created_date')
+            ->selectRaw('SUM(payment_amount) as total_income');
+        if ($inputs['start_date'] && $inputs['end_date']) {
+            $orders_income = $orders_income->whereBetween('created_at', [$start_date, $end_date]);
         }
-
-        if ($previous_total_sales > 0) {
-            $growth_rate = (($current_total_sales - $previous_total_sales) / $previous_total_sales) * 100;
-        } else if ($current_total_sales > 0) {
-            $growth_rate = 100;
-        } else {
-            $growth_rate = 0;
-        }
-
-        // Prepare data for the chart including all dates within the date range
-        $payments_data = $query->selectRaw('DATE(created_at) as created_date, COUNT(*) as total_paid_orders')
-            ->where('remaining_payable_amount', 0)
-            ->whereBetween('created_at', [$start_date, $end_date]) // Apply the date range filter
-            ->groupBy('created_date')
+        $orders_income = $orders_income->groupBy('created_date')
             ->orderBy('created_date')
             ->get();
 
-        $time_series_data = $payments_data->map(function ($item) {
-            return [
-                'x' => $item->created_date,
-                'y' => $item->total_paid_orders,
-            ];
-        });
+        $time_series_data_income = [];
+        foreach ($orders_income as $item) {
+            $created_date = Carbon::parse($item->created_date); // Parse the string to Carbon instance
 
-        // Get overall count of fully paid orders within the date range
-        $overall_count = OrderPayment::where('remaining_payable_amount', 0)
-            ->whereBetween('created_at', [$start_date, $end_date]) // Apply the date range filter
-            ->count();
+            $time_series_data_income[] = ['x' => $item->created_date, 'y' => $item->total_income];
+        }
+        $all_dates = array_flip($labels);
+        foreach ($time_series_data_income as $sale) {
+            if (isset($all_dates[$sale['x']])) {
+                unset($all_dates[$sale['x']]);
+            }
+        }
 
-        /**
-         * Orders Income Chart Data
-         */
-        $orders_income = OrderPayment::selectRaw('DATE(created_at) as created_date, SUM(payment_amount) as total_income')
-            ->whereBetween('created_at', [$start_date, $end_date]) // Apply the date range filter
-            ->groupBy('created_date')
-            ->orderBy('created_date')
-            ->get();
+        foreach (array_keys($all_dates) as $missing_date) {
+            $time_series_data_income[] = ['x' => $missing_date, 'y' => 0];
+        }
 
-        $time_series_data_income = $orders_income->map(function ($item) {
-            return [
-                'x' => $item->created_date,
-                'y' => $item->total_income,
-            ];
+        usort($time_series_data_income, function ($a, $b) {
+            return strcmp($a['x'], $b['x']);
         });
 
         $overall_income = $orders_income->sum('total_income');
 
-        // Calculate income growth rate based on the last two available dates within the date range
-        $latest_incomes = $orders_income->sortByDesc('created_date')->take(2)->pluck('total_income');
-        $income_growth_rate = 0;
+        $first_income = reset($time_series_data_income)['y'] ?? 0;
+//        $last_income = $time_series_data_income[count($time_series_data_income) - 2]['y'] ?? 0;
+        $last_income = end($time_series_data_income)['y'] ?? 0;
 
-        if ($latest_incomes->count() == 2) {
-            $current_income = $latest_incomes->first();
-            $previous_income = $latest_incomes->last();
+        $growth_rate = 0;
 
-            if ($previous_income > 0) {
-                $income_growth_rate = (($current_income - $previous_income) / $previous_income) * 100;
-            } elseif ($current_income > 0) {
-                $income_growth_rate = 100; // 100% growth if previous income was zero
-            }
+        if ($first_income > 0) {
+            $growth_rate = (($last_income - $first_income) / $first_income) * 100;
+        } elseif ($first_income === 0 && $last_income > 0) {
+            $growth_rate = 100;
         }
 
         return [
             'data' => [
                 'order_payments_chart_series' => [
-                    'orders_payment_chart_data' => $time_series_data,
-                    'orders_payment_income_chart_data' => $time_series_data_income,
-                    'order_payments_growth_rate' => $growth_rate,
-                    'overall_paid' => $overall_count,
+                    'orders_payment_income_chart_data' => [
+                        [
+                            'name' => 'Payment',
+                            'data' => $time_series_data_income,
+                        ]
+                    ],
                     'overall_income' => $overall_income,
-                    'income_growth_rate' => $income_growth_rate,
+                    'income_growth_rate' => round($growth_rate, 2),
                 ],
                 'chart_options' => [
                     'xaxis' => [
                         'type' => 'datetime',
+                        'categories' => $labels
                     ],
                 ],
             ],

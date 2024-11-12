@@ -1171,7 +1171,6 @@ export const useOrderStore = defineStore({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
             }));
-            console.log(series_data);
             this.updateSalesChartSeries(series_data);
 
 
@@ -1261,129 +1260,39 @@ export const useOrderStore = defineStore({
         },
 
         fetchOrderPaymentsDataAfter(data, res) {
-            if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_chart_data)) {
+            if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_income_chart_data)) {
                 return;
             }
 
             this.order_payments_chart_series = data.order_payments_chart_series;
-            this.overall_paid = data.order_payments_chart_series?.overall_paid;
-            this.order_payments_growth_rate = data.order_payments_chart_series?.order_payments_growth_rate;
+
             this.overall_income = data.order_payments_chart_series?.overall_income;
             this.income_growth_rate = data.order_payments_chart_series?.income_growth_rate;
 
-            const formatted_payments_data = data.order_payments_chart_series.orders_payment_chart_data.map(item => ({
-                x: new Date(item.x).getTime(), // Convert date string to timestamp
-                y: item.y
+
+
+            const series_data = data.order_payments_chart_series.orders_payment_income_chart_data.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
             }));
+            console.log(series_data);
+            this.updateOrderPaymentsIncomeChartSeries(series_data);
 
-            this.updateOrderPaymentsChartSeries([
-
-                {
-                    name: "Paid",
-                    data: formatted_payments_data // Use the formatted data here
-                }
-            ]);
-
-            const updated_order_payments_chart_options = {
-                ...data.chart_options,
-                chart: {
-                    background: '#fff',
-                    toolbar: {
-                        show: false, // Ensure toolbar is set to false here
-                    },
-                },
-                tooltip: {
-                    shared: true, // Show tooltip for multiple series
-                    intersect: false, // Allow tooltip to show for all points
-                    x: {
-                        formatter: function(value) {
-                            // Format the x-axis value for the tooltip
-                            return new Date(value).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                            }); // e.g., 'February 12, 2018'
-                        }
-                    },
-                },
-                xaxis: {
-                    type: 'datetime', // Set x-axis to datetime
-                    labels: {
-                        show: false, // Hide x-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide x-axis border if desired
-                    },
-                },
-                yaxis: {
-                    labels: {
-                        show: false, // Hide y-axis labels
-                    },
-                    axisBorder: {
-                        show: false, // Hide y-axis border if desired
-                    },
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
-                },
-                title: {
-                    text: '', // Set text to an empty string to hide the title
-                },
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-                dataLabels: {
-                    enabled: false,
-                },
-                grid: {
-                    show: false,
-                }
-            };
-
-            this.updateOrderPaymentsChartOptions(updated_order_payments_chart_options);
-
-            const formattedData = data.order_payments_chart_series.orders_payment_income_chart_data.map(item => ({
-                x: new Date(item.x).getTime(), // Convert date string to timestamp
-                y: item.y
-            }));
-            this.updateOrderPaymentsIncomeChartSeries([
-                // {
-                //     name: "Payment",
-                //     data: data.order_payments_chart_series.orders_payment_income_chart_data // [{ x: timestamp, y: sales }]
-                // }
-                {
-                    name: "Payment",
-                    data: formattedData // Use the formatted data here
-                }
-            ]);
 
             const updated_order_payments_income_chart_options = {
                 ...data.chart_options,
-                chart: {
-                    background: '#fff',
-                    toolbar: {
-                        show: false, // Ensure toolbar is set to false here
-                    },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
                 },
-                tooltip: {
-                    shared: true, // Show tooltip for multiple series
-                    intersect: false, // Allow tooltip to show for all points
-                    x: {
-                        formatter: function(value) {
-                            // Format the x-axis value for the tooltip
-                            return new Date(value).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                            }); // e.g., 'February 12, 2018'
-                        }
-                    },
+                title: {
+                    text: '',
+
                 },
+
                 xaxis: {
-                    type: 'datetime', // Set x-axis to datetime
+                    type: 'datetime',
+                    // Set x-axis to datetime
                     labels: {
                         show: false, // Hide x-axis labels
                     },
@@ -1399,23 +1308,32 @@ export const useOrderStore = defineStore({
                         show: false, // Hide y-axis border if desired
                     },
                 },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy' // Format tooltip date to "MMMM d, yyyy"
+                    }
                 },
-                title: {
-                    text: '', // Set text to an empty string to hide the title
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                    height:100
                 },
                 toolbar: {
                     show: false,
                     offsetX: 0,
                     offsetY: 40,
                 },
+
                 dataLabels: {
                     enabled: false,
                 },
                 grid: {
                     show: false,
+                },
+                legend: {
+                    show: false
                 }
             };
 
@@ -1544,7 +1462,7 @@ export const useOrderStore = defineStore({
                 ...data.chart_options, // Merge existing options
                 stroke: {
                     curve: 'smooth',
-                    width: 3,
+                    width: 2,
                 },
                 title: {
                     text: '', // Chart title
@@ -1568,6 +1486,11 @@ export const useOrderStore = defineStore({
                     axisBorder: {
                         show: false, // Hide y-axis border if desired
                     },
+                },
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy' // Format tooltip date to "MMMM d, yyyy"
+                    }
                 },
 
                 chart: {
