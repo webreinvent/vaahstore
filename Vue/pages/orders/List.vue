@@ -286,14 +286,15 @@ const today = ref(new Date());
                                                         </span>
                                                 <p :style="{fontSize: store.show_filters ? '14px' : '18px' }">
                                                     <b>₹{{
-                                                        store.overall_paid > 0 ?
-                                                        store.overall_income?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
+                                                        store.overall_income && !isNaN(store.overall_income) ?
+                                                        store.overall_income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
                                                         '0'
                                                         }}</b>
                                                 </p>
                                             </div>
                                             <div class="min-w-max"
-                                                 v-if="store.list && store.list.data && store.list.data?.length">
+                                                >
+
                                                 <template
                                                     v-if="store.order_payments_chart_series?.income_growth_rate !== 0">
                                                     <i :style="{ color: store.order_payments_chart_series?.income_growth_rate <= 0 ? 'red' : '#5acc81',fontSize: store.show_filters ? '8px' : '10px',marginRight:'3px', }"
@@ -307,7 +308,7 @@ const today = ref(new Date());
                                                                                                 </span>
                                                 </template>
                                                 <template v-else>
-                                                    {{ 0 }}
+                                                    {{  }}
                                                 </template>
                                             </div>
 
