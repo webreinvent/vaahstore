@@ -1174,12 +1174,17 @@ export const usePaymentStore = defineStore({
                     },
                 },
                 legend: {
-                    position: 'bottom',
+                    position: 'right', // Position the legend to the side of the chart
                     horizontalAlign: 'center',
-                    floating: false,
+                    floating: false, // Makes it appear inside the chart area
                     fontSize: '12px',
+                    offsetX: -10, // Adjust offset to place the legend in the desired position
+                    offsetY: 35,
                     formatter: function (val, opts) {
                         return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
+                    },
+                    labels: {
+                        useSeriesColors: true, // Matches legend colors with chart colors
                     },
                 },
                 plotOptions: {

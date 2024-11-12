@@ -83,6 +83,7 @@ export const useShipmentStore = defineStore({
         shipment_items_by_status_chart_series: [],
         shipmentItemsChartOptions:{},
         shipmentItemsSeries:[],
+        quick_filter_menu:[],
         filter_start_date: new Date(),
         filter_end_date: new Date(),
 
@@ -1689,7 +1690,94 @@ export const useShipmentStore = defineStore({
             await this.ordersShipmentByDateRange();
             await this.ordersShipmentItemsByDateRange();
             await this.shipmentItemsByStatusBarChart();
-        }
+        },
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+                {
+                    label: 'Today',
+
+                    command: () => {
+                        this.updateQuickFilter('today');
+                    }
+                },
+                {
+                    label: 'Last 7 Days',
+                    command: () => {
+                        this.updateQuickFilter('last-7-days');
+                    }
+                },
+                {
+                    label: 'Last 1 Month',
+                    command: () => {
+                        this.updateQuickFilter('last-1-month');
+                    }
+                },
+                {
+                    label: 'Last 1 Year',
+                    command: () => {
+                        this.updateQuickFilter('last-1-year');
+                    }
+                },
+                {
+                    label: 'Custom Date Range',
+                    command: () => {
+                        this.openDateRangeSelector(); // Call the method to handle date range selection
+                    }
+                }
+
+            ];
+
+        },
+        openDateRangeSelector() {
+            this.is_custom_range_open = !this.is_custom_range_open;
+            this.filter_start_date = null;
+            this.filter_end_date = null;
+            this.quick_chart_filter = null;
+            this.getChartData();
+        },
+
+        async removeChartFilter(){
+            this.query.filter.time = null;
+            this.filter_start_date = null;
+            this.filter_end_date = null;
+            this.quick_chart_filter = null;
+            await this.getChartData();
+        },
+        async updateQuickFilter(time) {
+            this.is_custom_range_open = false;
+            let startDate, endDate;
+            this.quick_chart_filter = time;
+
+            const today = new Date();
+            switch (time) {
+                case 'today':
+                    startDate = new Date();
+                    endDate = new Date();
+                    break;
+                case 'last-7-days':
+                    endDate = today;
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - 7);
+                    break;
+                case 'last-1-month':
+                    endDate = today;
+                    startDate = new Date(today);
+                    startDate.setMonth(today.getMonth() - 1);
+                    break;
+                case 'last-1-year':
+                    endDate = today;
+                    startDate = new Date(today);
+                    startDate.setFullYear(today.getFullYear() - 1);
+                    break;
+                default:
+                    break;
+            }
+
+            this.filter_start_date = new Date(startDate);
+            this.filter_end_date = new Date(endDate);
+            await this.getChartData();
+        },
     }
 });
 
