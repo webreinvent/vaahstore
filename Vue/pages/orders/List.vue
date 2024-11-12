@@ -222,7 +222,7 @@ const today = ref(new Date());
                                                        style="font-size:6px;color:#5acc81;margin-right:2px;"/>
                                                     <span
                                                         :style="{ fontWeight: '400',color: store.chart_series.growth_rate <= 0 ? 'red' : '#5acc81', fontSize: store.show_filters ? '10px' : '12px' }">
-                                                                                                    {{ store.chart_series.growth_rate.toLocaleString('en-US') }}%
+                                                                                                  {{ store.chart_series.growth_rate.toLocaleString('en-US') }}%
                                                                                                 </span>
                                                 </template>
                                                 <template v-else>

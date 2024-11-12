@@ -1161,27 +1161,34 @@ export const useOrderStore = defineStore({
             if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
                 return;
             }
-
+            // this.updateDateFilter();
             this.chart_series = data.chart_series;
             this.overall_sales = data.chart_series?.overall_total_sales;
             this.growth_rate = data.chart_series?.growth_rate;
 
-            this.updateSalesChartSeries([
-                {
-                    name: "Total Sale",
-                    data: data.chart_series.orders_sales_chart_data // [{ x: timestamp, y: sales }]
-                }
-            ]);
+
+            const series_data = data.chart_series.orders_sales_chart_data.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            console.log(series_data);
+            this.updateSalesChartSeries(series_data);
+
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
-                chart: {
-                    toolbar: {
-                        show: false, // Ensure toolbar is set to false here
-                    },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
                 },
+                title: {
+                    text: '',
+
+                },
+
                 xaxis: {
-                    type: 'datetime', // Set x-axis to datetime
+                    type: 'datetime',
+                    // Set x-axis to datetime
                     labels: {
                         show: false, // Hide x-axis labels
                     },
@@ -1197,23 +1204,32 @@ export const useOrderStore = defineStore({
                         show: false, // Hide y-axis border if desired
                     },
                 },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy' // Format tooltip date to "MMMM d, yyyy"
+                    }
                 },
-                title: {
-                    text: '', // Set text to an empty string to hide the title
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false, // Ensure toolbar is set to false here
+                    },
+                    height:100
                 },
                 toolbar: {
                     show: false,
                     offsetX: 0,
                     offsetY: 40,
                 },
+
                 dataLabels: {
                     enabled: false,
                 },
                 grid: {
                     show: false,
+                },
+                legend: {
+                    show: false
                 }
             };
 
@@ -1596,7 +1612,7 @@ export const useOrderStore = defineStore({
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-
+            // await this.fetchSalesChartData();
         },
         async getChartData(){
             await this.fetchOrdersCountChartData();
