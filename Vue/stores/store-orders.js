@@ -2,6 +2,7 @@ import {toRaw,watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
 
@@ -99,6 +100,7 @@ export const useOrderStore = defineStore({
         quick_filter_menu:[],
         filter_start_date: null,
         filter_end_date: null,
+        is_custom_range_open: false,
     }),
     getters: {
 
@@ -655,12 +657,14 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+
             //reset query strings
             await this.resetQueryString();
 
             //reload page list
             await this.getList();
             await this.fetchOrdersChartData();
+
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -1083,8 +1087,8 @@ export const useOrderStore = defineStore({
             const updated_pie_chart_options = {
                 ...data.chart_options, // Merge existing options
                 title: {
-                    text: 'Order Status Distribution', // Add your chart title here
-                    align: 'center', // You can adjust alignment: 'left', 'center', 'right'
+                    text: 'Status Distribution', // Add your chart title here
+                    align: 'left', // You can adjust alignment: 'left', 'center', 'right'
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
@@ -1098,12 +1102,17 @@ export const useOrderStore = defineStore({
                     },
                 },
                 legend: {
-                    position: 'bottom',
+                    position: 'right', // Position the legend to the side of the chart
                     horizontalAlign: 'center',
-                    floating: false,
+                    floating: false, // Makes it appear inside the chart area
                     fontSize: '12px',
+                    offsetX: -10, // Adjust offset to place the legend in the desired position
+                    offsetY: 35,
                     formatter: function (val, opts) {
                         return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
+                    },
+                    labels: {
+                        useSeriesColors: true, // Matches legend colors with chart colors
                     },
                 },
                 plotOptions: {
@@ -1178,7 +1187,7 @@ export const useOrderStore = defineStore({
                 ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
-                    width: 3,
+                    width: 2,
                 },
                 title: {
                     text: '',
@@ -1213,7 +1222,7 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false, // Ensure toolbar is set to false here
                     },
-                    height:100
+                    // height:100
                 },
                 toolbar: {
                     show: false,
@@ -1229,7 +1238,8 @@ export const useOrderStore = defineStore({
                 },
                 legend: {
                     show: false
-                }
+                },
+
             };
 
             this.updateSalesChartOptions(updated_sales_chart_options);
@@ -1318,7 +1328,8 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false, // Ensure toolbar is set to false here
                     },
-                    height:100
+
+                    // height:100
                 },
                 toolbar: {
                     show: false,
@@ -1334,7 +1345,8 @@ export const useOrderStore = defineStore({
                 },
                 legend: {
                     show: false
-                }
+                },
+
             };
 
             this.updateOrderPaymentsIncomeChartOptions(updated_order_payments_income_chart_options);
@@ -1420,13 +1432,64 @@ export const useOrderStore = defineStore({
                         this.updateQuickFilter('last-1-year');
                     }
                 },
+                {
+                    label: 'Custom Date Range',
+                    command: () => {
+                        this.openDateRangeSelector(); // Call the method to handle date range selection
+                    }
+                }
 
             ];
 
         },
-        updateQuickFilter(time)
-        {
-            this.query.filter.time = time;
+        openDateRangeSelector() {
+            this.is_custom_range_open = !this.is_custom_range_open;
+            this.filter_start_date = null;
+            this.filter_end_date = null;
+            this.quick_chart_filter = null;
+             this.getChartData();
+        },
+
+        async removeChartFilter(){
+            this.query.filter.time = null;
+            this.filter_start_date = null;
+            this.filter_end_date = null;
+            this.quick_chart_filter = null;
+            await this.getChartData();
+        },
+        async updateQuickFilter(time) {
+            this.is_custom_range_open = false;
+            let startDate, endDate;
+            this.quick_chart_filter = time;
+
+            const today = new Date();
+            switch (time) {
+                case 'today':
+                    startDate = today.setHours(0, 0, 0, 0);
+                    endDate = today.setHours(23, 59, 59, 999);
+                    break;
+                case 'last-7-days':
+                    endDate = today;
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - 7);
+                    break;
+                case 'last-1-month':
+                    endDate = today;
+                    startDate = new Date(today);
+                    startDate.setMonth(today.getMonth() - 1);
+                    break;
+                case 'last-1-year':
+                    endDate = today;
+                    startDate = new Date(today);
+                    startDate.setFullYear(today.getFullYear() - 1);
+                    break;
+                default:
+                    break;
+            }
+
+            this.filter_start_date = new Date(startDate);
+            this.filter_end_date = new Date(endDate);
+            await this.getChartData();
         },
 
         async fetchOrdersCountChartData() {
@@ -1498,7 +1561,7 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false, // Ensure toolbar is set to false here
                     },
-                    height:100
+                    // height:100
                 },
                 toolbar: {
                     show: false,
