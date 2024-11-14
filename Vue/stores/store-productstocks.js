@@ -26,6 +26,9 @@ let empty_states = {
             variations : null,
             quantity : null,
             in_stock : null,
+            lowest_stock : null,
+            highest_stock : null,
+            quick_filter_menu:[],
         },
     },
     action: {
@@ -489,6 +492,7 @@ export const useProductStockStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
+                this.getStocksChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -1578,6 +1582,34 @@ export const useProductStockStore = defineStore({
                 this.item.vh_st_vendor_id = data.id;
             }
         },
+
+        async getStocksChartData() {
+            const options = {
+                method: 'get',
+                query: vaah().clone(this.query)
+            };
+            await vaah().ajax(
+                this.ajax_url + '/charts/stocks-data',
+                this.getStocksChartDataAfter,
+                options
+            );
+        },
+        getStocksChartDataAfter(data,res){
+            if (data){
+
+                this.highest_stock=data.top_stocks;
+                this.lowest_stock=data.lowest_stocks;
+            }
+        },
+
+
+        QuickHighFilter(){
+            this.query.filter.stocks='high'
+        },
+        QuickLowFilter(){
+            this.query.filter.stocks='low'
+        },
+
 
     }
 });
