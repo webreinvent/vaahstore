@@ -1376,7 +1376,7 @@ export const useShipmentStore = defineStore({
                     width: 3,
                 },
                 noData: {
-                    text: 'No Data Available',
+                    text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
                     offsetX: 0,
@@ -1521,7 +1521,7 @@ export const useShipmentStore = defineStore({
                     }
                 },
                 noData: {
-                    text: 'No Data Available',
+                    text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
                     offsetX: 0,
@@ -1632,7 +1632,7 @@ export const useShipmentStore = defineStore({
                     },
                 },
                 noData: {
-                    text: 'No Data Available',
+                    text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
                     offsetX: 0,
