@@ -1102,7 +1102,7 @@ export const useOrderStore = defineStore({
                     },
                 },
                 noData: {
-                    text: 'No Data Available',
+                    text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
                     offsetX: 0,
@@ -1206,7 +1206,7 @@ export const useOrderStore = defineStore({
 
                 },
                 noData: {
-                    text: 'No Data Available',
+                    text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
                     offsetX: 0,
@@ -1323,7 +1323,7 @@ export const useOrderStore = defineStore({
 
                 },
                 noData: {
-                    text: 'No Data Available',
+                    text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
                     offsetX: 0,
@@ -1566,7 +1566,7 @@ export const useOrderStore = defineStore({
 
                 },
                 noData: {
-                    text: 'No Data Available',
+                    text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
                     offsetX: 0,
