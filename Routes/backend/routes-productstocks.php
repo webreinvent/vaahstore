@@ -143,4 +143,9 @@ function () {
         ->name('vh.backend.store.productstocks.search.default.vendor');
 
 
+    /**
+     * get Stocks Stats
+     */
+    Route::get('/charts/stocks-data', 'ProductStocksController@getStocksChartData')
+        ->name('vh.backend.store.users.count-chart-data');
 });

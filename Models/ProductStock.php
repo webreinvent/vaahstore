@@ -1333,4 +1333,79 @@ if ($product_variation) {
         }
         return $response;
     }
+
+
+
+    public static function getStocksChartData($request)
+    {
+        $highest_stocks = self::where('quantity', '>', 10)
+            ->orderBy('quantity', 'desc')
+            ->take(1)
+            ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
+            ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
+
+
+        $lowest_stocks = self::whereBetween('quantity', [0, 10])
+            ->orderBy('quantity', 'asc')
+            ->take(1)
+            ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
+            ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
+
+        $all_stocks=self::sum('quantity');
+
+        $map_stocks = function ($stocks) use ($all_stocks) {
+            return $stocks->map(function ($stock) use ($all_stocks) {
+                $product_variation = $stock->productVariation;
+
+                $product_media_ids = $product_variation->medias->map(function ($media) {
+                    return $media->pivot->vh_st_product_media_id;
+                });
+                $image_urls = self::getImageUrls($product_media_ids);
+
+                $stock_percentage = $all_stocks > 0 ? ($stock->quantity / $all_stocks) * 100 : 0;
+
+                return (object)[
+                    'id' => $stock->id,
+                    'stock' => $stock->quantity,
+                    'vendor' => $stock->vendor,
+                    'product' => $stock->product,
+                    'productVariation' => $stock->productVariation,
+                    'image_urls' => $image_urls, // Adding image URLs here
+                    'stock_percentage' => round($stock_percentage, 2),
+                ];
+            });
+        };
+
+        $top_stocks = $map_stocks($highest_stocks)->toArray();
+        $lowest_stocks_data = $map_stocks($lowest_stocks)->toArray();
+
+
+        $highest_stock_quantity = $highest_stocks->first()->quantity ?? 0;
+        $lowest_stock_quantity = $lowest_stocks->first()->quantity ?? 0;
+
+        $highest_stock_percentage = $all_stocks > 0 ? ($highest_stock_quantity / $all_stocks) * 100 : 0;
+        $lowest_stock_percentage = $all_stocks > 0 ? ($lowest_stock_quantity / $all_stocks) * 100 : 0;
+
+
+        return [
+            'data' => [
+                'top_stocks' => $top_stocks,
+                'lowest_stocks' => $lowest_stocks_data,
+                'all_stocks' => $all_stocks,
+                'highest_stock_percentage' => round($highest_stock_percentage, 2),
+                'lowest_stock_percentage' => round($lowest_stock_percentage, 2),
+            ],
+        ];
+    }
+    private static function getImageUrls($product_media_ids)
+    {
+        $image_urls = [];
+        foreach ($product_media_ids as $product_media_id) {
+            $product_media_image = ProductMediaImage::where('vh_st_product_media_id', $product_media_id)->first();
+            if ($product_media_image) {
+                $image_urls[] = $product_media_image->url;
+            }
+        }
+        return $image_urls;
+    }
 }
