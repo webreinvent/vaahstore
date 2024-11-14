@@ -1375,6 +1375,18 @@ export const useShipmentStore = defineStore({
                     curve: 'smooth',
                     width: 3,
                 },
+                noData: {
+                    text: 'No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 title: {
                     text: 'Orders In Shipment Over Date Range', // Chart title
                     align: 'center', // Title alignment
@@ -1508,6 +1520,18 @@ export const useShipmentStore = defineStore({
                         color: '#263238'
                     }
                 },
+                noData: {
+                    text: 'No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 chart: {
 
                     toolbar: {
@@ -1606,6 +1630,18 @@ export const useShipmentStore = defineStore({
                     toolbar: {
                         show: false,
                     },
+                },
+                noData: {
+                    text: 'No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
                 },
                 dataLabels: {
                                     enabled: true,

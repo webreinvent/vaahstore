@@ -852,20 +852,7 @@ class Order extends VaahModel
 
             $total_sales_chart_data[] = ['x' => $item->date, 'y' => (int)$item->total_sales];
         }
-        $all_dates = array_flip($labels);
-        foreach ($total_sales_chart_data as $sale) {
-            if (isset($all_dates[$sale['x']])) {
-                unset($all_dates[$sale['x']]);
-            }
-        }
 
-        foreach (array_keys($all_dates) as $missing_date) {
-            $total_sales_chart_data[] = ['x' => $missing_date, 'y' => 0];
-        }
-
-        usort($total_sales_chart_data, function ($a, $b) {
-            return strcmp($a['x'], $b['x']);
-        });
         $overall_total_sales = $sales_data->sum('total_sales');
         $first_sale = $total_sales_chart_data[0]['y'] ?? 0;
         $last_sale = end($total_sales_chart_data)['y'] ?? 0;
@@ -965,26 +952,7 @@ class Order extends VaahModel
         }
 
         // Fill missing dates (dates without orders) with zero count
-        $all_dates = array_flip($labels); // Flip the labels array to check against existing dates
-        foreach ($total_orders as $order) {
-            if (isset($all_dates[$order['x']])) {
-                unset($all_dates[$order['x']]);
-            }
-        }
 
-        // Add missing dates with zero count for total orders and completed orders
-        foreach (array_keys($all_dates) as $missing_date) {
-            $total_orders[] = ['x' => $missing_date, 'y' => 0];
-            $completed_orders[] = ['x' => $missing_date, 'y' => 0];
-        }
-
-        // Sort the orders by date
-        usort($total_orders, function ($a, $b) {
-            return strcmp($a['x'], $b['x']);
-        });
-        usort($completed_orders, function ($a, $b) {
-            return strcmp($a['x'], $b['x']);
-        });
 
         // Return the chart data along with options
         return [
@@ -1041,22 +1009,10 @@ class Order extends VaahModel
 
             $time_series_data_income[] = ['x' => $item->created_date, 'y' => $item->total_income];
         }
-        $all_dates = array_flip($labels);
-        foreach ($time_series_data_income as $sale) {
-            if (isset($all_dates[$sale['x']])) {
-                unset($all_dates[$sale['x']]);
-            }
-        }
 
-        foreach (array_keys($all_dates) as $missing_date) {
-            $time_series_data_income[] = ['x' => $missing_date, 'y' => 0];
-        }
 
-        usort($time_series_data_income, function ($a, $b) {
-            return strcmp($a['x'], $b['x']);
-        });
+        $overall_income = round($orders_income->sum('total_income'), 2);
 
-        $overall_income = $orders_income->sum('total_income');
 
         $first_income = reset($time_series_data_income)['y'] ?? 0;
 //        $last_income = $time_series_data_income[count($time_series_data_income) - 2]['y'] ?? 0;

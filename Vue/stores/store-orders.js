@@ -1101,6 +1101,18 @@ export const useOrderStore = defineStore({
                         show: false, // Ensure toolbar is set to false here
                     },
                 },
+                noData: {
+                    text: 'No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 legend: {
                     position: 'right', // Position the legend to the side of the chart
                     horizontalAlign: 'center',
@@ -1193,7 +1205,18 @@ export const useOrderStore = defineStore({
                     text: '',
 
                 },
-
+                noData: {
+                    text: 'No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 xaxis: {
                     type: 'datetime',
                     // Set x-axis to datetime
@@ -1299,7 +1322,18 @@ export const useOrderStore = defineStore({
                     text: '',
 
                 },
-
+                noData: {
+                    text: 'No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 xaxis: {
                     type: 'datetime',
                     // Set x-axis to datetime
@@ -1531,7 +1565,18 @@ export const useOrderStore = defineStore({
                     text: '', // Chart title
 
                 },
-
+                noData: {
+                    text: 'No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 xaxis: {
                     type: 'datetime',
                     // Set x-axis to datetime
