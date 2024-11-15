@@ -58,7 +58,6 @@ const toggleCreateMenu = (event) => {
 
 const quick_filter_menu_state = ref();
 const toggleQuickFilterState = (event) => {
-    alert('as')
     quick_filter_menu_state.value.toggle(event);
 };
 </script>
