@@ -960,11 +960,11 @@ class Order extends VaahModel
                 'chart_series' => [
                     'orders_count_bar_chart' => [
                         [
-                            'name' => 'Order Created',
+                            'name' => 'Created',
                             'data' => $total_orders,
                         ],
                         [
-                            'name' => 'Order Completed',
+                            'name' => 'Completed',
                             'data' => $completed_orders,
                         ],
                     ],

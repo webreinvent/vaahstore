@@ -1,6 +1,6 @@
 let routes= [];
 
-// import dashboard from "./vue-routes-dashboard";
+import dashboard from "./vue-routes-dashboard";
 import brand from "./vue-routes-brands";
 import store from "./vue-routes-stores";
 import vendor from "./vue-routes-vendors";
@@ -51,6 +51,7 @@ routes = routes.concat(cart);
 routes = routes.concat(settings);
 routes = routes.concat(payments);
 routes = routes.concat(shipments);
+routes = routes.concat(dashboard);
 
 
 
