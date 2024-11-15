@@ -128,6 +128,7 @@ export const useUserStore = defineStore({
         },
         chartOptions: {},
         chartSeries: [],
+        quick_filter_menu:[],
     }),
     getters: {
 
@@ -1338,6 +1339,11 @@ export const useUserStore = defineStore({
                         return `${val} - ${sum}`; // Return the legend text with the sum
                     },
                 },
+                chart: { // Ensure toolbar is nested under chart
+                    toolbar: {
+                        show: false
+                    }
+                },
                 title: {
                     text: 'Monthly Customers Count', // Chart title
                     align: 'center', // Title alignment
@@ -1362,6 +1368,45 @@ export const useUserStore = defineStore({
         updateChartSeries(newSeries) {
             // Ensure chartSeries is updated reactively
             this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+        },
+        //---------------------------------------------------
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+                {
+                    label: 'Today',
+
+                    command: () => {
+                        this.updateQuickFilter('today');
+                    }
+                },
+                {
+                    label: 'Last 7 Days',
+                    command: () => {
+                        this.updateQuickFilter('last-7-days');
+                    }
+                },
+                {
+                    label: 'Last 1 Month',
+                    command: () => {
+                        this.updateQuickFilter('last-1-month');
+                    }
+                },
+                {
+                    label: 'Last 1 Year',
+                    command: () => {
+                        this.updateQuickFilter('last-1-year');
+                    }
+                },
+
+
+            ];
+
+        },
+
+        updateQuickFilter(time)
+        {
+            this.query.filter.time = time;
         },
         //---------------------------------------------------
 

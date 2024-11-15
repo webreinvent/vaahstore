@@ -364,6 +364,29 @@ class ProductStock extends VaahModel
 
     }
     //-------------------------------------------------
+    public function scopeStockFilter($query, $filter)
+    {
+        if (!isset($filter['stocks']) || is_null($filter['stocks']) || $filter['stocks'] === 'null') {
+            return $query;
+        }
+
+        $stock_statuses = is_array($filter['stocks']) ? $filter['stocks'] : [$filter['stocks']];
+
+        foreach ($stock_statuses as $status) {
+            if ($status === 'low') {
+                $query->orWhere(function ($query) {
+                    $query->where('quantity', '>=', 1)
+                        ->where('quantity', '<', 10);
+                });
+            } elseif ($status === 'high') {
+                $query->orWhere('quantity', '>', 10);
+            }
+        }
+
+        return $query;
+    }
+
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','product','productVariation','vendor');
@@ -377,6 +400,7 @@ class ProductStock extends VaahModel
         $list->statusFilter($request->filter);
         $list->dateFilter($request->filter);
         $list->quantityFilter($request->filter);
+        $list->stockFilter($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
