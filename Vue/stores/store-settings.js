@@ -228,34 +228,11 @@ export const useSettingStore = defineStore({
                     { name:  'Last 7 Days', value: 'last-7-days' },
                     { name:  'Last 1 Month', value: 'last-1-month' },
                     { name:  'Last 1 Year', value: 'last-1-year' },
-                    { name:  'Custom', value: 'custom' },
+                    { name:  'Custom Dates', value: 'custom' },
 
                 ];
 
-                const chartDate = JSON.parse(this.assets.chart_date);
 
-                switch (true) {
-                    case chartDate && chartDate.today:
-                        this.chart_date_filter = "today";
-                        break;
-                    case chartDate && chartDate['last-7-days']:
-                        this.chart_date_filter = "last-7-days";
-                        break;
-                    case chartDate && chartDate['last-1-month']:
-                        this.chart_date_filter = "last-1-month";
-                        break;
-                    case chartDate && chartDate['last-1-year']:
-                        this.chart_date_filter = "last-1-year";
-                        break;
-                    case chartDate && chartDate.custom:
-                        this.chart_date_filter = "custom";
-                        this.filter_start_date = chartDate.custom.start_date;
-                        this.filter_end_date = chartDate.custom.end_date;     
-                        break;
-                    default:
-                        this.chart_date_filter = "custom";
-                        break;
-                }
 
 
             }
@@ -278,8 +255,32 @@ export const useSettingStore = defineStore({
 
             if (data) {
                 this.list = data;
+
                 const chartDate = JSON.parse(data.charts_filter);
-                if (chartDate && chartDate.custom && chartDate.custom.start_date && chartDate.custom.end_date) {
+                switch (true) {
+                    case chartDate && chartDate.today:
+                        this.chart_date_filter = "today";
+                        break;
+                    case chartDate && chartDate['last-7-days']:
+                        this.chart_date_filter = "last-7-days";
+                        break;
+                    case chartDate && chartDate['last-1-month']:
+                        this.chart_date_filter = "last-1-month";
+                        break;
+                    case chartDate && chartDate['last-1-year']:
+                        this.chart_date_filter = "last-1-year";
+                        break;
+                    default:
+                        this.chart_date_filter = "custom";
+                        break;
+                }
+                // const chart_date = JSON.parse(data.charts_filter);
+                // if (chart_date && chart_date.custom && chart_date.custom.start_date && chart_date.custom.end_date) {
+                //     this.filter_start_date = new Date(chart_date.custom.start_date);
+                //     this.filter_end_date = new Date(chart_date.custom.end_date);
+                // }
+
+                if (chartDate?.custom?.start_date && chartDate?.custom?.end_date) {
                     this.filter_start_date = new Date(chartDate.custom.start_date);
                     this.filter_end_date = new Date(chartDate.custom.end_date);
                 }

@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import {useSettingStore} from '../../../stores/store-settings'
 import { vaah } from '../../../vaahvue/pinia/vaah';
 import SampleSeed from './components/SampleSeed.vue'
-import DashboardDateFilter from './components/DashboardDateFilter.vue'
+import ChartsDateFilter from './components/ChartsDateFilter.vue'
 
 
 const store = useSettingStore();
@@ -51,15 +51,15 @@ onMounted(async () => {
                         <template #header>
                             <div class="w-full">
                                 <div>
-                                    <h5 class="font-semibold text-sm">Date & Time</h5>
+                                    <h5 class="font-semibold text-sm">Charts Date Filters</h5>
                                     <p class="text-color-secondary text-xs">
-                                        Global Date and time filter for Charts
+                                        Global Date Filter For All VaahStore Charts
                                     </p>
                                 </div>
                             </div>
                         </template>
 
-                        <DashboardDateFilter/>
+                        <ChartsDateFilter/>
                     </AccordionTab>
                 </Accordion>
             </template>

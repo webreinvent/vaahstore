@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use VaahCms\Modules\Store\Models\Setting;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
 class BackendController extends Controller
@@ -35,7 +36,7 @@ class BackendController extends Controller
 
         $data['product_types'] = Taxonomy::getTaxonomyByType('product-types');
         $data['urls']['brands'] = route('vh.backend.store.brands.list');
-
+        $data['charts_data_filtered_by'] = Setting::getSettingByKey('charts_filter');
 
         $response['success'] = true;
         $response['data'] = $data;

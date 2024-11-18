@@ -1,7 +1,7 @@
 <template>
 
     <div class="col-6 p-fluid">
-        <h5 class="p-1 text-xs mb-1">Chart Data</h5>
+        <h5 class="p-1 text-xs mb-1">Get Charts Data By:</h5>
         <div class="p-inputgroup">
 <!--            {{store.chart_date_filter}}-->
             <SelectButton v-model="store.chart_date_filter"
@@ -9,7 +9,7 @@
                           optionValue="value"
                           :options="store.chart_by_date_filter"
                           class="p-button-sm"
-                          data-testid="general-password_protection"
+                          data-testid="general-charts_filters"
                           aria-labelledby="single"
             />
 
@@ -18,13 +18,13 @@
 
             <Button class="p-button-sm"
                     icon="pi pi-copy"
-                    data-testid="general-copyright_custom_year_filed_copy"
+                    data-testid="general-charts_filters_copy"
                     @click="store.getCopy('is_sidebar_collapsed')"
             />
         </div>
     </div>
 
-    <div class="flex gap-2 ml-2">
+    <div class=" flex gap-2 ml-2">
         <Calendar
             placeholder="Select Start Date"
             date-format="yy-mm-dd"
