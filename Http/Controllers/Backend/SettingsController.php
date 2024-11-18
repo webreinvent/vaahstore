@@ -18,10 +18,10 @@ use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Models\Setting;
 use VaahCms\Modules\Store\Models\Warehouse;
 use VaahCms\Modules\Store\Models\Wishlist;
 use WebReinvent\VaahCms\Models\Role;
-use WebReinvent\VaahCms\Models\Setting;
 use WebReinvent\VaahExtend\Libraries\VaahArtisan;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\File;
@@ -69,10 +69,7 @@ class SettingsController extends Controller
     {
 
         try {
-            $list = Setting::where('category', 'global')
-                ->get()
-                ->pluck('value', 'key' )
-                ->toArray();
+            $list = Setting::pluck('value', 'key')->toArray();
 
             $response['success'] = true;
             $response['data'] = $list;
@@ -97,7 +94,7 @@ class SettingsController extends Controller
         try {
             foreach ($request->list as $key => $value){
                 $setting = Setting::query()
-                    ->where('category', 'global')
+
                     ->where('key', $key)
                     ->first();
 
@@ -109,7 +106,7 @@ class SettingsController extends Controller
                     $setting->save();
                 } else {
                     Setting::query()
-                        ->where('category', 'global')
+
                         ->where('key', $key)
                         ->update(['value' => $value]);
                 }
@@ -612,5 +609,46 @@ class SettingsController extends Controller
     }
 
     //----------------------------------------------------------
+    public function storeChartFilterSettings(Request $request): JsonResponse
+    {
+        try {
+            foreach ($request->list as $key => $value){
+                $setting = Setting::query()
+
+                    ->where('key', $key)
+                    ->first();
+
+                if (!$setting) {
+                    $setting = new Setting();
+                    $setting->key = $key;
+                    $setting->value = $value;
+                    $setting->save();
+                } else {
+                    Setting::query()
+
+                        ->where('key', $key)
+                        ->update(['value' => $value]);
+                }
+            }
+
+
+
+            $response['success'] = true;
+            $response['data'][] = '';
+            $response['messages'][] = trans("vaahcms-general.settings_successful_saved");
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
+
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTraceAsString();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+        }
+
+        return response()->json($response);
+    }
     //----------------------------------------------------------
 }
