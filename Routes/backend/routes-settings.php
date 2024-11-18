@@ -34,4 +34,7 @@ function () {
 
     Route::post('/delete/confirm', 'SettingsController@deleteConfirm')
         ->name('vh.backend.store.settings.delete.confirm');
+
+    Route::post('/charts/date-filters', 'SettingsController@storeChartFilterSettings')
+        ->name('vh.backend.store.settings.delete.confirm');
 });

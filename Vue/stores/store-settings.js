@@ -192,6 +192,11 @@ export const useSettingStore = defineStore({
         },
         is_delete_confirm: false,
         show_progress_bar: false,
+
+        chart_by_date_filter: null,
+        chart_date_filter: null,
+        filter_start_date: null, // This should be a Date object
+        filter_end_date: null,
     }),
     getters: {
 
@@ -218,6 +223,41 @@ export const useSettingStore = defineStore({
         afterGetAssets(data, res) {
             if (data) {
                 this.assets = data;
+                this.chart_by_date_filter = [
+                    { name: 'Today', value: 'today' },
+                    { name:  'Last 7 Days', value: 'last-7-days' },
+                    { name:  'Last 1 Month', value: 'last-1-month' },
+                    { name:  'Last 1 Year', value: 'last-1-year' },
+                    { name:  'Custom', value: 'custom' },
+
+                ];
+
+                const chartDate = JSON.parse(this.assets.chart_date);
+
+                switch (true) {
+                    case chartDate && chartDate.today:
+                        this.chart_date_filter = "today";
+                        break;
+                    case chartDate && chartDate['last-7-days']:
+                        this.chart_date_filter = "last-7-days";
+                        break;
+                    case chartDate && chartDate['last-1-month']:
+                        this.chart_date_filter = "last-1-month";
+                        break;
+                    case chartDate && chartDate['last-1-year']:
+                        this.chart_date_filter = "last-1-year";
+                        break;
+                    case chartDate && chartDate.custom:
+                        this.chart_date_filter = "custom";
+                        this.filter_start_date = chartDate.custom.start_date;
+                        this.filter_end_date = chartDate.custom.end_date;     
+                        break;
+                    default:
+                        this.chart_date_filter = "custom";
+                        break;
+                }
+
+
             }
         },
         //---------------------------------------------------------------------
@@ -238,6 +278,11 @@ export const useSettingStore = defineStore({
 
             if (data) {
                 this.list = data;
+                const chartDate = JSON.parse(data.charts_filter);
+                if (chartDate && chartDate.custom && chartDate.custom.start_date && chartDate.custom.end_date) {
+                    this.filter_start_date = new Date(chartDate.custom.start_date);
+                    this.filter_end_date = new Date(chartDate.custom.end_date);
+                }
             }
         },
 
@@ -593,6 +638,58 @@ export const useSettingStore = defineStore({
 
 
         },
+
+
+
+        async storeChartFilterSettings() {
+            let charts_filter;
+            if (this.chart_date_filter === 'custom') {
+                if (!this.filter_start_date || !this.filter_end_date) {
+                    vaah().toastErrors(['Both start date and end date must be selected.']);
+                    return false;
+                }
+                charts_filter = {
+                    "custom": {
+                        "start_date": this.filter_start_date,
+                        "end_date": this.filter_end_date
+                    }
+                };
+            } else {
+                const filter_mapping = {
+                    'today': { "today": true },
+                    'last-7-days': { "last-7-days": true },
+                    'last-1-month': { "last-1-month": true },
+                    'last-1-year': { "last-1-year": true }
+                };
+
+                charts_filter = filter_mapping[this.chart_date_filter] || { "today": true };
+            }
+
+            // Save the filter in the list object as JSON
+            this.list.charts_filter = JSON.stringify(charts_filter);
+
+            let params = {
+                list: this.list
+            };
+
+            let options = {
+                method: 'post',
+                params: params
+            };
+
+            // Make the AJAX request
+            await vaah().ajax(
+                this.ajax_url + '/charts/date-filters',
+                this.storeChartFilterSettingsAfter,
+                options
+            );
+        },
+
+        storeChartFilterSettingsAfter() {
+            this.getList();
+            window.location.reload(true);
+        }
+
 
 
     }
