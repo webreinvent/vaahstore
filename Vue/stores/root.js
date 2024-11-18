@@ -12,6 +12,8 @@ export const useRootStore = defineStore({
         gutter: 20,
         show_progress_bar: false,
         assets_is_fetching: true,
+        filter_end_date: null,
+        filter_start_date: null,
     }),
     getters: {},
     actions: {
@@ -33,8 +35,52 @@ export const useRootStore = defineStore({
             {
                 this.assets = data;
 
+                const chartDate = data.charts_data_filtered_by;
+                this.updatedChartsDateFilter(chartDate);
             }
         },
+        async updatedChartsDateFilter(chart_date) {
+            let startDate, endDate;
+            const today = new Date();
+            const chartDate = JSON.parse(chart_date);
+
+            if (chartDate?.custom?.start_date && chartDate?.custom?.end_date) {
+                startDate = new Date(chartDate.custom.start_date);
+                endDate = new Date(chartDate.custom.end_date);
+            } else {
+                switch (true) {
+                    case chartDate && chartDate.today:
+                        startDate = new Date(today.setHours(0, 0, 0, 0));
+                        endDate = new Date(today.setHours(23, 59, 59, 999));
+                        break;
+                    case chartDate && chartDate['last-7-days']:
+                        endDate = new Date(today);
+                        startDate = new Date(today);
+                        startDate.setDate(today.getDate() - 6); // last 7 days, including today
+                        break;
+                    case chartDate && chartDate['last-1-month']:
+                        endDate = new Date(today);
+                        startDate = new Date(today);
+                        startDate.setMonth(today.getMonth() - 1); // last 1 month
+                        break;
+                    case chartDate && chartDate['last-1-year']:
+                        endDate = new Date(today);
+                        startDate = new Date(today);
+                        startDate.setFullYear(today.getFullYear() - 1); // last 1 year
+                        break;
+                    default:
+                        startDate = new Date(today.setHours(0, 0, 0, 0));
+                        endDate = new Date(today.setHours(23, 59, 59, 999));
+                        break;
+                }
+            }
+
+            this.filter_start_date = startDate;
+            this.filter_end_date = endDate;
+
+        },
+
+
         async to(path)
         {
             this.$router.push({path: path})

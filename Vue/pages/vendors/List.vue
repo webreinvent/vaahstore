@@ -104,7 +104,7 @@ const today = ref(new Date());
                             <div class="flex align-items-center justify-content-between">
                                 <h2 class="text-lg">Top Vendors By Sales</h2>
                                 <Chip
-                                    v-if="store.query.filter.time?.length"
+                                    v-if="store.filter_all"
                                     class="white-space-nowrap align-items-center"
                                     :style="{
                                                         fontSize: '11px',
@@ -121,9 +121,9 @@ const today = ref(new Date());
                                                             }
                                                         }
                                                       }"
-                                    :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
+                                    :label="store.filter_all?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
                                     removable
-                                    @remove="store.query.filter.time=null;"
+                                    @remove="store.loadSalesData()"
                                 />
                                 <Button
                                     data-testid="inventories-quick_filter"
@@ -182,30 +182,7 @@ const today = ref(new Date());
                         </template>
                     </Card>
                     <div class="w-full bg-white border-round-2xl shadow-2">
-                        <div class="flex justify-content-between mt-1 ml-2" v-if=" store.isViewLarge()">
-                            <div class="flex gap-2">
-                                <Calendar
-                                    placeholder="Select Start Date"
-                                    date-format="yy-mm-dd"
-                                    @date-select="handleDateChangeRound($event,'filter_start_date')"
-                                    :maxDate="today"
-                                    v-model="store.filter_start_date"
-                                    showIcon/>
-                                <Calendar
-                                    placeholder="Select End Date"
-                                    date-format="yy-mm-dd"
-                                    :maxDate="today"
-                                    @date-select="handleDateChangeRound($event,'filter_end_date')"
-                                    :minDate="store.filter_start_date"
-                                    v-model="store.filter_end_date"
-                                    showIcon/>
-                                <Button
-                                    @click="store.vendorSalesByRange"
-                                    label="Go"
-                                />
-                            </div>
 
-                        </div>
                         <div class="flex " v-if=" store.isViewLarge()">
 
                             <Charts

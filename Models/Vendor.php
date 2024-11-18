@@ -1533,23 +1533,30 @@ class Vendor extends VaahModel
     {
         $limit = 5;
 
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+
         $query = OrderItem::query();
 
-        if (isset($request->filter)) {
-            $query = $query->quickFilter($request->filter);
+        // Apply date filter conditionally
+        if ($apply_date_range) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
         }
 
+        // Fetch top-selling vendors, with or without date filter
         $top_selling_vendors = $query
             ->select('vh_st_vendor_id')
             ->groupBy('vh_st_vendor_id')
             ->with(['vendor']) // Load the vendor relationship
             ->get()
-            ->map(function ($item) use ($request) {
-                $total_sales = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
-                    ->when(isset($request->filter), function ($query) use ($request) {
-                        return $query->quickFilter($request->filter);
-                    })
-                    ->sum('quantity');
+            ->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
+                $total_sales_query = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id);
+                if ($apply_date_range) {
+                    $total_sales_query->whereBetween('created_at', [$start_date, $end_date]);
+                }
+                $total_sales = $total_sales_query->sum('quantity');
 
                 return [
                     'id' => $item->vendor->id,
@@ -1560,7 +1567,7 @@ class Vendor extends VaahModel
             })
             ->sortByDesc('total_sales');
 
-        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
+        if ($apply_date_range) {
             $top_selling_vendors = $top_selling_vendors->take($limit);
         }
 
