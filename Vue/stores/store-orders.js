@@ -3,6 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
 
@@ -97,10 +98,6 @@ export const useOrderStore = defineStore({
         orderPaymentsIncomeChartSeries: [],
         order_payments_chart_series:null,
         selection: 'one_month',
-        quick_filter_menu:[],
-        filter_start_date: null,
-        filter_end_date: null,
-        is_custom_range_open: false,
     }),
     getters: {
 
@@ -1065,8 +1062,8 @@ export const useOrderStore = defineStore({
         async fetchOrdersChartData() {
             let params = {
 
-                start_date: this.filter_start_date ?? null,
-                end_date: this.filter_end_date ?? null,
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
 
             }
             let options = {
@@ -1162,8 +1159,8 @@ export const useOrderStore = defineStore({
         async fetchSalesChartData() {
             let params = {
 
-                start_date: this.filter_start_date ?? null,
-                end_date: this.filter_end_date ?? null,
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
 
             }
             let options = {
@@ -1193,18 +1190,21 @@ export const useOrderStore = defineStore({
                 data: Array.isArray(series.data) ? series.data : [],
             }));
             this.updateSalesChartSeries(series_data);
-
+            const isNegativeGrowth = this.growth_rate < 0;
+            const chartColor = isNegativeGrowth ? '#FF0000' : '#00FF00';
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
                     width: 2,
+
                 },
                 title: {
                     text: '',
 
                 },
+                colors: [chartColor],
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1277,8 +1277,8 @@ export const useOrderStore = defineStore({
         async fetchOrderPaymentsData() {
             let params = {
 
-                start_date: this.filter_start_date ?? null,
-                end_date: this.filter_end_date ?? null,
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
 
             }
             let options = {
@@ -1438,99 +1438,13 @@ export const useOrderStore = defineStore({
             this.orderPaymentsIncomeChartOptions = options;
         },
 
-        getQuickFilterMenu() {
 
-            this.quick_filter_menu = [
-                {
-                    label: 'Today',
-
-                    command: () => {
-                        this.updateQuickFilter('today');
-                    }
-                },
-                {
-                    label: 'Last 7 Days',
-                    command: () => {
-                        this.updateQuickFilter('last-7-days');
-                    }
-                },
-                {
-                    label: 'Last 1 Month',
-                    command: () => {
-                        this.updateQuickFilter('last-1-month');
-                    }
-                },
-                {
-                    label: 'Last 1 Year',
-                    command: () => {
-                        this.updateQuickFilter('last-1-year');
-                    }
-                },
-                {
-                    label: 'Custom Date Range',
-                    command: () => {
-                        this.openDateRangeSelector(); // Call the method to handle date range selection
-                    }
-                }
-
-            ];
-
-        },
-        openDateRangeSelector() {
-            this.is_custom_range_open = !this.is_custom_range_open;
-            this.filter_start_date = null;
-            this.filter_end_date = null;
-            this.quick_chart_filter = null;
-             this.getChartData();
-        },
-
-        async removeChartFilter(){
-            this.query.filter.time = null;
-            this.filter_start_date = null;
-            this.filter_end_date = null;
-            this.quick_chart_filter = null;
-            await this.getChartData();
-        },
-        async updateQuickFilter(time) {
-            this.is_custom_range_open = false;
-            let startDate, endDate;
-            this.quick_chart_filter = time;
-
-            const today = new Date();
-            switch (time) {
-                case 'today':
-                    startDate = today.setHours(0, 0, 0, 0);
-                    endDate = today.setHours(23, 59, 59, 999);
-                    break;
-                case 'last-7-days':
-                    endDate = today;
-                    startDate = new Date(today);
-                    startDate.setDate(today.getDate() - 7);
-                    break;
-                case 'last-1-month':
-                    endDate = today;
-                    startDate = new Date(today);
-                    startDate.setMonth(today.getMonth() - 1);
-                    break;
-                case 'last-1-year':
-                    endDate = today;
-                    startDate = new Date(today);
-                    startDate.setFullYear(today.getFullYear() - 1);
-                    break;
-                default:
-                    break;
-            }
-
-            this.filter_start_date = new Date(startDate);
-            this.filter_end_date = new Date(endDate);
-            await this.getChartData();
-        },
 
         async fetchOrdersCountChartData() {
             let params = {
 
-                start_date: this.filter_start_date ?? null,
-                end_date: this.filter_end_date ?? null,
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
 
             }
             let options = {
@@ -1561,10 +1475,7 @@ export const useOrderStore = defineStore({
                     curve: 'smooth',
                     width: 2,
                 },
-                title: {
-                    text: '', // Chart title
 
-                },
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1629,29 +1540,8 @@ export const useOrderStore = defineStore({
             this.updateChartOptions(updated_area_chart_options);
         },
 
-        async updateDateFilter(start_date = null, end_date = null) {
-            start_date = start_date || this.filter_start_date;
-            end_date = end_date || this.filter_end_date;
-            this.date_filter_between.length = 0;
-            let currentDate = new Date(start_date);
-            this.date_filter_between.push(0);
-            while (currentDate <= end_date) {
-                const formatted_date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
-                if (!this.date_filter_between.includes(formatted_date)) {
-                    this.date_filter_between.push(formatted_date);
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            // await this.fetchSalesChartData();
-        },
-        async getChartData(){
-            await this.fetchOrdersCountChartData();
-            await this.fetchSalesChartData();
-            await this.fetchOrderPaymentsData();
-            await this.fetchOrdersChartData();
 
-        }
     }
 });
 
