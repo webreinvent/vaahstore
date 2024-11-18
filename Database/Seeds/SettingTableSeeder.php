@@ -23,40 +23,27 @@ class SettingTableSeeder extends Seeder
      */
     function seeds()
     {
-
         $list = $this->getListFromJson("settings.json");
-
-        $category = 'global';
 
         foreach($list as $item)
         {
-
-            if(!isset($item['category'])
-            || (isset($item['category']) && !$item['category'])){
-             $item['category'] = $category;
-            }
-
-
-            $exist = DB::table( 'vh_settings' )
-                ->where( 'category', $item['category'] )
-                ->where( 'key', $item['key'] )
+            // Check if the item exists in the database by 'key' only
+            $exist = DB::table('vh_st_settings')
+                ->where('key', $item['key'])
                 ->first();
 
-
-
-            if (!$exist){
-
-                if(isset($item['type']) && $item['type']=='json')
-                {
-                    $item['value']=json_encode($item['value']);
+            if (!$exist) {
+                // Encode 'value' as JSON if 'type' is 'json'
+                if (isset($item['type']) && $item['type'] == 'json') {
+                    $item['value'] = json_encode($item['value']);
                 }
 
-                DB::table( 'vh_settings' )->insert( $item );
+                // Insert the item into the database
+                DB::table('vh_st_settings')->insert($item);
             }
         }
-
-
     }
+
 
 
 

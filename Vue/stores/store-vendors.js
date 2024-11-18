@@ -3,6 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Vendor';
 
@@ -103,9 +104,8 @@ export const useVendorStore = defineStore({
         quick_filter_menu:[],
         chartOptions: {},
         chartSeries: [],
-        filter_start_date: new Date(),
-        filter_end_date: new Date(),
-        // date_filter_between:[],
+        filter_all: null,
+
 
     }),
     getters: {
@@ -1789,11 +1789,17 @@ export const useVendorStore = defineStore({
         },
 
         async topSellingVendorsData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
 
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
 
             await vaah().ajax(
                 this.ajax_url + '/charts/vendors-by-sales',
@@ -1813,8 +1819,8 @@ export const useVendorStore = defineStore({
 
             let params = {
 
-                start_date: this.filter_start_date ?? null,
-                end_date: this.filter_end_date ?? null,
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
 
             }
             let options = {
@@ -1829,7 +1835,7 @@ export const useVendorStore = defineStore({
         },
 
         vendorSalesByRangeAfter(data,res){
-             // this.updateDateFilter();
+
             const series_data = data.chart_series.map(series => ({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
@@ -1845,7 +1851,7 @@ export const useVendorStore = defineStore({
                 },
                 title: {
                     text: 'Vendor Sales Over Selected Date Range', // Chart title
-                    align: 'center', // Title alignment
+                    align: 'left', // Title alignment
                     offsetY: 12, // Add margin between title and chart/toolbar
                     style: {
                         fontSize: '16px',
@@ -1896,80 +1902,13 @@ export const useVendorStore = defineStore({
         },
 
 
-        async updateDateFilter(start_date = null, end_date = null) {
-            start_date = start_date || this.filter_start_date;
-            end_date = end_date || this.filter_end_date;
-            this.date_filter_between.length = 0;
-            let currentDate = new Date(start_date);
-            this.date_filter_between.push(0);
-            while (currentDate <= end_date) {
-                const formatted_date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
-                if (!this.date_filter_between.includes(formatted_date)) {
-                    this.date_filter_between.push(formatted_date);
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            await this.vendorSalesByRange();
-            // this.chartOptions = await this.vendorsBySales();
-        },
 
-        async getCampaignReport() {
 
-            let params = {
-
-                start_date: this.filter_start_date ?? null,
-                end_date: this.filter_end_date ?? null,
-
-            }
-            let options = {
-                params: params,
-                method: 'POST'
-            }
-            let ajax_url = this.ajax_url + '/campaigns-report'
-            await vaah().ajax(
-                ajax_url,
-                this.afterGetCampaignReport,
-                options
-            );
-        },
-
-//---------------------------------------------------------------------
-        async afterGetCampaignReport(data, res) {
-            if (data) {
-                this.campaign_report_data = data;
-
-                await this.updateDateFilter();
-            }
-        },
         getQuickFilterMenu() {
 
             this.quick_filter_menu = [
-                {
-                    label: 'Today',
 
-                    command: () => {
-                        this.updateQuickFilter('today');
-                    }
-                },
-                {
-                    label: 'Last 7 Days',
-                    command: () => {
-                        this.updateQuickFilter('last-7-days');
-                    }
-                },
-                {
-                    label: 'Last 1 Month',
-                    command: () => {
-                        this.updateQuickFilter('last-1-month');
-                    }
-                },
-                {
-                    label: 'Last 1 Year',
-                    command: () => {
-                        this.updateQuickFilter('last-1-year');
-                    }
-                },
                 {
                     label: 'All',
                     command: () => {
@@ -1982,8 +1921,13 @@ export const useVendorStore = defineStore({
         },
         updateQuickFilter(time)
         {
-            this.query.filter.time = time;
+            this.filter_all = time;
+            this.topSellingVendorsData();
         },
+        loadSalesData(){
+            this.filter_all=null;
+            this.topSellingVendorsData();
+        }
 
 
     }
