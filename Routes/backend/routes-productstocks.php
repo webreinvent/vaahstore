@@ -144,8 +144,8 @@ function () {
 
 
     /**
-     * get Stocks Stats
+     * stock stats within date range
      */
-    Route::get('/charts/stocks-data', 'ProductStocksController@getStocksChartData')
+    Route::post('/charts/stocks-data', 'ProductStocksController@getStocksChartData')
         ->name('vh.backend.store.users.count-chart-data');
 });

@@ -1362,28 +1362,34 @@ if ($product_variation) {
 
     public static function getStocksChartData($request)
     {
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        // Filter for the highest stocks with quantity > 10 within the date range
         $highest_stocks = self::where('quantity', '>', 10)
+            ->whereBetween('updated_at', [$start_date, $end_date])
             ->orderBy('quantity', 'desc')
             ->take(1)
             ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
-
+        // Filter for the lowest stocks with quantity between 0 and 10 within the date range
         $lowest_stocks = self::whereBetween('quantity', [0, 10])
+            ->whereBetween('updated_at', [$start_date, $end_date])
             ->orderBy('quantity', 'asc')
             ->take(1)
             ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
-        $all_stocks=self::sum('quantity');
+        // Calculate the total stock within the date range
+        $all_stocks = self::whereBetween('updated_at', [$start_date, $end_date])->sum('quantity');
 
+        // Helper function to map stocks with additional data
         $map_stocks = function ($stocks) use ($all_stocks) {
             return $stocks->map(function ($stock) use ($all_stocks) {
                 $product_variation = $stock->productVariation;
 
-                $product_media_ids = $product_variation->medias->map(function ($media) {
-                    return $media->pivot->vh_st_product_media_id;
-                });
+                $product_media_ids = $product_variation->medias->pluck('pivot.vh_st_product_media_id');
                 $image_urls = self::getImageUrls($product_media_ids);
 
                 $stock_percentage = $all_stocks > 0 ? ($stock->quantity / $all_stocks) * 100 : 0;
@@ -1394,22 +1400,22 @@ if ($product_variation) {
                     'vendor' => $stock->vendor,
                     'product' => $stock->product,
                     'productVariation' => $stock->productVariation,
-                    'image_urls' => $image_urls, // Adding image URLs here
+                    'image_urls' => $image_urls,
                     'stock_percentage' => round($stock_percentage, 2),
                 ];
             });
         };
 
+        // Map the highest and lowest stocks data
         $top_stocks = $map_stocks($highest_stocks)->toArray();
         $lowest_stocks_data = $map_stocks($lowest_stocks)->toArray();
 
-
+        // Calculate percentage for highest and lowest stock quantities
         $highest_stock_quantity = $highest_stocks->first()->quantity ?? 0;
         $lowest_stock_quantity = $lowest_stocks->first()->quantity ?? 0;
 
         $highest_stock_percentage = $all_stocks > 0 ? ($highest_stock_quantity / $all_stocks) * 100 : 0;
         $lowest_stock_percentage = $all_stocks > 0 ? ($lowest_stock_quantity / $all_stocks) * 100 : 0;
-
 
         return [
             'data' => [
@@ -1421,6 +1427,7 @@ if ($product_variation) {
             ],
         ];
     }
+
     private static function getImageUrls($product_media_ids)
     {
         $image_urls = [];
