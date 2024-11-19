@@ -2351,7 +2351,7 @@ class Product extends VaahModel
             }])
             ->groupBy('vh_st_product_variation_id')
             ->get();
-        
+
         $top_selling_variations = $top_selling_variations->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
             $sales_query = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id);
 
