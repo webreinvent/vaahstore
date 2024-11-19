@@ -855,8 +855,8 @@ class Warehouse extends VaahModel
     {
         $inputs = $request->all();
 
-        $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
-        $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
         // Retrieve the product stock data for each warehouse, ordered by total quantity in descending order,
 

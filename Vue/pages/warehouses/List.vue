@@ -58,18 +58,7 @@ const toggleCreateMenu = (event) => {
 };
 //--------/form_menu
 
-function toggleDatasetVisibility(index) {
-    store.warehouse_stock_bar_chart_series[index].hidden = !store.warehouse_stock_bar_chart_series[index].hidden;
 
-    store.warehouse_stock_bar_chart_series = [...store.warehouse_stock_bar_chart_series];
-}
-
-const handleDateChangeRound = (newDate, date_type) => {
-    if (newDate && date_type) {
-        store[date_type] = new Date(newDate.getTime() - newDate.getTimezoneOffset() * 60000);
-    }
-}
-const today = ref(new Date());
 </script>
 <template>
 
@@ -81,27 +70,7 @@ const today = ref(new Date());
                 <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
                     <div class="flex justify-content-between " v-if=" store.isViewLarge()">
                         <p><b>Warehouses Dashboard</b></p>
-                        <div class="flex gap-2">
-                            <Calendar
-                                placeholder="Select Start Date"
-                                date-format="yy-mm-dd"
-                                @date-select="handleDateChangeRound($event,'filter_start_date')"
-                                :maxDate="today"
-                                v-model="store.filter_start_date"
-                                showIcon/>
-                            <Calendar
-                                placeholder="Select End Date"
-                                date-format="yy-mm-dd"
-                                :maxDate="today"
-                                @date-select="handleDateChangeRound($event,'filter_end_date')"
-                                :minDate="store.filter_start_date"
-                                v-model="store.filter_end_date"
-                                showIcon/>
-                            <Button
-                                @click="store.getChartData()"
-                                label="Get Chart Data"
-                            />
-                        </div>
+                        
 
                     </div>
                     <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
