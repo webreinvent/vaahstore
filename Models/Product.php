@@ -2337,12 +2337,13 @@ class Product extends VaahModel
     public static function topSellingProducts($request)
     {
         $limit = 5;
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
         $query = OrderItem::query();
-
-        if (isset($request->filter)) {
-            $query = $query->quickFilter($request->filter);
+        if ($apply_date_range) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
         }
-
         $top_selling_variations = $query
             ->select('vh_st_product_variation_id')
             ->with(['productVariation' => function ($q) {
@@ -2350,12 +2351,13 @@ class Product extends VaahModel
             }])
             ->groupBy('vh_st_product_variation_id')
             ->get();
-
-        $top_selling_variations = $top_selling_variations->map(function ($item) use ($request) {
+        
+        $top_selling_variations = $top_selling_variations->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
             $sales_query = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id);
 
-            if (isset($request->filter)) {
-                $sales_query = $sales_query->quickFilter($request->filter);
+
+            if ($apply_date_range) {
+                $sales_query->whereBetween('created_at', [$start_date, $end_date]);
             }
 
             $total_sales = $sales_query->sum('quantity');
@@ -2375,7 +2377,8 @@ class Product extends VaahModel
         })
             ->sortByDesc('total_sales');
 
-        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
+
+        if ($apply_date_range) {
             $top_selling_variations = $top_selling_variations->take($limit);
         }
 
@@ -2391,48 +2394,35 @@ class Product extends VaahModel
     public static function topSellingBrands($request)
     {
         $limit = 5;
-        $query = OrderItem::query();
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
 
-        if (isset($request->filter)) {
-            $query = $query->quickFilter($request->filter);
-        }
-
-        $top_brands_by_product = $query
-            ->select('vh_st_product_id')
-            ->with(['product' => function ($query) {
-                $query->with('brand');
-            }])
+        $query = OrderItem::query()
+            ->selectRaw('vh_st_product_id, SUM(quantity) as total_sales')
+            ->when($apply_date_range, function ($query) use ($start_date, $end_date) {
+                $query->whereBetween('created_at', [$start_date, $end_date]);
+            })
+            ->with(['product.brand'])
             ->groupBy('vh_st_product_id')
             ->get();
 
-        $top_brands_by_product = $top_brands_by_product->map(function ($item) use ($request) {
-            $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
-
-            if (isset($request->filter)) {
-                $sales_query = $sales_query->quickFilter($request->filter);
-            }
-            // Calculate total sales for the product
-            $total_sales = $sales_query->sum('quantity');
+        $top_brands_by_product = $query->map(function ($item) {
             $product = $item->product;
-
-            if ($product) {
-                $brand = $product->brand;
-
+            if ($product && $product->brand) {
                 return [
-                    'total_sales' => $total_sales,
-                    'id' => $brand?->id,
-                    'name' => $brand?->name,
-                    'slug' => $brand?->slug,
+                    'total_sales' => $item->total_sales,
+                    'id' => $product->brand->id,
+                    'name' => $product->brand->name,
+                    'slug' => $product->brand->slug,
                 ];
             }
             return null;
         })
             ->filter()
-            ->sortByDesc('total_sales');
+            ->sortByDesc('total_sales')
+            ->take($limit);
 
-        if (!isset($request->filter['time']) || $request->filter['time'] !== 'all') {
-            $top_brands_by_product = $top_brands_by_product->take($limit);
-        }
         return [
             'data' => [
                 'top_selling_brands' => $top_brands_by_product->values(),
@@ -2440,14 +2430,21 @@ class Product extends VaahModel
         ];
     }
 
+
     public static function topSellingCategories($request)
     {
         $limit = 5;
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
         $query = OrderItem::query();
 
-        if (isset($request->filter)) {
-            $query = $query->quickFilter($request->filter);
+        if ($apply_date_range) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
         }
+
+
 
         $top_categories_by_product = $query
             ->select('vh_st_product_id')

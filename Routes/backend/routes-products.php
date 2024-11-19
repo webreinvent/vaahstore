@@ -235,19 +235,19 @@ function () {
     /**
      * Top Selling products
      */
-    Route::get('/charts/top-selling-products', 'ProductsController@topSellingProducts')
+    Route::post('/charts/top-selling-products', 'ProductsController@topSellingProducts')
         ->name('vh.backend.store.users.count-chart-data');
 
     /**
      * Top Brands By product
      */
-    Route::get('/charts/top-selling-brands', 'ProductsController@topSellingBrands')
+    Route::post('/charts/top-selling-brands', 'ProductsController@topSellingBrands')
         ->name('vh.backend.store.users.count-chart-data');
 
     /**
      * Top Categories By product
      */
-    Route::get('/charts/top-selling-categories', 'ProductsController@topSellingCategories')
+    Route::post('/charts/top-selling-categories', 'ProductsController@topSellingCategories')
         ->name('vh.backend.store.users.count-chart-data');
 
 });

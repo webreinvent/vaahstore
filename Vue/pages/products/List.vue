@@ -98,7 +98,7 @@ const toggleQuickFilterState = (event) => {
                                     <div class="flex align-items-center justify-content-between">
                                         <h2 class="text-lg">Top Selling Products</h2>
                                         <Chip
-                                            v-if="store.query.filter.time?.length"
+                                            v-if="store.filter_all"
                                             class="white-space-nowrap align-items-center"
                                             :style="{
                                                                 fontSize: '11px',
@@ -115,9 +115,9 @@ const toggleQuickFilterState = (event) => {
                                                                     }
                                                                 }
                                                               }"
-                                            :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
+                                            :label="store.filter_all?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
                                             removable
-                                            @remove="store.query.filter.time=null;"
+                                            @remove="store.loadProductChartsData()"
                                         />
                                         <Button
                                             data-testid="inventories-quick_filter"
