@@ -1527,6 +1527,7 @@ class Vendor extends VaahModel
     }
 
 
+    //----------------------------------------------------------
 
 
     public static function topSellingVendorsData($request)
@@ -1576,6 +1577,7 @@ class Vendor extends VaahModel
         ];
     }
 
+    //----------------------------------------------------------
 
 
     public static function vendorSalesByRange($request)
@@ -1635,5 +1637,6 @@ class Vendor extends VaahModel
             ],
         ];
     }
+    //----------------------------------------------------------
 
 }

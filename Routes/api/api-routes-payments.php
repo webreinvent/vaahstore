@@ -72,4 +72,9 @@ function () {
     Route::post('/search/orders', [PaymentsController::class, 'searchOrders'])
         ->name('vh.backend.store.payments.search.orders');
 
+    /**
+     * Fetch Payment Methods Used in Pie Chart
+     */
+    Route::post('/charts/payment-methods-pie-chart-data', [PaymentsController::class,'paymentMethodsPieChartData'])
+        ->name('vh.backend.store.payments.charts.payment_methods');
 });

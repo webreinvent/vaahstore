@@ -562,6 +562,7 @@ class User extends UserBase
     }
 
 
+    //----------------------------------------------------------
 
 
     public static function fetchCustomerCountChartData(Request $request)
@@ -666,6 +667,7 @@ class User extends UserBase
         ];
     }
 
+    //----------------------------------------------------------
 
 
 

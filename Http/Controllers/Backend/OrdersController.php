@@ -426,6 +426,8 @@ class OrdersController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
+
     public function fetchOrdersChartData(Request $request)
     {
         try{
@@ -442,6 +444,7 @@ class OrdersController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function fetchSalesChartData(Request $request)
     {
@@ -459,6 +462,7 @@ class OrdersController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function fetchOrderPaymentsData(Request $request)
     {
@@ -477,6 +481,7 @@ class OrdersController extends Controller
         }
     }
 
+    //----------------------------------------------------------
 
     public function fetchOrdersCountChartData(Request $request)
     {

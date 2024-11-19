@@ -955,6 +955,7 @@ class ProductsController extends Controller
         }
     }
 
+    //----------------------------------------------------------
 
     public function topSellingProducts(Request $request)
     {
@@ -972,6 +973,7 @@ class ProductsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function topSellingBrands(Request $request)
     {
@@ -989,6 +991,7 @@ class ProductsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function topSellingCategories(Request $request)
     {

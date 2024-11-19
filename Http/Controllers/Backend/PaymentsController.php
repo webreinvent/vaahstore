@@ -281,6 +281,7 @@ class PaymentsController extends Controller
             }
         }
     }
+    //----------------------------------------------------------
 
     public function paymentMethodsPieChartData(Request $request)
     {

@@ -851,6 +851,8 @@ class Warehouse extends VaahModel
         return $response;
     }
 
+    //----------------------------------------------------------
+
     public static function warehouseStockInBarChart($request)
     {
         $inputs = $request->all();

@@ -236,18 +236,18 @@ function () {
      * Top Selling products
      */
     Route::post('/charts/top-selling-products', 'ProductsController@topSellingProducts')
-        ->name('vh.backend.store.users.count-chart-data');
+        ->name('vh.backend.store.products.charts.top_selling_products');
 
     /**
-     * Top Brands By product
+     * Top Brands By product sales
      */
     Route::post('/charts/top-selling-brands', 'ProductsController@topSellingBrands')
-        ->name('vh.backend.store.users.count-chart-data');
+        ->name('vh.backend.store.products.charts.top_selling_brands');
 
     /**
-     * Top Categories By product
+     * Top Categories By product sales
      */
     Route::post('/charts/top-selling-categories', 'ProductsController@topSellingCategories')
-        ->name('vh.backend.store.users.count-chart-data');
+        ->name('vh.backend.store.products.charts.top_selling_categories');
 
 });

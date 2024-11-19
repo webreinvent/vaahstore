@@ -66,6 +66,10 @@ function () {
     Route::any('/{id}/action/{action}', 'ProductStocksController@itemAction')
         ->name('vh.backend.store.api.productstocks.item.action');
 
-
+    /**
+     * stock stats within date range
+     */
+    Route::post('/charts/stocks-data', 'ProductStocksController@getStocksChartData')
+        ->name('vh.backend.store.productstocks.charts.stocks_stats');
 
 });

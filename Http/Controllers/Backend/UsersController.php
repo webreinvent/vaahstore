@@ -520,7 +520,8 @@ class UsersController extends Controller
         }
     }
 
-    // http/Controllers/Your_Controller
+    //----------------------------------------------------------
+
     public function fetchCustomerCountChartData(Request $request)
     {
         try{

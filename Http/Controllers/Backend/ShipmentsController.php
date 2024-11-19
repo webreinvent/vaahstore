@@ -319,6 +319,7 @@ class ShipmentsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function ordersShipmentByDateRange(Request $request)
     {
@@ -336,6 +337,7 @@ class ShipmentsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function ordersShipmentItemsByDateRange(Request $request)
     {
@@ -353,6 +355,7 @@ class ShipmentsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function shipmentItemsByStatusBarChart(Request $request)
     {
