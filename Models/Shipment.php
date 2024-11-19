@@ -1151,151 +1151,15 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         return $response;
     }
 
-    /*public static function ordersShipmentByDateRange($request)
-    {
-        $inputs = $request->all();
+    //----------------------------------------------------------
 
-        // Define start and end dates
-        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
-        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
-
-        // Generate date labels for x-axis
-        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay());
-        $labels = [];
-        foreach ($period as $date) {
-            $labels[] = $date->format('Y-m-d');
-        }
-
-        // Query shipments data and group by date
-        $shipment_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
-            ->selectRaw('DATE(created_at) as shipment_date')
-            ->selectRaw('COUNT(DISTINCT vh_st_order_id) as shipped_orders') // Count unique orders
-            ->groupBy('shipment_date')
-            ->orderBy('shipment_date')
-            ->get()
-            ->keyBy('shipment_date'); // Key by date for easy lookup
-
-        // Generate formatted data with zero values for missing dates
-        $formatted_data = [];
-        foreach ($labels as $date_string) {
-            $formatted_data[] = [
-                'x' => $date_string,
-                'y' => isset($shipment_data[$date_string]) ? (int) $shipment_data[$date_string]->shipped_orders : 0,
-            ];
-        }
-
-        // Prepare data for ApexCharts
-        return [
-            'data' => [
-                'chart_series' => [
-                    [
-                        'name' => 'Orders Shipped',
-                        'data' => $formatted_data,
-                    ]
-                ],
-                'chart_options' => [
-                    'xaxis' => [
-                        'type' => 'datetime',
-                        'categories' => $labels,
-                    ],
-                ],
-            ]
-        ];
-    }*/
-
-    /*public static function ordersShipmentByDateRange($request)
-    {
-        $inputs = $request->all();
-
-        // Define start and end dates
-        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
-        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
-
-        // Generate date labels for x-axis
-        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay());
-        $labels = [];
-        foreach ($period as $date) {
-            $labels[] = $date->format('Y-m-d');
-        }
-
-        // Query total orders data and group by date
-        $total_orders_data = Order::whereBetween('created_at', [$start_date, $end_date])
-            ->selectRaw('DATE(created_at) as order_date')
-            ->selectRaw('COUNT(DISTINCT id) as total_orders') // Count unique orders
-            ->groupBy('order_date')
-            ->orderBy('order_date')
-            ->get()
-            ->keyBy('order_date'); // Key by date for easy lookup
-
-        // Query shipments data and group by date
-        $shipment_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
-            ->selectRaw('DATE(created_at) as shipment_date')
-            ->selectRaw('COUNT(DISTINCT vh_st_order_id) as shipped_orders') // Count unique orders
-            ->groupBy('shipment_date')
-            ->orderBy('shipment_date')
-            ->get()
-            ->keyBy('shipment_date'); // Key by date for easy lookup
-
-        // Generate formatted data with zero values for missing dates
-        $formatted_shipped_data = [];
-        $formatted_pending_data = [];
-        $shipped_orders_so_far = 0;
-        foreach ($labels as $date_string) {
-            // Get total orders for the day
-            $total_orders = isset($total_orders_data[$date_string]) ? (int) $total_orders_data[$date_string]->total_orders : 0;
-            $total_orders = Order::count();
-
-
-            // Get shipped orders for the day
-            $shipped_orders = isset($shipment_data[$date_string]) ? (int) $shipment_data[$date_string]->shipped_orders : 0;
-            $shipped_orders_so_far += $shipped_orders;
-            $pending_orders = $total_orders - $shipped_orders_so_far;
-            // Calculate pending orders
-//            $pending_orders = $total_orders - $shipped_orders;
-
-            // Add data to the arrays
-
-
-            $formatted_pending_data[] = [
-                'x' => $date_string, // Date in ms for ApexCharts
-                'y' => $pending_orders, // Number of pending orders
-            ];
-            $formatted_shipped_data[] = [
-                'x' => $date_string, // Date in ms for ApexCharts
-                'y' => $shipped_orders, // Number of shipped orders
-            ];
-        }
-
-        // Prepare data for ApexCharts
-        return [
-            'data' => [
-                'chart_series' => [
-
-                    [
-                        'name' => 'Orders Shipment Pending',
-                        'data' => $formatted_pending_data,
-                    ],
-                    [
-                    'name' => 'Orders Shipment',
-                    'data' => $formatted_shipped_data,
-                ],
-                ],
-                'chart_options' => [
-                    'xaxis' => [
-                        'type' => 'datetime',
-                        'categories' => $labels,
-                    ],
-                ],
-            ]
-        ];
-    }*/
     public static function ordersShipmentByDateRange($request)
     {
         $inputs = $request->all();
 
         // Define start and end dates
-        $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
-        $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
         // Generate date labels for x-axis
         $labels = [];
@@ -1349,6 +1213,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         ];
     }
 
+    //----------------------------------------------------------
 
 
 
@@ -1357,9 +1222,8 @@ $order_item_pairs = $orders->flatMap(function ($order) {
         $inputs = $request->all();
 
         // Define start and end dates
-        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
-        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
-
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $previous_date = $start_date->copy()->subDay(); // Subtract 1 day from the start date
 
         $period = new \DatePeriod($previous_date, new \DateInterval('P1D'), $end_date); // Now includes previous date
@@ -1428,14 +1292,15 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ]
         ];
     }
+    //----------------------------------------------------------
 
     public static function shipmentItemsByStatusBarChart($request)
     {
         $inputs = $request->all();
 
         // Define the date range for filtering
-        $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
-        $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $shipment_data_with_status = self::with('status')
             ->select('taxonomy_id_shipment_status')
             ->selectRaw("SUM(vh_st_shipment_items.quantity) as total_quantity") // Use selectRaw to sum quantity
@@ -1471,6 +1336,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
                 ];
     }
 
+    //----------------------------------------------------------
 
 
 
