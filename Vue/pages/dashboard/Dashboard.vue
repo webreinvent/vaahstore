@@ -26,7 +26,7 @@ const route = useRoute();
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     await orders_store.watchStates();
-    await product_store.watchStates();
+    // await product_store.watchStates();
 
     await product_store.topSellingProducts();
     await product_store.topSellingBrands();
@@ -37,7 +37,7 @@ onMounted(async () => {
     await product_stock_store.getStocksChartData();
     customers_store.fetchCustomerCountChartData();
 
-    product_store.getQuickFilterMenu();
+    // product_store.getQuickFilterMenu();
 
     await orders_store.fetchOrdersCountChartData();
     await orders_store.fetchSalesChartData();
