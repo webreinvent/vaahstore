@@ -45,7 +45,7 @@ onMounted(async () => {
      * fetch list of records
      */
     await store.getList();
-    store.getQuickFilterMenu();
+
     await store.getListCreateMenu();
 });
 
@@ -56,10 +56,7 @@ const toggleCreateMenu = (event) => {
     create_menu.value.toggle(event);
 };
 
-const quick_filter_menu_state = ref();
-const toggleQuickFilterState = (event) => {
-    quick_filter_menu_state.value.toggle(event);
-};
+
 </script>
 <template>
     <div class="grid">
@@ -81,45 +78,9 @@ const toggleQuickFilterState = (event) => {
                         <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3 " v-if=" store.isViewLarge()">
 
 
-                                <div class="chart-container position-relative">
 
-                                <Chip
-                                    v-if="store.query.filter.time?.length"
-                                    class="position-absolute top-0 right-0 mt-2 mr-10 white-space-nowrap align-items-center"
-                                    :style="{
-                                                        fontSize: '11px',
-                                                        marginRight: '5px',
-                                                        padding: '1px 8px',
-                                                        fontWeight:'600',
-                                                        zIndex: 20
-                                                      }"
-                                    :pt="{
-                                                        removeIcon: {
-                                                            style: {
-                                                                width: '12px',
-                                                                height: '12px',
-                                                                marginLeft: '6px'
-                                                            }
-                                                        }
-                                                      }"
-                                    :label="store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
-                                    removable
-                                    @remove="store.query.filter.time=null;"
-                                />
-                                <Button
-                                    data-testid="inventories-quick_filter"
-                                    type="button"
-                                    @click="toggleQuickFilterState($event)"
-                                    aria-haspopup="true"
-                                    aria-controls="quick_filter_menu_state"
-                                    class="position-absolute top-0 right-0 mt-2 mr-2 p-button-sm px-1"
-                                    icon="pi pi-filter"
-                                    :style="{ zIndex: 10 }"
-                                >
-                                </Button>
-                                <Menu ref="quick_filter_menu_state"
-                                      :model="store.quick_filter_menu"
-                                      :popup="true"/>
+
+
                                 <Charts
                                     class="border-1 border-gray-200 border-round-sm overflow-hidden"
                                     type="line"
@@ -129,7 +90,7 @@ const toggleQuickFilterState = (event) => {
                                     width="520"
                                     titleAlign="center"
                                 />
-                            </div>
+
 
                         </div>
                     </div>
@@ -178,31 +139,4 @@ const toggleQuickFilterState = (event) => {
         <RouterView/>
     </div>
 </template>
-<style scoped>
-.chart-container {
-    position: relative;
-    width: 520px; /* Match chart width */
-}
 
-.position-absolute {
-    position: absolute;
-}
-.top-0 {
-    top: 0;
-}
-.right-0 {
-    right: 0;
-}
-.left-0 {
-    left: 0;
-}
-.mt-2 {
-    margin-top: 8px;
-}
-.mr-2 {
-    margin-right: 8px;
-}
-.ml-2 {
-    margin-left: 8px;
-}
-</style>
