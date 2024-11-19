@@ -128,7 +128,7 @@ export const useUserStore = defineStore({
         },
         chartOptions: {},
         chartSeries: [],
-        quick_filter_menu:[],
+
     }),
     getters: {
 
@@ -1305,10 +1305,15 @@ export const useUserStore = defineStore({
         },
         //---------------------------------------------------------------------
         async fetchCustomerCountChartData() {
-            const options = {
-                method: 'post',
-                query: vaah().clone(this.query)
-            };
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
             await vaah().ajax(
                 this.ajax_url + '/charts/data',
                 this.fetchCustomerCountChartDataAfter,
@@ -1326,7 +1331,7 @@ export const useUserStore = defineStore({
             }));
             this.updateChartSeries(seriesData);
             const updatedOptions = {
-                ...res.data.chart_options, // Merge existing options
+                ...data.chart_options, // Merge existing options
                 legend: {
                     position: 'top',
                     horizontalAlign: 'center',
@@ -1370,44 +1375,7 @@ export const useUserStore = defineStore({
             this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
         },
         //---------------------------------------------------
-        getQuickFilterMenu() {
 
-            this.quick_filter_menu = [
-                {
-                    label: 'Today',
-
-                    command: () => {
-                        this.updateQuickFilter('today');
-                    }
-                },
-                {
-                    label: 'Last 7 Days',
-                    command: () => {
-                        this.updateQuickFilter('last-7-days');
-                    }
-                },
-                {
-                    label: 'Last 1 Month',
-                    command: () => {
-                        this.updateQuickFilter('last-1-month');
-                    }
-                },
-                {
-                    label: 'Last 1 Year',
-                    command: () => {
-                        this.updateQuickFilter('last-1-year');
-                    }
-                },
-
-
-            ];
-
-        },
-
-        updateQuickFilter(time)
-        {
-            this.query.filter.time = time;
-        },
         //---------------------------------------------------
 
     }
