@@ -2,6 +2,7 @@ import {computed, toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Payment';
 
@@ -1141,10 +1142,15 @@ export const usePaymentStore = defineStore({
         async paymentMethodsPieChartData() {
 
 
-            const options = {
-                method: 'get',
-                query: vaah().clone(this.query)
-            };
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
             await vaah().ajax(
                 this.ajax_url + '/charts/payment-methods-pie-chart-data',
                 this.paymentMethodsPieChartDataAfter,
