@@ -535,6 +535,9 @@ class ProductStocksController extends Controller
             }
         }
     }
+
+    //----------------------------------------------------------
+
     public function getStocksChartData(Request $request)
     {
         try{

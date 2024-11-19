@@ -594,6 +594,7 @@ class VendorsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function topSellingVendorsData(Request $request)
     {
@@ -611,6 +612,7 @@ class VendorsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
     public function vendorSalesByRange(Request $request)
     {

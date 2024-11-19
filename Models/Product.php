@@ -2390,6 +2390,7 @@ class Product extends VaahModel
 
 
 
+    //----------------------------------------------------------
 
     public static function topSellingBrands($request)
     {
@@ -2430,6 +2431,7 @@ class Product extends VaahModel
         ];
     }
 
+    //----------------------------------------------------------
 
     public static function topSellingCategories($request)
     {

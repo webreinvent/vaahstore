@@ -66,6 +66,10 @@ function () {
     Route::any('/{id}/action/{action}', 'UsersController@itemAction')
         ->name('vh.backend.store.api.users.item.action');
 
-
+    /**
+     * Fetch Users Count Area Chart Data
+     */
+    Route::post('/charts/data', 'UsersController@fetchCustomerCountChartData')
+        ->name('vh.backend.store.users.count_chart_data');
 
 });

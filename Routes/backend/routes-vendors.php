@@ -140,9 +140,15 @@ Route::group(
         Route::get('/get/product/count', 'VendorsController@getProductCount')
             ->name('vh.backend.store.vendors.get.product_count');
 
+        /**
+         * Get Top Vendors By Sales on Selected Date range
+         */
         Route::post('/charts/vendors-by-sales', 'VendorsController@topSellingVendorsData')
-            ->name('vh.backend.store.users.count-chart-data');
+            ->name('vh.backend.store.vendors.top_selling_vendors');
 
+        /**
+         * Get All Vendors Sales On Selected date range
+         */
         Route::post('/charts/sales-by-range', 'VendorsController@vendorSalesByRange')
-            ->name('vh.backend.store.users.count-chart-data');
+            ->name('vh.backend.store.vendors.charts.vendor_sales');
     });

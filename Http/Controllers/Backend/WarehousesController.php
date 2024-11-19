@@ -307,6 +307,7 @@ class WarehousesController extends Controller
             }
         }
     }
+    //----------------------------------------------------------
 
     public function warehouseStockInBarChart(Request $request)
     {

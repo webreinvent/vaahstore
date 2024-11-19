@@ -39,4 +39,9 @@ function () {
     Route::get('/get/all-item/count', 'SettingsController@getItemsCount')
         ->name('vh.backend.store.settings.get.items.count');
 
+    /**
+     * Set the Charts Global Date Filters
+     */
+    Route::post('/charts/date-filters', 'SettingsController@storeChartFilterSettings')
+        ->name('vh.backend.store.settings.charts.global_date_filters');
 });
