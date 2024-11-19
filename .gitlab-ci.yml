@@ -79,7 +79,7 @@ deploy_develop:
     PROJECT_STORAGE_PATH: $PROJECT_PATH/storage
     VAAHCMS_PUBLIC_PATH: $PROJECT_PATH/public
     VAAHCMS_CONFIG_PATH: $PROJECT_PATH/bootstrap/cache/config.php
-    FTP_UPLOAD_PATH: ftp://$FTP_IP/public_html/$PROJECT_NAME/$FOLDER
+    FTP_UPLOAD_PATH: ftp://$FTP_IP/public_html/$PROJECT_NAME/$FOLDER/VaahCms/Modules/Store
     PROJECT_URL: https://$DOMAIN/$PROJECT_NAME/$FOLDER/public
 
   script:
