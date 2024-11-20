@@ -17,6 +17,8 @@
             <td>
                 <label class="ml-3"> {{ item.label }} </label>
                 <label class="ml-3">( {{ item.count }} ) </label>
+                <ProgressSpinner v-if="shouldShowSpinner(item)" style="width: 14px; height: 14px" strokeWidth="8" fill="transparent"
+                                 animationDuration=".9s"/>
             </td>
 
             <td>
@@ -137,5 +139,7 @@ const isDisabled = (item) => {
     return item.is_disabled || store.is_button_disabled;
 };
 
-
+const shouldShowSpinner = (item) => {
+    return item.is_loading || (item.label === 'All' && store.is_button_disabled);
+};
 </script>

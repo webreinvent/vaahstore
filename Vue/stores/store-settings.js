@@ -29,7 +29,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: 0 ,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
             {
                 label: 'Stores',
@@ -37,7 +38,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: 0,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
 
             {
@@ -47,7 +49,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Stores']
+                labelsToCheck: ['Stores'],
+                is_loading:false
             },
 
             {
@@ -57,7 +60,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0 ,
                 is_disabled:false,
-                labelsToCheck: ['Stores']
+                labelsToCheck: ['Stores'],
+                is_loading:false
 
 
             },
@@ -68,7 +72,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Stores' , 'Products' , 'Vendors']
+                labelsToCheck: ['Stores' , 'Products' , 'Vendors'],
+                is_loading:false
             },
 
             {
@@ -76,7 +81,8 @@ export const useSettingStore = defineStore({
                 value: 'Attributes',
                 is_checked: false,
                 quantity: null,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
 
             {
@@ -86,7 +92,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Products' ,'Stores']
+                labelsToCheck: ['Products' ,'Stores'],
+                is_loading:false
             },
             {
                 label: 'Product Attributes',
@@ -94,7 +101,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 is_disabled:false,
-                labelsToCheck: ['Product Variations' , 'Attributes' , 'Products' , 'Stores']
+                labelsToCheck: ['Product Variations' , 'Attributes' , 'Products' , 'Stores'],
+                is_loading:false
             },
             {
                 label: 'Product Medias',
@@ -103,7 +111,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck:['Products' , 'Product Variations' ,'Stores']
+                labelsToCheck:['Products' , 'Product Variations' ,'Stores'],
+                is_loading:false
             },
 
             {
@@ -113,7 +122,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Vendors','Stores']
+                labelsToCheck: ['Vendors','Stores'],
+                is_loading:false
             },
 
             {
@@ -123,7 +133,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors' ,'Stores']
+                labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors' ,'Stores'],
+                is_loading:false
             },
 
             {
@@ -132,7 +143,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: 0,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
 
             {
@@ -142,7 +154,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Attributes']
+                labelsToCheck: ['Attributes'],
+                is_loading:false
             },
 
             {
@@ -151,7 +164,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: null,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
             {
                 label: 'Customer Group',
@@ -160,7 +174,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Customer']
+                labelsToCheck: ['Customer'],
+                is_loading:false
 
             },
             {
@@ -169,7 +184,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null ,
                 count: 0,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
             {
                 label: 'Wishlists',
@@ -178,7 +194,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Customer']
+                labelsToCheck: ['Customer'],
+                is_loading:false
             },
 
 
@@ -431,6 +448,11 @@ export const useSettingStore = defineStore({
         //--------------------------------------------------------------------
 
         async createSingleCrudRecord(item) {
+            item.is_loading = true;
+            if(item.label === 'All')
+            {
+                item.is_loading = true;
+            }
             const query = { selectedCrud: [item] };
             const options = {
                 params: query,
@@ -456,6 +478,7 @@ export const useSettingStore = defineStore({
                     crud_option.is_checked = false;
                     crud_option.quantity = null;
                     crud_option.is_disabled = false;
+                    crud_option.is_loading = false
                     if(crud_option.label !== 'All')
                     {
                         vaah().toastSuccess([crud_option.label + ' ' + 'records created']);
@@ -483,6 +506,7 @@ export const useSettingStore = defineStore({
                 option.is_checked = false;
                 option.quantity = null;
                 option.is_disabled = false;
+                option.is_loading = false
             });
 
             this.is_button_disabled = false;
@@ -589,8 +613,8 @@ export const useSettingStore = defineStore({
         updateCountsAfter(data , res ) {
 
             this.crud_options.forEach(option => {
-                        option.count = data.count[`${option.value}`] || 0;
-                    });
+                option.count = data.count[`${option.value}`] || 0;
+            });
         },
 
         showProgress()
