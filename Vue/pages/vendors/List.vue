@@ -65,17 +65,12 @@ const toggleQuickFilterState = (event) => {
 
 
 function toggleDatasetVisibility(index) {
-    store.chartSeries[index].hidden = !store.chartSeries[index].hidden;
+    store.vendor_sales_area_chart_series[index].hidden = !store.vendor_sales_area_chart_series[index].hidden;
 
-    store.chartSeries = [...store.chartSeries];
+    store.vendor_sales_area_chart_series = [...store.vendor_sales_area_chart_series];
 }
 
-const handleDateChangeRound = (newDate, date_type) => {
-    if (newDate && date_type) {
-        store[date_type] = new Date(newDate.getTime() - newDate.getTimezoneOffset() * 60000);
-    }
-}
-const today = ref(new Date());
+
 </script>
 <template>
 
@@ -275,19 +270,6 @@ const today = ref(new Date());
 </template>
 
 <style scoped>
-.chart-wrapper {
-    position: relative;
-    max-width: 600px;
-    margin: auto;
-}
-
-/*.scrollable-legend {*/
-/*    max-height: 230px;*/
-/*    overflow-y: auto;*/
-/*    background: ghostwhite;*/
-/*    border-radius: 20px;*/
-/*    min-width: max-content;*/
-/*}*/
 
 .legend-items {
     list-style: none;

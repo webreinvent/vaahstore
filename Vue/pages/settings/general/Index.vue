@@ -53,7 +53,7 @@ onMounted(async () => {
                                 <div>
                                     <h5 class="font-semibold text-sm">Charts Date Filters</h5>
                                     <p class="text-color-secondary text-xs">
-                                        Global Date Filter For All VaahStore Charts
+                                        Set Date Filter For All VaahStore Charts
                                     </p>
                                 </div>
                             </div>

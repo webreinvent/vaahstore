@@ -848,7 +848,7 @@ class Order extends VaahModel
             ->get();
         $total_sales_chart_data = [];
         foreach ($sales_data as $item) {
-            $date = Carbon::parse($item->date); // Parse the string to Carbon instance
+            $date = Carbon::parse($item->date);
 
             $total_sales_chart_data[] = ['x' => $item->date, 'y' => (int)$item->total_sales];
         }
@@ -856,7 +856,6 @@ class Order extends VaahModel
         $overall_total_sales = $sales_data->sum('total_sales');
         $first_sale = $total_sales_chart_data[0]['y'] ?? 0;
         $last_sale = end($total_sales_chart_data)['y'] ?? 0;
-//        $last_sale = $total_sales_chart_data[count($total_sales_chart_data) - 2]['y'] ?? 0;;
 
 
         $growth_rate = 0;
@@ -891,70 +890,55 @@ class Order extends VaahModel
     }
 
 
+    //-------------------------------------------------
 
 
 
     public static function fetchOrdersCountChartData($request)
     {
-        // Get all inputs from the request
         $inputs = $request->all();
 
-        // Define start and end dates with fallback to default (if not provided)
         $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
         $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
 
-        // Generate date labels for x-axis
         $labels = [];
         foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
-            // Format each date in 'Y-m-d' format and add to labels array
             $labels[] = $date->format('Y-m-d');
         }
 
-        // Set default group by column (can change based on the requirement)
         $date_column = 'created_at';
         $count = 'COUNT';
-        $group_by_column = 'DATE(created_at)'; // Group by day (you can modify to week/month if needed)
+        $group_by_column = 'DATE(created_at)';
 
-        // Query Order model
         $list = Order::query();
 
-        // Apply filters to the list
         $filtered_data = self::appliedFilters($list, $request);
 
-        // Prepare the base query for chart data
-        $order_data_query = $filtered_data->selectRaw("$group_by_column as order_date") // Group by date
-        ->selectRaw("$count($date_column) as total_count") // Total orders count
+        $order_data_query = $filtered_data->selectRaw("$group_by_column as order_date")
+        ->selectRaw("$count($date_column) as total_count")
         ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_count")
             ->selectRaw("SUM(CASE WHEN order_status != 'Completed' THEN 1 ELSE 0 END) as pending_count");
 
-        // Apply the date range filter only if both start and end date are not null
         if ($inputs['start_date'] && $inputs['end_date']) {
             $order_data_query = $order_data_query->whereBetween('created_at', [$start_date, $end_date]);
         }
 
-        // Execute the query and get the result
         $chart_data = $order_data_query->groupBy('order_date')
             ->orderBy('order_date')
             ->get();
 
-        // Prepare data in the requested format [{x: "2024-10-31", y: 88}, ...]
         $total_orders = [];
         $completed_orders = [];
 
-        // Prepare the labels (formatted as 'Y-m-d') and fill in the data for the chart
         foreach ($chart_data as $item) {
-            // Ensure the order_date is cast to a Carbon instance
-            $order_date = Carbon::parse($item->order_date); // Parse the string to Carbon instance
+            $order_date = Carbon::parse($item->order_date);
 
-            // Prepare data points for total, completed, and pending orders
             $total_orders[] = ['x' => $item->order_date, 'y' => (int)$item->total_count];
             $completed_orders[] = ['x' => $item->order_date, 'y' => (int)$item->completed_count];
         }
 
-        // Fill missing dates (dates without orders) with zero count
 
 
-        // Return the chart data along with options
         return [
             'data' => [
                 'chart_series' => [
@@ -972,13 +956,14 @@ class Order extends VaahModel
                 'chart_options' => [
                     'xaxis' => [
                         'type' => 'datetime',
-                        'categories' => $labels, // Use the generated labels as categories for x-axis
+                        'categories' => $labels,
                     ],
                 ],
             ],
         ];
     }
 
+    //-------------------------------------------------
 
     public static function fetchOrderPaymentsData($request) {
         $inputs = $request->all();
@@ -1005,7 +990,7 @@ class Order extends VaahModel
 
         $time_series_data_income = [];
         foreach ($orders_income as $item) {
-            $created_date = Carbon::parse($item->created_date); // Parse the string to Carbon instance
+            $created_date = Carbon::parse($item->created_date);
 
             $time_series_data_income[] = ['x' => $item->created_date, 'y' => $item->total_income];
         }
@@ -1015,7 +1000,6 @@ class Order extends VaahModel
 
 
         $first_income = reset($time_series_data_income)['y'] ?? 0;
-//        $last_income = $time_series_data_income[count($time_series_data_income) - 2]['y'] ?? 0;
         $last_income = end($time_series_data_income)['y'] ?? 0;
 
         $growth_rate = 0;
@@ -1047,8 +1031,8 @@ class Order extends VaahModel
             ],
         ];
     }
+    //-------------------------------------------------
 
-// Function to apply filters to the query
     private static function appliedFilters($list, $request)
     {
         if (isset($request->filter)) {

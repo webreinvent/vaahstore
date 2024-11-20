@@ -860,21 +860,18 @@ class Warehouse extends VaahModel
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
-        // Retrieve the product stock data for each warehouse, ordered by total quantity in descending order,
 
         $stock_data = ProductStock::select('vh_st_warehouse_id')
-            ->selectRaw('SUM(quantity) as total_quantity') // Sum of quantity per warehouse
-            ->groupBy('vh_st_warehouse_id') // Group by warehouse ID
-            ->whereBetween('created_at', [$start_date, $end_date]) // Filter by date range
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->groupBy('vh_st_warehouse_id')
+            ->whereBetween('created_at', [$start_date, $end_date])
             ->orderBy('total_quantity', 'asc')
 
             ->get();
 
-        // Prepare the data for the chart
         $chart_series = [];
         $chart_categories = [];
 
-        // Loop through the result to build the chart data
         foreach ($stock_data as $stock) {
             $warehouse = self::find($stock->vh_st_warehouse_id);
 
