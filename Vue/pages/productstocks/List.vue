@@ -15,9 +15,10 @@ const route = useRoute();
 import { useConfirm } from "primevue/useconfirm";
 const confirm = useConfirm();
 
-
+const base_url = ref('');
 onMounted(async () => {
     document.title = 'Product Stocks - Store';
+    base_url.value = root.ajax_url.replace('backend/store', '/');
     /**
      * call onLoad action when List view loads
      */
@@ -109,7 +110,7 @@ const toggleCreateMenu = (event) => {
                                                 <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                     <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
                                                         <Image preview
-                                                               :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                               :src="base_url + '/' + imageUrl"
                                                                alt="Error" class="shadow-4" width="64"/>
                                                     </div>
                                                 </div>
@@ -196,7 +197,7 @@ const toggleCreateMenu = (event) => {
                                                                             <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                                                 <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
                                                                                     <Image preview
-                                                                                           :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                                                           :src="base_url + '/' + imageUrl"
                                                                                            alt="Error" class="shadow-4" width="64"/>
                                                                                 </div>
                                                                             </div>
