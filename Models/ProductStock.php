@@ -1358,6 +1358,7 @@ if ($product_variation) {
         return $response;
     }
 
+    //-------------------------------------------------
 
 
     public static function getStocksChartData($request)
@@ -1365,7 +1366,6 @@ if ($product_variation) {
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
-        // Filter for the highest stocks with quantity > 10 within the date range
         $highest_stocks = self::where('quantity', '>', 10)
             ->whereBetween('updated_at', [$start_date, $end_date])
             ->orderBy('quantity', 'desc')
@@ -1373,7 +1373,6 @@ if ($product_variation) {
             ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
-        // Filter for the lowest stocks with quantity between 0 and 10 within the date range
         $lowest_stocks = self::whereBetween('quantity', [0, 10])
             ->whereBetween('updated_at', [$start_date, $end_date])
             ->orderBy('quantity', 'asc')
@@ -1381,10 +1380,8 @@ if ($product_variation) {
             ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
-        // Calculate the total stock within the date range
         $all_stocks = self::whereBetween('updated_at', [$start_date, $end_date])->sum('quantity');
 
-        // Helper function to map stocks with additional data
         $map_stocks = function ($stocks) use ($all_stocks) {
             return $stocks->map(function ($stock) use ($all_stocks) {
                 $product_variation = $stock->productVariation;
@@ -1406,11 +1403,9 @@ if ($product_variation) {
             });
         };
 
-        // Map the highest and lowest stocks data
         $top_stocks = $map_stocks($highest_stocks)->toArray();
         $lowest_stocks_data = $map_stocks($lowest_stocks)->toArray();
 
-        // Calculate percentage for highest and lowest stock quantities
         $highest_stock_quantity = $highest_stocks->first()->quantity ?? 0;
         $lowest_stock_quantity = $lowest_stocks->first()->quantity ?? 0;
 
@@ -1427,6 +1422,7 @@ if ($product_variation) {
             ],
         ];
     }
+    //-------------------------------------------------
 
     private static function getImageUrls($product_media_ids)
     {

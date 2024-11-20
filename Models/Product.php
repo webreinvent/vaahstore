@@ -2446,8 +2446,6 @@ class Product extends VaahModel
             $query->whereBetween('created_at', [$start_date, $end_date]);
         }
 
-
-
         $top_categories_by_product = $query
             ->select('vh_st_product_id')
             ->with(['product' => function ($query) {
@@ -2456,12 +2454,10 @@ class Product extends VaahModel
             ->groupBy('vh_st_product_id')
             ->get();
 
-        // Process each product to gather all unique final parent categories
         $top_categories_by_product = $top_categories_by_product->map(function ($item) {
             $product = $item->product;
 
             if ($product) {
-                // Map through each category to find its final parent category
                 $parent_categories = $product->productCategories->map(function ($category) {
                     $final_parent = $category;
                     while ($final_parent && $final_parent->parentCategory) {

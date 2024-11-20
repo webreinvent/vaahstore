@@ -1157,17 +1157,14 @@ $order_item_pairs = $orders->flatMap(function ($order) {
     {
         $inputs = $request->all();
 
-        // Define start and end dates
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
-        // Generate date labels for x-axis
         $labels = [];
         foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
             $labels[] = $date->format('Y-m-d');
         }
 
-        // Query shipment data and count shipped orders by date
         $shipment_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
             ->selectRaw('DATE(created_at) as shipment_date, COUNT(DISTINCT vh_st_order_id) as shipped_orders')
             ->groupBy('shipment_date')
@@ -1175,10 +1172,8 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->get()
             ->keyBy('shipment_date');
 
-        // Get total orders to calculate initial pending count
         $total_orders = Order::count();
 
-        // Get overall shipped orders
         $overall_shipped_orders = ShipmentItem::distinct('vh_st_order_id')->count('vh_st_order_id');
 
         // Prepare data for the chart
@@ -1190,12 +1185,10 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             $shipped_orders = $shipment_data[$date_string]->shipped_orders ?? 0;
             $shipped_orders_so_far += $shipped_orders;
 
-            // Calculate pending orders
             $pending_orders = ($inputs['start_date'] === $inputs['end_date'])
                 ? max($total_orders - $overall_shipped_orders, 0)
                 : max($total_orders - $shipped_orders_so_far, 0);
 
-            // Store formatted data for chart
             $formatted_shipped_data[] = ['x' => $date_string, 'y' => $shipped_orders];
             $formatted_pending_data[] = ['x' => $date_string, 'y' => $pending_orders];
         }
@@ -1221,25 +1214,23 @@ $order_item_pairs = $orders->flatMap(function ($order) {
     {
         $inputs = $request->all();
 
-        // Define start and end dates
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-        $previous_date = $start_date->copy()->subDay(); // Subtract 1 day from the start date
+        $previous_date = $start_date->copy()->subDay();
 
-        $period = new \DatePeriod($previous_date, new \DateInterval('P1D'), $end_date); // Now includes previous date
+        $period = new \DatePeriod($previous_date, new \DateInterval('P1D'), $end_date);
         $labels = [];
         foreach ($period as $date) {
             $labels[] = $date->format('Y-m-d');
         }
 
-        // Query shipped items data and sum their quantities, grouped by shipment date
         $shipped_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
             ->selectRaw('DATE(created_at) as shipment_date')
             ->selectRaw('SUM(quantity) as total_quantity')
             ->groupBy('shipment_date')
             ->orderBy('shipment_date')
             ->get()
-            ->keyBy('shipment_date'); // Key by date for easy lookup
+            ->keyBy('shipment_date');
 
         $total_shipment_quantity_available = OrderItem::sum('quantity');
 
@@ -1298,12 +1289,11 @@ $order_item_pairs = $orders->flatMap(function ($order) {
     {
         $inputs = $request->all();
 
-        // Define the date range for filtering
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $shipment_data_with_status = self::with('status')
             ->select('taxonomy_id_shipment_status')
-            ->selectRaw("SUM(vh_st_shipment_items.quantity) as total_quantity") // Use selectRaw to sum quantity
+            ->selectRaw("SUM(vh_st_shipment_items.quantity) as total_quantity")
             ->join('vh_st_shipment_items', 'vh_st_shipment_items.vh_st_shipment_id', '=', 'vh_st_shipments.id') // Join with shipment items
             ->withCount([
                 'orders as distinct_orders_count' => function ($query) {
@@ -1315,21 +1305,21 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->get()
             ->map(function ($shipment) {
                 return [
-                    'status' => $shipment->status->name,               // Shipment status
-                    'order_count' => $shipment->distinct_orders_count, // Distinct count of orders
-                    'total_quantity' => $shipment->total_quantity      // Sum of quantity
+                    'status' => $shipment->status->name,
+                    'order_count' => $shipment->distinct_orders_count,
+                    'total_quantity' => $shipment->total_quantity
                 ];
             });
             return [
             'data' => [
                     'chart_series' => [
-                        'quantity_data' => $shipment_data_with_status->pluck('total_quantity'), // Data for quantity
+                        'quantity_data' => $shipment_data_with_status->pluck('total_quantity'),
 
                     ],
                     'chart_options' => [
                         'xaxis' => [
 
-                        'categories' => $shipment_data_with_status->pluck('status'), // Use status names as labels
+                        'categories' => $shipment_data_with_status->pluck('status'),
                         ],
                     ]
                    ],
