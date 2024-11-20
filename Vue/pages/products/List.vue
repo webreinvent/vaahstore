@@ -70,7 +70,7 @@ const toggleQuickFilterState = (event) => {
 
 </script>
 <template>
-asa{{base_url}}
+
     <Message v-show="store.show_cart_msg" icon="pi pi-shopping-cart" severity="success" :sticky="true" :life="1000"
              @close="store.disableActiveCart()">
         <div style="display: flex; justify-content: space-between; align-items: center;">
