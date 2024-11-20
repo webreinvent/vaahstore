@@ -7,7 +7,7 @@ import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-
+import Charts from "../../components/Charts.vue";
 const store = useWarehouseStore();
 const root = useRootStore();
 const route = useRoute();
@@ -65,6 +65,29 @@ const toggleCreateMenu = (event) => {
     <div class="grid" v-if="store.assets">
 
         <div :class="'col-'+store.list_view_width">
+
+            <div class="flex gap-2 mb-1">
+                <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
+                    <div class="flex justify-content-between " v-if=" store.isViewLarge()">
+                        <p><b>Warehouses Dashboard</b></p>
+                        
+
+                    </div>
+                    <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
+
+
+                        <Charts
+                            class="border-1 border-gray-200 border-round-sm overflow-hidden"
+                            type="bar"
+                            :chartOptions="store.warehouse_stock_bar_chart_options"
+                            :chartSeries="store.warehouse_stock_bar_chart_series"
+                            height=300 width=600
+                            titleAlign="center"
+                        />
+                    </div>
+                </div>
+            </div>
+
             <Panel class="is-small">
 
                 <template class="p-1" #header>

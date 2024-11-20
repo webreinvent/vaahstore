@@ -34,4 +34,10 @@ function () {
 
     Route::post('/delete/confirm', 'SettingsController@deleteConfirm')
         ->name('vh.backend.store.settings.delete.confirm');
+
+    /**
+     * Set the Charts Global Date Filters
+     */
+    Route::post('/charts/date-filters', 'SettingsController@storeChartFilterSettings')
+        ->name('vh.backend.store.settings.charts.global_date_filters');
 });

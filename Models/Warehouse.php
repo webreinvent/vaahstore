@@ -850,7 +850,53 @@ class Warehouse extends VaahModel
         }
         return $response;
     }
-    //-------------------------------------------------
+
+    //----------------------------------------------------------
+
+    public static function warehouseStockInBarChart($request)
+    {
+        $inputs = $request->all();
+
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+
+        $stock_data = ProductStock::select('vh_st_warehouse_id')
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->groupBy('vh_st_warehouse_id')
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->orderBy('total_quantity', 'asc')
+
+            ->get();
+
+        $chart_series = [];
+        $chart_categories = [];
+
+        foreach ($stock_data as $stock) {
+            $warehouse = self::find($stock->vh_st_warehouse_id);
+
+            if ($warehouse) {
+                $chart_series[] = [
+                    'name' => $warehouse->name,
+                    'data' => [(int)$stock->total_quantity]
+                ];
+                $chart_categories[] = $warehouse->name;
+            }
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'quantity_data' => $stock_data->pluck('total_quantity'),
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'categories' => $chart_categories
+                    ],
+                ]
+            ]
+        ];
+    }
 
 
 }

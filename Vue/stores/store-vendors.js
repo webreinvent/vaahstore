@@ -3,6 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Vendor';
 
@@ -99,6 +100,12 @@ export const useVendorStore = defineStore({
         selected_vendor_role:null,
         default_vendor_message:null,
         total_product_count:0,
+        top_selling_vendors:[],
+        quick_filter_menu:[],
+        vendor_sales_area_chart_options: {},
+        vendor_sales_area_chart_series: [],
+        filter_all: null,
+
 
     }),
     getters: {
@@ -535,6 +542,8 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.topSellingVendorsData();
+                this.vendorSalesByRange();
                 this.first_element = this.query.rows * (this.query.page - 1);
             }
         },
@@ -1779,7 +1788,146 @@ export const useVendorStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
 
+        async topSellingVendorsData() {
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+
+            await vaah().ajax(
+                this.ajax_url + '/charts/vendors-by-sales',
+                this.topSellingVendorsDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        topSellingVendorsDataAfter(data,res){
+            if (data){
+                this.top_selling_vendors=data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async vendorSalesByRange() {
+
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/sales-by-range',
+                this.vendorSalesByRangeAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        vendorSalesByRangeAfter(data,res){
+
+            const series_data = data.chart_series.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: 'Vendor Sales Over Selected Date Range',
+                    align: 'left',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+
+                    toolbar: {
+                        show: false,
+                    },
+                    background: '#ffffff',
+
+                },
+
+                legend: {
+                    show: false,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '14px',
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateChartOptions(updated_area_chart_options);
+        },
+        updateChartOptions(newOptions) {
+            this.vendor_sales_area_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            this.vendor_sales_area_chart_series = [...newSeries];
+        },
+
+
+
+
+
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+
+                {
+                    label: 'All',
+                    command: () => {
+                        this.updateQuickFilter('all');
+                    }
+                },
+
+            ];
+
+        },
+        updateQuickFilter(time)
+        {
+            this.filter_all = time;
+            this.topSellingVendorsData();
+        },
+        loadSalesData(){
+            this.filter_all=null;
+            this.topSellingVendorsData();
+        }
 
 
     }

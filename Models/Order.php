@@ -776,5 +776,269 @@ class Order extends VaahModel
         ];
     }
 
+    //-------------------------------------------------
+
+
+    public static function fetchOrdersChartData(Request $request)
+    {
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : null;
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : null;
+
+        $orders_statuses_count = self::select('order_status')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('order_status');
+
+        if ($start_date && $end_date) {
+            $orders_statuses_count = $orders_statuses_count->whereBetween('updated_at', [$start_date, $end_date]);
+        }
+
+        $order_status_counts_pie_chart_data = $orders_statuses_count->pluck('count', 'order_status')->toArray();
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'orders_statuses_pie_chart' => array_values($order_status_counts_pie_chart_data),
+                ],
+                'chart_options' => [
+                    'labels' => array_keys($order_status_counts_pie_chart_data),
+                ],
+            ],
+        ];
+    }
+
+
+
+
+
+
+    //-------------------------------------------------
+
+
+
+
+
+
+    public static function fetchSalesChartData($request)
+    {
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
+        $labels = [];
+
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+
+        $query = OrderItem::query();
+
+        $sales_data = $query
+            ->selectRaw('DATE(created_at) as date')
+            ->selectRaw('SUM(quantity * price) as total_sales');
+
+
+        if ($inputs['start_date'] && $inputs['end_date']) {
+            $sales_data = $sales_data->whereBetween('created_at', [$start_date, $end_date]);
+        }
+        $sales_data = $sales_data->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        $total_sales_chart_data = [];
+        foreach ($sales_data as $item) {
+            $date = Carbon::parse($item->date);
+
+            $total_sales_chart_data[] = ['x' => $item->date, 'y' => (int)$item->total_sales];
+        }
+
+        $overall_total_sales = $sales_data->sum('total_sales');
+        $first_sale =  reset($total_sales_chart_data)['y'] ?? 0;
+        $last_sale = end($total_sales_chart_data)['y'] ?? 0;
+
+
+        $growth_rate = 0;
+
+        if ($first_sale > 0) {
+            $growth_rate = (($last_sale - $first_sale) / $first_sale) * 100;
+        } elseif ($first_sale === 0 && $last_sale > 0) {
+            $growth_rate = 100;
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'orders_sales_chart_data' => [
+                        [
+                            'name' => 'Total Sale',
+                            'data' => $total_sales_chart_data,
+                        ]
+                    ],
+                    'overall_total_sales' => $overall_total_sales,
+                    'growth_rate' => $growth_rate,
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels
+                    ],
+
+                ],
+            ],
+        ];
+    }
+
+
+    //-------------------------------------------------
+
+
+
+    public static function fetchOrdersCountChartData($request)
+    {
+        $inputs = $request->all();
+
+        $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
+        $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
+
+        $labels = [];
+        foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+        $date_column = 'created_at';
+        $count = 'COUNT';
+        $group_by_column = 'DATE(created_at)';
+
+        $list = Order::query();
+
+        $filtered_data = self::appliedFilters($list, $request);
+
+        $order_data_query = $filtered_data->selectRaw("$group_by_column as order_date")
+        ->selectRaw("$count($date_column) as total_count")
+        ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_count")
+            ->selectRaw("SUM(CASE WHEN order_status != 'Completed' THEN 1 ELSE 0 END) as pending_count");
+
+        if ($inputs['start_date'] && $inputs['end_date']) {
+            $order_data_query = $order_data_query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        $chart_data = $order_data_query->groupBy('order_date')
+            ->orderBy('order_date')
+            ->get();
+
+        $total_orders = [];
+        $completed_orders = [];
+
+        foreach ($chart_data as $item) {
+            $order_date = Carbon::parse($item->order_date);
+
+            $total_orders[] = ['x' => $item->order_date, 'y' => (int)$item->total_count];
+            $completed_orders[] = ['x' => $item->order_date, 'y' => (int)$item->completed_count];
+        }
+
+
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'orders_count_bar_chart' => [
+                        [
+                            'name' => 'Created',
+                            'data' => $total_orders,
+                        ],
+                        [
+                            'name' => 'Completed',
+                            'data' => $completed_orders,
+                        ],
+                    ],
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    //-------------------------------------------------
+
+    public static function fetchOrderPaymentsData($request) {
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
+        $labels = [];
+
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+        $query = OrderPayment::query();
+
+        $orders_income = $query
+            ->selectRaw('DATE(created_at) as created_date')
+            ->selectRaw('SUM(payment_amount) as total_income');
+        if ($inputs['start_date'] && $inputs['end_date']) {
+            $orders_income = $orders_income->whereBetween('created_at', [$start_date, $end_date]);
+        }
+        $orders_income = $orders_income->groupBy('created_date')
+            ->orderBy('created_date')
+            ->get();
+
+        $time_series_data_income = [];
+        foreach ($orders_income as $item) {
+            $created_date = Carbon::parse($item->created_date);
+
+            $time_series_data_income[] = ['x' => $item->created_date, 'y' => $item->total_income];
+        }
+
+
+        $overall_income = round($orders_income->sum('total_income'), 2);
+
+
+        $first_income = reset($time_series_data_income)['y'] ?? 0;
+        $last_income = end($time_series_data_income)['y'] ?? 0;
+
+        $growth_rate = 0;
+
+        if ($first_income > 0) {
+            $growth_rate = (($last_income - $first_income) / $first_income) * 100;
+        } elseif ($first_income === 0 && $last_income > 0) {
+            $growth_rate = 100;
+        }
+
+        return [
+            'data' => [
+                'order_payments_chart_series' => [
+                    'orders_payment_income_chart_data' => [
+                        [
+                            'name' => 'Payment',
+                            'data' => $time_series_data_income,
+                        ]
+                    ],
+                    'overall_income' => $overall_income,
+                    'income_growth_rate' => round($growth_rate, 2),
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels
+                    ],
+                ],
+            ],
+        ];
+    }
+    //-------------------------------------------------
+
+    private static function appliedFilters($list, $request)
+    {
+        if (isset($request->filter)) {
+            $list = $list->paymentStatusFilter($request->filter);
+        }
+        return $list;
+    }
 
 }

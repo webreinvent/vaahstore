@@ -3,6 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Warehouse';
 
@@ -79,7 +80,9 @@ export const useWarehouseStore = defineStore({
         form_menu_list: [],
         selected_dates : null,
         prev_list:[],
-        current_list:[]
+        current_list:[],
+        warehouse_stock_bar_chart_options:{},
+        warehouse_stock_bar_chart_series:[],
     }),
     getters: {
 
@@ -274,7 +277,9 @@ export const useWarehouseStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
+
             }
+            this.warehouseStockInBarChart();
         },
         //---------------------------------------------------------------------
 
@@ -1135,7 +1140,134 @@ export const useWarehouseStore = defineStore({
         getDefaultVendorAfter(data,res) {
             this.item.vendor = data ? data : [];
         },
-    }
+        //---------------------------------------------------
+
+        async warehouseStockInBarChart() {
+
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/warehouse-stocks-bar-chart-data',
+                this.warehouseStockInBarChartAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        warehouseStockInBarChartAfter(data,res){
+            const series_data = [{
+                name: 'Stocks Available',
+                data: Array.isArray(data.chart_series?.quantity_data) ? data.chart_series?.quantity_data : [],
+            }];
+
+
+
+            this.updateWarehouseStocksBarChartSeries(series_data);
+
+            const updated_bar_chart_options = {
+                ...data.chart_options,
+
+
+                title: {
+                    text: 'Stocks Available In Warehouse',
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238',
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        barHeight: '80%',
+                        distributed: true,
+                        horizontal: true,
+                        dataLabels: {
+                            position: 'bottom',
+                        },
+                    },
+                },
+                legend: {
+                    show: false,
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },responsive: [
+                    {
+                        breakpoint: 1000,
+                        options: {
+                            plotOptions: {
+                                bar: {
+                                    horizontal: false
+                                }
+                            },
+                            legend: {
+                                position: "bottom"
+                            }
+                            ,
+                            dataLabels:{
+                                enabled: false,
+                            }
+                        }
+                    }
+                ],
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    textAnchor: 'center',
+                    style: {
+                        colors: ['#000'],
+                    },
+                    formatter: function (val, opt) {
+                        const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';
+                        return `${category}: ${val}`;
+                    },
+                    offsetX: 0,
+                    dropShadow: {
+                        enabled: false,
+                    },
+                },
+
+            };
+
+            this.updateWarehouseStocksBarChartOptions(updated_bar_chart_options);
+        },
+
+        //---------------------------------------------------
+
+        updateWarehouseStocksBarChartOptions(new_options) {
+            this.warehouse_stock_bar_chart_options = new_options;
+        },
+
+        //---------------------------------------------------
+        updateWarehouseStocksBarChartSeries(new_series) {
+            this.warehouse_stock_bar_chart_series = [...new_series];
+        },
+
+    },
 });
 
 

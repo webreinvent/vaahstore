@@ -78,4 +78,16 @@ function () {
     Route::post('/add/user', 'VendorsController@createVendorUser')
         ->name('vh.backend.store.vendors.createVendorUser');
 
+    /**
+     * Get Top Vendors By Sales on Selected Date range
+     */
+    Route::post('/charts/vendors-by-sales', 'VendorsController@topSellingVendorsData')
+        ->name('vh.backend.store.vendors.top_selling_vendors');
+
+    /**
+     * Get All Vendors Sales On Selected date range
+     */
+    Route::post('/charts/sales-by-range', 'VendorsController@vendorSalesByRange')
+        ->name('vh.backend.store.vendors.charts.vendor_sales');
+
 });

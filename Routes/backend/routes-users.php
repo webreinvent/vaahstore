@@ -90,4 +90,11 @@ Route::group(
          */
         Route::any('/fill', 'UsersController@fillItem')
             ->name('vh.backend.store.users.fill');
+
+
+        /**
+         * Fetch Users Count Area Chart Data
+         */
+        Route::post('/charts/data', 'UsersController@fetchCustomerCountChartData')
+            ->name('vh.backend.store.users.count_chart_data');
     });

@@ -2,6 +2,8 @@ import {toRaw,watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
 
@@ -84,6 +86,18 @@ export const useOrderStore = defineStore({
 
         order_list_table_with_vendor:null,
         order_name:null,
+        count_chart_options: {},
+        count_chart_series: [],
+
+        pie_chart_options: {},
+        pie_chart_series: [],
+        sales_chart_options: {},
+        sales_chart_series: [],
+
+        order_payments_income_chart_options: {},
+        order_payments_income_chart_series: [],
+        order_payments_chart_series:null,
+        selection: 'one_month',
     }),
     getters: {
 
@@ -254,6 +268,10 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.fetchOrdersChartData();
+                this.fetchSalesChartData();
+                this.fetchOrderPaymentsData();
+                this.fetchOrdersCountChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -636,11 +654,14 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+
             //reset query strings
             await this.resetQueryString();
 
             //reload page list
             await this.getList();
+            await this.fetchOrdersChartData();
+
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -1015,6 +1036,7 @@ export const useOrderStore = defineStore({
                 query:{ order_id : order_id}
             });
         },
+        //---------------------------------------------------
 
         async openOrderItems(item)
         {
@@ -1037,6 +1059,486 @@ export const useOrderStore = defineStore({
                 this.$router.push({name: 'orders.index', query: this.query});
             }
         },
+        //---------------------------------------------------
+
+        async fetchOrdersChartData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/data',
+                this.fetchOrdersChartDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+        fetchOrdersChartDataAfter(data, res) {
+
+            this.updatePieChartSeries(data.chart_series?.orders_statuses_pie_chart);
+
+            const updated_pie_chart_options = {
+                ...data.chart_options,
+                title: {
+                    text: 'Status Distribution',
+                    align: 'left',
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '12px',
+                    offsetX: -10,
+                    offsetY: 35,
+                    formatter: function (val, opts) {
+                        return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
+                    },
+                    labels: {
+                        useSeriesColors: true,
+                    },
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '60%',
+                            labels: {
+                                show: true,
+                                name: {
+                                    show: true,
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    color: '#263238',
+                                },
+                                value: {
+                                    show: true,
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    color: '#000',
+                                    formatter: function(val) {
+                                        return val;
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+
+            this.updatePieChartOptions(updated_pie_chart_options);
+        },
+        //---------------------------------------------------
+
+
+        async fetchSalesChartData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/total-sales-data',
+                this.fetchSalesChartDataAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------
+
+        fetchSalesChartDataAfter(data, res) {
+            if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
+                return;
+            }
+            this.chart_series = data.chart_series;
+            this.overall_sales = data.chart_series?.overall_total_sales;
+            this.growth_rate = data.chart_series?.growth_rate;
+
+
+            const series_data = data.chart_series.orders_sales_chart_data.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            this.updateSalesChartSeries(series_data);
+            const isNegativeGrowth = this.growth_rate < 0;
+            const chartColor = isNegativeGrowth ? '#FF0000' : '#00FF00';
+
+            const updated_sales_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 2,
+
+                },
+                title: {
+                    text: '',
+
+                },
+                colors: [chartColor],
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy'
+                    }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+                legend: {
+                    show: false
+                },
+
+            };
+
+            this.updateSalesChartOptions(updated_sales_chart_options);
+
+
+
+        },
+
+        //---------------------------------------------------
+
+        async fetchOrderPaymentsData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/order-payments-data',
+                this.fetchOrderPaymentsDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+
+        fetchOrderPaymentsDataAfter(data, res) {
+            if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_income_chart_data)) {
+                return;
+            }
+
+            this.order_payments_chart_series = data.order_payments_chart_series;
+
+            this.overall_income = data.order_payments_chart_series?.overall_income;
+            this.income_growth_rate = data.order_payments_chart_series?.income_growth_rate;
+
+
+
+            const series_data = data.order_payments_chart_series.orders_payment_income_chart_data.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            this.updateOrderPaymentsIncomeChartSeries(series_data);
+
+
+            const updated_order_payments_income_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: '',
+
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy'
+                    }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+                legend: {
+                    show: false
+                },
+
+            };
+
+            this.updateOrderPaymentsIncomeChartOptions(updated_order_payments_income_chart_options);
+        },
+
+        //---------------------------------------------------
+
+        updateChartOptions(newOptions) {
+            this.count_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            this.count_chart_series = [...newSeries];
+        },
+        //---------------------------------------------------
+
+        //---------------------------------------------------
+        updatePieChartOptions(newOptions) {
+            this.pie_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updatePieChartSeries(newSeries) {
+            this.pie_chart_series = [...newSeries];
+        },
+
+        //---------------------------------------------------
+
+        updateOrderPaymentsChartOptions(options) {
+            this.order_payments_chart_options = options;
+        },
+        //---------------------------------------------------
+
+        updateSalesChartSeries(series) {
+            this.sales_chart_series = series;
+        },
+        //---------------------------------------------------
+
+        updateSalesChartOptions(options) {
+            this.sales_chart_options = options;
+        },
+        //---------------------------------------------------
+
+
+        updateOrderPaymentsIncomeChartSeries(series) {
+            this.order_payments_income_chart_series = series;
+        },
+        //---------------------------------------------------
+
+        updateOrderPaymentsIncomeChartOptions(options) {
+            this.order_payments_income_chart_options = options;
+        },
+
+        //---------------------------------------------------
+
+
+        async fetchOrdersCountChartData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/orders-count-by-range',
+                this.fetchOrdersCountChartDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+
+        fetchOrdersCountChartDataAfter(data,res){
+            if (!data || !Array.isArray(data.chart_series?.orders_count_bar_chart)) {
+                return;
+            }
+
+            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options, // Merge existing options
+                stroke: {
+                    curve: 'smooth',
+                    width: 2,
+                },
+
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy'
+                    }
+                },
+
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+                legend: {
+                    show: false
+                }
+
+            };
+
+            this.updateChartOptions(updated_area_chart_options);
+        },
+
+
+
     }
 });
 

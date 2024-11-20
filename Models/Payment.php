@@ -1,5 +1,6 @@
 <?php namespace VaahCms\Modules\Store\Models;
 
+use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -967,6 +968,41 @@ class Payment extends VaahModel
         return $response;
     }
     //-------------------------------------------------
+
+    public static function paymentMethodsPieChartData($request)
+    {
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $payment_data = Payment::query()
+            ->selectRaw('vh_st_payment_method_id, COUNT(*) as total')
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                $query->whereBetween('created_at', [$start_date, $end_date]);
+            })
+            ->groupBy('vh_st_payment_method_id')
+            ->with('paymentMethod:id,name')
+            ->get();
+
+        // Prepare data for the pie chart
+        $chart_data = [];
+        foreach ($payment_data as $data) {
+            $payment_method_name = $data->paymentMethod->name ?? 'Unknown';
+            $chart_data[$payment_method_name] = (int) $data->total;
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'payment_methods_pie_chart' => array_values($chart_data),
+                ],
+                'chart_options' => [
+                    'labels' => array_keys($chart_data),
+                ],
+            ]
+        ];
+    }
+
+
 
 
 }

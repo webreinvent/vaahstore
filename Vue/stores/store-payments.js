@@ -2,6 +2,7 @@ import {computed, toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Payment';
 
@@ -71,6 +72,8 @@ export const usePaymentStore = defineStore({
         payment_method_suggestion: null,
         order_filter_key:'',
         selected_order:null,
+        payment_methods_chart_options: {},
+        payment_methods_chart_series: [],
 
     }),
     getters: {
@@ -249,6 +252,7 @@ export const usePaymentStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.paymentMethodsPieChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -1134,6 +1138,103 @@ export const usePaymentStore = defineStore({
                 this.selected_order= data;
             }
         },
+        //---------------------------------------------------
+
+        async paymentMethodsPieChartData() {
+
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/payment-methods-pie-chart-data',
+                this.paymentMethodsPieChartDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+
+        paymentMethodsPieChartDataAfter(data,res){
+            this.updateChartSeries(data.chart_series?.payment_methods_pie_chart);
+
+            const updated_pie_chart_options = {
+                ...data.chart_options,
+                title: {
+                    text: 'Payment Methods Used',
+                    align: 'center',
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                legend: {
+                    position: 'right',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '12px',
+                    offsetX: -10,
+                    offsetY: 35,
+                    formatter: function (val, opts) {
+                        return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
+                    },
+                    labels: {
+                        useSeriesColors: true,
+                    },
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '60%',
+                            labels: {
+                                show: false,
+                                name: {
+                                    show: true,
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    color: '#263238',
+                                },
+                                value: {
+                                    show: true,
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    color: '#000',
+                                    formatter: function(val) {
+                                        return val;
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+
+            this.updateChartOptions(updated_pie_chart_options);
+        },
+        //---------------------------------------------------
+
+        updateChartOptions(newOptions) {
+            this.payment_methods_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            this.payment_methods_chart_series = [...newSeries];
+        },
+
+
     }
 });
 

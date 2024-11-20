@@ -126,6 +126,8 @@ class Category extends VaahModel
         return $this->belongsTo(self::class, 'parent_id', 'id');
     }
     //-------------------------------------------------
+
+    //-------------------------------------------------
     public function getTableColumns()
     {
         return $this->getConnection()->getSchemaBuilder()

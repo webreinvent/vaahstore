@@ -3,6 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductStock';
 
@@ -26,6 +27,9 @@ let empty_states = {
             variations : null,
             quantity : null,
             in_stock : null,
+            lowest_stock : null,
+            highest_stock : null,
+            quick_filter_menu:[],
         },
     },
     action: {
@@ -489,6 +493,7 @@ export const useProductStockStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
+                this.getStocksChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -1578,6 +1583,39 @@ export const useProductStockStore = defineStore({
                 this.item.vh_st_vendor_id = data.id;
             }
         },
+
+        async getStocksChartData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/stocks-data',
+                this.getStocksChartDataAfter,
+                options
+            );
+        },
+        getStocksChartDataAfter(data,res){
+            if (data){
+
+                this.highest_stock=data.top_stocks;
+                this.lowest_stock=data.lowest_stocks;
+            }
+        },
+
+
+        QuickHighFilter(){
+            this.query.filter.stocks='high'
+        },
+        QuickLowFilter(){
+            this.query.filter.stocks='low'
+        },
+
 
     }
 });

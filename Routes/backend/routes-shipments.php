@@ -100,4 +100,22 @@ function () {
      */
     Route::post('/filter/search/orders', [ShipmentsController::class,'getOrders'])
         ->name('vh.backend.store.shipments.get.filter.orders');
+
+    /**
+     * Fetch Shipment Orders Details Count By date range
+     */
+    Route::post('/charts/orders-shipments-by-range', [ShipmentsController::class,'ordersShipmentByDateRange'])
+        ->name('vh.backend.store.shipments.charts.order_details_counts');
+
+    /**
+     * Fetch Shipment Items Details Count By date range
+     */
+    Route::post('/charts/shipment-items-by-range', [ShipmentsController::class,'ordersShipmentItemsByDateRange'])
+        ->name('vh.backend.store.shipments.charts.items_details_counts');
+
+    /**
+     * Fetch Shipment Items by status By date range
+     */
+    Route::post('/charts/shipment-items-by-status', [ShipmentsController::class,'shipmentItemsByStatusBarChart'])
+        ->name('vh.backend.store.shipments.charts.items_status_details');
 });

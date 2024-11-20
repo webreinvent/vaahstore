@@ -594,7 +594,41 @@ class VendorsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
 
+    public function topSellingVendorsData(Request $request)
+    {
+        try{
+            return Vendor::topSellingVendorsData($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
 
+    public function vendorSalesByRange(Request $request)
+    {
+        try{
+            return Vendor::vendorSalesByRange($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 
 }

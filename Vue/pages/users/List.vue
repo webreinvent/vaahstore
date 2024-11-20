@@ -6,7 +6,7 @@ import {useUserStore} from '../../stores/store-users'
 import {useRootStore} from "../../stores/root";
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-
+import Charts from "../../components/Charts.vue";
 const store = useUserStore();
 const root = useRootStore();
 const route = useRoute();
@@ -21,7 +21,7 @@ onMounted(async () => {
      */
      document.title = 'Customers - Store';
     await store.onLoad(route);
-
+    store.fetchCustomerCountChartData();
     /**
      * watch routes to update view, column width
      * and get new item when routes get changed
@@ -55,6 +55,8 @@ const create_menu = ref();
 const toggleCreateMenu = (event) => {
     create_menu.value.toggle(event);
 };
+
+
 </script>
 <template>
     <div class="grid">
@@ -70,7 +72,29 @@ const toggleCreateMenu = (event) => {
                         </div>
                     </div>
                 </template>
+                <div class="flex gap-2 mb-1">
+                    <div class="w-full bg-white   border-gray-200 rounded-sm mb-2">
 
+                        <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3 " v-if=" store.isViewLarge()">
+
+
+
+
+
+                                <Charts
+                                    class="border-1 border-gray-200 border-round-sm overflow-hidden"
+                                    type="line"
+                                    :chartOptions="store.customer_count_chart_options"
+                                    :chartSeries="store.customer_count_chart_series"
+                                    height="250"
+                                    width="520"
+                                    titleAlign="center"
+                                />
+
+
+                        </div>
+                    </div>
+                </div>
                 <template #icons>
                     <div class="p-inputgroup">
                         <Button class="p-button-sm"
@@ -115,3 +139,4 @@ const toggleCreateMenu = (event) => {
         <RouterView/>
     </div>
 </template>
+

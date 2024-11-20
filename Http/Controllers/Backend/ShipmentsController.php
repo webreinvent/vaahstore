@@ -319,4 +319,58 @@ class ShipmentsController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
+
+    public function ordersShipmentByDateRange(Request $request)
+    {
+        try{
+            return Shipment::ordersShipmentByDateRange($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function ordersShipmentItemsByDateRange(Request $request)
+    {
+        try{
+            return Shipment::ordersShipmentItemsByDateRange($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function shipmentItemsByStatusBarChart(Request $request)
+    {
+        try{
+            return Shipment::shipmentItemsByStatusBarChart($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 }

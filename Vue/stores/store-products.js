@@ -3,6 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
 
@@ -134,6 +135,10 @@ export const useProductStore = defineStore({
         product_detail:null,
         active_user:null,
         total_cart_product:0,
+        top_selling_variations:null,
+        top_selling_brands:null,
+        top_selling_categories:null,
+        quick_filter_menu:[],filter_all: null,
 
     }),
     getters: {
@@ -945,6 +950,9 @@ export const useProductStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
+                this.topSellingProducts();
+                this.topSellingBrands();
+                this.topSellingCategories();
             }
         },
         viewCart(id){
@@ -2320,7 +2328,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
 
-       
+
         //---------------------------------------------------------------------
 
 
@@ -2743,7 +2751,101 @@ export const useProductStore = defineStore({
             return `${minPrice} - ${maxPrice}`;
         },
         //---------------------------------------------------------------------
+        async topSellingProducts() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-products',
+                this.topSellingProductsAfter,
+                options
+            );
+        },
+        topSellingProductsAfter(data,res){
+            if (data) {
+                this.top_selling_variations = data.top_selling_products;
+            }
+        },
+
+        async topSellingBrands() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-brands',
+                this.topSellingBrandsAfter,
+                options
+            );
+        },
+        topSellingBrandsAfter(data,res){
+            if (data) {
+                this.top_selling_brands = data.top_selling_brands;
+            }
+        },
+        async topSellingCategories() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-categories',
+                this.topSellingCategoriesAfter,
+                options
+            );
+        },
+        topSellingCategoriesAfter(data,res){
+            if (data) {
+                this.top_selling_categories = data.top_selling_categories;
+            }
+        },
+
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+                {
+                    label: 'All',
+                    command: () => {
+                        this.updateQuickFilter('all');
+                    }
+                },
+
+            ];
+
+        },
+        updateQuickFilter(time)
+        {
+            this.filter_all = time;
+            this.topSellingProducts();
+             this.topSellingCategories();
+             this.topSellingBrands();
+        },
         //---------------------------------------------------------------------
+        async loadProductChartsData(){
+            this.filter_all=null;
+           await this.topSellingProducts();
+           await this.topSellingCategories();
+           await this.topSellingBrands();
+        }
 
     }
 });

@@ -1846,37 +1846,56 @@ class Product extends VaahModel
     {
         $response = [];
 
-        $selected_vendor = $request->product['product_price_range']['selected_vendor'] ?? null;
-        if ($selected_vendor === null) {
-             $response['errors'][] ="This product is out of stock";return $response;
+        $default_vendor = Vendor::where('is_default', 1)->first();
+        $active_selected_vendor = self::getPriceRangeOfProduct($request->product['id'])['data'] ?? null;
+        $selected_vendor = null;
+        if ($active_selected_vendor && isset($active_selected_vendor['selected_vendor']['id'])) {
+            $selected_vendor = $active_selected_vendor['selected_vendor'];
+        } else {
+            if ($default_vendor === null) {
+                $response['errors'][] = "This product is out of stock";
+                return $response;
+            }
+            $selected_vendor = $default_vendor;
         }
 
+        // Validate user information
         $user_info = $request->input('user_info');
-        $product_id = $request->input('product.id');
-        $product = Product::find($product_id);
-
         if (!$user_info) {
-            $response['errors'][] ="Please enter valid user";return $response;
+            $response['errors'][] = "Please enter valid user";
+            return $response;
         }
 
+        // Find or create the user and cart
         $user = self::findOrCreateUser(['id' => $user_info['id']]);
         $cart = self::findOrCreateCart($user);
+
+        // Fetch the product and its variants
+        $product_id = $request->input('product.id');
+        $product = Product::find($product_id);
         $product_with_variants = self::getDefaultVariation($product);
 
+        // Check for valid product variations
         if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-            $response['errors'][] ="No product variation is default";return $response;
+            $response['errors'][] = "No product variation is default";
+            return $response;
         }
 
+        // Handle adding the product to the cart and updating the session
         self::handleCart($cart, $product, $product_with_variants, $selected_vendor);
-
         self::updateSession($user);
 
+        // Prepare a success response
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
-        $response['data'] = $user;
-        $response['data']['selected_vendor_id'] = $selected_vendor['id'];
+        $response['data'] = [
+            'user' => $user,
+            'selected_vendor_id' => $selected_vendor['id'],
+        ];
 
         return $response;
     }
+
+
 
     //----------------------------------------------------------
 
@@ -2315,7 +2334,173 @@ class Product extends VaahModel
 
     //----------------------------------------------------------
 
+    public static function topSellingProducts($request)
+    {
+        $limit = 5;
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+        $query = OrderItem::query();
+        if ($apply_date_range) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+        $top_selling_variations = $query
+            ->select('vh_st_product_variation_id')
+            ->with(['productVariation' => function ($q) {
+                $q->with('medias');
+            }])
+            ->groupBy('vh_st_product_variation_id')
+            ->get();
 
+        $top_selling_variations = $top_selling_variations->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
+            $sales_query = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id);
+
+
+            if ($apply_date_range) {
+                $sales_query->whereBetween('created_at', [$start_date, $end_date]);
+            }
+
+            $total_sales = $sales_query->sum('quantity');
+            $product_variation = $item->productVariation;
+            $product_media_ids = $product_variation->medias->map(function ($media) {
+                return $media->pivot->vh_st_product_media_id;
+            });
+            $image_urls = self::getImageUrls($product_media_ids);
+
+            return [
+                'id' => $product_variation->id,
+                'name' => $product_variation->name,
+                'slug' => $product_variation->slug,
+                'total_sales' => $total_sales,
+                'image_urls' => $image_urls,
+            ];
+        })
+            ->sortByDesc('total_sales');
+
+
+        if ($apply_date_range) {
+            $top_selling_variations = $top_selling_variations->take($limit);
+        }
+
+        return [
+            'data' => [
+                'top_selling_products'=>$top_selling_variations->values(),]
+        ];
+    }
+
+
+
+    //----------------------------------------------------------
+
+    public static function topSellingBrands($request)
+    {
+        $limit = 5;
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+
+        $query = OrderItem::query()
+            ->selectRaw('vh_st_product_id, SUM(quantity) as total_sales')
+            ->when($apply_date_range, function ($query) use ($start_date, $end_date) {
+                $query->whereBetween('created_at', [$start_date, $end_date]);
+            })
+            ->with(['product.brand'])
+            ->groupBy('vh_st_product_id')
+            ->get();
+
+        $top_brands_by_product = $query->map(function ($item) {
+            $product = $item->product;
+            if ($product && $product->brand) {
+                return [
+                    'total_sales' => $item->total_sales,
+                    'id' => $product->brand->id,
+                    'name' => $product->brand->name,
+                    'slug' => $product->brand->slug,
+                ];
+            }
+            return null;
+        })
+            ->filter()
+            ->sortByDesc('total_sales')
+            ->take($limit);
+
+        return [
+            'data' => [
+                'top_selling_brands' => $top_brands_by_product->values(),
+            ]
+        ];
+    }
+
+    //----------------------------------------------------------
+
+    public static function topSellingCategories($request)
+    {
+        $limit = 5;
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+        $query = OrderItem::query();
+
+        if ($apply_date_range) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        $top_categories_by_product = $query
+            ->select('vh_st_product_id')
+            ->with(['product' => function ($query) {
+                $query->with('productCategories.parentCategory');
+            }])
+            ->groupBy('vh_st_product_id')
+            ->get();
+
+        $top_categories_by_product = $top_categories_by_product->map(function ($item) {
+            $product = $item->product;
+
+            if ($product) {
+                $parent_categories = $product->productCategories->map(function ($category) {
+                    $final_parent = $category;
+                    while ($final_parent && $final_parent->parentCategory) {
+                        $final_parent = $final_parent->parentCategory;
+                    }
+                    return $final_parent;
+                })->unique('id');
+
+                return $parent_categories->map(function ($parent_category) {
+                    return [
+                        'id' => $parent_category?->id,
+                        'slug' => $parent_category?->slug,
+                        'name' => $parent_category?->name,
+                    ];
+                });
+            }
+            return null;
+        })
+            ->filter()
+            ->flatten(1)
+            ->take($limit);
+
+        return [
+            'data' => [
+                'top_selling_categories' => $top_categories_by_product->values(),
+            ]
+        ];
+    }
+
+
+    //----------------------------------------------------------
+
+    private static function getImageUrls($product_media_ids)
+    {
+        $image_urls = [];
+        foreach ($product_media_ids as $product_media_id) {
+            $product_media_image = ProductMediaImage::where('vh_st_product_media_id', $product_media_id)->first();
+            if ($product_media_image) {
+                $image_urls[] = $product_media_image->url;
+            }
+        }
+        return $image_urls;
+    }
 
 
 

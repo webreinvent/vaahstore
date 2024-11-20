@@ -29,7 +29,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: 0 ,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
             {
                 label: 'Stores',
@@ -37,7 +38,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: 0,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
 
             {
@@ -47,7 +49,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Stores']
+                labelsToCheck: ['Stores'],
+                is_loading:false
             },
 
             {
@@ -57,7 +60,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0 ,
                 is_disabled:false,
-                labelsToCheck: ['Stores']
+                labelsToCheck: ['Stores'],
+                is_loading:false
 
 
             },
@@ -68,7 +72,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Stores' , 'Products' , 'Vendors']
+                labelsToCheck: ['Stores' , 'Products' , 'Vendors'],
+                is_loading:false
             },
 
             {
@@ -76,7 +81,8 @@ export const useSettingStore = defineStore({
                 value: 'Attributes',
                 is_checked: false,
                 quantity: null,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
 
             {
@@ -86,7 +92,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Products' ,'Stores']
+                labelsToCheck: ['Products' ,'Stores'],
+                is_loading:false
             },
             {
                 label: 'Product Attributes',
@@ -94,7 +101,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 is_disabled:false,
-                labelsToCheck: ['Product Variations' , 'Attributes' , 'Products' , 'Stores']
+                labelsToCheck: ['Product Variations' , 'Attributes' , 'Products' , 'Stores'],
+                is_loading:false
             },
             {
                 label: 'Product Medias',
@@ -103,7 +111,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck:['Products' , 'Product Variations' ,'Stores']
+                labelsToCheck:['Products' , 'Product Variations' ,'Stores'],
+                is_loading:false
             },
 
             {
@@ -113,7 +122,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Vendors','Stores']
+                labelsToCheck: ['Vendors','Stores'],
+                is_loading:false
             },
 
             {
@@ -123,7 +133,8 @@ export const useSettingStore = defineStore({
                 quantity: null,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors' ,'Stores']
+                labelsToCheck: ['Products' ,'Warehouses', 'Product Variations' , 'Vendors' ,'Stores'],
+                is_loading:false
             },
 
             {
@@ -132,7 +143,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: 0,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
 
             {
@@ -142,7 +154,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Attributes']
+                labelsToCheck: ['Attributes'],
+                is_loading:false
             },
 
             {
@@ -151,7 +164,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null,
                 count: null,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
             {
                 label: 'Customer Group',
@@ -160,7 +174,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Customer']
+                labelsToCheck: ['Customer'],
+                is_loading:false
 
             },
             {
@@ -169,7 +184,8 @@ export const useSettingStore = defineStore({
                 is_checked: false,
                 quantity: null ,
                 count: 0,
-                is_disabled:false
+                is_disabled:false,
+                is_loading:false
             },
             {
                 label: 'Wishlists',
@@ -178,7 +194,8 @@ export const useSettingStore = defineStore({
                 quantity: null ,
                 count: 0,
                 is_disabled:false,
-                labelsToCheck: ['Customer']
+                labelsToCheck: ['Customer'],
+                is_loading:false
             },
 
 
@@ -192,6 +209,11 @@ export const useSettingStore = defineStore({
         },
         is_delete_confirm: false,
         show_progress_bar: false,
+
+        chart_by_date_filter: null,
+        chart_date_filter: null,
+        filter_start_date: null, // This should be a Date object
+        filter_end_date: null,
     }),
     getters: {
 
@@ -218,6 +240,18 @@ export const useSettingStore = defineStore({
         afterGetAssets(data, res) {
             if (data) {
                 this.assets = data;
+                this.chart_by_date_filter = [
+                    { name: 'Today', value: 'today' },
+                    { name:  'Last 7 Days', value: 'last-7-days' },
+                    { name:  'Last 1 Month', value: 'last-1-month' },
+                    { name:  'Last 1 Year', value: 'last-1-year' },
+                    { name:  'Custom Dates', value: 'custom' },
+
+                ];
+
+
+
+
             }
         },
         //---------------------------------------------------------------------
@@ -238,6 +272,35 @@ export const useSettingStore = defineStore({
 
             if (data) {
                 this.list = data;
+
+                const chartDate = JSON.parse(data.charts_filter);
+                switch (true) {
+                    case chartDate && chartDate.today:
+                        this.chart_date_filter = "today";
+                        break;
+                    case chartDate && chartDate['last-7-days']:
+                        this.chart_date_filter = "last-7-days";
+                        break;
+                    case chartDate && chartDate['last-1-month']:
+                        this.chart_date_filter = "last-1-month";
+                        break;
+                    case chartDate && chartDate['last-1-year']:
+                        this.chart_date_filter = "last-1-year";
+                        break;
+                    default:
+                        this.chart_date_filter = "custom";
+                        break;
+                }
+                // const chart_date = JSON.parse(data.charts_filter);
+                // if (chart_date && chart_date.custom && chart_date.custom.start_date && chart_date.custom.end_date) {
+                //     this.filter_start_date = new Date(chart_date.custom.start_date);
+                //     this.filter_end_date = new Date(chart_date.custom.end_date);
+                // }
+
+                if (chartDate?.custom?.start_date && chartDate?.custom?.end_date) {
+                    this.filter_start_date = new Date(chartDate.custom.start_date);
+                    this.filter_end_date = new Date(chartDate.custom.end_date);
+                }
             }
         },
 
@@ -385,6 +448,11 @@ export const useSettingStore = defineStore({
         //--------------------------------------------------------------------
 
         async createSingleCrudRecord(item) {
+            item.is_loading = true;
+            if(item.label === 'All')
+            {
+                item.is_loading = true;
+            }
             const query = { selectedCrud: [item] };
             const options = {
                 params: query,
@@ -410,6 +478,7 @@ export const useSettingStore = defineStore({
                     crud_option.is_checked = false;
                     crud_option.quantity = null;
                     crud_option.is_disabled = false;
+                    crud_option.is_loading = false
                     if(crud_option.label !== 'All')
                     {
                         vaah().toastSuccess([crud_option.label + ' ' + 'records created']);
@@ -437,6 +506,7 @@ export const useSettingStore = defineStore({
                 option.is_checked = false;
                 option.quantity = null;
                 option.is_disabled = false;
+                option.is_loading = false
             });
 
             this.is_button_disabled = false;
@@ -543,8 +613,8 @@ export const useSettingStore = defineStore({
         updateCountsAfter(data , res ) {
 
             this.crud_options.forEach(option => {
-                        option.count = data.count[`${option.value}`] || 0;
-                    });
+                option.count = data.count[`${option.value}`] || 0;
+            });
         },
 
         showProgress()
@@ -593,6 +663,58 @@ export const useSettingStore = defineStore({
 
 
         },
+
+
+
+        async storeChartFilterSettings() {
+            let charts_filter;
+            if (this.chart_date_filter === 'custom') {
+                if (!this.filter_start_date || !this.filter_end_date) {
+                    vaah().toastErrors(['Both start date and end date must be selected.']);
+                    return false;
+                }
+                charts_filter = {
+                    "custom": {
+                        "start_date": this.filter_start_date,
+                        "end_date": this.filter_end_date
+                    }
+                };
+            } else {
+                const filter_mapping = {
+                    'today': { "today": true },
+                    'last-7-days': { "last-7-days": true },
+                    'last-1-month': { "last-1-month": true },
+                    'last-1-year': { "last-1-year": true }
+                };
+
+                charts_filter = filter_mapping[this.chart_date_filter] || { "today": true };
+            }
+
+            // Save the filter in the list object as JSON
+            this.list.charts_filter = JSON.stringify(charts_filter);
+
+            let params = {
+                list: this.list
+            };
+
+            let options = {
+                method: 'post',
+                params: params
+            };
+
+            // Make the AJAX request
+            await vaah().ajax(
+                this.ajax_url + '/charts/date-filters',
+                this.storeChartFilterSettingsAfter,
+                options
+            );
+        },
+
+        storeChartFilterSettingsAfter() {
+            this.getList();
+            window.location.reload(true);
+        }
+
 
 
     }

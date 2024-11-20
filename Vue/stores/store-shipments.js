@@ -3,6 +3,7 @@ import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import moment from "moment-timezone/moment-timezone-utils";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Shipment';
 
@@ -77,6 +78,13 @@ export const useShipmentStore = defineStore({
         filter_order_suggestion:[],
         selected_orders:null,
         selected_dates:null,
+        shipment_by_order_chart_options: {},
+        shipment_by_order_chart_series: [],
+        shipment_items_by_status_chart_options: {},
+        shipment_items_by_status_chart_series: [],
+        shipment_by_items_chart_options:{},
+        shipment_by_items_chart_series:[],
+
 
 
     }),
@@ -253,6 +261,9 @@ export const useShipmentStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.ordersShipmentByDateRange();
+                this.ordersShipmentItemsByDateRange();
+                this.shipmentItemsByStatusBarChart();
             }
         },
         //---------------------------------------------------------------------
@@ -1327,6 +1338,360 @@ export const useShipmentStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        async ordersShipmentByDateRange() {
+
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/orders-shipments-by-range',
+                this.ordersShipmentByDateRangeAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        ordersShipmentByDateRangeAfter(data,res){
+            const series_data = data.chart_series.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                title: {
+                    text: 'Orders In Shipment Over Date Range',
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+
+                    toolbar: {
+                        show: false,
+                    },
+                    background: '#ffffff',
+
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                colors: ['#d4526e',  '#13d8aa',
+                ],
+                xaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '11px',
+
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                tooltip: {
+                    enabled: true,
+                    shared: true,
+                    style: { fontSize: '14px' },
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateChartOptions(updated_area_chart_options);
+        },
+        updateChartOptions(newOptions) {
+            this.shipment_by_order_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+
+            this.shipment_by_order_chart_series = [...newSeries];
+        },
+
+
+
+        //---------------------------------------------------------------------
+        async ordersShipmentItemsByDateRange() {
+
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/shipment-items-by-range',
+                this.ordersShipmentItemsByDateRangeAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        ordersShipmentItemsByDateRangeAfter(data,res){
+            const series_data = data.chart_series.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateShipmentItemsChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: 'Quantity Shipped Over Date Range',
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                chart: {
+
+                    toolbar: {
+                        show: false,
+                    },
+                    background: '#ffffff',
+
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                xaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '11px',
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                tooltip: {
+                    enabled: true,
+                    shared: true,
+                    style: { fontSize: '14px' },
+                },
+                grid: {
+                    show: false,
+                }
+            };
+
+            this.updateShipmentItemsChartOptions(updated_area_chart_options);
+        },
+        //---------------------------------------------------------------------
+        updateShipmentItemsChartOptions(newOptions) {
+            this.shipment_by_items_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateShipmentItemsChartSeries(newSeries) {
+            this.shipment_by_items_chart_series = [...newSeries];
+        },
+
+        //---------------------------------------------------
+
+        async shipmentItemsByStatusBarChart() {
+
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/shipment-items-by-status',
+                this.shipmentItemsByStatusBarChartAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+        shipmentItemsByStatusBarChartAfter(data,res){
+            const series_data = [{
+                name: 'Item Qty.',
+                data: Array.isArray(data.chart_series?.quantity_data) ? data.chart_series?.quantity_data : [],
+            }];
+
+
+            this.updateShipmentItemsByStatusChartSeries(series_data);
+
+            const updated_bar_chart_options = {
+                ...data.chart_options, // Merge existing options
+                chart: {
+                    background: '#ffffff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                dataLabels: {
+                                    enabled: true,
+                                    textAnchor: 'start',
+                                    style: {
+                                        colors: ['#000'],
+                                    },
+                                    formatter: function (val, opt) {
+                                        const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';
+                                        return `${category}: ${val}`;
+                                    },
+                                    offsetX: 0,
+                                    dropShadow: {
+                                        enabled: false,
+                                    },
+                                },
+                plotOptions: {
+                    bar: {
+                        barHeight: '80%',
+                        distributed: true,
+                        horizontal: true,
+                        dataLabels: {
+                            position: 'bottom',
+                        },
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                },
+                title: {
+                    text: 'Shipped Quantities Status',
+                    align: 'center',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238',
+                    },
+                },
+
+                subtitle: {
+                    text: 'Status as DataLabels inside bars',
+                    align: 'center',
+                },
+
+                markers: {
+                    size: 5,
+                    strokeColor: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    },
+                },
+                tooltip: {
+                    theme: 'dark',
+                },
+                legend: {
+                    show: false,
+
+                },
+
+
+
+            };
+
+            this.updateShipmentItemsByStatusChartOptions(updated_bar_chart_options);
+        },
+        //---------------------------------------------------
+
+        updateShipmentItemsByStatusChartOptions(newOptions) {
+            this.shipment_items_by_status_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateShipmentItemsByStatusChartSeries(newSeries) {
+            this.shipment_items_by_status_chart_series = [...newSeries];
+        },
+        //---------------------------------------------------------------------
+
+
+
+
 
     }
 });

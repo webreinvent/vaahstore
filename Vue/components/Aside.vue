@@ -17,13 +17,19 @@ function isActive(routePaths) {
 const selected_page = ref({
     menuitem: ({ props }) => ({
         class: route.path === props.item.route ? 'p-focus' : ''
-    })
+    }),
+    submenuheader: {class: 'sticky top-0 bg-white z-1 border-bottom-1 border-gray-200'}
 });
 
 const items = ref([
     {
         label: 'Store',
         items: [
+            {
+                label: 'Dashboard',
+                icon: 'fa-regular fa-building',
+                route: "/",
+            },
             {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
@@ -155,8 +161,8 @@ const items = ref([
 <template>
 
 
-    <div v-if="height">
-        <Menu :model="items" :pt="selected_page"  class="w-full" >
+    <div v-if="height" class="border-round-2xl overflow-hidden shadow-1 sticky" style="top: 54px">
+        <Menu :model="items" :pt="selected_page"  class="w-full overflow-y-auto py-0" style="max-height: calc(100vh - 54px);" >
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">

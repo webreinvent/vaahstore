@@ -1527,6 +1527,110 @@ class Vendor extends VaahModel
     }
 
 
+    //----------------------------------------------------------
 
+
+    public static function topSellingVendorsData($request)
+    {
+        $limit = 5;
+
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+
+        $query = OrderItem::query();
+
+        if ($apply_date_range) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        $top_selling_vendors = $query
+            ->select('vh_st_vendor_id')
+            ->groupBy('vh_st_vendor_id')
+            ->with(['vendor'])
+            ->get()
+            ->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
+                $total_sales_query = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id);
+                if ($apply_date_range) {
+                    $total_sales_query->whereBetween('created_at', [$start_date, $end_date]);
+                }
+                $total_sales = $total_sales_query->sum('quantity');
+
+                return [
+                    'id' => $item->vendor->id,
+                    'name' => $item->vendor->name,
+                    'slug' => $item->vendor->slug,
+                    'total_sales' => $total_sales,
+                ];
+            })
+            ->sortByDesc('total_sales');
+
+        if ($apply_date_range) {
+            $top_selling_vendors = $top_selling_vendors->take($limit);
+        }
+
+        return [
+            'data' => $top_selling_vendors->values(),
+        ];
+    }
+
+    //----------------------------------------------------------
+
+
+    public static function vendorSalesByRange($request)
+    {
+        $inputs = $request->all();
+
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->addDay());
+        $labels = [];
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+        $vendor_sales = OrderItem::select('vh_st_vendor_id')
+            ->groupBy('vh_st_vendor_id')
+            ->with('vendor') // Load the vendor relationship
+            ->get()
+            ->map(function ($item) use ($start_date, $end_date, $request, $labels) {
+                $sales_data = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
+                    ->whereBetween('created_at', [$start_date, $end_date])
+                    ->selectRaw('DATE(created_at) as sales_date')
+                    ->selectRaw('SUM(quantity) as total_sales')
+                    ->groupBy('sales_date')
+                    ->orderBy('sales_date')
+                    ->get()
+                    ->keyBy('sales_date');
+
+                $formatted_data = [];
+                foreach ($labels as $date_string) {
+                    $formatted_data[] = [
+                        'x' => $date_string,
+                        'y' => isset($sales_data[$date_string]) ? (int) $sales_data[$date_string]->total_sales : 0,
+                    ];
+                }
+
+                return [
+                    'name' => $item->vendor->name,
+                    'data' => $formatted_data,
+                ];
+            });
+
+        return [
+            'data' => [
+                'chart_series' => $vendor_sales,
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels,
+                    ],
+                ],
+            ],
+        ];
+    }
+    //----------------------------------------------------------
 
 }

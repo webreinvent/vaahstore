@@ -562,4 +562,113 @@ class User extends UserBase
     }
 
 
+    //----------------------------------------------------------
+
+
+    public static function fetchCustomerCountChartData(Request $request)
+    {
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $date_column = 'created_at';
+        $count = 'COUNT';
+
+        $list = User::whereHas('activeRoles', function ($query) {
+            $query->where('slug', 'customer');
+        });
+
+
+
+        $chart_data_query = $list
+            ->whereBetween($date_column, [$start_date, $end_date])
+            ->selectRaw("DATE($date_column) as date")
+            ->selectRaw("$count($date_column) as total_count")
+            ->selectRaw("SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_count")
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $total_customers = $chart_data_query->sum('total_count');
+
+        $data = [
+            ['name' => 'Total Customers', 'data' => []],
+            ['name' => 'Active Customers', 'data' => []],
+        ];
+
+        // Generate labels dynamically based on date range
+        $labels = [];
+        foreach ($chart_data_query as $item) {
+            $date = Carbon::parse($item->date);
+            $labels[] = $date->format('Y-m-d');
+
+            $data[0]['data'][] = $item->total_count;
+            $data[1]['data'][] = $item->active_count;
+        }
+
+        return [
+            'data' => [
+                'chart_series' => $data,
+                'chart_options' => [
+                    'chart' => [
+                        'id' => 'dynamic-chart',
+                        'toolbar' => ['show' => true],
+                        'zoom' => ['enabled' => false],
+                    ],
+                    'xaxis' => [
+                        'type' => 'category',
+                        'categories' => $labels,
+                    ],
+                    'yaxis' => [
+                        'title' => [
+                            'text' => 'Customers Count',
+                            'color' => '#008FFB',
+                            'rotate' => -90,
+                            'style' => [
+                                'fontFamily' => 'Arial, sans-serif',
+                                'fontWeight' => 'bold',
+                            ],
+                        ],
+                    ],
+                    'title' => [
+                        'text' => 'Daily Customers Count',
+                        'align' => 'center',
+                    ],
+                    'legend' => [
+                        'position' => 'top',
+                        'horizontalAlign' => 'center',
+                        'onItemClick' => [
+                            'toggleDataSeries' => true,
+                        ],
+                    ],
+                    'grid' => [
+                        'borderColor' => '#e0e0e0',
+                        'strokeDashArray' => 0,
+                        'position' => 'back',
+                        'xaxis' => [
+                            'lines' => [
+                                'show' => false,
+                            ],
+                        ],
+                        'yaxis' => [
+                            'lines' => [
+                                'show' => false,
+                            ],
+                        ],
+                        'padding' => [
+                            'top' => 0,
+                            'right' => 0,
+                            'bottom' => 0,
+                            'left' => 0,
+                        ],
+                    ],
+                ],
+            ],
+
+        ];
+    }
+
+    //----------------------------------------------------------
+
+
+
 }
