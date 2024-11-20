@@ -854,7 +854,7 @@ class Order extends VaahModel
         }
 
         $overall_total_sales = $sales_data->sum('total_sales');
-        $first_sale = $total_sales_chart_data[0]['y'] ?? 0;
+        $first_sale =  reset($total_sales_chart_data)['y'] ?? 0;
         $last_sale = end($total_sales_chart_data)['y'] ?? 0;
 
 

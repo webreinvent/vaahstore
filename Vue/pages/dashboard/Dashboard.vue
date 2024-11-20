@@ -28,14 +28,16 @@ onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
-    await product_store.topSellingProducts();
-    await product_store.topSellingBrands();
-    await product_store.topSellingCategories();
-    await vendor_store.topSellingVendorsData();
+
+
     await orders_store.fetchOrdersChartData();
     await orders_store.fetchSalesChartData();
     await product_stock_store.getStocksChartData();
+    await product_store.topSellingProducts();
+    await product_store.topSellingBrands();
+    await product_store.topSellingCategories();
     customers_store.fetchCustomerCountChartData();
+    await vendor_store.topSellingVendorsData();
 
 
     await orders_store.fetchOrdersCountChartData();
