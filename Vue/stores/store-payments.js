@@ -72,8 +72,8 @@ export const usePaymentStore = defineStore({
         payment_method_suggestion: null,
         order_filter_key:'',
         selected_order:null,
-        chartOptions: {},
-        chartSeries: [],
+        payment_methods_chart_options: {},
+        payment_methods_chart_series: [],
 
     }),
     getters: {
@@ -1138,6 +1138,7 @@ export const usePaymentStore = defineStore({
                 this.selected_order= data;
             }
         },
+        //---------------------------------------------------
 
         async paymentMethodsPieChartData() {
 
@@ -1157,16 +1158,16 @@ export const usePaymentStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------
 
         paymentMethodsPieChartDataAfter(data,res){
-            // this.updateDateFilter();
             this.updateChartSeries(data.chart_series?.payment_methods_pie_chart);
 
             const updated_pie_chart_options = {
-                ...data.chart_options, // Merge existing options
+                ...data.chart_options,
                 title: {
-                    text: 'Payment Methods Used', // Add your chart title here
-                    align: 'center', // You can adjust alignment: 'left', 'center', 'right'
+                    text: 'Payment Methods Used',
+                    align: 'center',
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
@@ -1176,21 +1177,21 @@ export const usePaymentStore = defineStore({
                 chart: {
                     background: '#fff',
                     toolbar: {
-                        show: false, // Ensure toolbar is set to false here
+                        show: false,
                     },
                 },
                 legend: {
-                    position: 'right', // Position the legend to the side of the chart
+                    position: 'right',
                     horizontalAlign: 'center',
-                    floating: false, // Makes it appear inside the chart area
+                    floating: false,
                     fontSize: '12px',
-                    offsetX: -10, // Adjust offset to place the legend in the desired position
+                    offsetX: -10,
                     offsetY: 35,
                     formatter: function (val, opts) {
                         return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
                     },
                     labels: {
-                        useSeriesColors: true, // Matches legend colors with chart colors
+                        useSeriesColors: true,
                     },
                 },
                 plotOptions: {
@@ -1206,12 +1207,12 @@ export const usePaymentStore = defineStore({
                                     color: '#263238',
                                 },
                                 value: {
-                                    show: true,  // Show value
+                                    show: true,
                                     fontSize: '16px',
                                     fontWeight: 'bold',
-                                    color: '#000',  // Color for the value
+                                    color: '#000',
                                     formatter: function(val) {
-                                        return val; // Return only the value without percentage
+                                        return val;
                                     }
                                 },
                             },
@@ -1222,14 +1223,15 @@ export const usePaymentStore = defineStore({
 
             this.updateChartOptions(updated_pie_chart_options);
         },
+        //---------------------------------------------------
+
         updateChartOptions(newOptions) {
-            this.chartOptions = newOptions;
+            this.payment_methods_chart_options = newOptions;
         },
 
         //---------------------------------------------------
         updateChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+            this.payment_methods_chart_series = [...newSeries];
         },
 
 

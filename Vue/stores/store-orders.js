@@ -86,16 +86,16 @@ export const useOrderStore = defineStore({
 
         order_list_table_with_vendor:null,
         order_name:null,
-        chartOptions: {},
-        chartSeries: [],
+        count_chart_options: {},
+        count_chart_series: [],
 
-        pieChartOptions: {},
-        pieChartSeries: [],
-        salesChartOptions: {},
-        salesChartSeries: [],
-        orderPaymentsChartOptions: {},
-        orderPaymentsChartSeries: [],orderPaymentsIncomeChartOptions: {},
-        orderPaymentsIncomeChartSeries: [],
+        pie_chart_options: {},
+        pie_chart_series: [],
+        sales_chart_options: {},
+        sales_chart_series: [],
+
+        order_payments_income_chart_options: {},
+        order_payments_income_chart_series: [],
         order_payments_chart_series:null,
         selection: 'one_month',
     }),
@@ -1036,6 +1036,7 @@ export const useOrderStore = defineStore({
                 query:{ order_id : order_id}
             });
         },
+        //---------------------------------------------------
 
         async openOrderItems(item)
         {
@@ -1058,6 +1059,7 @@ export const useOrderStore = defineStore({
                 this.$router.push({name: 'orders.index', query: this.query});
             }
         },
+        //---------------------------------------------------
 
         async fetchOrdersChartData() {
             let params = {
@@ -1082,10 +1084,10 @@ export const useOrderStore = defineStore({
             this.updatePieChartSeries(data.chart_series?.orders_statuses_pie_chart);
 
             const updated_pie_chart_options = {
-                ...data.chart_options, // Merge existing options
+                ...data.chart_options,
                 title: {
-                    text: 'Status Distribution', // Add your chart title here
-                    align: 'left', // You can adjust alignment: 'left', 'center', 'right'
+                    text: 'Status Distribution',
+                    align: 'left',
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
@@ -1095,7 +1097,7 @@ export const useOrderStore = defineStore({
                 chart: {
                     background: '#fff',
                     toolbar: {
-                        show: false, // Ensure toolbar is set to false here
+                        show: false,
                     },
                 },
                 noData: {
@@ -1111,17 +1113,17 @@ export const useOrderStore = defineStore({
                     }
                 },
                 legend: {
-                    position: 'right', // Position the legend to the side of the chart
+                    position: 'right',
                     horizontalAlign: 'center',
-                    floating: false, // Makes it appear inside the chart area
+                    floating: false,
                     fontSize: '12px',
-                    offsetX: -10, // Adjust offset to place the legend in the desired position
+                    offsetX: -10,
                     offsetY: 35,
                     formatter: function (val, opts) {
                         return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
                     },
                     labels: {
-                        useSeriesColors: true, // Matches legend colors with chart colors
+                        useSeriesColors: true,
                     },
                 },
                 plotOptions: {
@@ -1137,12 +1139,12 @@ export const useOrderStore = defineStore({
                                     color: '#263238',
                                 },
                                 value: {
-                                    show: true,  // Show value
+                                    show: true,
                                     fontSize: '16px',
                                     fontWeight: 'bold',
-                                    color: '#000',  // Color for the value
+                                    color: '#000',
                                     formatter: function(val) {
-                                        return val; // Return only the value without percentage
+                                        return val;
                                     }
                                 },
                             },
@@ -1174,12 +1176,12 @@ export const useOrderStore = defineStore({
             );
         },
 
+        //---------------------------------------------------
 
         fetchSalesChartDataAfter(data, res) {
             if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
                 return;
             }
-            // this.updateDateFilter();
             this.chart_series = data.chart_series;
             this.overall_sales = data.chart_series?.overall_total_sales;
             this.growth_rate = data.chart_series?.growth_rate;
@@ -1219,33 +1221,32 @@ export const useOrderStore = defineStore({
                 },
                 xaxis: {
                     type: 'datetime',
-                    // Set x-axis to datetime
+
                     labels: {
-                        show: false, // Hide x-axis labels
+                        show: false,
                     },
                     axisBorder: {
-                        show: false, // Hide x-axis border if desired
+                        show: false,
                     },
                 },
                 yaxis: {
                     labels: {
-                        show: false, // Hide y-axis labels
+                        show: false,
                     },
                     axisBorder: {
-                        show: false, // Hide y-axis border if desired
+                        show: false,
                     },
                 },
                 tooltip: {
                     x: {
-                        format: 'MMMM d, yyyy' // Format tooltip date to "MMMM d, yyyy"
+                        format: 'MMMM d, yyyy'
                     }
                 },
                 chart: {
                     background: '#fff',
                     toolbar: {
-                        show: false, // Ensure toolbar is set to false here
+                        show: false,
                     },
-                    // height:100
                 },
                 toolbar: {
                     show: false,
@@ -1271,8 +1272,7 @@ export const useOrderStore = defineStore({
 
         },
 
-
-
+        //---------------------------------------------------
 
         async fetchOrderPaymentsData() {
             let params = {
@@ -1291,6 +1291,7 @@ export const useOrderStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------
 
         fetchOrderPaymentsDataAfter(data, res) {
             if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_income_chart_data)) {
@@ -1336,34 +1337,31 @@ export const useOrderStore = defineStore({
                 },
                 xaxis: {
                     type: 'datetime',
-                    // Set x-axis to datetime
                     labels: {
-                        show: false, // Hide x-axis labels
+                        show: false,
                     },
                     axisBorder: {
-                        show: false, // Hide x-axis border if desired
+                        show: false,
                     },
                 },
                 yaxis: {
                     labels: {
-                        show: false, // Hide y-axis labels
+                        show: false,
                     },
                     axisBorder: {
-                        show: false, // Hide y-axis border if desired
+                        show: false,
                     },
                 },
                 tooltip: {
                     x: {
-                        format: 'MMMM d, yyyy' // Format tooltip date to "MMMM d, yyyy"
+                        format: 'MMMM d, yyyy'
                     }
                 },
                 chart: {
                     background: '#fff',
                     toolbar: {
-                        show: false, // Ensure toolbar is set to false here
+                        show: false,
                     },
-
-                    // height:100
                 },
                 toolbar: {
                     show: false,
@@ -1386,58 +1384,56 @@ export const useOrderStore = defineStore({
             this.updateOrderPaymentsIncomeChartOptions(updated_order_payments_income_chart_options);
         },
 
+        //---------------------------------------------------
 
         updateChartOptions(newOptions) {
-            this.chartOptions = newOptions;
+            this.count_chart_options = newOptions;
         },
 
         //---------------------------------------------------
         updateChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+            this.count_chart_series = [...newSeries];
         },
         //---------------------------------------------------
 
         //---------------------------------------------------
         updatePieChartOptions(newOptions) {
-            this.pieChartOptions = newOptions;
+            this.pie_chart_options = newOptions;
         },
 
         //---------------------------------------------------
         updatePieChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.pieChartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+            this.pie_chart_series = [...newSeries];
         },
-        updateOrderPaymentsChartSeries(series) {
-            this.orderPaymentsChartSeries = series;
-        },
+
         //---------------------------------------------------
 
         updateOrderPaymentsChartOptions(options) {
-            this.orderPaymentsChartOptions = options;
+            this.order_payments_chart_options = options;
         },
         //---------------------------------------------------
 
         updateSalesChartSeries(series) {
-            this.salesChartSeries = series;
+            this.sales_chart_series = series;
         },
         //---------------------------------------------------
 
         updateSalesChartOptions(options) {
-            this.salesChartOptions = options;
+            this.sales_chart_options = options;
         },
         //---------------------------------------------------
 
 
         updateOrderPaymentsIncomeChartSeries(series) {
-            this.orderPaymentsIncomeChartSeries = series;
+            this.order_payments_income_chart_series = series;
         },
         //---------------------------------------------------
 
         updateOrderPaymentsIncomeChartOptions(options) {
-            this.orderPaymentsIncomeChartOptions = options;
+            this.order_payments_income_chart_options = options;
         },
 
+        //---------------------------------------------------
 
 
         async fetchOrdersCountChartData() {
@@ -1457,6 +1453,8 @@ export const useOrderStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------
+
         fetchOrdersCountChartDataAfter(data,res){
             if (!data || !Array.isArray(data.chart_series?.orders_count_bar_chart)) {
                 return;
@@ -1490,34 +1488,34 @@ export const useOrderStore = defineStore({
                 },
                 xaxis: {
                     type: 'datetime',
-                    // Set x-axis to datetime
+
                     labels: {
-                        show: false, // Hide x-axis labels
+                        show: false,
                     },
                     axisBorder: {
-                        show: false, // Hide x-axis border if desired
+                        show: false,
                     },
                 },
                 yaxis: {
                     labels: {
-                        show: false, // Hide y-axis labels
+                        show: false,
                     },
                     axisBorder: {
-                        show: false, // Hide y-axis border if desired
+                        show: false,
                     },
                 },
                 tooltip: {
                     x: {
-                        format: 'MMMM d, yyyy' // Format tooltip date to "MMMM d, yyyy"
+                        format: 'MMMM d, yyyy'
                     }
                 },
 
                 chart: {
                     background: '#fff',
                     toolbar: {
-                        show: false, // Ensure toolbar is set to false here
+                        show: false,
                     },
-                    // height:100
+
                 },
                 toolbar: {
                     show: false,

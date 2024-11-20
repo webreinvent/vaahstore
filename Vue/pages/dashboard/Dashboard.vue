@@ -26,7 +26,6 @@ const route = useRoute();
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     await orders_store.watchStates();
-    // await product_store.watchStates();
 
     await product_store.topSellingProducts();
     await product_store.topSellingBrands();
@@ -37,7 +36,6 @@ onMounted(async () => {
     await product_stock_store.getStocksChartData();
     customers_store.fetchCustomerCountChartData();
 
-    // product_store.getQuickFilterMenu();
 
     await orders_store.fetchOrdersCountChartData();
     await orders_store.fetchSalesChartData();
@@ -99,8 +97,8 @@ const toggleQuickFilterState = (event) => {
                             <div>
                                 <Charts
                                     type="area"
-                                    :chartOptions="orders_store.chartOptions"
-                                    :chartSeries="orders_store.chartSeries"
+                                    :chartOptions="orders_store.count_chart_options"
+                                    :chartSeries="orders_store.count_chart_series"
                                     height=100
                                     titleAlign="center"
                                     title=""
@@ -176,8 +174,8 @@ const toggleQuickFilterState = (event) => {
                                 <Charts
                                     class="w-full"
                                     type="area"
-                                    :chartOptions="orders_store.salesChartOptions"
-                                    :chartSeries="orders_store.salesChartSeries"
+                                    :chartOptions="orders_store.sales_chart_options"
+                                    :chartSeries="orders_store.sales_chart_series"
                                     height=100
                                     titleAlign="center"
 
@@ -255,8 +253,8 @@ const toggleQuickFilterState = (event) => {
                                 <Charts
                                     class="w-full"
                                     type="area"
-                                    :chartOptions="orders_store.orderPaymentsIncomeChartOptions"
-                                    :chartSeries="orders_store.orderPaymentsIncomeChartSeries"
+                                    :chartOptions="orders_store.order_payments_income_chart_options"
+                                    :chartSeries="orders_store.order_payments_income_chart_series"
                                     height=100
                                     titleAlign="center"
 
@@ -278,42 +276,7 @@ const toggleQuickFilterState = (event) => {
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
                             <h2 class="text-lg">Top Selling Products</h2>
-                            <Chip
-                                v-if="product_store.query.filter.time?.length"
-                                class="white-space-nowrap align-items-center"
-                                :style="{
-                                                        fontSize: '11px',
-                                                        marginRight: '5px',
-                                                        padding: '1px 8px',
-                                                        fontWeight:'600',
-                                                      }"
-                                :pt="{
-                                                        removeIcon: {
-                                                            style: {
-                                                                width: '12px',
-                                                                height: '12px',
-                                                                marginLeft: '6px'
-                                                            }
-                                                        }
-                                                      }"
-                                :label="product_store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
-                                removable
-                                @remove="product_store.query.filter.time=null;"
-                            />
-                            <Button
-                                data-testid="inventories-quick_filter"
-                                type="button"
-                                @click="toggleQuickFilterState($event)"
-                                aria-haspopup="true"
-                                aria-controls="quick_filter_menu_state"
-                                class="ml-1 p-button-sm px-1"
 
-                                icon="pi pi-filter"
-                            >
-                            </Button>
-                            <Menu ref="quick_filter_menu_state"
-                                  :model="product_store.quick_filter_menu"
-                                  :popup="true"/>
                         </div>
                     </template>
 
@@ -369,42 +332,7 @@ const toggleQuickFilterState = (event) => {
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
                             <h2 class="text-lg">Top Vendors By Sale</h2>
-                            <Chip
-                                v-if="vendor_store.query.filter.time?.length"
-                                class="white-space-nowrap align-items-center"
-                                :style="{
-                                                        fontSize: '11px',
-                                                        marginRight: '5px',
-                                                        padding: '1px 8px',
-                                                        fontWeight:'600',
-                                                      }"
-                                :pt="{
-                                                        removeIcon: {
-                                                            style: {
-                                                                width: '12px',
-                                                                height: '12px',
-                                                                marginLeft: '6px'
-                                                            }
-                                                        }
-                                                      }"
-                                :label="vendor_store.query.filter.time?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')"
-                                removable
-                                @remove="vendor_store.query.filter.time=null;"
-                            />
-                            <Button
-                                data-testid="inventories-quick_filter"
-                                type="button"
-                                @click="toggleQuickFilterState($event)"
-                                aria-haspopup="true"
-                                aria-controls="quick_filter_menu_state"
-                                class="ml-1 p-button-sm px-1"
 
-                                icon="pi pi-filter"
-                            >
-                            </Button>
-                            <Menu ref="quick_filter_menu_state"
-                                  :model="vendor_store.quick_filter_menu"
-                                  :popup="true"/>
                         </div>
                     </template>
 
@@ -490,7 +418,6 @@ const toggleQuickFilterState = (event) => {
                                         </div>
                                         <div class="product_desc ml-3">
                                             <h4>{{ prop.data.name }}</h4>
-                                            <!--                                <p><b> {{ prop.data.total_sales }}</b> Items</p>-->
                                         </div>
                                     </div>
                                 </template>
@@ -514,17 +441,7 @@ const toggleQuickFilterState = (event) => {
                         <div class="flex align-items-center justify-content-between">
                             <h2 class="text-lg">Highest Stock</h2>
 
-                            <Button
-                                data-testid="inventories-quick_filter"
-                                type="button"
-                                @click="product_stock_store.QuickHighFilter()"
-                                aria-haspopup="true"
-                                aria-controls="quick_filter_menu_state"
-                                class="ml-1 p-button-sm px-1"
-                                label="All"
-                                icon="pi pi-filter"
-                            >
-                            </Button>
+
 
                         </div>
                     </template>
@@ -574,8 +491,6 @@ const toggleQuickFilterState = (event) => {
                                                     {{ prop.data.stock }}
 
                                                 </p>
-                                                <!--                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">-->
-                                                <!--                                                    ₹{{ prop.data.pivot.price }}</p>-->
                                                 <ProgressBar
                                                     style="width: 15rem; height:12px"
                                                     :value=prop.data.stock_percentage
@@ -609,19 +524,6 @@ const toggleQuickFilterState = (event) => {
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
                             <h2 class="text-lg">Lowest Stock</h2>
-
-                            <Button
-                                data-testid="inventories-quick_filter"
-                                type="button"
-                                @click="product_stock_store.QuickLowFilter()"
-                                aria-haspopup="true"
-                                aria-controls="quick_filter_menu_state"
-                                class="ml-1 p-button-sm px-1"
-                                label="All"
-                                icon="pi pi-filter"
-                            >
-                            </Button>
-
                         </div>
                     </template>
 
@@ -666,8 +568,6 @@ const toggleQuickFilterState = (event) => {
                                                     {{ prop.data.stock }}
 
                                                 </p>
-                                                <!--                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">-->
-                                                <!--                                                    ₹{{ prop.data.pivot.price }}</p>-->
                                                 <ProgressBar
                                                     style="width: 15rem; height:10px"
                                                     :value=prop.data.stock_percentage
@@ -731,7 +631,6 @@ const toggleQuickFilterState = (event) => {
                                         </div>
                                         <div class="product_desc ml-3">
                                             <h4>{{ prop.data.name }}</h4>
-                                            <!--                                <p><b> {{ prop.data.total_sales }}</b> Items</p>-->
                                         </div>
                                     </div>
                                 </template>
@@ -755,8 +654,8 @@ const toggleQuickFilterState = (event) => {
                     <template #content>
                         <Charts
                             type="line"
-                            :chartOptions="vendor_store.chartOptions"
-                            :chartSeries="vendor_store.chartSeries"
+                            :chartOptions="vendor_store.vendor_sales_area_chart_options"
+                            :chartSeries="vendor_store.vendor_sales_area_chart_series"
                             titleAlign=""
                             title="Sales By Vendor"
 
@@ -769,8 +668,8 @@ const toggleQuickFilterState = (event) => {
                     <template #content>
                         <Charts
                             type="donut"
-                            :chartOptions="orders_store.pieChartOptions"
-                            :chartSeries="orders_store.pieChartSeries"
+                            :chartOptions="orders_store.pie_chart_options"
+                            :chartSeries="orders_store.pie_chart_series"
                             height=250
                             titleAlign="center"
 
@@ -785,8 +684,8 @@ const toggleQuickFilterState = (event) => {
                     <template #content>
                         <Charts
                             type="pie"
-                            :chartOptions="payment_store.chartOptions"
-                            :chartSeries="payment_store.chartSeries"
+                            :chartOptions="payment_store.payment_methods_chart_options"
+                            :chartSeries="payment_store.payment_methods_chart_series"
                             height=250
                             titleAlign="center"
                         />
@@ -835,8 +734,8 @@ const toggleQuickFilterState = (event) => {
                     <template #content>
                         <Charts
                             type="line"
-                            :chartOptions="customers_store.chartOptions"
-                            :chartSeries="customers_store.chartSeries"
+                            :chartOptions="customers_store.customer_count_chart_options"
+                            :chartSeries="customers_store.customer_count_chart_series"
                             height="300"
                             titleAlign="center"
 
@@ -851,8 +750,8 @@ const toggleQuickFilterState = (event) => {
                     <template #content>
                         <Charts
                             type="area"
-                            :chartOptions="shipment_store.shipmentItemsChartOptions"
-                            :chartSeries="shipment_store.shipmentItemsSeries"
+                            :chartOptions="shipment_store.shipment_by_items_chart_options"
+                            :chartSeries="shipment_store.shipment_by_items_chart_series"
 
                             titleAlign="center"
                         />
@@ -861,99 +760,6 @@ const toggleQuickFilterState = (event) => {
                 </Card>
 
             </div>
-
-            <!--Customer Charts-->
-
-
-            <!--Quantity Shipped Over Date range-->
-
-
-
-            <!--Shipped Quantity Status-->
-
-
-
-            <!--Stocks Availabe in Warehouse-->
-
-
-
-
-            <!--Highest & Lowest Stocks Cards-->
-
-            <!--          Top Categories-->
-
-
-            <!--          Vendors Sales Line Chart-->
-
-
-            <!--Order Status Pie/Donut Chart-->
-
-
-            <!--Payment Method Used-->
-
-
-            <!--            <Charts-->
-            <!--                class="bg-white h-full border-round-xl p-card p-3"-->
-            <!--                type="area"-->
-            <!--                :chartOptions="{-->
-            <!--    ...orders_store.chartOptions,-->
-            <!--    title: {-->
-            <!--      text: 'Orders Created Vs Completed',-->
-            <!--      align: 'center',-->
-            <!--      offsetY: 10,-->
-            <!--      style: {-->
-            <!--        fontSize: '16px',-->
-            <!--        fontWeight: 'bold',-->
-            <!--        color: '#263238'-->
-            <!--      }-->
-            <!--    },-->
-            <!--    legend: {-->
-            <!--      position: 'top',-->
-            <!--      horizontalAlign: 'center',-->
-            <!--      fontSize: '14px'-->
-            <!--    },-->
-            <!--     grid: {-->
-            <!--                    show: true,-->
-            <!--                },-->
-            <!--    xaxis: {-->
-            <!--                    type: 'datetime',-->
-            <!--                    // Set x-axis to datetime-->
-            <!--                    labels: {-->
-            <!--                        show: true, // Hide x-axis labels-->
-            <!--                    },-->
-            <!--                    axisBorder: {-->
-            <!--                        show: true, // Hide x-axis border if desired-->
-            <!--                    },-->
-            <!--                },-->
-            <!--                yaxis: {-->
-            <!--                    labels: {-->
-            <!--                        show: true, // Hide y-axis labels-->
-            <!--                    },-->
-            <!--                    axisBorder: {-->
-            <!--                        show: true, // Hide y-axis border if desired-->
-            <!--                    },-->
-            <!--                },-->
-            <!--                legend: {-->
-            <!--                    position: 'top',-->
-            <!--                    horizontalAlign: 'center',-->
-            <!--                    floating: false,-->
-            <!--                    fontSize: '14px',-->
-            <!--                    formatter: function (val, opts) {-->
-            <!--                        const seriesIndex = opts.seriesIndex; // Get the series index-->
-            <!--                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data-->
-            <!--                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data-->
-            <!--                        return `${val} - ${sum}`; // Return the legend text with the sum-->
-            <!--                    },-->
-            <!--                },-->
-            <!--    toolbar: {-->
-            <!--      show: false // Example of an additional option-->
-            <!--    }-->
-            <!--  }"-->
-            <!--                :chartSeries="orders_store.chartSeries"-->
-            <!--                height="320"-->
-            <!--                width="390"-->
-            <!--            />-->
-
 
 
 

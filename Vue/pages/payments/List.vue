@@ -83,8 +83,8 @@ const toggleCreateMenu = (event) => {
                         <Charts
                             class="border-1 border-gray-200 border-round-sm overflow-hidden shadow-2 "
                             type="pie"
-                            :chartOptions="store.chartOptions"
-                            :chartSeries="store.chartSeries"
+                            :chartOptions="store.payment_methods_chart_options"
+                            :chartSeries="store.payment_methods_chart_series"
                             height=220 width=400
                             titleAlign="center"
                         />
@@ -152,8 +152,8 @@ const toggleCreateMenu = (event) => {
                                                 <Charts
                                                     class="w-full"
                                                     type="area"
-                                                    :chartOptions="order_store.orderPaymentsIncomeChartOptions"
-                                                    :chartSeries="order_store.orderPaymentsIncomeChartSeries"
+                                                    :chartOptions="order_store.order_payments_income_chart_options"
+                                                    :chartSeries="order_store.order_payments_income_chart_series"
                                                     height=100 width=300
                                                     titleAlign="center"
 

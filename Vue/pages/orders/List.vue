@@ -128,8 +128,8 @@ const toggleCreateMenu = (event) => {
                                             <div >
                                                 <Charts
                                                     type="area"
-                                                    :chartOptions="store.chartOptions"
-                                                    :chartSeries="store.chartSeries"
+                                                    :chartOptions="store.count_chart_options"
+                                                    :chartSeries="store.count_chart_series"
                                                     height=130 width=300
                                                     titleAlign="center"
                                                     title=""
@@ -201,8 +201,8 @@ const toggleCreateMenu = (event) => {
                                                 <Charts
                                                     class="w-full"
                                                     type="area"
-                                                    :chartOptions="store.salesChartOptions"
-                                                    :chartSeries="store.salesChartSeries"
+                                                    :chartOptions="store.sales_chart_options"
+                                                    :chartSeries="store.sales_chart_series"
                                                     height=130 width=300
                                                     titleAlign="center"
 
@@ -278,8 +278,8 @@ const toggleCreateMenu = (event) => {
                                                 <Charts
                                                     class="w-full"
                                                     type="area"
-                                                    :chartOptions="store.orderPaymentsIncomeChartOptions"
-                                                    :chartSeries="store.orderPaymentsIncomeChartSeries"
+                                                    :chartOptions="store.order_payments_income_chart_options"
+                                                    :chartSeries="store.order_payments_income_chart_series"
                                                     height=130 width=300
                                                     titleAlign="center"
 
@@ -301,8 +301,8 @@ const toggleCreateMenu = (event) => {
                             <Charts
                                 type="donut"
                                 class="border-round-3xl mb-2 border"
-                                :chartOptions="store.pieChartOptions"
-                                :chartSeries="store.pieChartSeries"
+                                :chartOptions="store.pie_chart_options"
+                                :chartSeries="store.pie_chart_series"
                                 height=250 width=400
                                 titleAlign="center"
 

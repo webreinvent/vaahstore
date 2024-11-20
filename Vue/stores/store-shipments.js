@@ -78,12 +78,12 @@ export const useShipmentStore = defineStore({
         filter_order_suggestion:[],
         selected_orders:null,
         selected_dates:null,
-        chartOptions: {},
-        chartSeries: [],
+        shipment_by_order_chart_options: {},
+        shipment_by_order_chart_series: [],
         shipment_items_by_status_chart_options: {},
         shipment_items_by_status_chart_series: [],
-        shipmentItemsChartOptions:{},
-        shipmentItemsSeries:[],
+        shipment_by_items_chart_options:{},
+        shipment_by_items_chart_series:[],
 
 
 
@@ -1359,7 +1359,6 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------------------------
         ordersShipmentByDateRangeAfter(data,res){
-            // this.updateDateFilter();
             const series_data = data.chart_series.map(series => ({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
@@ -1368,7 +1367,7 @@ export const useShipmentStore = defineStore({
             this.updateChartSeries(series_data);
 
             const updated_area_chart_options = {
-                ...data.chart_options, // Merge existing options
+                ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
                     width: 3,
@@ -1386,9 +1385,9 @@ export const useShipmentStore = defineStore({
                     }
                 },
                 title: {
-                    text: 'Orders In Shipment Over Date Range', // Chart title
-                    align: 'center', // Title alignment
-                    offsetY: 12, // Add margin between title and chart/toolbar
+                    text: 'Orders In Shipment Over Date Range',
+                    align: 'center',
+                    offsetY: 12,
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
@@ -1398,7 +1397,7 @@ export const useShipmentStore = defineStore({
                 chart: {
 
                     toolbar: {
-                        show: false, // This should be under the chart key
+                        show: false,
                     },
                     background: '#ffffff',
 
@@ -1421,12 +1420,7 @@ export const useShipmentStore = defineStore({
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: '11px',
-                    /*formatter: function (val, opts) {
-                        const seriesIndex = opts.seriesIndex; // Get the series index
-                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
-                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
-                        return `${val} - ${sum}`; // Return the legend text with the sum
-                    }*/
+
                 },
                 dataLabels: {
                     enabled: false,
@@ -1444,33 +1438,17 @@ export const useShipmentStore = defineStore({
             this.updateChartOptions(updated_area_chart_options);
         },
         updateChartOptions(newOptions) {
-            this.chartOptions = newOptions;
+            this.shipment_by_order_chart_options = newOptions;
         },
 
         //---------------------------------------------------
         updateChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+
+            this.shipment_by_order_chart_series = [...newSeries];
         },
 
 
-        async updateDateFilter(start_date = null, end_date = null) {
-            start_date = start_date || this.filter_start_date;
-            end_date = end_date || this.filter_end_date;
-            this.date_filter_between.length = 0;
-            let currentDate = new Date(start_date);
-            this.date_filter_between.push(0);
-            while (currentDate <= end_date) {
-                const formatted_date = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
-                if (!this.date_filter_between.includes(formatted_date)) {
-                    this.date_filter_between.push(formatted_date);
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            await this.ordersShipmentByDateRange();
-            // this.chartOptions = await this.vendorsBySales();
-        },
         //---------------------------------------------------------------------
         async ordersShipmentItemsByDateRange() {
 
@@ -1493,7 +1471,6 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------------------------
         ordersShipmentItemsByDateRangeAfter(data,res){
-            // this.updateDateFilter();
             const series_data = data.chart_series.map(series => ({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
@@ -1502,15 +1479,15 @@ export const useShipmentStore = defineStore({
             this.updateShipmentItemsChartSeries(series_data);
 
             const updated_area_chart_options = {
-                ...data.chart_options, // Merge existing options
+                ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
                     width: 3,
                 },
                 title: {
-                    text: 'Quantity Shipped Over Date Range', // Chart title
-                    align: 'center', // Title alignment
-                    offsetY: 12, // Add margin between title and chart/toolbar
+                    text: 'Quantity Shipped Over Date Range',
+                    align: 'center',
+                    offsetY: 12,
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
@@ -1532,7 +1509,7 @@ export const useShipmentStore = defineStore({
                 chart: {
 
                     toolbar: {
-                        show: false, // This should be under the chart key
+                        show: false,
                     },
                     background: '#ffffff',
 
@@ -1553,12 +1530,6 @@ export const useShipmentStore = defineStore({
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: '11px',
-                    /*formatter: function (val, opts) {
-                        const seriesIndex = opts.seriesIndex; // Get the series index
-                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
-                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
-                        return `${val} - ${sum}`; // Return the legend text with the sum
-                    }*/
                 },
 
                 dataLabels: {
@@ -1578,16 +1549,15 @@ export const useShipmentStore = defineStore({
         },
         //---------------------------------------------------------------------
         updateShipmentItemsChartOptions(newOptions) {
-            this.shipmentItemsChartOptions = newOptions;
+            this.shipment_by_items_chart_options = newOptions;
         },
 
         //---------------------------------------------------
         updateShipmentItemsChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.shipmentItemsSeries = [...newSeries]; // Shallow copy to trigger reactivity
+            this.shipment_by_items_chart_series = [...newSeries];
         },
 
-//---------------------------------------------------
+        //---------------------------------------------------
 
         async shipmentItemsByStatusBarChart() {
 
@@ -1611,7 +1581,6 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------------------------
         shipmentItemsByStatusBarChartAfter(data,res){
-            // this.updateDateFilter();
             const series_data = [{
                 name: 'Item Qty.',
                 data: Array.isArray(data.chart_series?.quantity_data) ? data.chart_series?.quantity_data : [],
@@ -1708,6 +1677,7 @@ export const useShipmentStore = defineStore({
 
             this.updateShipmentItemsByStatusChartOptions(updated_bar_chart_options);
         },
+        //---------------------------------------------------
 
         updateShipmentItemsByStatusChartOptions(newOptions) {
             this.shipment_items_by_status_chart_options = newOptions;
@@ -1715,8 +1685,7 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------
         updateShipmentItemsByStatusChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.shipment_items_by_status_chart_series = [...newSeries]; // Shallow copy to trigger reactivity
+            this.shipment_items_by_status_chart_series = [...newSeries];
         },
         //---------------------------------------------------------------------
 

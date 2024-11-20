@@ -86,22 +86,22 @@ const toggleCreateMenu = (event) => {
                 </template>
                 <div class="flex gap-2 mb-1">
                     <div class="w-full bg-white   border-gray-200 rounded-sm mb-2">
-                        
+
                         <div class="flex flex-wrap justify-content-between gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
 
                             <Charts
                                 class="border-1 border-gray-200 border-round-sm overflow-hidden"
                                 type="area"
-                                :chartOptions="store.chartOptions"
-                                :chartSeries="store.chartSeries"
+                                :chartOptions="store.shipment_by_order_chart_options"
+                                :chartSeries="store.shipment_by_order_chart_series"
                                 height=200 width=350
                                 titleAlign="center"
                             />
                             <Charts
                                 class="border-1 border-gray-200 border-round-sm overflow-hidden"
                                 type="area"
-                                :chartOptions="store.shipmentItemsChartOptions"
-                                :chartSeries="store.shipmentItemsSeries"
+                                :chartOptions="store.shipment_by_items_chart_options"
+                                :chartSeries="store.shipment_by_items_chart_series"
                                 height=200 width=350
                                 titleAlign="center"
                             />

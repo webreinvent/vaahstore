@@ -188,8 +188,8 @@ const today = ref(new Date());
                             <Charts
                                 type="line"
 
-                                :chartOptions="store.chartOptions"
-                                :chartSeries="store.chartSeries"
+                                :chartOptions="store.vendor_sales_area_chart_options"
+                                :chartSeries="store.vendor_sales_area_chart_series"
                                 height=250 width=700
                                 titleAlign="center"
                                 title="Sales By Vendor"
