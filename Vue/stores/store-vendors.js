@@ -102,8 +102,8 @@ export const useVendorStore = defineStore({
         total_product_count:0,
         top_selling_vendors:[],
         quick_filter_menu:[],
-        chartOptions: {},
-        chartSeries: [],
+        vendor_sales_area_chart_options: {},
+        vendor_sales_area_chart_series: [],
         filter_all: null,
 
 
@@ -1788,6 +1788,8 @@ export const useVendorStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+
         async topSellingVendorsData() {
 
             let params = {
@@ -1807,12 +1809,15 @@ export const useVendorStore = defineStore({
                 options
             );
         },
+        //---------------------------------------------------------------------
+
         topSellingVendorsDataAfter(data,res){
             if (data){
                 this.top_selling_vendors=data;
             }
         },
 
+        //---------------------------------------------------------------------
 
         async vendorSalesByRange() {
 
@@ -1834,6 +1839,8 @@ export const useVendorStore = defineStore({
             );
         },
 
+        //---------------------------------------------------------------------
+
         vendorSalesByRangeAfter(data,res){
 
             const series_data = data.chart_series.map(series => ({
@@ -1844,15 +1851,15 @@ export const useVendorStore = defineStore({
             this.updateChartSeries(series_data);
 
             const updated_area_chart_options = {
-                ...data.chart_options, // Merge existing options
+                ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
                     width: 3,
                 },
                 title: {
-                    text: 'Vendor Sales Over Selected Date Range', // Chart title
-                    align: 'left', // Title alignment
-                    offsetY: 12, // Add margin between title and chart/toolbar
+                    text: 'Vendor Sales Over Selected Date Range',
+                    align: 'left',
+                    offsetY: 12,
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
@@ -1862,7 +1869,7 @@ export const useVendorStore = defineStore({
                 chart: {
 
                     toolbar: {
-                        show: false, // This should be under the chart key
+                        show: false,
                     },
                     background: '#ffffff',
 
@@ -1874,12 +1881,6 @@ export const useVendorStore = defineStore({
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: '14px',
-                    /*formatter: function (val, opts) {
-                        const seriesIndex = opts.seriesIndex; // Get the series index
-                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
-                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
-                        return `${val} - ${sum}`; // Return the legend text with the sum
-                    }*/
                 },
                 dataLabels: {
                     enabled: false,
@@ -1892,13 +1893,12 @@ export const useVendorStore = defineStore({
             this.updateChartOptions(updated_area_chart_options);
         },
         updateChartOptions(newOptions) {
-            this.chartOptions = newOptions;
+            this.vendor_sales_area_chart_options = newOptions;
         },
 
         //---------------------------------------------------
         updateChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+            this.vendor_sales_area_chart_series = [...newSeries];
         },
 
 

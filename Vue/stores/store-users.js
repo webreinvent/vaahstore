@@ -126,8 +126,8 @@ export const useUserStore = defineStore({
             msg:''
 
         },
-        chartOptions: {},
-        chartSeries: [],
+        customer_count_chart_options: {},
+        customer_count_chart_series: [],
 
     }),
     getters: {
@@ -1331,48 +1331,48 @@ export const useUserStore = defineStore({
             }));
             this.updateChartSeries(seriesData);
             const updatedOptions = {
-                ...data.chart_options, // Merge existing options
+                ...data.chart_options,
                 legend: {
                     position: 'top',
                     horizontalAlign: 'center',
                     floating: false,
                     fontSize: '14px',
                     formatter: function (val, opts) {
-                        const seriesIndex = opts.seriesIndex; // Get the series index
-                        const seriesData = opts.w.globals.series[seriesIndex]; // Get the series data
-                        const sum = seriesData.reduce((acc, value) => acc + value, 0); // Calculate the sum of the series data
-                        return `${val} - ${sum}`; // Return the legend text with the sum
+                        const seriesIndex = opts.seriesIndex;
+                        const seriesData = opts.w.globals.series[seriesIndex];
+                        const sum = seriesData.reduce((acc, value) => acc + value, 0);
+                        return `${val} - ${sum}`;
                     },
                 },
-                chart: { // Ensure toolbar is nested under chart
+                chart: {
                     toolbar: {
                         show: false
                     }
                 },
                 title: {
-                    text: 'Monthly Customers Count', // Chart title
-                    align: 'center', // Title alignment
-                    offsetY: 12, // Add margin between title and chart/toolbar
+                    text: 'Monthly Customers Count',
+                    align: 'center',
+                    offsetY: 12,
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
                         color: '#263238'
                     }
                 },
-                // If you want to add or modify other sections like yaxis, grid, etc., you can do it here
+
             };
             this.updateChartOptions(updatedOptions);
-            // this.updateChartOptions(res.data.chart_options); // Update options based on response
+
         },
         //---------------------------------------------------
         updateChartOptions(newOptions) {
-            this.chartOptions = newOptions;
+            this.customer_count_chart_options = newOptions;
         },
 
         //---------------------------------------------------
         updateChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.chartSeries = [...newSeries]; // Shallow copy to trigger reactivity
+
+            this.customer_count_chart_series = [...newSeries];
         },
         //---------------------------------------------------
 

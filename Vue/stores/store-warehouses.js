@@ -1140,6 +1140,7 @@ export const useWarehouseStore = defineStore({
         getDefaultVendorAfter(data,res) {
             this.item.vendor = data ? data : [];
         },
+        //---------------------------------------------------
 
         async warehouseStockInBarChart() {
 
@@ -1163,7 +1164,6 @@ export const useWarehouseStore = defineStore({
 
         //---------------------------------------------------------------------
         warehouseStockInBarChartAfter(data,res){
-            // this.updateDateFilter();
             const series_data = [{
                 name: 'Stocks Available',
                 data: Array.isArray(data.chart_series?.quantity_data) ? data.chart_series?.quantity_data : [],
@@ -1174,7 +1174,7 @@ export const useWarehouseStore = defineStore({
             this.updateWarehouseStocksBarChartSeries(series_data);
 
             const updated_bar_chart_options = {
-                ...data.chart_options, // Merge existing options
+                ...data.chart_options,
 
 
                 title: {
@@ -1256,15 +1256,15 @@ export const useWarehouseStore = defineStore({
             this.updateWarehouseStocksBarChartOptions(updated_bar_chart_options);
         },
 
+        //---------------------------------------------------
 
-        updateWarehouseStocksBarChartOptions(newOptions) {
-            this.warehouse_stock_bar_chart_options = newOptions;
+        updateWarehouseStocksBarChartOptions(new_options) {
+            this.warehouse_stock_bar_chart_options = new_options;
         },
 
         //---------------------------------------------------
-        updateWarehouseStocksBarChartSeries(newSeries) {
-            // Ensure chartSeries is updated reactively
-            this.warehouse_stock_bar_chart_series = [...newSeries]; // Shallow copy to trigger reactivity
+        updateWarehouseStocksBarChartSeries(new_series) {
+            this.warehouse_stock_bar_chart_series = [...new_series];
         },
 
     },
