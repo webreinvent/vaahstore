@@ -23,10 +23,11 @@ const payment_store = usePaymentStore();
 const product_stock_store = useProductStockStore();
 const root = useRootStore();
 const route = useRoute();
+const base_url = ref('');
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
+    base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
-
     await product_store.topSellingProducts();
     await product_store.topSellingBrands();
     await product_store.topSellingCategories();
@@ -299,8 +300,9 @@ const toggleQuickFilterState = (event) => {
                                                 v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                 <div v-for="(imageUrl, imgIndex) in prop.data.image_urls"
                                                      :key="imgIndex">
+
                                                     <Image preview
-                                                           :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                           :src="base_url + '/' + imageUrl"
                                                            alt="Error" class="shadow-4" width="35"/>
                                                 </div>
                                             </div>
@@ -406,7 +408,7 @@ const toggleQuickFilterState = (event) => {
                                                 <div v-for="(imageUrl, imgIndex) in prop.data.image_urls"
                                                      :key="imgIndex">
                                                     <Image preview
-                                                           :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                           :src="base_url + '/' + imageUrl"
                                                            alt="Error" class="shadow-4" width="35"/>
                                                 </div>
                                             </div>
@@ -468,7 +470,7 @@ const toggleQuickFilterState = (event) => {
                                                     <div v-for="(imageUrl, imgIndex) in prop.data.image_urls"
                                                          :key="imgIndex">
                                                         <Image preview
-                                                               :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                               :src="base_url + '/' + imageUrl"
                                                                alt="Error" class="shadow-4" width="64"/>
                                                     </div>
                                                 </div>
@@ -546,7 +548,7 @@ const toggleQuickFilterState = (event) => {
                                                 <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                     <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
                                                         <Image preview
-                                                               :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                               :src="base_url + '/' + imageUrl"
                                                                alt="Error" class="shadow-4" width="64"/>
                                                     </div>
                                                 </div>
@@ -619,7 +621,7 @@ const toggleQuickFilterState = (event) => {
                                                 <div v-for="(imageUrl, imgIndex) in prop.data.image_urls"
                                                      :key="imgIndex">
                                                     <Image preview
-                                                           :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                           :src="base_url + '/' + imageUrl"
                                                            alt="Error" class="shadow-4" width="35"/>
                                                 </div>
                                             </div>
