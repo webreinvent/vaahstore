@@ -120,7 +120,7 @@ const toggleQuickFilterState = (event) => {
                                             @remove="store.loadProductChartsData()"
                                         />
                                         <Button
-                                            data-testid="inventories-quick_filter"
+                                            data-testid="products_chart-quick_filter"
                                             type="button"
                                             @click="toggleQuickFilterState($event)"
                                             aria-haspopup="true"

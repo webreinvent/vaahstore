@@ -126,7 +126,7 @@ const today = ref(new Date());
                                     @remove="store.loadSalesData()"
                                 />
                                 <Button
-                                    data-testid="inventories-quick_filter"
+                                    data-testid="vendors_chart-quick_filter"
                                     type="button"
                                     @click="toggleQuickFilterState($event)"
                                     aria-haspopup="true"
@@ -202,7 +202,7 @@ const today = ref(new Date());
                                     <ul class="legend-items">
 
                                         <li
-                                            v-for="(dataset, index) in store?.chartSeries"
+                                            v-for="(dataset, index) in store?.vendor_sales_area_chart_series"
                                             :key="index"
                                             class="legend-item flex align-items-center mb-2 gap-2"
                                             :style="{ textDecoration: dataset.hidden ? 'line-through' : 'none' }"
