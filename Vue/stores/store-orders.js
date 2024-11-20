@@ -1309,7 +1309,6 @@ export const useOrderStore = defineStore({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
             }));
-            console.log(series_data);
             this.updateOrderPaymentsIncomeChartSeries(series_data);
 
 
