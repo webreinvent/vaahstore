@@ -75,7 +75,7 @@ const toggleCreateMenu = (event) => {
                             <h2 class="text-lg">Highest Stock</h2>
 
                             <Button
-                                data-testid="inventories-quick_filter"
+                                data-testid="productstocks_chart-quick_filter"
                                 type="button"
                                 @click="store.QuickHighFilter()"
                                 aria-haspopup="true"
@@ -163,7 +163,7 @@ const toggleCreateMenu = (event) => {
                                                         <h2 class="text-lg">Lowest Stock</h2>
 
                                                         <Button
-                                                            data-testid="inventories-quick_filter"
+                                                            data-testid="productstocks_chart-quick_filter"
                                                             type="button"
                                                             @click="store.QuickLowFilter()"
                                                             aria-haspopup="true"
