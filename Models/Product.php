@@ -719,10 +719,30 @@ class Product extends VaahModel
 
         return $query;
     }
+    //-------------------------------------------------
+
+    public function scopeFeaturedHomePageFilter($query, $filter)
+    {
+        if (isset($filter['featured_on_homepage']) && $filter['featured_on_homepage'] === 'true') {
+            return $query->where('is_featured_on_home_page', 1);
+        }
+        return $query;
+    }
+    //-------------------------------------------------
+
+    public function scopeFeaturedCategoryPageFilter($query, $filter)
+    {
+        if (isset($filter['featured_on_category_page']) && $filter['featured_on_category_page'] === 'true') {
+            return $query->where('is_featured_on_category_page', 1);
+        }
+        return $query;
+    }
 
     //-------------------------------------------------
     public static function getList($request)
     {
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
         $user = null;
         $cart_records = 0;
         if ($user_id = session('vh_user_id')) {
@@ -732,7 +752,14 @@ class Product extends VaahModel
                 $cart_records = $cart->products()->count();
             }
         }
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','productCategories');
+
+        $relationships = ['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'];
+        foreach ($include as $key => $value) {
+            if ($value === 'true' && method_exists(self::class, $key)) {
+                $relationships[] = $key; // Add relationship if it exists as a method
+            }
+        }
+        $list = self::getSorted($request->filter)->with($relationships);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -747,6 +774,16 @@ class Product extends VaahModel
         $list->productTypeFilter($request->filter);
         $list->categoryFilter($request->filter);
         $list->priceFilter($request->filter);
+        $list->featuredHomePageFilter($request->filter);
+        $list->featuredCategoryPageFilter($request->filter);
+
+        if ($request->has('ids')) {
+            $ids = json_decode($request->ids, true);  // Decode the JSON array
+            if (is_array($ids)) {
+                $list = $list->whereIn('id', $ids);
+            }
+        }
+
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -761,6 +798,12 @@ class Product extends VaahModel
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
+
+            foreach ($exclude as $key => $value) {
+                if ($value === 'true') {
+                    unset($item[$key]); // Remove the key from the array if it exists
+                }
+            }
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -986,49 +1029,75 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
+
+        $relationships = [
+            'createdByUser', 'updatedByUser', 'deletedByUser',
+            'brand', 'store', 'type', 'status', 'productCategories'
+        ];
+
+        foreach ($include as $key => $value) {
+            if ($value === 'true') {
+                if (method_exists(self::class, $key)) {
+                    $relationships[] = $key;
+                }
+            }
+        }
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status','productCategories'
-            ])
+            ->with($relationships)
             ->withTrashed()
             ->first();
 
-        if(!$item)
-        {
+        if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
             return $response;
         }
+
         $array_item = $item->toArray();
-        $product_vendor = [];
-        if (!empty($array_item['product_vendors'])){
-            forEach($array_item['product_vendors'] as $key=>$value){
-                $new_array = [];
-                $new_array['id'] = $value['id'];
-                $new_array['is_selected'] = false;
-                $new_array['can_update'] = $value['can_update'] == 1 ? true : false;
-                $new_array['status_notes'] = $value['status_notes'];
-                $new_array['vendor'] = Vendor::where('id',$value['vh_st_vendor_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-                $new_array['status'] = Taxonomy::where('id',$value['taxonomy_id_product_vendor_status'])->get()->toArray()[0];
-                array_push($product_vendor, $new_array);
+
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                unset($array_item[$key]);
             }
-            $item['vendors'] = $product_vendor;
-        }else{
-            $item['vendors'] = [];
         }
 
-        $item['launch_at'] = date('Y-m-d', strtotime($item['launch_at']));
-        $item['available_at'] = date('Y-m-d', strtotime($item['available_at']));
-        $item['seo_meta_keyword'] = json_decode($item['seo_meta_keyword']);
-        $item['product_variation'] = null;
-        $item['all_variation'] = [];
+        $product_vendor = [];
+        if (!empty($array_item['product_vendors'])) {
+            foreach ($array_item['product_vendors'] as $vendor) {
+                $new_array = [
+                    'id' => $vendor['id'],
+                    'is_selected' => false,
+                    'can_update' => $vendor['can_update'] == 1,
+                    'status_notes' => $vendor['status_notes'],
+                    'vendor' => Vendor::where('id', $vendor['vh_st_vendor_id'])
+                            ->get(['id', 'name', 'slug', 'is_default'])
+                            ->toArray()[0] ?? [],
+                    'status' => Taxonomy::where('id', $vendor['taxonomy_id_product_vendor_status'])
+                            ->get()
+                            ->toArray()[0] ?? [],
+                ];
+                array_push($product_vendor, $new_array);
+            }
+            $array_item['vendors'] = $product_vendor;
+        } else {
+            $array_item['vendors'] = [];
+        }
+
+        $array_item['launch_at'] = date('Y-m-d', strtotime($array_item['launch_at']));
+        $array_item['available_at'] = date('Y-m-d', strtotime($array_item['available_at']));
+        $array_item['seo_meta_keyword'] = json_decode($array_item['seo_meta_keyword']);
+        $array_item['product_variation'] = null;
+        $array_item['all_variation'] = [];
         $response['success'] = true;
-        $response['data'] = $item;
+        $response['data'] = $array_item;
 
         return $response;
-
     }
+
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
