@@ -719,6 +719,24 @@ class Product extends VaahModel
 
         return $query;
     }
+    //-------------------------------------------------
+
+    public function scopeFeaturedHomePageFilter($query, $filter)
+    {
+        if (isset($filter['featured_on_homepage']) && $filter['featured_on_homepage'] === 'true') {
+            return $query->where('is_featured_on_home_page', 1);
+        }
+        return $query;
+    }
+    //-------------------------------------------------
+
+    public function scopeFeaturedCategoryPageFilter($query, $filter)
+    {
+        if (isset($filter['featured_on_category_page']) && $filter['featured_on_category_page'] === 'true') {
+            return $query->where('is_featured_on_category_page', 1);
+        }
+        return $query;
+    }
 
     //-------------------------------------------------
     public static function getList($request)
@@ -756,6 +774,8 @@ class Product extends VaahModel
         $list->productTypeFilter($request->filter);
         $list->categoryFilter($request->filter);
         $list->priceFilter($request->filter);
+        $list->featuredHomePageFilter($request->filter);
+        $list->featuredCategoryPageFilter($request->filter);
 
         if ($request->has('ids')) {
             $ids = json_decode($request->ids, true);  // Decode the JSON array
