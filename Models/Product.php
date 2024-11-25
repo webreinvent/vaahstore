@@ -747,6 +747,14 @@ class Product extends VaahModel
         $list->productTypeFilter($request->filter);
         $list->categoryFilter($request->filter);
         $list->priceFilter($request->filter);
+
+        if ($request->has('ids')) {
+            $ids = json_decode($request->ids, true);  // Decode the JSON array
+            if (is_array($ids)) {
+                $list = $list->whereIn('id', $ids);
+            }
+        }
+
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
