@@ -231,6 +231,14 @@ class Product extends VaahModel
         return $this->belongsToMany(ProductVariation::class, 'vh_st_product_variation_medias', 'vh_st_product_id', 'vh_st_product_variation_id')
             ->withPivot('vh_st_product_media_id');
     }
+    //-------------------------------------------------
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'vh_st_product_id');
+    }
+    //-------------------------------------------------
+
     public function scopeStatusFilter($query, $filter)
     {
 
@@ -658,9 +666,20 @@ class Product extends VaahModel
     public function scopeCategoryFilter($query, $filter)
     {
         if (isset($filter['category']) && is_array($filter['category'])) {
-            $categories_slug = $filter['category'];
+            $categories = $filter['category'];
 
-            $category_ids = Category::whereIn('slug', $categories_slug)->pluck('id')->toArray();
+            $category_slugs = array_filter($categories, function ($value) {
+                return !is_numeric($value);
+            });
+
+            $category_ids = array_filter($categories, function ($value) {
+                return is_numeric($value);
+            });
+
+            if (!empty($category_slugs)) {
+                $category_ids_from_slugs = Category::whereIn('slug', $category_slugs)->pluck('id')->toArray();
+                $category_ids = array_merge($category_ids, $category_ids_from_slugs);
+            }
 
             $subCategory_ids = Category::whereIn('parent_id', $category_ids)->pluck('id')->toArray();
 
@@ -673,6 +692,7 @@ class Product extends VaahModel
 
         return $query;
     }
+
 
 
 
@@ -751,6 +771,21 @@ class Product extends VaahModel
 
     }
     //-------------------------------------------------
+    public function scopeTopSellingsFilter($query, $filter)
+    {
+        if (isset($filter['top_selling']) && $filter['top_selling'] === 'true') {
+            $query->whereHas('orderItems', function ($q) {
+                $q->selectRaw('vh_st_product_id, SUM(quantity) as total_sales')
+                    ->groupBy('vh_st_product_id')
+                    ->orderByDesc('total_sales');
+            });
+        }
+
+        return $query;
+    }
+
+
+    //-------------------------------------------------
     public static function getList($request)
     {
         $include = request()->query('include', []);
@@ -767,8 +802,14 @@ class Product extends VaahModel
 
         $relationships = ['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'];
         foreach ($include as $key => $value) {
-            if ($value === 'true' && method_exists(self::class, $key)) {
-                $relationships[] = $key; // Add relationship if it exists as a method
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated values
+                foreach ($keys as $relationship) {
+                    $relationship = trim($relationship);
+                    if (method_exists(self::class, $relationship)) {
+                        $relationships[] = $relationship;
+                    }
+                }
             }
         }
         $list = self::getSorted($request->filter)->with($relationships);
@@ -789,6 +830,7 @@ class Product extends VaahModel
         $list->featuredHomePageFilter($request->filter);
         $list->featuredCategoryPageFilter($request->filter);
         $list->newArrivalsFilter($request->filter);
+        $list->topSellingsFilter($request->filter);
 
         if ($request->has('ids')) {
             $ids = json_decode($request->ids, true);  // Decode the JSON array
@@ -805,16 +847,23 @@ class Product extends VaahModel
         }
 
         $list = $list->paginate($rows);
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys_to_exclude = array_merge($keys_to_exclude, array_map('trim', explode(',', $key)));
+            }
+        }
 
+        $keys_to_exclude = array_unique($keys_to_exclude);
         foreach($list as $item) {
 
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
 
-            foreach ($exclude as $key => $value) {
-                if ($value === 'true') {
-                    unset($item[$key]); // Remove the key from the array if it exists
+            foreach ($keys_to_exclude as $single_key) {
+                if (isset($item[$single_key])) {
+                    unset($item[$single_key]);
                 }
             }
         }
@@ -1050,10 +1099,14 @@ class Product extends VaahModel
             'brand', 'store', 'type', 'status', 'productCategories'
         ];
 
-        foreach ($include as $key => $value) {
+           foreach ($include as $key => $value) {
             if ($value === 'true') {
-                if (method_exists(self::class, $key)) {
-                    $relationships[] = $key;
+                $keys = explode(',', $key); // Split comma-separated relationships
+                foreach ($keys as $relationship) {
+                    $relationship = trim($relationship);
+                    if (method_exists(self::class, $relationship)) {
+                        $relationships[] = $relationship; // Add to relationships if method exists
+                    }
                 }
             }
         }
@@ -1071,10 +1124,20 @@ class Product extends VaahModel
 
         $array_item = $item->toArray();
 
+        $keys_to_exclude = [];
         foreach ($exclude as $key => $value) {
             if ($value === 'true') {
-                unset($array_item[$key]);
+                $keys = explode(',', $key); // Split comma-separated exclusions
+                foreach ($keys as $exclude_key) {
+                    $exclude_key = trim($exclude_key);
+                    if (array_key_exists($exclude_key, $array_item)) {
+                        $keys_to_exclude[] = $exclude_key;
+                    }
+                }
             }
+        }
+        foreach ($keys_to_exclude as $key_to_remove) {
+            unset($array_item[$key_to_remove]);
         }
 
         $product_vendor = [];
