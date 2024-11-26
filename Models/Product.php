@@ -231,6 +231,14 @@ class Product extends VaahModel
         return $this->belongsToMany(ProductVariation::class, 'vh_st_product_variation_medias', 'vh_st_product_id', 'vh_st_product_variation_id')
             ->withPivot('vh_st_product_media_id');
     }
+    //-------------------------------------------------
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'vh_st_product_id');
+    }
+    //-------------------------------------------------
+
     public function scopeStatusFilter($query, $filter)
     {
 
@@ -658,9 +666,20 @@ class Product extends VaahModel
     public function scopeCategoryFilter($query, $filter)
     {
         if (isset($filter['category']) && is_array($filter['category'])) {
-            $categories_slug = $filter['category'];
+            $categories = $filter['category'];
 
-            $category_ids = Category::whereIn('slug', $categories_slug)->pluck('id')->toArray();
+            $category_slugs = array_filter($categories, function ($value) {
+                return !is_numeric($value);
+            });
+
+            $category_ids = array_filter($categories, function ($value) {
+                return is_numeric($value);
+            });
+
+            if (!empty($category_slugs)) {
+                $category_ids_from_slugs = Category::whereIn('slug', $category_slugs)->pluck('id')->toArray();
+                $category_ids = array_merge($category_ids, $category_ids_from_slugs);
+            }
 
             $subCategory_ids = Category::whereIn('parent_id', $category_ids)->pluck('id')->toArray();
 
@@ -673,6 +692,7 @@ class Product extends VaahModel
 
         return $query;
     }
+
 
 
 
@@ -719,10 +739,57 @@ class Product extends VaahModel
 
         return $query;
     }
+    //-------------------------------------------------
+
+    public function scopeFeaturedHomePageFilter($query, $filter)
+    {
+        if (isset($filter['featured_on_homepage']) && $filter['featured_on_homepage'] === 'true') {
+            return $query->where('is_featured_on_home_page', 1);
+        }
+        return $query;
+    }
+    //-------------------------------------------------
+
+    public function scopeFeaturedCategoryPageFilter($query, $filter)
+    {
+        if (isset($filter['featured_on_category_page']) && $filter['featured_on_category_page'] === 'true') {
+            return $query->where('is_featured_on_category_page', 1);
+        }
+        return $query;
+    }
+
+    //-------------------------------------------------
+    public function scopeNewArrivalsFilter($query, $filter)
+    {
+        if (isset($filter['new_arrivals']) && $filter['new_arrivals'] === 'true') {
+            if (isset($filter['from'], $filter['to'])) {
+                $from = Carbon::parse($filter['from'])->startOfDay();
+                $to = Carbon::parse($filter['to'])->endOfDay();
+                $query->whereBetween('created_at', [$from, $to]);
+            }
+        }
+
+    }
+    //-------------------------------------------------
+    public function scopeTopSellingsFilter($query, $filter)
+    {
+        if (isset($filter['top_selling']) && $filter['top_selling'] === 'true') {
+            $query->whereHas('orderItems', function ($q) {
+                $q->selectRaw('vh_st_product_id, SUM(quantity) as total_sales')
+                    ->groupBy('vh_st_product_id')
+                    ->orderByDesc('total_sales');
+            });
+        }
+
+        return $query;
+    }
+
 
     //-------------------------------------------------
     public static function getList($request)
     {
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
         $user = null;
         $cart_records = 0;
         if ($user_id = session('vh_user_id')) {
@@ -732,7 +799,20 @@ class Product extends VaahModel
                 $cart_records = $cart->products()->count();
             }
         }
-        $list = self::getSorted($request->filter)->with('brand','store','type','status', 'productVariations', 'productVendors','productCategories');
+
+        $relationships = ['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'];
+        foreach ($include as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated values
+                foreach ($keys as $relationship) {
+                    $relationship = trim($relationship);
+                    if (method_exists(self::class, $relationship)) {
+                        $relationships[] = $relationship;
+                    }
+                }
+            }
+        }
+        $list = self::getSorted($request->filter)->with($relationships);
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -747,6 +827,18 @@ class Product extends VaahModel
         $list->productTypeFilter($request->filter);
         $list->categoryFilter($request->filter);
         $list->priceFilter($request->filter);
+        $list->featuredHomePageFilter($request->filter);
+        $list->featuredCategoryPageFilter($request->filter);
+        $list->newArrivalsFilter($request->filter);
+        $list->topSellingsFilter($request->filter);
+
+        if ($request->has('ids')) {
+            $ids = json_decode($request->ids, true);  // Decode the JSON array
+            if (is_array($ids)) {
+                $list = $list->whereIn('id', $ids);
+            }
+        }
+
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -755,12 +847,25 @@ class Product extends VaahModel
         }
 
         $list = $list->paginate($rows);
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys_to_exclude = array_merge($keys_to_exclude, array_map('trim', explode(',', $key)));
+            }
+        }
 
+        $keys_to_exclude = array_unique($keys_to_exclude);
         foreach($list as $item) {
 
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
+
+            foreach ($keys_to_exclude as $single_key) {
+                if (isset($item[$single_key])) {
+                    unset($item[$single_key]);
+                }
+            }
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -986,49 +1091,89 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
+
+        $relationships = [
+            'createdByUser', 'updatedByUser', 'deletedByUser',
+            'brand', 'store', 'type', 'status', 'productCategories'
+        ];
+
+           foreach ($include as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated relationships
+                foreach ($keys as $relationship) {
+                    $relationship = trim($relationship);
+                    if (method_exists(self::class, $relationship)) {
+                        $relationships[] = $relationship; // Add to relationships if method exists
+                    }
+                }
+            }
+        }
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser',
-                'brand','store','type','status','productCategories'
-            ])
+            ->with($relationships)
             ->withTrashed()
             ->first();
 
-        if(!$item)
-        {
+        if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
             return $response;
         }
+
         $array_item = $item->toArray();
-        $product_vendor = [];
-        if (!empty($array_item['product_vendors'])){
-            forEach($array_item['product_vendors'] as $key=>$value){
-                $new_array = [];
-                $new_array['id'] = $value['id'];
-                $new_array['is_selected'] = false;
-                $new_array['can_update'] = $value['can_update'] == 1 ? true : false;
-                $new_array['status_notes'] = $value['status_notes'];
-                $new_array['vendor'] = Vendor::where('id',$value['vh_st_vendor_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-                $new_array['status'] = Taxonomy::where('id',$value['taxonomy_id_product_vendor_status'])->get()->toArray()[0];
-                array_push($product_vendor, $new_array);
+
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated exclusions
+                foreach ($keys as $exclude_key) {
+                    $exclude_key = trim($exclude_key);
+                    if (array_key_exists($exclude_key, $array_item)) {
+                        $keys_to_exclude[] = $exclude_key;
+                    }
+                }
             }
-            $item['vendors'] = $product_vendor;
-        }else{
-            $item['vendors'] = [];
+        }
+        foreach ($keys_to_exclude as $key_to_remove) {
+            unset($array_item[$key_to_remove]);
         }
 
-        $item['launch_at'] = date('Y-m-d', strtotime($item['launch_at']));
-        $item['available_at'] = date('Y-m-d', strtotime($item['available_at']));
-        $item['seo_meta_keyword'] = json_decode($item['seo_meta_keyword']);
-        $item['product_variation'] = null;
-        $item['all_variation'] = [];
+        $product_vendor = [];
+        if (!empty($array_item['product_vendors'])) {
+            foreach ($array_item['product_vendors'] as $vendor) {
+                $new_array = [
+                    'id' => $vendor['id'],
+                    'is_selected' => false,
+                    'can_update' => $vendor['can_update'] == 1,
+                    'status_notes' => $vendor['status_notes'],
+                    'vendor' => Vendor::where('id', $vendor['vh_st_vendor_id'])
+                            ->get(['id', 'name', 'slug', 'is_default'])
+                            ->toArray()[0] ?? [],
+                    'status' => Taxonomy::where('id', $vendor['taxonomy_id_product_vendor_status'])
+                            ->get()
+                            ->toArray()[0] ?? [],
+                ];
+                array_push($product_vendor, $new_array);
+            }
+            $array_item['vendors'] = $product_vendor;
+        } else {
+            $array_item['vendors'] = [];
+        }
+
+        $array_item['launch_at'] = date('Y-m-d', strtotime($array_item['launch_at']));
+        $array_item['available_at'] = date('Y-m-d', strtotime($array_item['available_at']));
+        $array_item['seo_meta_keyword'] = json_decode($array_item['seo_meta_keyword']);
+        $array_item['product_variation'] = null;
+        $array_item['all_variation'] = [];
         $response['success'] = true;
-        $response['data'] = $item;
+        $response['data'] = $array_item;
 
         return $response;
-
     }
+
+
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
