@@ -739,6 +739,18 @@ class Product extends VaahModel
     }
 
     //-------------------------------------------------
+    public function scopeNewArrivalsFilter($query, $filter)
+    {
+        if (isset($filter['new_arrivals']) && $filter['new_arrivals'] === 'true') {
+            if (isset($filter['from'], $filter['to'])) {
+                $from = Carbon::parse($filter['from'])->startOfDay();
+                $to = Carbon::parse($filter['to'])->endOfDay();
+                $query->whereBetween('created_at', [$from, $to]);
+            }
+        }
+
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $include = request()->query('include', []);
@@ -776,6 +788,7 @@ class Product extends VaahModel
         $list->priceFilter($request->filter);
         $list->featuredHomePageFilter($request->filter);
         $list->featuredCategoryPageFilter($request->filter);
+        $list->newArrivalsFilter($request->filter);
 
         if ($request->has('ids')) {
             $ids = json_decode($request->ids, true);  // Decode the JSON array
