@@ -765,7 +765,7 @@ class Product extends VaahModel
             if (isset($filter['from'], $filter['to'])) {
                 $from = Carbon::parse($filter['from'])->startOfDay();
                 $to = Carbon::parse($filter['to'])->endOfDay();
-                $query->whereBetween('created_at', [$from, $to]);
+                $query->whereBetween('available_at', [$from, $to]);
             }
         }
 

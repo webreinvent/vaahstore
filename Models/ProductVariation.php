@@ -552,7 +552,12 @@ class ProductVariation extends VaahModel
             $list->quantityFilter($request->filter);
             $list->productFilter($request->filter);
         }
-
+        if ($request->has('ids')) {
+            $ids = json_decode($request->ids, true);  // Decode the JSON array
+            if (is_array($ids)) {
+                $list = $list->whereIn('id', $ids);
+            }
+        }
         $default_variation_exists = $default_variation;
 
         $rows = config('vaahcms.per_page');
