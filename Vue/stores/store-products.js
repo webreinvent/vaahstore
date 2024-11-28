@@ -2845,7 +2845,11 @@ export const useProductStore = defineStore({
            await this.topSellingProducts();
            await this.topSellingCategories();
            await this.topSellingBrands();
-        }
+        },
+        toImport()
+        {
+            this.$router.push({ name : 'import.upload' });
+        },
 
     }
 });

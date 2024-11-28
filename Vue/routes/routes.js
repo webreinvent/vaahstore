@@ -25,6 +25,7 @@ import cart from "./vue-routes-carts";
 import settings from "./vue-routes-settings";
 import payments from "./vue-routes-payments";
 import shipments from "./vue-routes-shipments";
+import routes_import from "./vue-routes-import";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -52,6 +53,7 @@ routes = routes.concat(settings);
 routes = routes.concat(payments);
 routes = routes.concat(shipments);
 routes = routes.concat(dashboard);
+routes = routes.concat(routes_import);
 
 
 

@@ -4,14 +4,21 @@ import {useRoute} from 'vue-router';
 
 import {useProductStore} from '../../stores/store-products'
 import {useRootStore} from '../../stores/root'
-
+import {useImportStore} from "../../stores/store-import";
+import CSV from "dom-csv.js";
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
+import Upload from './../import/components/Upload.vue';
+import Map from './../import/components/Map.vue';
+import Preview from './../import/components/Preview.vue';
+import Result from './../import/components/Result.vue';
+
 const store = useProductStore();
 const root = useRootStore();
 const route = useRoute();
-
+const importStore = useImportStore()
 import {useConfirm} from "primevue/useconfirm";
+
 
 const confirm = useConfirm();
 
@@ -19,6 +26,7 @@ const base_url = ref('');
 onMounted(async () => {
     document.title = 'Products - Store';
     base_url.value = root.ajax_url.replace('backend/store', '/');
+    await importStore.getAssets();
     /**
      * call onLoad action when List view loads
      */
@@ -306,7 +314,14 @@ const toggleQuickFilterState = (event) => {
                 <template #icons>
 
                     <div class="p-inputgroup">
+                        <Button
 
+                            class="p-button-sm py-2 white-space-nowrap min-w-max"
+                            style="font-weight:600;"
+                            data-testid="products-bulk_import"
+                            @click="store.toImport()">
+                            Bulk Import
+                        </Button>
                         <Button data-testid="products-list-create"
                                 class="p-button-sm"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
