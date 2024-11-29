@@ -2835,7 +2835,7 @@ class Product extends VaahModel
     public static function exportData($request)
     {
         $inputs = $request->all();
-
+//dd($request);
         // Validation
         $rules = [
             'type' => 'required',

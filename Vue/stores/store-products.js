@@ -115,6 +115,7 @@ export const useProductStore = defineStore({
         filter_selected_store : null,
         filter_selected_brands : null,
         display_seo_modal : false,
+        isModalVisible:false,
         seo_meta_value : null,
         quantity:
             {
@@ -2859,9 +2860,16 @@ export const useProductStore = defineStore({
             this.export_menu = [
                 {
                     label: `Export Selected(${items_selected})`,
-                    command: async () => {
-                        await this.exportProducts('export')
+                    // command: async () => {
+                    //     await this.exportProducts('export')
+                    // },
+                    command: () => {
+                        if (items_selected > 0) {
+                            this.$router.push({ name: 'import.export' });
+                            // this.isModalVisible=true
+                        }
                     },
+                    // this.$router.push({ name : 'import.upload' });
                     disabled: items_selected === 0
                 },
 

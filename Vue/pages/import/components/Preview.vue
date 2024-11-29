@@ -49,7 +49,7 @@
                        tableStyle="min-width: 50rem">
 
                 <template v-if="store.list.records.length > 0 ">
-                    {{store.list.headers}}
+<!--                    {{store.list.headers}}-->
                     <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
                     <Column v-for="(col) of store.list.headers"
                             :key="col.field"

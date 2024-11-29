@@ -65,7 +65,12 @@ export const useImportStore = defineStore({
                 label: 'Result',
                 to: "/import/result",
                 pageIndex: 3,
-            }
+            },
+            {
+                label: 'Export',
+                to: "/import/export",
+                pageIndex: 4,
+            },
         ],
         is_override: false,
         type: null,

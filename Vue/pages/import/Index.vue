@@ -1,8 +1,14 @@
 
 <template>
     <div>
-
-        <Steps :model="store.steps"
+<!--{{store.steps}}-->
+<!--        {{store.pageIndex}}-->
+<!--        <Steps :model="store.steps"-->
+<!--               aria-label="Form Steps"-->
+<!--               class="steps-custom mb-5"-->
+<!--               v-model:activeStep="store.pageIndex"-->
+<!--        />-->
+        <Steps :model="filteredSteps"
                aria-label="Form Steps"
                class="steps-custom mb-5"
                v-model:activeStep="store.pageIndex"
@@ -16,7 +22,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref,computed, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import { useToast } from "primevue/usetoast";
 import {useImportStore} from "../../stores/store-import";
@@ -30,6 +36,22 @@ onMounted(async () => {
 
 watch(() => route.path,  () => {
     store.setActivePageIndex(route.path);
+});
+// const filteredSteps = computed(() => {
+//     if (route.path === "/import/export") {
+//         return store.steps.filter(step => step.label === 'Export');
+//     } else {
+//         return store.steps; // Show all steps if not on the export page
+//     }
+// });
+
+const filteredSteps = computed(() => {
+    // Only show the "Export" step if the current route is '/import/export'
+    if (route.path === "/import/export") {
+        return store.steps.filter(step => step.label === 'Export');
+    }
+    // Otherwise, return all steps (excluding "Export")
+    return store.steps.filter(step => step.label !== 'Export');
 });
 
 </script>

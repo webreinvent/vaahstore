@@ -6,6 +6,7 @@ import Upload from "../pages/import/components/Upload.vue";
 import Map from "../pages/import/components/Map.vue";
 import Preview from "../pages/import/components/Preview.vue";
 import Result from "../pages/import/components/Result.vue";
+import Export from "../pages/import/components/Export.vue";
 
 
 routes_list = {
@@ -33,6 +34,11 @@ routes_list = {
             path: 'result',
             component: Result,
             name: 'import.result',
+        },
+        {
+            path: 'export',
+            component: Export,
+            name: 'import.export',
         }
     ]
 
