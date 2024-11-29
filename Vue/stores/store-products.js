@@ -28,7 +28,8 @@ let empty_states = {
             quantity : null,
             status:null,
             min_quantity:null,
-            max_quantity:null
+            max_quantity:null,
+            export_menu :[],
         },
     },
     action: {
@@ -2849,6 +2850,88 @@ export const useProductStore = defineStore({
         toImport()
         {
             this.$router.push({ name : 'import.upload' });
+        },
+
+        async getExportMenu()
+        {
+            let total = this.list?.total;
+            let items_selected = this.action.items.length;
+            this.export_menu = [
+                {
+                    label: `Export Selected(${items_selected})`,
+                    command: async () => {
+                        await this.exportProducts('export')
+                    },
+                    disabled: items_selected === 0
+                },
+
+                {
+                    label: `Export All (${this.list?.total})`,
+                    command: async () => {
+                        await this.exportProducts('export-all')
+                    }
+                },
+            ]
+        },
+        watchSelectedItem()
+        {
+
+            watch(this.action, (newVal,oldVal) =>
+                {
+                    this.getExportMenu();
+                },{deep: true}
+            )
+        },
+
+        async exportProducts(type){
+
+            this.action.type = type;
+
+            if(type == 'export')
+            {
+                if(this.action.items.length < 1)
+                {
+                    vaah().toastErrors(['Select records']);
+                    return false;
+                }
+            }
+
+            let url = this.ajax_url + '/export/data';
+            let method = 'POST';
+            let options = {
+                params: this.action,
+                method: method,
+                show_success: false
+            };
+
+            await vaah().ajax(
+                url,
+                this.exportProductsAfter,
+                options,
+
+            );
+        },
+
+        //----------------------------------------------------------------------
+
+        async exportProductsAfter(data, res)
+        {
+            if(data && data.content && data.headers)
+            {
+                const blob = new Blob([data.content], { type: data.headers['Content-Type'] });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'exported-inventories.csv';
+                link.click();
+                window.URL.revokeObjectURL(url);
+                await this.getList();
+                this.getItemMenu();
+                this.getFormMenu();
+                this.action.type=null;
+                this.action.items=[];
+            }
+
         },
 
     }

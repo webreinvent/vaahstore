@@ -58,6 +58,8 @@ onMounted(async () => {
     store.getQuickFilterMenu();
     await store.getListCreateMenu();
     await store.watchQuantity();
+    store.getExportMenu();
+    store.watchSelectedItem();
 
     // setTimeout(() => {
     //     store.disableActiveCart();

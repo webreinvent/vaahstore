@@ -250,4 +250,9 @@ function () {
     Route::post('/charts/top-selling-categories', 'ProductsController@topSellingCategories')
         ->name('vh.backend.store.products.charts.top_selling_categories');
 
+    /**
+     * Export Actions
+     */
+    Route::post('/export/data', 'ProductsController@exportData')
+        ->name('vh.backend.store.products.export.data');
 });

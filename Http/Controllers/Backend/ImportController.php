@@ -102,282 +102,399 @@ class ImportController extends Controller {
         return $fields;
     }
     //----------------------------------------------------------
-    public function importData(Request $request){
-dd($request);
-        $rules = array(
-            'list' => 'required',
-            'is_override' => 'nullable|boolean',
+//    public function importData(Request $request){
+//
+//        $rules = array(
+//            'list' => 'required',
+//            'is_override' => 'nullable|boolean',
+//            'list.headers' => 'required|array',
+//            'list.columns' => 'required|array',
+//            'list.records' => 'required|array',
+//        );
+//
+//        \Validator::validate($request->all(), $rules);
+//
+//        $headers = $request->list['headers'];
+//        $columns = $request->list['columns'];
+//        $records = $request->list['records'];
+//        $import_type = $request->import_type;
+//
+//        //pass a new label to the column array
+//        array_push($columns, 'reason');
+//
+//        //create a copy of columns array and create labels for every columns
+//        $labels = $columns;
+//
+//        //add some custom labels for invalid records to show in csv file
+//
+////        $modified_labels = [
+////            'part_number'=> 'Part Number', 'oem_number'=> 'OEM Number', 'description'=> 'Description',
+////            'sm_supplier_id'=> 'Supplier Name', 'parts_link_id'=> 'Parts Link', 'taxonomy_id_make'=> 'Make',
+////            'taxonomy_id_model'=> 'Model', 'taxonomy_id_year'=> 'Year', 'taxonomy_id_body_style'=> 'Body Style',
+////            'taxonomy_id_first_year'=> 'First Year', 'taxonomy_id_last_year'=> 'Last year',
+////            'taxonomy_id_section'=> 'Section', 'taxonomy_id_part_type'=> 'Part Type', 'taxonomy_id_class'=> 'Class',
+////            'cubic_feet'=> 'Cubic Feet', 'taxonomy_id_location'=> 'Location', 'quantity'=> 'Quantity in stock',
+////            'list_price'=> 'List Price', 'sales_price'=> 'Sales Price', 'reorder_quantity'=> 'Reorder Quantity',
+////            'reorder_point'=> 'Reorder Point', 'taxonomy_id_status'=> 'Status', 'is_active'=> 'Is Active','reason' => 'Reason',
+////        ];
+////
+////        foreach ($modified_labels as $old_label => $new_label) {
+////            $index = array_search($old_label, $columns);
+////            if ($index !== false) {
+////                $labels[$index] = $new_label;
+////            }
+////        }
+//
+//        $content = implode(',', array_values($labels)) . "\n";
+//        $is_override = $request->is_override ?? false;
+//
+//
+//        $result = [];
+//        $result['invalid_records_count'] = 0;
+//        $result['override_records_count'] = 0;
+//        $result['imported_records'] = 0;
+//        $invalid_records = [];
+//        foreach ($records as $record){
+//
+//
+//            if (is_numeric($record['quantity'])) {
+//                $record['quantity'] = (int)$record['quantity'];
+//            }
+//
+//
+//
+//            $rules = validator($record, [
+//
+//                'name' => 'required|max:150',
+//                'slug' => 'required|max:150',
+//                'summary' => 'max:100',
+//                'vh_st_store_id'=> 'required',
+//                'taxonomy_id_product_type'=> 'required',
+//                'details' => 'max:250',
+//                'seo_title' => 'max:100',
+//                'seo_meta_description' => 'max:250',
+//                'seo_meta_keyword' => 'max:20',
+//                'seo_meta_keyword.*' => 'max:50',
+//                'taxonomy_id_product_status'=> 'required',
+//                'status_notes' => 'max:250',
+//                'quantity' => '',
+//                'launch_at' => 'required_without_all:quantity,available_at,0',
+//                'available_at' => 'required_without_all:quantity,launch_at,0',
+//            ],
+//                [    'name.required' => 'The Name field is required',
+//                    'name.max' => 'The Name field may not be greater than :max characters',
+//                    'slug.required' => 'The Slug field is required',
+//                    'slug.max' => 'The Slug field may not be greater than :max characters',
+//                    'summary.max' => 'The Summary field may not be greater than :max characters',
+//                    'details.max' => 'The Details field may not be greater than :max characters',
+//                    'seo_title.max' => 'The Seo title field may not be greater than :max characters',
+//                    'seo_meta_description.max' => 'The Seo Description field may not be greater than :max characters',
+//                    'seo_meta_keyword.max' => 'The Seo Keywords field may not have greater than :max keywords',
+//                    'seo_meta_keyword.*' => 'The Seo Keyword field may not be greater than :max characters',
+//                    'taxonomy_id_product_status.required' => 'The Status field is required',
+//                    'status_notes.max' => 'The Status notes field may not be greater than :max characters.',
+//                    'vh_st_store_id.required' => 'The Store field is required',
+//                    'taxonomy_id_product_type.required' => 'The Type field is required',
+//                    'status_notes.*' => 'The Status notes field is required for "Rejected" Status',
+//                    'quantity.digits_between' => 'The Quantity field must not be greater than 9 digits',
+//                    'quantity.required' => 'The Product Quantity is required',
+//                    'quantity.min' => 'The Product Quantity is required',
+//                ]
+//            );
+//
+//            if ( $rules->fails() ) {
+//
+//                $result['invalid_records_count']++;
+//
+//                $invalid_record = $record;
+//                $invalid_record['reason'] = $rules->errors()->all();
+//                $supplier_id = $invalid_record['sm_supplier_id'];
+//                $make_id = $invalid_record['taxonomy_id_make'];
+//                $model_id = $invalid_record['taxonomy_id_model'];
+//                $year_id = $invalid_record['taxonomy_id_year'];
+//                $body_style_id = $invalid_record['taxonomy_id_body_style'];
+//                $first_year_id = $invalid_record['taxonomy_id_first_year'];
+//                $last_year_id = $invalid_record['taxonomy_id_last_year'];
+//                $section_id = $invalid_record['taxonomy_id_section'];
+//                $part_type_id = $invalid_record['taxonomy_id_part_type'];
+//                $class_id = $invalid_record['taxonomy_id_class'];
+//                $location_id = $invalid_record['taxonomy_id_location'];
+//                $status_id = $invalid_record['taxonomy_id_status'];
+//                $invalid_record['taxonomy_id_make'] = self::getTaxonomyNameById('make',$make_id);
+//                $invalid_record['taxonomy_id_model'] = self::getTaxonomyNameById('model',$model_id);
+//                $invalid_record['taxonomy_id_year'] = self::getTaxonomyNameById('year',$year_id);
+//                $invalid_record['taxonomy_id_body_style'] = self::getTaxonomyNameById('body-style',$body_style_id);
+//                $invalid_record['taxonomy_id_first_year'] = self::getTaxonomyNameById('first-year',$first_year_id);
+//                $invalid_record['taxonomy_id_last_year'] = self::getTaxonomyNameById('last-year',$last_year_id);
+//                $invalid_record['taxonomy_id_section'] = self::getTaxonomyNameById('section',$section_id);
+//                $invalid_record['taxonomy_id_part_type'] = self::getTaxonomyNameById('part-type',$part_type_id);
+//                $invalid_record['taxonomy_id_class'] = self::getTaxonomyNameById('class',$class_id);
+//                $invalid_record['taxonomy_id_location'] = self::getTaxonomyNameById('location',$location_id);
+//                $invalid_record['taxonomy_id_status'] = self::getTaxonomyNameById('status',$status_id);
+//                $suppliers = Product::where('is_active',1)->get();
+//
+//
+//                foreach ($suppliers as $supplier) {
+//
+//                    if ($supplier['id'] == $supplier_id) {
+//                        $invalid_record['sm_supplier_id'] = $supplier['name'];
+//                        break;
+//                    }
+//                }
+//
+//                $invalid_records[] = $invalid_record;
+//
+//                continue;
+//            }
+//
+//            $inventory = Product::where('part_number',$record['part_number'])
+//                ->where('oem_number',$record['oem_number'])
+//                ->first();
+//            dd($request);
+//            if($is_override && $inventory)
+//            {
+//
+//                $result['override_records_count']++;
+//                $this->updateInventory($inventory,$record);
+//                continue;
+//            }
+//            else if(!$is_override && $inventory)
+//            {
+//                $result['invalid_records_count']++;
+//                $invalid_record = $record;
+//                $supplier_id = $invalid_record['sm_supplier_id'];
+//                $make_id = $invalid_record['taxonomy_id_make'];
+//                $invalid_record['taxonomy_id_make'] = self::getTaxonomyNameById('make',$make_id);
+//                $model_id = $invalid_record['taxonomy_id_model'];
+//                $invalid_record['taxonomy_id_model'] = self::getTaxonomyNameById('model',$model_id);
+//                $year_id = $invalid_record['taxonomy_id_year'];
+//                $invalid_record['taxonomy_id_year'] = self::getTaxonomyNameById('year',$year_id);
+//                $body_style_id = $invalid_record['taxonomy_id_body_style'];
+//                $invalid_record['taxonomy_id_body_style'] = self::getTaxonomyNameById('body-style',$body_style_id);
+//                $first_year_id = $invalid_record['taxonomy_id_first_year'];
+//                $invalid_record['taxonomy_id_first_year'] = self::getTaxonomyNameById('first-year',$first_year_id);
+//                $last_year_id = $invalid_record['taxonomy_id_last_year'];
+//                $invalid_record['taxonomy_id_last_year'] = self::getTaxonomyNameById('last-year',$last_year_id);
+//                $section_id = $invalid_record['taxonomy_id_section'];
+//                $invalid_record['taxonomy_id_section'] = self::getTaxonomyNameById('section',$section_id);
+//                $part_type_id = $invalid_record['taxonomy_id_part_type'];
+//                $invalid_record['taxonomy_id_part_type'] = self::getTaxonomyNameById('part-type',$part_type_id);
+//                $class_id = $invalid_record['taxonomy_id_class'];
+//                $invalid_record['taxonomy_id_class'] = self::getTaxonomyNameById('class',$class_id);
+//                $location_id = $invalid_record['taxonomy_id_location'];
+//                $invalid_record['taxonomy_id_location'] = self::getTaxonomyNameById('location',$location_id);
+//                $status_id = $invalid_record['taxonomy_id_status'];
+//                $invalid_record['taxonomy_id_status'] = self::getTaxonomyNameById('status',$status_id);
+//
+//                $suppliers = Supplier::where('is_active',1)->get();
+//
+//                foreach ($suppliers as $supplier) {
+//
+//                    if ($supplier['id'] == $supplier_id) {
+//                        $invalid_record['sm_supplier_id'] = $supplier['name'];
+//                        break;
+//                    }
+//                }
+//
+//                $invalid_record['reason'] = ['Inventory already exists for the provided part number and Oem number'];
+//                $invalid_records[] = $invalid_record;
+//                continue;
+//            }
+//            else
+//            {
+//                $data = [];
+//                foreach ($record as $key => $value){
+//                    $data['uuid'] = \Str::uuid();
+//                    $data[$key] = $value;
+//
+//                }
+//
+//                $inventory = Product::create($data);
+//                if($inventory){
+//                    $result['imported_records']++;
+//                }
+//            }
+//        }
+//
+//
+//         //code to add invalid record to content variable for csv file generation
+//
+//        if($invalid_records)
+//        {
+//            foreach ($invalid_records as $invalid_record) {
+//
+//                $reasons = $invalid_record['reason'];
+//                unset($invalid_record['reason']);
+//                $values = array_values($invalid_record);
+//
+//                $reason_text = '';
+//                foreach ($reasons as $key => $reason) {
+//                    $reason_text .= ($key + 1) . '. ' . $reason . ' ';
+//                }
+//
+//                $reason_text = rtrim($reason_text);
+//
+//                // added the reason to the values array
+//                $values[] = '"' . str_replace("\n", '\n', $reason_text) . '"';
+//
+//                // Implode the values and add a newline character
+//                $content .= implode(',', $values) . "\n";
+//            }
+//        }
+//
+//
+//
+//        $headers = [
+//            'Content-Type' => 'text/csv',
+//            'Content-Disposition' => 'attachment; filename="invalid_records.csv"',
+//        ];
+//
+//        $result['total_records'] = count($records);
+//        $result['imported_records'] =  $result['imported_records'] + $result['override_records_count'];
+//        $result['invalid_records'] = $invalid_records;
+//        $result['csv_content'] = [
+//            'headers' => $headers,
+//            'content' => $content,
+//        ];
+//
+//
+//        $response['success'] = true;
+//        $response['data'] = $result;
+//        $response['messages'][] = 'Imported successfully.';
+//        return $response;
+//    }
+    public function importData(Request $request)
+    {
+        $rules = [
+            'list' => 'required|array',
             'list.headers' => 'required|array',
             'list.columns' => 'required|array',
             'list.records' => 'required|array',
-        );
+            'is_override' => 'nullable|boolean',
+//            'import_type' => 'required|string',
+        ];
 
         \Validator::validate($request->all(), $rules);
 
         $headers = $request->list['headers'];
         $columns = $request->list['columns'];
         $records = $request->list['records'];
-        $import_type = $request->import_type;
-
-        //pass a new label to the column array
-        array_push($columns, 'reason');
-
-        //create a copy of columns array and create labels for every columns
-        $labels = $columns;
-
-        //add some custom labels for invalid records to show in csv file
-
-        $modified_labels = [
-            'part_number'=> 'Part Number', 'oem_number'=> 'OEM Number', 'description'=> 'Description',
-            'sm_supplier_id'=> 'Supplier Name', 'parts_link_id'=> 'Parts Link', 'taxonomy_id_make'=> 'Make',
-            'taxonomy_id_model'=> 'Model', 'taxonomy_id_year'=> 'Year', 'taxonomy_id_body_style'=> 'Body Style',
-            'taxonomy_id_first_year'=> 'First Year', 'taxonomy_id_last_year'=> 'Last year',
-            'taxonomy_id_section'=> 'Section', 'taxonomy_id_part_type'=> 'Part Type', 'taxonomy_id_class'=> 'Class',
-            'cubic_feet'=> 'Cubic Feet', 'taxonomy_id_location'=> 'Location', 'quantity'=> 'Quantity in stock',
-            'list_price'=> 'List Price', 'sales_price'=> 'Sales Price', 'reorder_quantity'=> 'Reorder Quantity',
-            'reorder_point'=> 'Reorder Point', 'taxonomy_id_status'=> 'Status', 'is_active'=> 'Is Active','reason' => 'Reason',
-        ];
-
-        foreach ($modified_labels as $old_label => $new_label) {
-            $index = array_search($old_label, $columns);
-            if ($index !== false) {
-                $labels[$index] = $new_label;
-            }
-        }
-
-        $content = implode(',', array_values($labels)) . "\n";
         $is_override = $request->is_override ?? false;
 
+        // Add "reason" column for invalid records
+        array_push($columns, 'reason');
+        $labels = $columns;
 
-        $result = [];
-        $result['invalid_records_count'] = 0;
-        $result['override_records_count'] = 0;
-        $result['imported_records'] = 0;
-        $invalid_records = [];
-        foreach ($records as $record){
+        $content = implode(',', array_values($labels)) . "\n";
+        $result = [
+            'total_records' => count($records),
+            'imported_records' => 0,
+            'override_records_count' => 0,
+            'invalid_records_count' => 0,
+            'invalid_records' => [],
+        ];
 
-
+        foreach ($records as $record) {
+            // Normalize quantity field
             if (is_numeric($record['quantity'])) {
                 $record['quantity'] = (int)$record['quantity'];
             }
 
-            if (is_numeric($record['reorder_quantity'])) {
-                $record['reorder_quantity'] = (int)$record['reorder_quantity'];
-            }
+            // Validate individual record
+            $validator = validator($record, [
+                'name' => 'required|max:150',
+                'slug' => 'required|max:150',
+                'vh_st_store_id' => 'required',
+                'taxonomy_id_product_type' => 'required',
+                'taxonomy_id_product_status' => 'required',
+                'quantity' => 'nullable|integer|min:0',
+                'launch_at' => 'required_without_all:quantity,available_at',
+                'available_at' => 'required_without_all:quantity,launch_at',
+            ], [
+                'name.required' => 'The Name field is required.',
+                'slug.required' => 'The Slug field is required.',
+                'vh_st_store_id.required' => 'The Store field is required.',
+                'taxonomy_id_product_type.required' => 'The Product Type field is required.',
+                'taxonomy_id_product_status.required' => 'The Product Status field is required.',
+            ]);
 
-            if (is_numeric($record['reorder_point'])) {
-                $record['reorder_point'] = (int)$record['reorder_point'];
-            }
-
-            if (is_numeric($record['list_price'])) {
-                $record['list_price'] = (float)$record['list_price'];
-            }
-
-            if (is_numeric($record['sales_price'])) {
-                $record['sales_price'] = (float)$record['sales_price'];
-            }
-
-            if (is_numeric($record['cubic_feet'])) {
-                $record['cubic_feet'] = (float)$record['cubic_feet'];
-            }
-
-            $rules = validator($record, [
-
-                'part_number' => 'required|max:20',
-                'oem_number' => 'required|max:20',
-                'description' => 'max:250',
-                'cubic_feet' => 'nullable|numeric|min:0|max:999999.99',
-                'quantity' => 'nullable|integer|min:0|max:99999',
-                'list_price' => 'nullable|numeric|min:0|max:999999.99',
-                'sales_price' => 'nullable|numeric|min:0|max:999999.99|lt:list_price',
-                'reorder_quantity' => 'nullable|integer|min:0|max:99999',
-                'reorder_point' => 'nullable|integer|min:0|max:99999',
-            ],
-                [
-                    'part_number.required' => 'The Part Number field is required',
-                    'part_number.max' => 'The Part Number field may not be greater than :max characters',
-                    'oem_number.required' => 'The OEM Number field is required',
-                    'oem_number.max' => 'The OEM Number field may not be greater than :max digits',
-                    'description.max' => 'The Description field may not be greater than :max characters',
-                    'cubic_feet.max' => 'The Cubic Feet field may not be greater than :max digits',
-                    'cubic_feet.min' => "The Cubic Feet value can't be a negative number",
-                    'quantity.max' => 'The Quantity field may not be greater than :max characters',
-                    'quantity.min' => "The Quantity can't be a negative number",
-                    'list_price.max' => 'The List Price field may not be greater than :max',
-                    'list_price.min' => "The List Price can't be a negative number",
-                    'sales_price.max' => 'The Sales Price field may not be greater than :max',
-                    'sales_price.min' => "The Sales Price can't be a negative number",
-                    'reorder_quantity.max' => 'The Reorder Quantity field may not be greater than :max characters',
-                    'reorder_point.max' => 'The Reorder Point field may not be greater than :max characters',
-                    'reorder_quantity.min' => "The Reorder Quantity can't be a negative number",
-                    'reorder_point.min' => "The Reorder Point can't be a negative number",
-                    'sales_price.lt' => 'The Sales Price field cannot be greater than List Price'
-                ]
-            );
-
-            if ( $rules->fails() ) {
-
+            if ($validator->fails()) {
                 $result['invalid_records_count']++;
-
-                $invalid_record = $record;
-                $invalid_record['reason'] = $rules->errors()->all();
-                $supplier_id = $invalid_record['sm_supplier_id'];
-                $make_id = $invalid_record['taxonomy_id_make'];
-                $model_id = $invalid_record['taxonomy_id_model'];
-                $year_id = $invalid_record['taxonomy_id_year'];
-                $body_style_id = $invalid_record['taxonomy_id_body_style'];
-                $first_year_id = $invalid_record['taxonomy_id_first_year'];
-                $last_year_id = $invalid_record['taxonomy_id_last_year'];
-                $section_id = $invalid_record['taxonomy_id_section'];
-                $part_type_id = $invalid_record['taxonomy_id_part_type'];
-                $class_id = $invalid_record['taxonomy_id_class'];
-                $location_id = $invalid_record['taxonomy_id_location'];
-                $status_id = $invalid_record['taxonomy_id_status'];
-                $invalid_record['taxonomy_id_make'] = self::getTaxonomyNameById('make',$make_id);
-                $invalid_record['taxonomy_id_model'] = self::getTaxonomyNameById('model',$model_id);
-                $invalid_record['taxonomy_id_year'] = self::getTaxonomyNameById('year',$year_id);
-                $invalid_record['taxonomy_id_body_style'] = self::getTaxonomyNameById('body-style',$body_style_id);
-                $invalid_record['taxonomy_id_first_year'] = self::getTaxonomyNameById('first-year',$first_year_id);
-                $invalid_record['taxonomy_id_last_year'] = self::getTaxonomyNameById('last-year',$last_year_id);
-                $invalid_record['taxonomy_id_section'] = self::getTaxonomyNameById('section',$section_id);
-                $invalid_record['taxonomy_id_part_type'] = self::getTaxonomyNameById('part-type',$part_type_id);
-                $invalid_record['taxonomy_id_class'] = self::getTaxonomyNameById('class',$class_id);
-                $invalid_record['taxonomy_id_location'] = self::getTaxonomyNameById('location',$location_id);
-                $invalid_record['taxonomy_id_status'] = self::getTaxonomyNameById('status',$status_id);
-                $suppliers = Product::where('is_active',1)->get();
-
-
-                foreach ($suppliers as $supplier) {
-
-                    if ($supplier['id'] == $supplier_id) {
-                        $invalid_record['sm_supplier_id'] = $supplier['name'];
-                        break;
-                    }
-                }
-
-                $invalid_records[] = $invalid_record;
-
+                $record['reason'] = $validator->errors()->all();
+                $record = $this->mapTaxonomyFields($record);
+                $result['invalid_records'][] = $record;
                 continue;
             }
 
-            $inventory = Product::where('part_number',$record['part_number'])
-                ->where('oem_number',$record['oem_number'])
+            // Check for existing inventory
+            $existingProduct = Product::where('id', $record['id'])
+                ->where('id', $record['id'])
                 ->first();
 
-            if($is_override && $inventory)
-            {
-
-                $result['override_records_count']++;
-                $this->updateInventory($inventory,$record);
+            if ($existingProduct) {
+                if ($is_override) {
+                    $this->updateProducts($existingProduct, $record);
+                    $result['override_records_count']++;
+                } else {
+                    $result['invalid_records_count']++;
+                    $record['reason'] = ['Duplicate product with the same part number and OEM number exists.'];
+                    $record = $this->mapTaxonomyFields($record);
+                    $result['invalid_records'][] = $record;
+                }
                 continue;
             }
-            else if(!$is_override && $inventory)
-            {
-                $result['invalid_records_count']++;
-                $invalid_record = $record;
-                $supplier_id = $invalid_record['sm_supplier_id'];
-                $make_id = $invalid_record['taxonomy_id_make'];
-                $invalid_record['taxonomy_id_make'] = self::getTaxonomyNameById('make',$make_id);
-                $model_id = $invalid_record['taxonomy_id_model'];
-                $invalid_record['taxonomy_id_model'] = self::getTaxonomyNameById('model',$model_id);
-                $year_id = $invalid_record['taxonomy_id_year'];
-                $invalid_record['taxonomy_id_year'] = self::getTaxonomyNameById('year',$year_id);
-                $body_style_id = $invalid_record['taxonomy_id_body_style'];
-                $invalid_record['taxonomy_id_body_style'] = self::getTaxonomyNameById('body-style',$body_style_id);
-                $first_year_id = $invalid_record['taxonomy_id_first_year'];
-                $invalid_record['taxonomy_id_first_year'] = self::getTaxonomyNameById('first-year',$first_year_id);
-                $last_year_id = $invalid_record['taxonomy_id_last_year'];
-                $invalid_record['taxonomy_id_last_year'] = self::getTaxonomyNameById('last-year',$last_year_id);
-                $section_id = $invalid_record['taxonomy_id_section'];
-                $invalid_record['taxonomy_id_section'] = self::getTaxonomyNameById('section',$section_id);
-                $part_type_id = $invalid_record['taxonomy_id_part_type'];
-                $invalid_record['taxonomy_id_part_type'] = self::getTaxonomyNameById('part-type',$part_type_id);
-                $class_id = $invalid_record['taxonomy_id_class'];
-                $invalid_record['taxonomy_id_class'] = self::getTaxonomyNameById('class',$class_id);
-                $location_id = $invalid_record['taxonomy_id_location'];
-                $invalid_record['taxonomy_id_location'] = self::getTaxonomyNameById('location',$location_id);
-                $status_id = $invalid_record['taxonomy_id_status'];
-                $invalid_record['taxonomy_id_status'] = self::getTaxonomyNameById('status',$status_id);
 
-                $suppliers = Supplier::where('is_active',1)->get();
-
-                foreach ($suppliers as $supplier) {
-
-                    if ($supplier['id'] == $supplier_id) {
-                        $invalid_record['sm_supplier_id'] = $supplier['name'];
-                        break;
-                    }
-                }
-
-                $invalid_record['reason'] = ['Inventory already exists for the provided part number and Oem number'];
-                $invalid_records[] = $invalid_record;
-                continue;
-            }
-            else
-            {
-                $data = [];
-                foreach ($record as $key => $value){
-                    $data['uuid'] = \Str::uuid();
-                    $data[$key] = $value;
-
-                }
-
-                $inventory = Product::create($data);
-                if($inventory){
-                    $result['imported_records']++;
-                }
+            // Create new product
+            $record['uuid'] = \Str::uuid();
+            $product = Product::create($record);
+            if ($product) {
+                $result['imported_records']++;
             }
         }
 
-
-         //code to add invalid record to content variable for csv file generation
-
-        if($invalid_records)
-        {
-            foreach ($invalid_records as $invalid_record) {
-
-                $reasons = $invalid_record['reason'];
-                unset($invalid_record['reason']);
-                $values = array_values($invalid_record);
-
-                $reason_text = '';
-                foreach ($reasons as $key => $reason) {
-                    $reason_text .= ($key + 1) . '. ' . $reason . ' ';
-                }
-
-                $reason_text = rtrim($reason_text);
-
-                // added the reason to the values array
-                $values[] = '"' . str_replace("\n", '\n', $reason_text) . '"';
-
-                // Implode the values and add a newline character
-                $content .= implode(',', $values) . "\n";
-            }
+        // Prepare CSV for invalid records
+        foreach ($result['invalid_records'] as $invalidRecord) {
+            $reasons = implode('; ', $invalidRecord['reason']);
+            unset($invalidRecord['reason']);
+            $invalidRecord['reason'] = $reasons;
+            $content .= implode(',', array_values($invalidRecord)) . "\n";
         }
 
-
-
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="invalid_records.csv"',
+        // Return response with CSV
+        $response = [
+            'success' => true,
+            'data' => $result,
+            'messages' => ['Imported successfully.'],
+            'csv_content' => [
+                'headers' => [
+                    'Content-Type' => 'text/csv',
+                    'Content-Disposition' => 'attachment; filename="invalid_records.csv"',
+                ],
+                'content' => $content,
+            ],
         ];
 
-        $result['total_records'] = count($records);
-        $result['imported_records'] =  $result['imported_records'] + $result['override_records_count'];
-        $result['invalid_records'] = $invalid_records;
-        $result['csv_content'] = [
-            'headers' => $headers,
-            'content' => $content,
-        ];
-
-
-        $response['success'] = true;
-        $response['data'] = $result;
-        $response['messages'][] = 'Imported successfully.';
-        return $response;
+        return response()->json($response);
     }
-
     //----------------------------------------------------------
+    private function mapTaxonomyFields(array $record)
+    {
+        $taxonomyFields = [
+            'taxonomy_id_product_type' => 'taxonomy_id_product_type',
+            'taxonomy_id_product_status' => 'taxonomy_id_product_status',
+            'is_featured_on_home_page' => 'year',
+            'is_featured_on_category_page' => 'body-style',
+
+        ];
+
+        foreach ($taxonomyFields as $field => $taxonomy) {
+            if (isset($record[$field])) {
+                $record[$field] = self::getTaxonomyNameById($taxonomy, $record[$field]);
+            }
+        }
+
+        return $record;
+    }
 
     public function getTaxonomyNameById($taxonomy_type,$taxonomy_id)
     {
@@ -396,7 +513,7 @@ dd($request);
 
     //----------------------------------------------------------
 
-    public function updateInventory($inventory, $record){
+    public function updateProducts($inventory, $record){
         $data = [];
         foreach ($record as $key => $value){
             $data[$key] = $value;
