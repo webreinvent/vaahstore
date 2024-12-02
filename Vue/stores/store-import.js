@@ -27,9 +27,7 @@ export const useImportStore = defineStore({
         },
         item: null,
         is_list_loading: null,
-        types : [
-            {name : "Inventory", value : "inventory"},
-        ],
+
         list_bulk_menu: [],
         selected_type : null,
         import_type : null,
@@ -75,8 +73,7 @@ export const useImportStore = defineStore({
         is_override: false,
         type: null,
         is_importing: false,
-        taxonomy_item : null,
-        created_taxonomy : null,
+
         label : 'Click to upload',
         selected_records : [],
 
@@ -404,19 +401,7 @@ export const useImportStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        getSupplierId(name) {
 
-            if(this.assets.suppliers)
-            {
-                const supplier = this.assets.suppliers.find(supplier => supplier.name === name);
-                return supplier ? supplier.id : null;
-            }
-            else {
-                return null;
-            }
-
-
-        },
 
         //-------------------------------------------------------------------
         removeRecord(record) {
@@ -493,354 +478,60 @@ export const useImportStore = defineStore({
 
         processData(data) {
 
-            if (data.sm_supplier_id) {
-                const supplier_slug = vaah().strToSlug(data.sm_supplier_id.toString());
+            // Process vh_st_store_id
+            if (data.vh_st_store_id) {
+                let store = this.assets.stores.find(s => s.id === parseInt(data.vh_st_store_id));
 
-                const supplier = this.assets.suppliers.find(s => s.slug === supplier_slug);
-
-                if (supplier) {
-
-                    data.sm_supplier_id = supplier.id;
+                if (!store) {
+                    const store_slug = vaah().strToSlug(data.vh_st_store_id.toString());
+                    store = this.assets.stores.find(s => s.slug === store_slug);
                 }
 
-                else {
-                    data.sm_supplier_id = null;
-                    }
-
-            }
-            else {
-                data.sm_supplier_id = null;
+                data.vh_st_store_id = store ? store.id : null;
+            } else {
+                data.vh_st_store_id = null;
             }
 
-            if (data.taxonomy_id_make && this.assets.taxonomy && this.assets.taxonomy.make && this.assets.taxonomy.make.length > 0) {
-
-                const make_slug = vaah().strToSlug(data.taxonomy_id_make.toString());
-
-                const make = this.assets.taxonomy.make.find(make => make.slug === make_slug);
-                if(make)
-                    {
-                        data.taxonomy_id_make = make.id;
-                    }
-                    else {
-
-                    data.taxonomy_id_make = null;
-
-                    }
-
+            // Process vh_st_brand_id
+            if (data.vh_st_brand_id) {
+                const brand_slug = vaah().strToSlug(data.vh_st_brand_id.toString());
+                const brand = this.assets.brands.find(b => b.slug === brand_slug);
+                data.vh_st_brand_id = brand ? brand.id : null;
+            } else {
+                data.vh_st_brand_id = null;
             }
 
-            else {
-                data.taxonomy_id_make = null;
+            // Process taxonomy_id_product_status
+            if (data.taxonomy_id_product_status && this.assets.taxonomy?.status?.length > 0) {
+                const status_slug = vaah().strToSlug(data.taxonomy_id_product_status.toString());
+                const status = this.assets.taxonomy.status.find(s => s.slug === status_slug);
+                data.taxonomy_id_product_status = status ? status.id : null;
+            } else {
+                data.taxonomy_id_product_status = null;
             }
 
-            if (data.taxonomy_id_model && this.assets.taxonomy && this.assets.taxonomy.model && this.assets.taxonomy.model.length > 0) {
-
-                const model_slug = vaah().strToSlug(data.taxonomy_id_model.toString());
-
-                const model = this.assets.taxonomy.model.find(model => model.slug === model_slug);
-
-                if(model)
-                {
-                    data.taxonomy_id_model = model.id
-                }
-                else {
-                    data.taxonomy_id_model = null;
-                    }
-                }
-
-            else {
-                data.taxonomy_id_model = null;
+            // Process taxonomy_id_product_type
+            if (data.taxonomy_id_product_type && this.assets.taxonomy?.types?.length > 0) {
+                const type_slug = vaah().strToSlug(data.taxonomy_id_product_type.toString());
+                const type = this.assets.taxonomy.types.find(t => t.slug === type_slug);
+                data.taxonomy_id_product_type = type ? type.id : null;
+            } else {
+                data.taxonomy_id_product_type = null;
             }
 
-
-            if (data.taxonomy_id_year && this.assets.taxonomy && this.assets.taxonomy.year && this.assets.taxonomy.year.length > 0) {
-
-                const year = this.assets.taxonomy.year.find(year => parseInt(year.name) === data.taxonomy_id_year);
-                if(year)
-                {
-                    data.taxonomy_id_year = year.id;
-                }
-
-                else {
-                    data.taxonomy_id_year = null;
-                }
-            }
-
-            else {
-                data.taxonomy_id_year = null;
-            }
-
-
-            if (data.taxonomy_id_body_style && this.assets.taxonomy && this.assets.taxonomy.body_style && this.assets.taxonomy.body_style.length > 0) {
-
-                const body_style_slug = vaah().strToSlug(data.taxonomy_id_body_style.toString());
-
-                const body_style = this.assets.taxonomy.body_style.find(body_style => body_style.slug === body_style_slug);
-                if(body_style)
-                {
-                    data.taxonomy_id_body_style = body_style.id;
-                }
-                else {
-                    data.taxonomy_id_body_style = null;
-                }
-            }
-
-            else {
-                data.taxonomy_id_body_style = null;
-            }
-
-
-            if (data.taxonomy_id_first_year && this.assets.taxonomy && this.assets.taxonomy.first_year && this.assets.taxonomy.first_year.length > 0) {
-
-                const first_year = this.assets.taxonomy.first_year.find(year => parseInt(year.name) === data.taxonomy_id_first_year);
-
-                if(first_year)
-                {
-                    data.taxonomy_id_first_year = first_year.id;
-                }
-
-                else {
-                    data.taxonomy_id_first_year = null;
-                }
-            }
-
-            else {
-                data.taxonomy_id_first_year = null;
-            }
-
-            if (data.taxonomy_id_last_year && this.assets.taxonomy && this.assets.taxonomy.last_year && this.assets.taxonomy.last_year.length > 0) {
-
-                const last_year = this.assets.taxonomy.last_year.find(year => parseInt(year.name) === data.taxonomy_id_last_year);
-
-                if(last_year)
-                {
-                    data.taxonomy_id_last_year = last_year.id;
-                }
-
-                else {
-                    data.taxonomy_id_last_year = null;
-                }
-            }
-
-            else {
-                data.taxonomy_id_last_year = null;
-            }
-
-            if (data.taxonomy_id_section && this.assets.taxonomy && this.assets.taxonomy.section && this.assets.taxonomy.section.length > 0) {
-
-                const section_slug = vaah().strToSlug(data.taxonomy_id_section.toString());
-                const section = this.assets.taxonomy.section.find(section => section.slug === section_slug);
-
-                if(section)
-                {
-                    data.taxonomy_id_section = section.id;
-                }
-                else
-                {
-                    data.taxonomy_id_section = null;
-                }
-
-            }
-
-            else {
-                data.taxonomy_id_section = null;
-            }
-
-            if (data.taxonomy_id_part_type && this.assets.taxonomy && this.assets.taxonomy.part_type && this.assets.taxonomy.part_type.length > 0) {
-
-                const part_type_slug = vaah().strToSlug(data.taxonomy_id_part_type.toString());
-                const part_type = this.assets.taxonomy.part_type.find(part_type => part_type.slug === part_type_slug);
-                if(part_type)
-                {
-                    data.taxonomy_id_part_type = part_type.id;
-                }
-                else
-                {
-                    data.taxonomy_id_part_type = null;
-                }
-
-            }
-
-            else {
-                data.taxonomy_id_part_type = null;
-            }
-
-            if (data.taxonomy_id_location && this.assets.taxonomy && this.assets.taxonomy.location && this.assets.taxonomy.location.length > 0) {
-                const location_slug = vaah().strToSlug(data.taxonomy_id_location.toString());
-                const location = this.assets.taxonomy.location.find(location => location.slug === location_slug);
-                if(location)
-                {
-                    data.taxonomy_id_location = location.id;
-                }
-                else
-                {
-                    data.taxonomy_id_location = null;
-                }
-
-            }
-
-            else {
-                data.taxonomy_id_location = null;
-            }
-
-
-            if (data.taxonomy_id_class && this.assets.taxonomy && this.assets.taxonomy.class && this.assets.taxonomy.class.length > 0) {
-                const class_slug = vaah().strToSlug(data.taxonomy_id_class.toString());
-
-                const class_name = this.assets.taxonomy.class.find( c => c.slug === class_slug);
-                if(class_name)
-                {
-                    data.taxonomy_id_class = class_name.id;
-                }
-                else
-                {
-                    data.taxonomy_id_class = null;
-                }
-
-            }
-
-            else {
-                data.taxonomy_id_class = null;
-            }
-
-            if(!data.parts_link_id)
-            {
-                data.parts_link_id = null;
-            }
-
-
-            if (data.taxonomy_id_status && this.assets.taxonomy && this.assets.taxonomy.status && this.assets.taxonomy.status.length > 0) {
-                const status_slug = vaah().strToSlug(data.taxonomy_id_status.toString());
-                const status = this.assets.taxonomy.status.find(status => status.slug === status_slug);
-                if(status)
-                {
-                    data.taxonomy_id_status = status.id;
-                }
-                else
-                {
-                    data.taxonomy_id_status = null;
-                }
-
-            }
-
-            else {
-                data.taxonomy_id_status = null;
-            }
-            if(!data.quantity)
-            {
+            // Handle quantity
+            if (!data.quantity) {
                 data.quantity = null;
-            }
-            if(!data.part_number)
-            {
-                data.part_number = null;
-            }
-            if(!data.oem_number)
-            {
-                data.oem_number = null;
-            }
-            if(!data.description)
-            {
-                data.description = null;
-            }
-            if(!data.cubic_feet)
-            {
-                data.cubic_feet = null;
-            }
-            if(!data.list_price)
-            {
-                data.list_price = null;
-            }
-            if(!data.sales_price)
-            {
-                data.sales_price = null;
-            }
-            if(!data.reorder_quantity)
-            {
-                data.reorder_quantity = null;
-            }
-            if(!data.reorder_point)
-            {
-                data.reorder_point = null;
             }
 
         },
+
+
+
 
         //-----------------------------------------------------------
 
-        async createTaxonomy(taxonomy_type_id,taxonomy_name,taxonomy_slug,data)
-        {
 
-           let  taxonomy_item = {
-                vh_taxonomy_type_id : taxonomy_type_id,
-               name : taxonomy_name,
-               slug : taxonomy_slug,
-               is_active : 1
-            }
-            let options = {
-                method: 'POST',
-                params: taxonomy_item,
-                show_success: false,
-            };
-
-            let ajax_url = base_url + "/simco/inventories/create/taxonomy";
-            await vaah().ajax(
-                ajax_url,
-                (taxonomy,res) =>
-                {
-                    this.createTaxonomyAfter(taxonomy,res, data);
-                },
-                options
-            );
-
-            },
-
-        //---------------------------------------------------
-       async createTaxonomyAfter(taxonomy,res, data)
-        {
-            if (res.data && res.data.success === true) {
-                    switch (taxonomy.type.slug) {
-                        case 'make':
-                            data.taxonomy_id_make = taxonomy.id;
-                            break;
-                        case 'model':
-                            data.taxonomy_id_model = taxonomy.id;
-                            break;
-                        case 'year':
-                            data.taxonomy_id_year = taxonomy.id;
-                            break;
-                        case 'body-style':
-                            data.taxonomy_id_body_style = taxonomy.id;
-                            break;
-                        case 'first-year':
-                            data.taxonomy_id_first_year = taxonomy.id;
-                            break;
-                        case 'last-year':
-                            data.taxonomy_id_last_year = taxonomy.id;
-                            break;
-                        case 'section':
-                            data.taxonomy_id_section = taxonomy.id;
-                            break;
-                        case 'part-type':
-                            data.taxonomy_id_part_type = taxonomy.id;
-                            break;
-                        case 'class':
-                            data.taxonomy_id_class = taxonomy.id;
-                            break;
-                        case 'location':
-                            data.taxonomy_id_location = taxonomy.id;
-                            break;
-                        case 'status':
-                            data.taxonomy_id_status = taxonomy.id;
-                            break;
-                        default:
-                            break;
-                    }
-                this.assets_is_fetching = true;
-                await this.getAssets();
-            }
-        },
-
-        //---------------------------------------------------
 
         openSelectedFile()
         {
@@ -885,43 +576,6 @@ export const useImportStore = defineStore({
         },
 
         //---------------------------------------------------
-       async  createSupplier(supplier_name,supplier_slug,data)
-        {
-
-            let item = {
-                name : supplier_name,
-                slug : supplier_slug,
-                is_active : 1
-            }
-
-            let options = {
-                method: 'POST',
-                params: item,
-                show_success: false,
-            };
-
-            let ajax_url = this.ajax_url + '/create-supplier'
-            await vaah().ajax(
-                ajax_url,
-                (supplier,res) =>
-                {
-                    this.createSupplierAfter(supplier,res, data);
-                },
-                options
-            );
-
-        },
-
-        //---------------------------------------------------
-        async createSupplierAfter(supplier,res, data)
-        {
-            if (res.data && res.data.success === true) {
-                data.sm_supplier_id = supplier.id;
-                this.assets_is_fetching = true;
-                await this.getAssets();
-            }
-
-        },
 
         //------------------------------------------------------------------
 

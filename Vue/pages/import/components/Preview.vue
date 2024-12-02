@@ -19,7 +19,7 @@
 
                             type="button"
                             @click="toggleBulkMenuState"
-                            data-testid="products-import-bulk-menu"
+                            data-testid="preview-import-bulk-menu"
                             aria-haspopup="true"
                             aria-controls="bulk_menu_state"
                             style="height:30px;"
@@ -58,30 +58,52 @@
 
 
                         <template v-if="col.field==='is_active'" #body="{data}">
+                            <div class="flex align-items-center">
                             <InputSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch-sm"
                                          name="import-active"
                                          data-testid="import-active"
                                          v-model="data.is_active"/>
+                            <i v-if="getRowIndex(data) === 0"
+                               class="pi pi-arrow-circle-down ml-2 cursor-pointer"
+                               @click="fillActiveAll(data)"
+                               v-tooltip.top="'Click here to add same input for all the records'"
+                               style="font-size: 18px;"></i>
+                            </div>
                         </template>
 
                         <template v-if="col.field==='is_featured_on_home_page'" #body="{data}">
+                            <div class="flex align-items-center">
                             <InputSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch-sm"
                                          name="import-active"
                                          data-testid="import-active"
                                          v-model="data.is_featured_on_home_page"/>
+                            <i v-if="getRowIndex(data) === 0"
+                               class="pi pi-arrow-circle-down ml-2 cursor-pointer"
+                               @click="fillHomepageFeatured(data)"
+                               v-tooltip.top="'Click here to add same input for all the records'"
+                               style="font-size: 18px;"></i>
+                            </div>
                         </template>
 
                         <template v-if="col.field==='is_featured_on_category_page'" #body="{data}">
+
+                            <div class="flex align-items-center">
                             <InputSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch-sm"
                                          name="import-active"
                                          data-testid="import-active"
                                          v-model="data.is_featured_on_category_page"/>
+                                <i v-if="getRowIndex(data) === 0"
+                                   class="pi pi-arrow-circle-down ml-2 cursor-pointer"
+                                   @click="fillCategoryFeatured(data)"
+                                   v-tooltip.top="'Click here to add same input for all the records'"
+                                   style="font-size: 18px;"></i>
+                            </div>
                         </template>
 
 
@@ -209,10 +231,10 @@
                                 <Calendar tabindex="0"
                                           :showIcon="true"
                                           class="w-full"
-                                          name="products-registered_at"
+                                          name="preview-available_at"
                                           id="registered_at"
                                           value="registered_at"
-                                          data-testid="products-registered_at"
+                                          data-testid="preview-available_at"
                                           dateFormat="yy-mm-dd"
                                           placeholder="Select date"
                                           v-model="data.available_at"
@@ -220,7 +242,7 @@
                                 ></Calendar>
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
-                                   @click="fillBodyStyle(data)"
+                                   @click="fillAvailableDate(data)"
                                    v-tooltip.top="'Click here to add same body style for all the records'"
                                    style="font-size: 18px;"></i>
                             </div>
@@ -231,10 +253,10 @@
                                 <Calendar tabindex="0"
                                           :showIcon="true"
                                           class="w-full"
-                                          name="products-registered_at"
+                                          name="preview-launch_at"
                                           id="registered_at"
                                           value="registered_at"
-                                          data-testid="products-registered_at"
+                                          data-testid="preview-launch_at"
                                           dateFormat="yy-mm-dd"
                                           placeholder="Select date"
                                           v-model="data.launch_at"
@@ -242,8 +264,8 @@
                                 ></Calendar>
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
-                                   @click="fillFirstYear(data)"
-                                   v-tooltip.top="'Click here to add same first year for all the records'"
+                                   @click="fillLaunchDate(data)"
+                                   v-tooltip.top="'Click here to add same launch date for all the records'"
                                    style="font-size: 18px;"></i>
                             </div>
                         </template>
@@ -320,27 +342,41 @@ const getRowIndex = (data) => {
 };
 
 
-const fillStore = (supplier) => {
-    const first_supplier = supplier.vh_st_store_id;
+const fillStore = (store) => {
+    const first_store = store.vh_st_store_id;
     store.list.records.forEach(record => {
-        record.vh_st_store_id = first_supplier;
+        record.vh_st_store_id = first_store;
+    });
+    vaah().toastSuccess(['Action was successfull']);
+};
+const fillLaunchDate = (year) => {
+    const launch_at_datetime = year.launch_at;
+    store.list.records.forEach(record => {
+        record.launch_at = launch_at_datetime;
     });
     vaah().toastSuccess(['Action was successfull']);
 };
 
-
-const fillBrand = (make) => {
-    const first_make = make.vh_st_brand_id;
+const fillAvailableDate = (year) => {
+    const available_at_datetime = year.available_at;
     store.list.records.forEach(record => {
-        record.vh_st_brand_id = first_make;
+        record.available_at = available_at_datetime;
     });
     vaah().toastSuccess(['Action was successfull']);
 };
 
-const fillStatus = (model) => {
-    const first_model = model.taxonomy_id_product_status;
+const fillBrand = (brand) => {
+    const first_brand = brand.vh_st_brand_id;
     store.list.records.forEach(record => {
-        record.taxonomy_id_product_status = first_model;
+        record.vh_st_brand_id = first_brand;
+    });
+    vaah().toastSuccess(['Action was successfull']);
+};
+
+const fillStatus = (status) => {
+    const first_status = status.taxonomy_id_product_status;
+    store.list.records.forEach(record => {
+        record.taxonomy_id_product_status = first_status;
     });
     vaah().toastSuccess(['Action was successfull']);
 };
@@ -352,6 +388,31 @@ const fillType = (year) => {
     });
     vaah().toastSuccess(['Action was successfull']);
 };
+const fillCategoryFeatured = (featured) => {
+    const is_category_featured = featured.is_featured_on_category_page;
+    store.list.records.forEach(record => {
+        record.is_featured_on_category_page = is_category_featured;
+    });
+    vaah().toastSuccess(['Action was successfull']);
+};
+
+const fillHomepageFeatured = (featured) => {
+    const is_home_featured = featured.is_featured_on_home_page;
+    store.list.records.forEach(record => {
+        record.is_featured_on_home_page = is_home_featured;
+    });
+    vaah().toastSuccess(['Action was successfull']);
+};
+
+const fillActiveAll = (active) => {
+    const is_active = active.is_active;
+    store.list.records.forEach(record => {
+        record.is_active = is_active;
+    });
+    vaah().toastSuccess(['Action was successfull']);
+};
+
+
 
 
 
