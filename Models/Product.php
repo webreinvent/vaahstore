@@ -2832,11 +2832,13 @@ class Product extends VaahModel
 //        return $response;
 //    }
 
+
+
     public static function exportData($request)
     {
         $inputs = $request->all();
-//dd($request);
-        // Validation
+        $column_to_export = $request->input('columns', []);
+//        dd($column_to_export);
         $rules = [
             'type' => 'required',
         ];
@@ -2866,8 +2868,8 @@ class Product extends VaahModel
             'vh_st_store_id' => 'Store',
             'vh_st_brand_id' => 'Brand',
             'is_active' => 'Active',
-            'is_featured_on_home_page ' => 'Homepage Featured',
-            'is_featured_on_category_page  ' => 'Category Page Featured',
+            'is_featured_on_home_page' => 'Homepage Featured',
+            'is_featured_on_category_page' => 'Category Page Featured',
             'launch_at' => 'Launch At',
             'available_at' => 'Available At',
             'created_by' => 'Created By',
@@ -2876,12 +2878,21 @@ class Product extends VaahModel
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'deleted_at' => 'Deleted At',
+            'product_categories' => 'Categories', // New column for categories
+            'product_variations' => 'Product Variations', // New column for categories
         ];
+
+        // Filter columns based on the request
+        if (!empty($column_to_export)) {
+            $header_mapping = array_filter($header_mapping, function ($key) use ($column_to_export) {
+                return in_array($key, $column_to_export);
+            }, ARRAY_FILTER_USE_KEY);
+        }
 
         // Fetch records based on provided items or all records
         $records = isset($inputs['items']) && !empty($inputs['items'])
-            ? self::withTrashed()->whereIn('id', collect($inputs['items'])->pluck('id'))->get()
-            : self::withTrashed()->get();
+            ? self::withTrashed()->with(['productCategories','productVariations', 'brand', 'store'])->whereIn('id', collect($inputs['items'])->pluck('id'))->get()
+            : self::withTrashed()->with(['productCategories', 'productVariations','brand', 'store'])->get();
 
         // Initialize CSV content with headers
         $csv_content = implode(',', array_values($header_mapping)) . "\n";
@@ -2890,7 +2901,6 @@ class Product extends VaahModel
             $values = [];
 
             foreach ($header_mapping as $attribute => $header) {
-                // Default value is empty if the attribute is not found
                 $value = '';
 
                 if ($attribute === 'created_by' && $record->createdByUser) {
@@ -2899,11 +2909,18 @@ class Product extends VaahModel
                     $value = $record->updatedByUser->email ?? '';
                 } elseif ($attribute === 'deleted_by' && $record->deletedByUser) {
                     $value = $record->deletedByUser->email ?? '';
-                } elseif (str_starts_with($attribute, 'taxonomy_id_') && $record->{Str::camel(str_replace('taxonomy_id_', '', $attribute))}) {
+                } elseif ($attribute === 'product_categories' && $record->productCategories) {
+                    // Export related categories as a comma-separated string
+                    $value = $record->productCategories->pluck('name')->join(', ');
+                }
+                elseif ($attribute === 'product_variations' && $record->productVariations) {
+                    // Export related categories as a comma-separated string
+                    $value = $record->productVariations->pluck('name')->join(', ');
+                }
+                elseif (str_starts_with($attribute, 'taxonomy_id_') && $record->{Str::camel(str_replace('taxonomy_id_', '', $attribute))}) {
                     // Handle taxonomy relationships dynamically
                     $value = $record->{Str::camel(str_replace('taxonomy_id_', '', $attribute))}->name ?? '';
                 } else {
-                    // Default to attribute value
                     $value = $record->{$attribute} ?? '';
                 }
 
@@ -2928,7 +2945,5 @@ class Product extends VaahModel
             'messages' => [trans("vaahcms-general.action_successful")],
         ];
     }
-
-
 
 }

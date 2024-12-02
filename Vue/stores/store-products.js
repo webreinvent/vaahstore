@@ -2877,6 +2877,7 @@ export const useProductStore = defineStore({
                     label: `Export All (${this.list?.total})`,
                     command: async () => {
                         await this.exportProducts('export-all')
+                        // this.$router.push({ name: 'import.export' });
                     }
                 },
             ]
@@ -2891,7 +2892,7 @@ export const useProductStore = defineStore({
             )
         },
 
-        async exportProducts(type){
+        async exportProducts(type,selected_columns){
 
             this.action.type = type;
 
@@ -2903,7 +2904,7 @@ export const useProductStore = defineStore({
                     return false;
                 }
             }
-
+            this.action.columns = selected_columns;
             let url = this.ajax_url + '/export/data';
             let method = 'POST';
             let options = {
