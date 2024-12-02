@@ -66,6 +66,24 @@
                                          v-model="data.is_active"/>
                         </template>
 
+                        <template v-if="col.field==='is_featured_on_home_page'" #body="{data}">
+                            <InputSwitch v-bind:false-value="0"
+                                         v-bind:true-value="1"
+                                         class="p-inputswitch-sm"
+                                         name="import-active"
+                                         data-testid="import-active"
+                                         v-model="data.is_featured_on_home_page"/>
+                        </template>
+
+                        <template v-if="col.field==='is_featured_on_category_page'" #body="{data}">
+                            <InputSwitch v-bind:false-value="0"
+                                         v-bind:true-value="1"
+                                         class="p-inputswitch-sm"
+                                         name="import-active"
+                                         data-testid="import-active"
+                                         v-model="data.is_featured_on_category_page"/>
+                        </template>
+
 
 
                             <template v-if="col.field === 'description'"  #body="{ data }">
@@ -100,8 +118,8 @@
                                 />
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
-                                   @click="fillSupplier(data)"
-                                   v-tooltip.top="'Click here to add same supplier for all the records'"
+                                   @click="fillStore(data)"
+                                   v-tooltip.top="'Click here to add same store for all the records'"
                                    style="font-size: 18px;"></i>
                             </div>
                         </template>
@@ -126,8 +144,8 @@
                                 />
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
-                                   @click="fillMake(data)"
-                                   v-tooltip.top="'Click here to add same make for all the records'"
+                                   @click="fillBrand(data)"
+                                   v-tooltip.top="'Click here to add same brand for all the records'"
                                    style="font-size: 18px;"></i>
                             </div>
                         </template>
@@ -152,8 +170,8 @@
                                 />
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
-                                   @click="fillModel(data)"
-                                   v-tooltip.top="'Click here to add same model for all the records'"
+                                   @click="fillStatus(data)"
+                                   v-tooltip.top="'Click here to add same status for all the records'"
                                    style="font-size: 18px;"></i>
                             </div>
                         </template>
@@ -178,8 +196,8 @@
                                 />
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
-                                   @click="fillYear(data)"
-                                   v-tooltip.top="'Click here to add same year for all the records'"
+                                   @click="fillType(data)"
+                                   v-tooltip.top="'Click here to add same type for all the records'"
                                    style="font-size: 18px;"></i>
                             </div>
                         </template>
@@ -302,104 +320,40 @@ const getRowIndex = (data) => {
 };
 
 
-const fillSupplier = (supplier) => {
-    const first_supplier = supplier.sm_supplier_id;
+const fillStore = (supplier) => {
+    const first_supplier = supplier.vh_st_store_id;
     store.list.records.forEach(record => {
-        record.sm_supplier_id = first_supplier;
+        record.vh_st_store_id = first_supplier;
     });
     vaah().toastSuccess(['Action was successfull']);
 };
 
 
-const fillMake = (make) => {
-    const first_make = make.taxonomy_id_make;
+const fillBrand = (make) => {
+    const first_make = make.vh_st_brand_id;
     store.list.records.forEach(record => {
-        record.taxonomy_id_make = first_make;
+        record.vh_st_brand_id = first_make;
     });
     vaah().toastSuccess(['Action was successfull']);
 };
 
-const fillModel = (model) => {
-    const first_model = model.taxonomy_id_model;
+const fillStatus = (model) => {
+    const first_model = model.taxonomy_id_product_status;
     store.list.records.forEach(record => {
-        record.taxonomy_id_model = first_model;
+        record.taxonomy_id_product_status = first_model;
     });
     vaah().toastSuccess(['Action was successfull']);
 };
 
-const fillYear = (year) => {
-    const first_year = year.taxonomy_id_year;
+const fillType = (year) => {
+    const first_year = year.taxonomy_id_product_type;
     store.list.records.forEach(record => {
-        record.taxonomy_id_year = first_year;
-    });
-    vaah().toastSuccess(['Action was successfull']);
-};
-
-const fillBodyStyle = (body_style) => {
-    const first_body_style = body_style.taxonomy_id_body_style;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_body_style = first_body_style;
-    });
-
-    vaah().toastSuccess(['Action was successfull']);
-};
-
-const fillFirstYear = (year) => {
-    const first_year = year.taxonomy_id_first_year;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_first_year = first_year;
-    });
-    vaah().toastSuccess(['Action was successfull']);
-};
-
-const fillLastYear = (year) => {
-    const last_year_id = year.taxonomy_id_last_year;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_last_year = last_year_id;
-    });
-    vaah().toastSuccess(['Action was successfull']);
-};
-
-const fillSection = (section) => {
-    const section_id = section.taxonomy_id_section;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_section = section_id;
-    });
-    vaah().toastSuccess(['Action was successfull']);
-};
-
-const fillPartType = (part_type) => {
-    const part_type_id = part_type.taxonomy_id_part_type;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_part_type = part_type_id;
+        record.taxonomy_id_product_type = first_year;
     });
     vaah().toastSuccess(['Action was successfull']);
 };
 
 
-const fillLocation = (location) => {
-    const location_id = location.taxonomy_id_location;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_location = location_id;
-    });
-    vaah().toastSuccess(['Action was successfull']);
-};
-
-const fillClass = (c) => {
-    const class_id = c.taxonomy_id_class;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_class = class_id;
-    });
-    vaah().toastSuccess(['Action was successfull']);
-};
-
-const fillStatus = (status) => {
-    const status_id = status.taxonomy_id_status;
-    store.list.records.forEach(record => {
-        record.taxonomy_id_status = status_id;
-    });
-    vaah().toastSuccess(['Action was successfull']);
-};
 
 
 onMounted(async () => {
