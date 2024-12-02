@@ -2647,198 +2647,18 @@ class Product extends VaahModel
         return $image_urls;
     }
 
-//    public static function exportData($request)
-//    {
-//
-//        $inputs = $request->all();
-//
-//        $rules = array(
-//            'type' => 'required',
-//        );
-//
-//        $messages = array(
-//            'type.required' => trans("vaahcms-general.action_type_is_required"),
-//        );
-//
-//        $validator = \Validator::make($inputs, $rules, $messages);
-//
-//        if ($validator->fails()) {
-//            $errors = errorsToArray($validator->errors());
-//            $response['success'] = false;
-//            $response['errors'] = $errors;
-//            return $response;
-//        }
-//
-//        $header_mapping = [
-//            'id' => 'Id',
-//            'name' => 'Name',
-//            'slug' => 'Slug',
-//            'summary' => 'Summary',
-//            'details' => 'Details',
-//            'quantity' => 'Quantity',
-//            'taxonomy_id_product_type' => 'Taxonomy Id Product Type',
-//            'vh_st_store_id' => 'Vh St Store Id',
-//            'vh_st_brand_id' => 'Vh St Brand Id',
-//            'vh_cms_content_form_field_id' => 'Vh Cms Content Form Field Id',
-//            'is_active' => 'Is Active',
-//            'taxonomy_id_product_status' => 'Taxonomy Id Product Status',
-//            'status_notes' => 'Status Notes',
-//            'seo_title' => 'Seo Title',
-//            'seo_meta_description' => 'Seo Meta Description',
-//            'seo_meta_keyword' => 'Seo Meta Keyword',
-//            'is_featured_on_home_page' => 'Is Featured On Home Page',
-//            'is_featured_on_category_page' => 'Is Featured On Category Page',
-//            'available_at' => 'Available At',
-//            'launch_at' => 'Launch At',
-//            'created_by'=> 'Created by user email',
-//            'updated_by'=> 'Updated by user email',
-//            'deleted_by'=> 'Deleted by user email',
-//            'created_at'=> 'Created at',
-//            'updated_at' => 'Updated at',
-//            'deleted_at'=>'Deleted at'
-//        ];
-//
-//
-//        if(isset($inputs['items']) && !empty($inputs['items'])) {
-//
-//            $items_id = collect($inputs['items'])
-//                ->pluck('id')
-//                ->toArray();
-//
-//            $records = self::withTrashed()->whereIn('id', $items_id)->get();
-//        }
-//
-//        else {
-//            $records = self::withTrashed()->get();
-//        }
-//
-//
-//        $content = implode(',', array_values($header_mapping)) . "\n";
-//        foreach($records as $record)
-//        {
-//
-//            $values=[];
-//
-//            foreach ($record->getAttributes() as $attribute => $value) {
-//
-//                if ($attribute === 'meta' || $attribute === 'uuid') {
-//                    continue;
-//                }
-//
-//                $header = $header_mapping[$attribute] ?? $attribute;
-//
-//                if ($attribute === 'taxonomy_id_make' && $record->make) {
-//                    $make = $record->make->name;
-//                    $values[] = $make;
-//
-//                }
-//                elseif($attribute === 'sm_supplier_id' && $record->supplier)
-//                {
-//                    $supplier = $record->supplier->name;
-//                    $values[] = $supplier;
-//                }
-//                elseif($attribute === 'taxonomy_id_model' && $record->model)
-//                {
-//                    $model = $record->model->name;
-//                    $values[] = $model;
-//                }
-//                elseif($attribute === 'taxonomy_id_year' && $record->year)
-//                {
-//                    $year = $record->year->name;
-//                    $values[] = $year;
-//                }
-//                elseif($attribute === 'taxonomy_id_body_style' && $record->bodyStyle)
-//                {
-//                    $body_style = $record->bodyStyle->name;
-//                    $values[] = $body_style;
-//                }
-//                elseif($attribute === 'taxonomy_id_first_year' && $record->firstYear)
-//                {
-//                    $first_year = $record->firstYear->name;
-//                    $values[] = $first_year;
-//                }
-//                elseif($attribute === 'taxonomy_id_last_year' && $record->lastYear)
-//                {
-//                    $last_year = $record->lastYear->name;
-//                    $values[] = $last_year;
-//                }
-//                elseif($attribute === 'taxonomy_id_section' && $record->section)
-//                {
-//                    $section = $record->section->name;
-//                    $values[] = $section;
-//                }
-//
-//                elseif($attribute === 'taxonomy_id_part_type' && $record->partType)
-//                {
-//                    $part_type = $record->partType->name;
-//                    $values[] = $part_type;
-//                }
-//                elseif($attribute === 'taxonomy_id_class' && $record->class)
-//                {
-//                    $class = $record->class->name;
-//                    $values[] = $class;
-//                }
-//                elseif($attribute === 'taxonomy_id_location' && $record->location)
-//                {
-//                    $location = $record->location->name;
-//                    $values[] = $location;
-//                }
-//                elseif($attribute === 'taxonomy_id_status' && $record->status)
-//                {
-//                    $status = $record->status->name;
-//                    $values[] = $status;
-//                }
-//
-//                elseif($attribute === 'created_by' && $record->createdByUser)
-//                {
-//                    $email = $record->createdByUser->email;
-//                    $values[] = $email;
-//                }
-//                elseif($attribute === 'updated_by' && $record->updatedByUser)
-//                {
-//                    $email = $record->updatedByUser->email;
-//                    $values[] = $email;
-//                }
-//                elseif($attribute === 'deleted_by' && $record->deletedByUser)
-//                {
-//                    $email = $record->deletedByUser->email;
-//                    $values[] = $email;
-//                }
-//
-//                else {
-//                    $values[] = $value;
-//                }
-//
-//            }
-//            $content .= implode(',', $values) . "\n";
-//
-//
-//        }
-//
-//        // Set headers for the response
-//        $headers = [
-//            'Content-Type' => 'text/csv',
-//            'Content-Disposition' => 'attachment; filename="exported-inventories.csv"',
-//        ];
-//
-//        $response['data'] = [
-//            'content' => $content,
-//            'headers' => $headers,
-//        ];
-//
-//        $response['success'] = true;
-//        $response['messages'][] = trans("vaahcms-general.action_successful");
-//
-//        return $response;
-//    }
-
-
+    //----------------------------------------------------------
 
     public static function exportData($request)
     {
         $inputs = $request->all();
         $column_to_export = $request->input('columns', []);
-//        dd($column_to_export);
+        if (empty($column_to_export)) {
+            return [
+                'success' => false,
+                'errors' => [trans("vaahcms-general.no_columns_selected")],
+            ];
+        }
         $rules = [
             'type' => 'required',
         ];
@@ -2867,9 +2687,9 @@ class Product extends VaahModel
             'status_notes' => 'Status Notes',
             'vh_st_store_id' => 'Store',
             'vh_st_brand_id' => 'Brand',
-            'is_active' => 'Active',
-            'is_featured_on_home_page' => 'Homepage Featured',
-            'is_featured_on_category_page' => 'Category Page Featured',
+            'is_active' => 'Is Active',
+            'is_featured_on_home_page' => 'Is Homepage Featured',
+            'is_featured_on_category_page' => 'Is Category Page Featured',
             'launch_at' => 'Launch At',
             'available_at' => 'Available At',
             'created_by' => 'Created By',
@@ -2878,9 +2698,13 @@ class Product extends VaahModel
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'deleted_at' => 'Deleted At',
-            'product_categories' => 'Categories', // New column for categories
-            'product_variations' => 'Product Variations', // New column for categories
+            'product_categories' => 'Categories',
+            'product_variations' => 'Product Variations',
         ];
+
+        if (in_array("export_all_columns", $column_to_export)) {
+            $column_to_export = array_keys($header_mapping); // Export all columns
+        }
 
         // Filter columns based on the request
         if (!empty($column_to_export)) {
@@ -2891,36 +2715,36 @@ class Product extends VaahModel
 
         // Fetch records based on provided items or all records
         $records = isset($inputs['items']) && !empty($inputs['items'])
-            ? self::withTrashed()->with(['productCategories','productVariations', 'brand', 'store'])->whereIn('id', collect($inputs['items'])->pluck('id'))->get()
-            : self::withTrashed()->with(['productCategories', 'productVariations','brand', 'store'])->get();
+            ? self::withTrashed()->with(['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'])->whereIn('id', collect($inputs['items'])->pluck('id'))->get()
+            : self::withTrashed()->with(['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'])->get();
 
         // Initialize CSV content with headers
         $csv_content = implode(',', array_values($header_mapping)) . "\n";
+
+        // Mapping special attributes for export
+        $attribute_map = [
+            'is_active' => fn($record) => $record->is_active ? 'true' : 'false',
+            'is_featured_on_home_page' => fn($record) => $record->is_featured_on_home_page ? 'true' : 'false',
+            'is_featured_on_category_page' => fn($record) => $record->is_featured_on_category_page ? 'true' : 'false',
+            'created_by' => fn($record) => $record->createdByUser ? $record->createdByUser->email : '',
+            'updated_by' => fn($record) => $record->updatedByUser ? $record->updatedByUser->email : '',
+            'deleted_by' => fn($record) => $record->deletedByUser ? $record->deletedByUser->email : '',
+            'product_categories' => fn($record) => $record->productCategories ? $record->productCategories->pluck('name')->join(', ') : '',
+            'product_variations' => fn($record) => $record->productVariations ? $record->productVariations->pluck('name')->join(', ') : '',
+            'vh_st_store_id' => fn($record) => $record->store ? $record->store->name : '',
+            'vh_st_brand_id' => fn($record) => $record->brand ? $record->brand->name : '',
+            'taxonomy_id_product_type' => fn($record) => $record->type ? $record->type->name : '',
+            'taxonomy_id_product_status' => fn($record) => $record->status ? $record->status->name : '',
+        ];
 
         foreach ($records as $record) {
             $values = [];
 
             foreach ($header_mapping as $attribute => $header) {
-                $value = '';
-
-                if ($attribute === 'created_by' && $record->createdByUser) {
-                    $value = $record->createdByUser->email ?? '';
-                } elseif ($attribute === 'updated_by' && $record->updatedByUser) {
-                    $value = $record->updatedByUser->email ?? '';
-                } elseif ($attribute === 'deleted_by' && $record->deletedByUser) {
-                    $value = $record->deletedByUser->email ?? '';
-                } elseif ($attribute === 'product_categories' && $record->productCategories) {
-                    // Export related categories as a comma-separated string
-                    $value = $record->productCategories->pluck('name')->join(', ');
-                }
-                elseif ($attribute === 'product_variations' && $record->productVariations) {
-                    // Export related categories as a comma-separated string
-                    $value = $record->productVariations->pluck('name')->join(', ');
-                }
-                elseif (str_starts_with($attribute, 'taxonomy_id_') && $record->{Str::camel(str_replace('taxonomy_id_', '', $attribute))}) {
-                    // Handle taxonomy relationships dynamically
-                    $value = $record->{Str::camel(str_replace('taxonomy_id_', '', $attribute))}->name ?? '';
+                if (isset($attribute_map[$attribute])) {
+                    $value = $attribute_map[$attribute]($record);
                 } else {
+                    // Default behavior for other attributes
                     $value = $record->{$attribute} ?? '';
                 }
 
@@ -2945,5 +2769,6 @@ class Product extends VaahModel
             'messages' => [trans("vaahcms-general.action_successful")],
         ];
     }
+
 
 }

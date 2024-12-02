@@ -8,32 +8,32 @@ const store = useImportStore();
 const product_store=useProductStore()
 const isExporting = ref(false);
 import VhField from './../../../vaahvue/vue-three/primeflex/VhField.vue'
+import {useRoute} from "vue-router";
 
 
 
+const route = useRoute();
+const export_Type = ref(route.query.type || 'export');
 
-
-const formData = ref({
-    columns: [], // Ensure columns is always defined as an array
+const included_columns = ref({
+    columns: [],
 });
 const options = computed(() => {
     const customOptions = [
-        { label: 'Export All Columns', column: 'export_all' },
-        { label: 'Custom Columns', column: 'custom_columns' },
+        { label: 'Export All Columns', column: 'export_all_columns' },
     ];
     const dynamicFields = store.assets?.types?.fields || [];
 
     return [...customOptions, ...dynamicFields];
 });
-const handleSelection = (selected) => {
-    if (!formData.value.columns) {
-        formData.value.columns = [];
-    }
 
-    if (selected.includes('export_all')) {
-        formData.value.columns = (store.assets.types.fields || []).map((field) => field.column);
-    } else if (selected.includes('custom_columns')) {
-        formData.value.columns = [];
+
+const handleSelection = (selected) => {
+    console.log(selected)
+    if (selected.includes("export_all_columns")) {
+        included_columns.value.columns = ["export_all_columns"];
+    } else {
+        included_columns.value.columns = selected;
     }
 };
 
@@ -53,18 +53,18 @@ const handleSelection = (selected) => {
             </p>
              <div class="flex border-1 p-5 border-round-md border-dashed bg-gray-50 border-400 flex-column gap-2">
 
-                    <VhField label="Columns Exported*">{{formData.columns}}
+                    <VhField label="Columns Exported*">
                     <MultiSelect
                         id="columns"
                         filter
-                        v-model="formData.columns"
+                        v-model="included_columns.columns"
                         :options="options"
                         optionLabel="label"
                         optionValue="column"
                         display="chip"
-                        placeholder="Select columns"
+                        placeholder="Select Columns"
                         class="w-full"
-                        @change="handleSelection(formData.columns)"
+                        @change="handleSelection(included_columns.columns)"
                     />
                     </VhField>
                 </div>
@@ -75,9 +75,9 @@ const handleSelection = (selected) => {
                 <Button label="Back" @click="store.toProducts()" icon="pi pi-angle-left" />
                 <Button
                     type="submit"
-                    label="Generate CSV"
+                    label="Export"
                     icon="pi pi-download"
-                    @click="product_store.exportProducts('export',formData.columns)"
+                    @click="product_store.exportProducts(export_Type,included_columns.columns)"
                     :loading="isExporting"
                     :disabled="isExporting"
                 />
@@ -93,3 +93,5 @@ const handleSelection = (selected) => {
 <style scoped>
 
 </style>
+
+

@@ -56,7 +56,7 @@
                     />
                     <Button
                         class="ml-2"
-                        label="Back to Inventory"
+                        label="Back to Products"
                         @click="store.toProducts()"
                         icon="pi pi-angle-left" />
                 </div>
