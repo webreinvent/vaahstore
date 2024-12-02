@@ -36,12 +36,7 @@ class ImportController extends Controller {
                     "fields" => $this->getFillableFieldsOfModel(new Product())
             ];
 
-            $suppliers = Store::all();
-            $data['suppliers'] = [];
-            if (count($suppliers) > 0)
-            {
-                $data['suppliers'] = $suppliers;
-            }
+
             $stores = Store::all();
             $data['stores'] = [];
             if (count($stores) > 0)
@@ -279,7 +274,7 @@ class ImportController extends Controller {
 
     //----------------------------------------------------------
 
-    
+
 
     //------------------------------
 
@@ -288,7 +283,6 @@ class ImportController extends Controller {
 
         // get all the column names from the database
         $all_columns = (new Product())->getTableColumns();
-//        dd($all_columns);
 
         // list of columns that we want to exclude
         $excluded_columns = ['id','uuid','meta','created_by','updated_by','deleted_by','created_at','updated_at','deleted_at'];
@@ -332,7 +326,8 @@ class ImportController extends Controller {
                     case 'taxonomy_id_product_status':
                         $taxonomies = Taxonomy::getTaxonomyByType('product-status');
                         $taxonomy_names = $taxonomies->pluck('name')->toArray();
-                        $data[$column] = $taxonomy_names ? $taxonomy_names[array_rand($taxonomy_names)] : null;
+                        $data[$column] = $taxonomy_names ?
+                            $taxonomy_names[array_rand($taxonomy_names)] : null;
                         break;
 
                     case 'taxonomy_id_product_type':
@@ -368,7 +363,6 @@ class ImportController extends Controller {
                             $data['vh_st_brand_id']=$faker->text($number_of_characters);
                         }
                         break;
-//                    case 'quantity':
                     case 'is_featured_on_homepage':
                     case 'is_featured_on_category_page':
                     case 'is_active':

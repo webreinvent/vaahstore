@@ -29,10 +29,6 @@ Route::group(
         Route::get('/get/sample-file', [ImportController::class,'getSampleFile'])
             ->name('vh.backend.store.import.sample-file');
 
-        /**
-         * Create Supplier
-         */
-        Route::post('/create-supplier', [ImportController::class, 'createSupplier'])
-            ->name('vh.backend.store.import.supplier.create');
+
 
     });

@@ -142,7 +142,7 @@ export const useProductStore = defineStore({
         top_selling_categories:null,
         quick_filter_menu:[],filter_all: null,
         column_to_export: {
-            columns: [], 
+            columns: [],
         },
 
     }),
@@ -2851,10 +2851,13 @@ export const useProductStore = defineStore({
            await this.topSellingCategories();
            await this.topSellingBrands();
         },
+        //----------------------------------------------------------------------
+
         toImport()
         {
             this.$router.push({ name : 'import.upload' });
         },
+        //----------------------------------------------------------------------
 
         async getExportMenu()
         {
@@ -2881,6 +2884,8 @@ export const useProductStore = defineStore({
                 },
             ]
         },
+        //----------------------------------------------------------------------
+
         watchSelectedItem()
         {
 
@@ -2890,6 +2895,7 @@ export const useProductStore = defineStore({
                 },{deep: true}
             )
         },
+        //----------------------------------------------------------------------
 
         async exportProducts(type,selected_columns){
 

@@ -12,6 +12,7 @@ import {useRoute} from "vue-router";
 
 const route = useRoute();
 const export_Type = ref(route.query.type || 'export');
+//-------------------------------------------------
 
 const options = computed(() => {
     const customOptions = [
@@ -22,13 +23,13 @@ const options = computed(() => {
     return [...customOptions, ...dynamicFields];
 });
 
+//-------------------------------------------------
 
 const handleSelection = (selected) => {
-    console.log(selected)
     if (selected.includes("export_all_columns")) {
         product_store.column_to_export.columns = ["export_all_columns"];
     } else {
-        product_store.column_to_exportcolumns = selected;
+        product_store.column_to_export.columns = selected;
     }
 };
 
