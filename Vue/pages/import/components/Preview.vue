@@ -230,7 +230,7 @@
                             </div>
                         </template>
 
-                        
+
                     </Column>
                     <Column :field="'action'" :header="'Action'">
                         <template #body="{ data }">

@@ -141,6 +141,9 @@ export const useProductStore = defineStore({
         top_selling_brands:null,
         top_selling_categories:null,
         quick_filter_menu:[],filter_all: null,
+        column_to_export: {
+            columns: [], 
+        },
 
     }),
     getters: {
@@ -2925,12 +2928,13 @@ export const useProductStore = defineStore({
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = 'exported-inventories.csv';
+                link.download = 'exported-products.csv';
                 link.click();
                 window.URL.revokeObjectURL(url);
                 await this.getList();
                 this.getItemMenu();
                 this.getFormMenu();
+                this.column_to_export.columns = [];
                 this.action.type=null;
                 this.action.items=[];
             }

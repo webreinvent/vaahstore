@@ -10,14 +10,9 @@ const isExporting = ref(false);
 import VhField from './../../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from "vue-router";
 
-
-
 const route = useRoute();
 const export_Type = ref(route.query.type || 'export');
 
-const included_columns = ref({
-    columns: [],
-});
 const options = computed(() => {
     const customOptions = [
         { label: 'Export All Columns', column: 'export_all_columns' },
@@ -31,9 +26,9 @@ const options = computed(() => {
 const handleSelection = (selected) => {
     console.log(selected)
     if (selected.includes("export_all_columns")) {
-        included_columns.value.columns = ["export_all_columns"];
+        product_store.column_to_export.columns = ["export_all_columns"];
     } else {
-        included_columns.value.columns = selected;
+        product_store.column_to_exportcolumns = selected;
     }
 };
 
@@ -57,14 +52,14 @@ const handleSelection = (selected) => {
                     <MultiSelect
                         id="columns"
                         filter
-                        v-model="included_columns.columns"
+                        v-model="product_store.column_to_export.columns"
                         :options="options"
                         optionLabel="label"
                         optionValue="column"
                         display="chip"
                         placeholder="Select Columns"
                         class="w-full"
-                        @change="handleSelection(included_columns.columns)"
+                        @change="handleSelection(product_store.column_to_export.columns)"
                     />
                     </VhField>
                 </div>
@@ -77,7 +72,7 @@ const handleSelection = (selected) => {
                     type="submit"
                     label="Export"
                     icon="pi pi-download"
-                    @click="product_store.exportProducts(export_Type,included_columns.columns)"
+                    @click="product_store.exportProducts(export_Type,product_store.column_to_export.columns)"
                     :loading="isExporting"
                     :disabled="isExporting"
                 />
@@ -87,8 +82,6 @@ const handleSelection = (selected) => {
     </Card>
 
 </template>
-
-
 
 <style scoped>
 
