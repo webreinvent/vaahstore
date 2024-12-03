@@ -1,5 +1,6 @@
 <?php namespace VaahCms\Modules\Store\Http\Controllers\Backend;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -97,8 +98,10 @@ class ImportController extends Controller {
         return $fields;
     }
 
+
     public function importData(Request $request)
     {
+        dd($request);
         // Validate input request
         $rules = [
             'list' => 'required|array',
@@ -115,9 +118,45 @@ class ImportController extends Controller {
         $is_override = $request->is_override ?? false;
 
         // Add "reason" column for invalid records
-        $columns[] = 'reason';
+        array_push($columns, 'reason');
         $csv_labels = $columns;
 
+        $modified_labels = [
+            'id' => 'Id',
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'summary' => 'Summary',
+            'details' => 'Details',
+            'quantity' => 'Quantity',
+            'taxonomy_id_product_type' => 'Product Type',
+            'taxonomy_id_product_status' => 'Product Status',
+            'status_notes' => 'Status Notes',
+            'vh_st_store_id' => 'Store',
+            'vh_st_brand_id' => 'Brand',
+            'is_active' => 'Is Active',
+            'is_featured_on_home_page' => 'Is Homepage Featured',
+            'is_featured_on_category_page' => 'Is Category Page Featured',
+            'launch_at' => 'Launch At',
+            'available_at' => 'Available At',
+            'created_by' => 'Created By',
+            'updated_by' => 'Updated By',
+            'deleted_by' => 'Deleted By',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+            'deleted_at' => 'Deleted At',
+            'product_categories' => 'Categories',
+            'product_variations' => 'Product Variations',
+        ];
+
+        // Update CSV labels based on modified labels
+        foreach ($modified_labels as $old_label => $new_label) {
+            $index = array_search($old_label, $columns);
+            if ($index !== false) {
+                $csv_labels[$index] = $new_label;
+            }
+        }
+
+        // Initialize CSV content with headers
         $csv_content = implode(',', $csv_labels) . "\n";
         $result = [
             'total_records' => count($records),
@@ -150,7 +189,7 @@ class ImportController extends Controller {
             $validator = \Validator::make($record, $record_rules, $custom_messages);
             if ($validator->fails()) {
                 $result['invalid_records_count']++;
-                $record['reason'] = $validator->errors()->all();
+                $record['reason'] = ['Validation errors: ' . implode('; ', $validator->errors()->all())];
                 $result['invalid_records'][] = $this->mapTaxonomyFields($record);
                 continue;
             }
@@ -178,25 +217,58 @@ class ImportController extends Controller {
 
         // Prepare CSV for invalid records
         foreach ($result['invalid_records'] as $invalid_record) {
-            $reasons = implode('; ', $invalid_record['reason']);
+            if (isset($invalid_record['reason']) && is_array($invalid_record['reason'])) {
+                $reason_text = '';
+                foreach ($invalid_record['reason'] as $key => $reason) {
+                    $reason_text .= ($key + 1) . '. ' . $reason . ' ';
+                }
+
+                $reason_text = rtrim($reason_text);
+            } else {
+                $reason_text = $invalid_record['reason'] ?? '';
+            }
+
             unset($invalid_record['reason']);
-            $invalid_record['reason'] = $reasons;
-            $csv_content .= implode(',', array_values($invalid_record)) . "\n";
+            $invalid_record['reason'] = '"' . str_replace("\n", '\n', $reason_text) . '"'; // Ensure newline characters are handled correctly
+
+            $csv_row = [];
+
+            $columns = ['id', 'name', 'slug', 'summary', 'details', 'quantity', 'product_type', 'store', 'brand', 'vh_cms_content_form_field_id', 'is_active', 'product_status',
+                'status_notes', 'seo_title', 'seo_meta_description', 'seo_meta_keyword', 'is_featured_on_home_page',
+                'is_category_page_featured', 'available_at', 'launch_at', 'reason'];
+
+            foreach ($columns as $column) {
+                if (isset($invalid_record[$column])) {
+                    $csv_row[] = '"' . str_replace("\n", '\n', $invalid_record[$column]) . '"';
+                } else {
+                    $csv_row[] = '';
+                }
+            }
+
+            $csv_content .= implode(',', $csv_row) . "\n";
         }
 
+
+        // Prepare response headers
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="invalid_records.csv"',
+        ];
+
+        // Prepare final result
+        $result['total_records'] = count($records);
+        $result['imported_records'] = $result['imported_records'] + $result['override_records_count'];
+        $result['csv_content'] = [
+            'headers' => $headers,
+            'content' => $csv_content,
+        ];
+
         // Prepare response
-        return response()->json([
+        return [
             'success' => true,
             'data' => $result,
             'messages' => ['Imported successfully.'],
-            'csv_content' => [
-                'headers' => [
-                    'Content-Type' => 'text/csv',
-                    'Content-Disposition' => 'attachment; filename="invalid_records.csv"',
-                ],
-                'content' => $csv_content,
-            ],
-        ]);
+        ];
     }
 
     /**
@@ -219,8 +291,6 @@ class ImportController extends Controller {
         $taxonomyFields = [
             'taxonomy_id_product_type' => 'taxonomy_id_product_type',
             'taxonomy_id_product_status' => 'taxonomy_id_product_status',
-            'is_featured_on_home_page' => 'year',
-            'is_featured_on_category_page' => 'body-style',
 
         ];
 
@@ -303,7 +373,7 @@ class ImportController extends Controller {
         $headers = [];
         foreach ($columns as $column) {
             // Use custom header if mapping exists, otherwise use column name
-            $header = isset($custom_headers[$column]) ? $custom_headers[$column] : $this->toLabel($column);
+            $header = $custom_headers[$column] ?? $this->toLabel($column);
             $headers[] = $header;
         }
 
@@ -363,12 +433,20 @@ class ImportController extends Controller {
                             $data['vh_st_brand_id']=$faker->text($number_of_characters);
                         }
                         break;
-                    case 'is_featured_on_homepage':
+                    case 'is_featured_on_home_page':
                     case 'is_featured_on_category_page':
                     case 'is_active':
                         $data[$column] = rand(0, 1);
                         break;
 
+                    case 'is_default':
+                        $data[$column] = null;
+                        break;
+                    case 'available_at':
+                    case 'launch_at':
+                        // Generate a random date within the last 5 years
+                        $data[$column] = Carbon::now()->subDays(rand(1, 1825))->toDateTimeString(); // 1825 days = 5 years
+                        break;
                     default:
                         $data[$column] = $faker->word;
                         break;

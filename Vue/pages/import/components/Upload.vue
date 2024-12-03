@@ -75,7 +75,6 @@ function nextPage(){
 
 function onSelect(event){
 
-    console.log('file',file)
         if(file)
         {
             store.file = file;
