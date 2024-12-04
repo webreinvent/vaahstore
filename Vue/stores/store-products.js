@@ -2471,7 +2471,7 @@ export const useProductStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/add/product-to-cart',
+                this.ajax_url+'/cart/generate',
                 this.saveProductInCartAfter,
                 options
             );
@@ -2480,8 +2480,9 @@ export const useProductStore = defineStore({
 
         saveProductInCartAfter(data,res){
            if (data){
-               this.item.user=null;
+
                this.getList();
+               this.item.user=null;
            }
         },
 
@@ -2540,6 +2541,8 @@ export const useProductStore = defineStore({
 
         disableUserCartAfter(){
             this.show_cart_msg=false;
+            this.active_user=null;
+            this.getList();
         },
 
         //---------------------------------------------------------------------
