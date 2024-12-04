@@ -793,7 +793,6 @@ class Product extends VaahModel
         $user = null;
         $cart_records = 0;
         if ($user_id = session('vh_user_id')) {
-//            dd($user_id);
             $user = User::find($user_id);
             if ($user) {
                 $cart = self::findOrCreateCart($user);
@@ -1996,7 +1995,7 @@ class Product extends VaahModel
         $messages = [];
 
         // Handle user data (optional)
-        $user_info = $request->input('user_info');
+        $user_info = $request->input('user');
         if (is_array($user_info) && isset($user_info['id'])) {
             $user = self::findOrCreateUser(['id' => $user_info['id']]);
         } else {
