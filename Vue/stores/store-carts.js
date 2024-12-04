@@ -784,17 +784,24 @@ export const useCartStore = defineStore({
             if (event.value===null ) {
                 return;
             }
+            const cart_id= pivot_data.vh_st_cart_id;
             const query = {
-                cart_product_details:pivot_data,
-                quantity:event.value
+                products: (Array.isArray(pivot_data) ? pivot_data : [pivot_data]).map(item => ({
+                    ...item,
+                    quantity: event.value,
+                })),
+
             };
+
+
             const options = {
                 params: query,
                 method: 'post',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/update/quantity',
+                this.ajax_url+'/'+cart_id+ '/update',
+
                 this.updateQuantityAfter,
                 options
             );
