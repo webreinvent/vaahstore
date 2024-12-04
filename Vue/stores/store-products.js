@@ -2462,7 +2462,7 @@ export const useProductStore = defineStore({
                 quantity: 1
             }));
             const query = {
-                user_info: user_info,
+                user: user_info,
                 products: products,
             };
             const options = {
