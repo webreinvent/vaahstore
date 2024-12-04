@@ -121,4 +121,10 @@ function () {
     Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
         ->name('vh.backend.store.carts.read');
 
+    /**
+     * Add product to cart
+     */
+    Route::post('/generate', 'ProductsController@addProductToCart')
+        ->name('vh.backend.store.carts.generate.cart');
+
 });

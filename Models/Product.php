@@ -1991,73 +1991,82 @@ class Product extends VaahModel
     public static function addProductToCart($request)
     {
         $response = [];
-//dd($request);
         $default_vendor = Vendor::where('is_default', 1)->first();
-        $active_selected_vendor = self::getPriceRangeOfProduct($request->product['id'])['data'] ?? null;
-        $selected_vendor = null;
-        if ($active_selected_vendor && isset($active_selected_vendor['selected_vendor']['id'])) {
-            $selected_vendor = $active_selected_vendor['selected_vendor'];
-        } else {
-            if ($default_vendor === null) {
-                $response['errors'][] = "This product is out of stock";
-                return $response;
-            }
-            $selected_vendor = $default_vendor;
-        }
-        $user_info = $request->input('user_info');
+        $errors = [];
+        $messages = [];
+
         // Handle user data (optional)
+        $user_info = $request->input('user_info');
         if (is_array($user_info) && isset($user_info['id'])) {
             $user = self::findOrCreateUser(['id' => $user_info['id']]);
         } else {
             $user = null;
         }
-        // Find or create the user and cart
-//        $user = self::findOrCreateUser(['id' => $user_info['id']]);
 
         $cart = self::findOrCreateCart($user);
+        foreach ($request->products as $product_data) {
+            $active_selected_vendor = self::getPriceRangeOfProduct($product_data['id'])['data'] ?? null;
+            $selected_vendor = null;
 
-        // Fetch the product and its variants
-        $product_id = $request->input('product.id');
-        $product = Product::find($product_id);
-        $product_with_variants = self::getDefaultVariation($product);
+            if ($active_selected_vendor && isset($active_selected_vendor['selected_vendor']['id'])) {
+                $selected_vendor = $active_selected_vendor['selected_vendor'];
+            } else {
+                if ($default_vendor === null) {
+                    $errors[] = "Product ID {$product_data['id']} is out of stock.";
+                    continue;
+                }
+                $selected_vendor = $default_vendor;
+            }
 
-        // Check for valid product variations
-        if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-            $response['errors'][] = "No product variation is default";
-            return $response;
+            $product_id = $product_data['id'];
+            $product = Product::find($product_id);
+            $product_with_variants = self::getDefaultVariation($product);
+
+            if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
+                $errors[] = "No product variation is default for Product ID {$product_data['id']}.";
+                continue;
+            }
+
+            $quantity = $product_data['quantity'] ?? 1;
+
+                self::handleCart($cart, $product, $product_with_variants, $selected_vendor, $quantity);
+
+
+            if ($user) {
+                self::updateSession($user);
+            }
         }
 
-        // Handle adding the product to the cart and updating the session
-        self::handleCart($cart, $product, $product_with_variants, $selected_vendor);
-        if ($user){
-        self::updateSession($user);
+        if (!empty($errors)) {
+            return [
+                'errors' => $errors,
+                'data' => null,
+            ];
         }
-        // Prepare a success response
-        $response['messages'][] = trans("vaahcms-general.saved_successfully");
-        $response['data'] = [
-            'user' => $user,
-            'selected_vendor_id' => $selected_vendor['id'],
+        $messages[] = trans("vaahcms-general.saved_successfully");
+        return [
+            'messages' => $messages,
+            'data' => [
+                'user' => $user,
+                'cart' => $cart,
+            ],
         ];
-
-        return $response;
     }
-
-
 
     //----------------------------------------------------------
 
 
-    private static function handleCart($cart, $product, $product_with_variants, $selected_vendor)
+    private static function handleCart($cart, $product, $product_with_variants, $selected_vendor,$quantity = 1)
     {
         if ($cart->products->contains($product->id)) {
             $existing_cart_item = self::findCartItem($cart, $product_with_variants['variation_id'], $selected_vendor['id']??null);
             if ($existing_cart_item) {
-                self::updateQuantity($cart, $product->id,$product_with_variants['variation_id'], $selected_vendor);
+                self::updateQuantity($cart, $product->id,$product_with_variants['variation_id'], $selected_vendor,$quantity);
             } else {
-                self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id']);
+                self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id'],$quantity);
             }
         } else {
-            self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id']);
+            self::attachProductToCart($cart, $product, $product_with_variants, $selected_vendor['id'],$quantity);
         }
     }
     //----------------------------------------------------------
@@ -2071,7 +2080,7 @@ class Product extends VaahModel
     }
     //----------------------------------------------------------
 
-    private static function updateQuantity($cart, $product_id,$variation_id, $selected_vendor)
+    private static function updateQuantity($cart, $product_id,$variation_id, $selected_vendor,$quantity)
     {
             $pivot_record = $cart->products()
                         ->where('vh_st_product_id', $product_id)
@@ -2080,7 +2089,7 @@ class Product extends VaahModel
                         ->withPivot('id', 'quantity')
                         ->first();
             if ($pivot_record) {
-                        $pivot_record->pivot->quantity += 1;
+                        $pivot_record->pivot->quantity += $quantity;
                         $pivot_record->pivot->save();
             }
     }
@@ -2106,66 +2115,39 @@ class Product extends VaahModel
 
     protected static function findOrCreateCart($user)
     {
-//        $existing_cart = Cart::where('vh_user_id', $user->id)->first();
-//        if ($existing_cart) {
-//            return $existing_cart;
-//        } else {
-//            $cart = new Cart();
-//            $cart->vh_user_id = $user->id;
-//            $cart->save();
-//            return $cart;
-//        }
-        // If the user is provided, create a new cart for them
+
         if ($user) {
-//            $cart = new Cart();
-//            $cart->vh_user_id = $user->id;
-//            $cart->save();
+
             $existing_cart = Cart::where('vh_user_id', $user->id)->first();
 
             if ($existing_cart) {
-                // If an existing cart is found, return it
                 return $existing_cart;
             } else {
-                // If no existing cart is found, create a new cart
                 $cart = new Cart();
                 $cart->vh_user_id = $user->id;
                 $cart->save();
                 return $cart;
             }
         } else {
-            // If no user data is provided, create an anonymous cart
-//            $existing_cart = Cart::whereNull('vh_user_id')->first();
-//
-//            if ($existing_cart) {
-//                // If an anonymous cart already exists, return it
-//                return $existing_cart;
-//            } else {
-//                // Otherwise, create a new anonymous cart
-//                $cart = new Cart();
-//                $cart->save();
-//                return $cart;
-//            }
-
-
-            // If no user data is provided, create an anonymous cart
             $cart = new Cart();
             $cart->save();
+
         }
 
         return $cart;
     }
     //----------------------------------------------------------
 
-    protected static function attachProductToCart($cart, $product, $product_with_variants,$selected_vendor_id)
+    protected static function attachProductToCart($cart, $product, $product_with_variants,$selected_vendor_id, $quantity = 1)
     {
         if ($product_with_variants) {
             $cart->products()->attach($product->id, [
                 'vh_st_product_variation_id' => $product_with_variants['variation_id'],
                 'vh_st_vendor_id' => $selected_vendor_id,
-                'quantity' =>1
+                'quantity' =>$quantity
             ]);
         } else {
-            $cart->products()->attach($product->id,  ['vh_st_vendor_id' => $selected_vendor_id, 'quantity' => 1]);
+            $cart->products()->attach($product->id,  ['vh_st_vendor_id' => $selected_vendor_id, 'quantity' => $quantity]);
         }
     }
     //----------------------------------------------------------
