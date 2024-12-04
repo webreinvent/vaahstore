@@ -318,7 +318,7 @@ const openProductCategories = (categories,product) => {
                 data-testid="products-cart"
                 name="products-cart"
                 optionLabel="name"
-                forceSelection
+
                 :pt="{
                                               token: {
                         class: 'max-w-full'

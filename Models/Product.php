@@ -793,6 +793,7 @@ class Product extends VaahModel
         $user = null;
         $cart_records = 0;
         if ($user_id = session('vh_user_id')) {
+//            dd($user_id);
             $user = User::find($user_id);
             if ($user) {
                 $cart = self::findOrCreateCart($user);
@@ -1990,7 +1991,7 @@ class Product extends VaahModel
     public static function addProductToCart($request)
     {
         $response = [];
-
+//dd($request);
         $default_vendor = Vendor::where('is_default', 1)->first();
         $active_selected_vendor = self::getPriceRangeOfProduct($request->product['id'])['data'] ?? null;
         $selected_vendor = null;
@@ -2003,16 +2004,16 @@ class Product extends VaahModel
             }
             $selected_vendor = $default_vendor;
         }
-
-        // Validate user information
         $user_info = $request->input('user_info');
-        if (!$user_info) {
-            $response['errors'][] = "Please enter valid user";
-            return $response;
+        // Handle user data (optional)
+        if (is_array($user_info) && isset($user_info['id'])) {
+            $user = self::findOrCreateUser(['id' => $user_info['id']]);
+        } else {
+            $user = null;
         }
-
         // Find or create the user and cart
-        $user = self::findOrCreateUser(['id' => $user_info['id']]);
+//        $user = self::findOrCreateUser(['id' => $user_info['id']]);
+
         $cart = self::findOrCreateCart($user);
 
         // Fetch the product and its variants
@@ -2028,8 +2029,9 @@ class Product extends VaahModel
 
         // Handle adding the product to the cart and updating the session
         self::handleCart($cart, $product, $product_with_variants, $selected_vendor);
+        if ($user){
         self::updateSession($user);
-
+        }
         // Prepare a success response
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         $response['data'] = [
@@ -2104,15 +2106,53 @@ class Product extends VaahModel
 
     protected static function findOrCreateCart($user)
     {
-        $existing_cart = Cart::where('vh_user_id', $user->id)->first();
-        if ($existing_cart) {
-            return $existing_cart;
+//        $existing_cart = Cart::where('vh_user_id', $user->id)->first();
+//        if ($existing_cart) {
+//            return $existing_cart;
+//        } else {
+//            $cart = new Cart();
+//            $cart->vh_user_id = $user->id;
+//            $cart->save();
+//            return $cart;
+//        }
+        // If the user is provided, create a new cart for them
+        if ($user) {
+//            $cart = new Cart();
+//            $cart->vh_user_id = $user->id;
+//            $cart->save();
+            $existing_cart = Cart::where('vh_user_id', $user->id)->first();
+
+            if ($existing_cart) {
+                // If an existing cart is found, return it
+                return $existing_cart;
+            } else {
+                // If no existing cart is found, create a new cart
+                $cart = new Cart();
+                $cart->vh_user_id = $user->id;
+                $cart->save();
+                return $cart;
+            }
         } else {
+            // If no user data is provided, create an anonymous cart
+//            $existing_cart = Cart::whereNull('vh_user_id')->first();
+//
+//            if ($existing_cart) {
+//                // If an anonymous cart already exists, return it
+//                return $existing_cart;
+//            } else {
+//                // Otherwise, create a new anonymous cart
+//                $cart = new Cart();
+//                $cart->save();
+//                return $cart;
+//            }
+
+
+            // If no user data is provided, create an anonymous cart
             $cart = new Cart();
-            $cart->vh_user_id = $user->id;
             $cart->save();
-            return $cart;
         }
+
+        return $cart;
     }
     //----------------------------------------------------------
 

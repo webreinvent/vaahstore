@@ -214,7 +214,7 @@ function () {
     /**
      * Add product to cart
      */
-    Route::post('/add/product-to-cart', 'ProductsController@addProductToCart')
+    Route::post('/cart/generate', 'ProductsController@addProductToCart')
         ->name('vh.backend.store.products.save.user-info');
 
     //---------------------------------------------------------
