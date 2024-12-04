@@ -179,10 +179,10 @@ class CartsController extends Controller
     //----------------------------------------------------------
 
     //----------------------------------------------------------
-    public function updateQuantity(Request $request)
+    public function updateQuantity(Request $request,$uuid)
     {
         try{
-            return Cart::updateQuantity($request);
+            return Cart::updateQuantity($uuid,$request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

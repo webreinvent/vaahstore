@@ -442,15 +442,19 @@ class Cart extends VaahModel
     public static function getItem($id)
     {
 
-        $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user'])
-            ->withTrashed()
-            ->first();
+        $query = self::with(['createdByUser', 'updatedByUser', 'deletedByUser', 'user'])
+            ->withTrashed();
+
+        if (is_numeric($id)) {
+            $item = $query->where('id', $id)->first();
+        } else {
+            $item = $query->where('uuid', $id)->first();
+        }
 
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = 'Record not found with identifier: '.$id;
             return $response;
         }
         // delete cart if no product available
@@ -603,49 +607,66 @@ class Cart extends VaahModel
     //-------------------------------------------------
 
 
-    //-------------------------------------------------
-    public static function updateQuantity($request){
-        $cart_id = $request['cart_product_details']['vh_st_cart_id'];
-        $product_id = $request['cart_product_details']['vh_st_product_id'];
-        $variation_id = $request['cart_product_details']['vh_st_product_variation_id'];
-        $vendor_id = $request['cart_product_details']['vh_st_vendor_id'];
-        $new_quantity = $request['quantity'];
+    public static function updateQuantity($uuid,$request)
+    {
 
-        $cart = Cart::find($cart_id);
-        if ($new_quantity < 1) {
-            $cart_product_table_ids = $cart->products()
-                ->wherePivot('vh_st_cart_id', $cart_id)
-                ->wherePivot('vh_st_product_id', $product_id)
-                ->wherePivot('vh_st_product_variation_id', $variation_id)
-                ->wherePivot('vh_st_vendor_id', $vendor_id)
-                ->pluck('vh_st_cart_products.id')
-                ->toArray();
+        $products = $request['products']; // List of products with their details
 
-            if (!empty($cart_product_table_ids)) {
+        $cart = is_numeric($uuid)
+            ? Cart::find($uuid)
+            : Cart::where('uuid', $uuid)->first();
 
-                foreach ($cart_product_table_ids as $cart_product_id) {
-                    $cart->cartItems()->detach($cart_product_id);
+        if (!$cart) {
+            return [
+                'success' => false,
+                'errors' => [trans("vaahcms-general.record_not_found")],
+            ];
+        }
+
+        $response = [];
+        foreach ($products as $product_details) {
+            $product_id = $product_details['vh_st_product_id'];
+            $variation_id = $product_details['vh_st_product_variation_id'];
+            $vendor_id = $product_details['vh_st_vendor_id'];
+            $new_quantity = $product_details['quantity'];
+
+            // Handle removing products if quantity is less than 1
+            if ($new_quantity < 1) {
+                $cart_product_table_ids = $cart->products()
+                    ->wherePivot('vh_st_cart_id', $cart->id)
+                    ->wherePivot('vh_st_product_id', $product_id)
+                    ->wherePivot('vh_st_product_variation_id', $variation_id)
+                    ->wherePivot('vh_st_vendor_id', $vendor_id)
+                    ->pluck('vh_st_cart_products.id')
+                    ->toArray();
+
+                if (!empty($cart_product_table_ids)) {
+                    foreach ($cart_product_table_ids as $cart_product_id) {
+                        $cart->cartItems()->detach($cart_product_id);
+                    }
+
+                    $response['messages'][] = trans("vaahcms-general.record_deleted");
                 }
-
-                $response['messages'][] = trans("vaahcms-general.record_deleted");
+            } else {
+                // Update existing product quantity
+                $cart->products()
+                    ->wherePivot('vh_st_product_id', $product_id)
+                    ->wherePivot('vh_st_vendor_id', $vendor_id)
+                    ->wherePivot('vh_st_product_variation_id', $variation_id)
+                    ->updateExistingPivot($product_id, [
+                        'quantity' => $new_quantity,
+                        'vh_st_product_variation_id' => $variation_id,
+                    ]);
+                $response['messages'][] = trans("vaahcms-general.saved_successfully");
             }
         }
-        else {
-            $cart->products()
-                ->wherePivot('vh_st_product_id', $product_id)
-                ->wherePivot('vh_st_vendor_id', $vendor_id)
-                ->wherePivot('vh_st_product_variation_id', $variation_id)
-                ->updateExistingPivot($product_id, [
-                    'quantity' => $new_quantity,
-                    'vh_st_product_variation_id' => $variation_id
-                ]);
-            $response['messages'][] = trans("vaahcms-general.saved_successfully");
 
-        }
-        $response['data']['cart'] = $cart;
+
+
+        $response['success'] = true;
+        $response['data']['cart'] = $cart->load('products'); // Reload cart with updated products
         return $response;
     }
-
     //-------------------------------------------------
     public static function deleteCartItem($request){
         $cart_id = $request['cart_product_details']['vh_st_cart_id'];
