@@ -144,6 +144,7 @@ export const useProductStore = defineStore({
         column_to_export: {
             columns: [],
         },
+        is_custom_meta_export:false,
 
     }),
     getters: {
@@ -2897,10 +2898,10 @@ export const useProductStore = defineStore({
         },
         //----------------------------------------------------------------------
 
-        async exportProducts(type,selected_columns){
+        async exportProducts(type,data){
 
             this.action.type = type;
-
+            const [selected_columns, is_export_custom_meta] = data;
             if (type === 'export') {
                 if (this.action.items.length < 1) {
                     vaah().toastErrors(['Select records']);
@@ -2908,6 +2909,7 @@ export const useProductStore = defineStore({
                 }
             }
             this.action.columns = selected_columns;
+            this.action.is_export_custom_meta = is_export_custom_meta;
             let url = this.ajax_url + '/export/data';
             let method = 'POST';
             let options = {
@@ -2941,6 +2943,7 @@ export const useProductStore = defineStore({
                 this.getItemMenu();
                 this.getFormMenu();
                 this.column_to_export.columns = [];
+                this.is_export_custom_meta=false;
                 this.action.type=null;
                 this.action.items=[];
             }

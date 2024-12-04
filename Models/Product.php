@@ -2653,6 +2653,7 @@ class Product extends VaahModel
     {
         $inputs = $request->all();
         $column_to_export = $request->input('columns', []);
+        $is_custom_meta = $request->input('is_export_custom_meta', false);
         if (empty($column_to_export)) {
             return [
                 'success' => false,
@@ -2702,6 +2703,13 @@ class Product extends VaahModel
             'product_variations' => 'Product Variations',
         ];
 
+        if ($is_custom_meta) {
+            $header_mapping['meta'] = 'Meta';
+            $header_mapping['seo_title'] = 'SEO Title';
+            $header_mapping['seo_meta_description'] = 'SEO Meta Description';
+            $header_mapping['seo_meta_keyword'] = 'SEO Meta Keyword';
+        }
+
         if (in_array("export_all_columns", $column_to_export)) {
             $column_to_export = array_keys($header_mapping); // Export all columns
         }
@@ -2735,6 +2743,10 @@ class Product extends VaahModel
             'vh_st_brand_id' => fn($record) => $record->brand ? $record->brand->name : '',
             'taxonomy_id_product_type' => fn($record) => $record->type ? $record->type->name : '',
             'taxonomy_id_product_status' => fn($record) => $record->status ? $record->status->name : '',
+            'meta' => fn($record) => $record->meta ?? '',
+            'seo_title' => fn($record) => $record->seo_title ?? '',
+            'seo_meta_description' => fn($record) => $record->seo_meta_description ?? '',
+            'seo_meta_keyword' => fn($record) => $record->seo_meta_keyword ?? '',
         ];
 
         foreach ($records as $record) {

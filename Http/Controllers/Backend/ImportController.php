@@ -101,7 +101,6 @@ class ImportController extends Controller {
 
     public function importData(Request $request)
     {
-        dd($request);
         // Validate input request
         $rules = [
             'list' => 'required|array',

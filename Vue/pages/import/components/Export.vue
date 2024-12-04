@@ -63,6 +63,11 @@ const handleSelection = (selected) => {
                         @change="handleSelection(product_store.column_to_export.columns)"
                     />
                     </VhField>
+
+                 <VhField label="Is Custom Meta">
+                     <Checkbox v-model="product_store.is_export_custom_meta" :binary="true" />
+                 </VhField>
+
                 </div>
 
         </template>
@@ -73,7 +78,7 @@ const handleSelection = (selected) => {
                     type="submit"
                     label="Export"
                     icon="pi pi-download"
-                    @click="product_store.exportProducts(export_Type,product_store.column_to_export.columns)"
+                    @click="product_store.exportProducts(export_Type,[product_store.column_to_export.columns, product_store.is_export_custom_meta])"
                     :loading="isExporting"
                     :disabled="isExporting"
                 />
