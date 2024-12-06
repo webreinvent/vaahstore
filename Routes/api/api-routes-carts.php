@@ -122,7 +122,7 @@ function () {
         ->name('vh.backend.store.carts.read');
 
     /**
-     * Add product to cart
+     * Add to cart
      */
     Route::post('/generate', 'ProductsController@addToCart')
         ->name('vh.backend.store.carts.generate.cart');
