@@ -1996,52 +1996,71 @@ class Product extends VaahModel
 
         // Handle user data (optional)
         $user_info = $request->input('user');
-        if (is_array($user_info) && isset($user_info['id'])) {
-            $user = self::findOrCreateUser(['id' => $user_info['id']]);
-        } else {
-            $user = null;
-        }
+        $user = is_array($user_info) && isset($user_info['id'])
+            ? self::findOrCreateUser(['id' => $user_info['id']])
+            : null;
 
-        $cart = self::findOrCreateCart($user);
+        // Validation for each product
+        $validated_products = [];
         foreach ($request->products as $product_data) {
-            $active_selected_vendor = self::getPriceRangeOfProduct($product_data['id'])['data'] ?? null;
-            $selected_vendor = null;
+            $product_id = $product_data['id'];
+            $active_selected_vendor = self::getPriceRangeOfProduct($product_id)['data'] ?? null;
+            $selected_vendor = $active_selected_vendor['selected_vendor'] ?? $default_vendor;
 
-            if ($active_selected_vendor && isset($active_selected_vendor['selected_vendor']['id'])) {
-                $selected_vendor = $active_selected_vendor['selected_vendor'];
-            } else {
-                if ($default_vendor === null) {
-                    $errors[] = "Product ID {$product_data['id']} is out of stock.";
-                    continue;
-                }
-                $selected_vendor = $default_vendor;
+            if (!$selected_vendor) {
+                $errors[] = "Product ID {$product_id} is out of stock.";
+                continue;
             }
 
-            $product_id = $product_data['id'];
             $product = Product::find($product_id);
-            $product_with_variants = self::getDefaultVariation($product);
+            if (!$product) {
+                $errors[] = "Invalid product ID {$product_id}.";
+                continue;
+            }
 
+            $product_with_variants = self::getDefaultVariation($product);
             if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-                $errors[] = "No product variation is default for Product ID {$product_data['id']}.";
+                $errors[] = "No default variation found for Product ID {$product_id}.";
                 continue;
             }
 
             $quantity = $product_data['quantity'] ?? 1;
 
-                self::handleCart($cart, $product, $product_with_variants, $selected_vendor, $quantity);
-
-
-            if ($user) {
-                self::updateSession($user);
-            }
+            // Store valid product data for cart creation
+            $validated_products[] = [
+                'product' => $product,
+                'variation' => $product_with_variants,
+                'vendor' => $selected_vendor,
+                'quantity' => $quantity,
+            ];
         }
 
+        // Return errors if validation failed for any product
         if (!empty($errors)) {
             return [
                 'errors' => $errors,
                 'data' => null,
             ];
         }
+
+        // Create the cart and add validated products
+        $cart = self::findOrCreateCart($user);
+        foreach ($validated_products as $item) {
+            self::handleCart(
+                $cart,
+                $item['product'],
+                $item['variation'],
+                $item['vendor'],
+                $item['quantity']
+            );
+        }
+
+        // Update user session if applicable
+        if ($user) {
+            self::updateSession($user);
+        }
+
+        // Prepare success response
         $messages[] = trans("vaahcms-general.saved_successfully");
         return [
             'messages' => $messages,
@@ -2051,6 +2070,7 @@ class Product extends VaahModel
             ],
         ];
     }
+
 
     //----------------------------------------------------------
 
