@@ -2708,6 +2708,18 @@ class Product extends VaahModel
             $header_mapping['seo_title'] = 'SEO Title';
             $header_mapping['seo_meta_description'] = 'SEO Meta Description';
             $header_mapping['seo_meta_keyword'] = 'SEO Meta Keyword';
+            if (!in_array('meta', $column_to_export)) {
+                $column_to_export[] = 'meta';
+            }
+            if (!in_array('seo_title', $column_to_export)) {
+                $column_to_export[] = 'seo_title';
+            }
+            if (!in_array('seo_meta_description', $column_to_export)) {
+                $column_to_export[] = 'seo_meta_description';
+            }
+            if (!in_array('seo_meta_keyword', $column_to_export)) {
+                $column_to_export[] = 'seo_meta_keyword';
+            }
         }
 
         if (in_array("export_all_columns", $column_to_export)) {
