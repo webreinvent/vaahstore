@@ -2458,7 +2458,7 @@ export const useProductStore = defineStore({
 
             const user_info = this.item.user ? this.item.user : this.active_user;
             const products = this.product_detail.map(product => ({
-                product_id: product.id,
+                id: product.id,
                 quantity: 1
             }));
             const query = {

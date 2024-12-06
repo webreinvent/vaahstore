@@ -2004,25 +2004,25 @@ class Product extends VaahModel
 
         $cart = self::findOrCreateCart($user);
         foreach ($request->products as $product_data) {
-            $active_selected_vendor = self::getPriceRangeOfProduct($product_data['product_id'])['data'] ?? null;
+            $active_selected_vendor = self::getPriceRangeOfProduct($product_data['id'])['data'] ?? null;
             $selected_vendor = null;
 
             if ($active_selected_vendor && isset($active_selected_vendor['selected_vendor']['id'])) {
                 $selected_vendor = $active_selected_vendor['selected_vendor'];
             } else {
                 if ($default_vendor === null) {
-                    $errors[] = "Product ID {$product_data['product_id']} is out of stock.";
+                    $errors[] = "Product ID {$product_data['id']} is out of stock.";
                     continue;
                 }
                 $selected_vendor = $default_vendor;
             }
 
-            $product_id = $product_data['product_id'];
+            $product_id = $product_data['id'];
             $product = Product::find($product_id);
             $product_with_variants = self::getDefaultVariation($product);
 
             if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-                $errors[] = "No product variation is default for Product ID {$product_data['product_id']}.";
+                $errors[] = "No product variation is default for Product ID {$product_data['id']}.";
                 continue;
             }
 
@@ -2180,8 +2180,10 @@ class Product extends VaahModel
             ? self::findOrCreateUser(['id' => $user_info['id']])
             : null;
 
-        $cart = self::findOrCreateCart($user);
+        // Initialize a flag to track successful additions
+        $has_valid_product = false;
 
+        $cart = null;
         foreach ($request->products as $product_data) {
             $product_id = $product_data['id'];
             $product = Product::find($product_id);
@@ -2212,30 +2214,6 @@ class Product extends VaahModel
                 continue;
             }
 
-
-//            if ($input_vendor_id) {
-//                // Vendor ID is provided, fetch directly
-//                $selected_vendor = Vendor::find($input_vendor_id);
-//                if (!$selected_vendor) {
-//                    $errors[] = "Vendor ID {$input_vendor_id} is invalid.";
-//                    continue; // Skip invalid vendor
-//                }
-//            } else {
-//                // No vendor ID provided, use active selected vendor logic
-//                $active_selected_vendor = self::getPriceRangeOfProduct($product_id)['data'] ?? null;
-//
-//                if ($active_selected_vendor && isset($active_selected_vendor['selected_vendor']['id'])) {
-//                    $selected_vendor = $active_selected_vendor['selected_vendor'];
-//                } else {
-//                    // Fallback to default vendor
-//                    if ($default_vendor === null) {
-//                        $errors[] = "Product ID {$product_id} is out of stock.";
-//                        continue;
-//                    }
-//                    $selected_vendor = $default_vendor;
-//                }
-//            }
-
             // Validate product-vendor relationship
             if ($selected_vendor->id !== $default_vendor->id) {
                 $product_vendor = $product->productVendors()
@@ -2255,16 +2233,23 @@ class Product extends VaahModel
                 $errors[] = "Insufficient stock for variation ID {$product_with_variants['variation_id']} from vendor ID {$selected_vendor->id}.";
                 continue; // Skip insufficient stock
             }
-
+            // If everything is valid, ensure cart is created
+            if (!$cart) {
+                $cart = self::findOrCreateCart($user);
+            }
             // If everything is valid, save to cart
             $quantity = $product_data['quantity'] ?? 1;
             self::handleCart($cart, $product, $product_with_variants, $selected_vendor, $quantity);
-
+            $has_valid_product = true;
             if ($user) {
                 self::updateSession($user);
             }
         }
-
+        if (!$has_valid_product) {
+            return [
+                'errors' => ['No valid products or variations added to the cart.'],
+            ];
+        }
         // If there are errors, include them in the response
         if (!empty($errors)) {
             $response['errors'] = $errors;
