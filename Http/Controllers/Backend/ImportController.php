@@ -319,13 +319,13 @@ class ImportController extends Controller {
 
     //----------------------------------------------------------
 
-    public function updateProducts($inventory, $record){
+    public function updateProducts($product, $record){
         $data = [];
         foreach ($record as $key => $value){
             $data[$key] = $value;
         }
 
-        $inventory->update($data);
+        $product->update($data);
     }
     //----------------------------------------------------------
 

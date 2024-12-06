@@ -5,7 +5,6 @@
         }
     }">
         <template #content >
-<!--            {{store.mapped_fields}}-->
             <DataTable :value="store.mapped_fields" tableStyle="min-width: 50rem">
                 <Column field="label" header="Data Columns" class="max-w-min">saas</Column>
                 <Column header="CSV Headers">

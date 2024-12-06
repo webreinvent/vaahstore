@@ -115,7 +115,6 @@ export const useProductStore = defineStore({
         filter_selected_store : null,
         filter_selected_brands : null,
         display_seo_modal : false,
-        isModalVisible:false,
         seo_meta_value : null,
         quantity:
             {
