@@ -124,7 +124,7 @@ function () {
     /**
      * Add product to cart
      */
-    Route::post('/generate', 'ProductsController@addProductToCart')
+    Route::post('/generate', 'ProductsController@addToCart')
         ->name('vh.backend.store.carts.generate.cart');
 
     /**
@@ -134,7 +134,7 @@ function () {
         ->name('vh.backend.store.api.carts.read');
 
     /**
-     * update items quantity by uuid 
+     * update items quantity by uuid
      */
     Route::post('/{uuid}/update', [CartsController::class, 'updateQuantity'])
         ->name('vh.backend.store.api.carts.update.quantity');
