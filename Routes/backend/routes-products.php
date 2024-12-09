@@ -198,7 +198,7 @@ function () {
 
 
     //---------------------------------------------------------
-    Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
+    Route::get('/{id}/vendors', 'ProductsController@getVendorsListForPrduct')
         ->name('vh.backend.store.products.get.vendors-list');
 
     Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')

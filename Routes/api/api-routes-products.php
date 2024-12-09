@@ -75,7 +75,7 @@ function () {
     /**
      * Get Vendors List for Item
      */
-    Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
+    Route::get('/{id}/vendors', 'ProductsController@getVendorsListForPrduct')
         ->name('vh.backend.store.api.products.get.vendors-list');
 
     /**

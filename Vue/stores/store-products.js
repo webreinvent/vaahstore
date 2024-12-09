@@ -2545,7 +2545,7 @@ export const useProductStore = defineStore({
             this.product_name=item.name;
             if (item.id) {
                 await vaah().ajax(
-                    ajax_url + '/get-vendors-list'+'/' + item.id,
+                    ajax_url + '/'+ item.id+ '/vendors',
                     this.openVendorsPanelAfter
                 );
             }
