@@ -359,15 +359,15 @@ class ProductsController extends Controller
 
             return [
                 'data' => [
-                    'structured_variation' => $structured_variation,
-                    'all_attribute_name' => $all_attribute_name
+                    'structured_variations' => $structured_variation,
+                    'all_attribute_names' => $all_attribute_name
                 ]
             ];
         } else{
             return [
                 'data' => [
-                    'all_attribute_name' => array_keys($result),
-                    'create_attribute_values' => $result
+                    'attribute_names' => array_keys($result),
+                    'attribute_values' => $result
                 ]
             ];
         }

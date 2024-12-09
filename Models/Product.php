@@ -309,13 +309,21 @@ class Product extends VaahModel
 
         $input = $request->all();
         $product_id = $id;
-        $validation = self::validatedVariation($input['all_variation']);
+        $item = self::where('id', $id)
+            ->first();
+
+        if (!$item) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
+            return $response;
+        }
+        $validation = self::validatedVariation($input['product_variations']);
         if (!$validation['success']) {
             return $validation;
         }
 
-        $all_variation = $input['all_variation']['structured_variation'];
-        $all_attribute = $input['all_variation']['all_attribute_name'];
+        $all_variation = $input['product_variations']['structured_variations'];
+        $all_attribute = $input['product_variations']['all_attribute_names'];
 
         foreach ($all_variation as $key => $value) {
             // check if product  variation exist for product
@@ -365,10 +373,10 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function validatedVariation($variation){
 
-        if (isset($variation['structured_variation']) && !empty($variation['structured_variation'])){
+        if (isset($variation['structured_variations']) && !empty($variation['structured_variations'])){
             $error_message = [];
-            $all_variation = $variation['structured_variation'];
-            $all_arrtibute = $variation['all_attribute_name'];
+            $all_variation = $variation['structured_variations'];
+            $all_arrtibute = $variation['all_attribute_names'];
 
             foreach ($all_variation as $key=>$value){
 
