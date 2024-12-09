@@ -139,4 +139,10 @@ function () {
     Route::post('/{uuid}/update', [CartsController::class, 'updateQuantity'])
         ->name('vh.backend.store.api.carts.update.quantity');
 
+    /**
+     * Add guest cart to user
+     */
+    Route::post('/{uuid}/add', [CartsController::class, 'AddUserToGuestCart'])
+        ->name('vh.backend.store.api.carts.add.user');
+
 });
