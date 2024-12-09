@@ -2482,9 +2482,10 @@ export const useProductStore = defineStore({
            if (data){
 
                this.getList();
-               this.item.user=null;
-               this.product_detail=[];
+
            }
+            this.item.user=null;
+            this.product_detail=[];
         },
 
         //---------------------------------------------------------------------

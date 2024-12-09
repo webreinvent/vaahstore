@@ -96,8 +96,8 @@ function () {
     /**
      * Add variation to cart
      */
-    Route::post('/add/variation-to-cart', 'ProductVariationsController@addVariationToCart')
-        ->name('vh.backend.store.productvariations.save.user-info');
+    Route::post('/cart/generate', 'ProductVariationsController@addVariationToCart')
+        ->name('vh.backend.store.productvariations.cart.generate');
 
     /**
      * Disable active cart session
