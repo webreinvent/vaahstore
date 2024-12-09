@@ -912,11 +912,11 @@ class ProductsController extends Controller
 
     //----------------------------------------------------------
 
-    public function vendorPreferredAction(Request $request,$id,$action)
+    public function vendorPreferredAction(Request $request, $id, $vendor_id)
     {
 
         try{
-            return Product::vendorPreferredAction($request,$id,$action);
+            return Product::vendorPreferredAction($request, $id, $vendor_id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

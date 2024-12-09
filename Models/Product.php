@@ -2432,13 +2432,14 @@ class Product extends VaahModel
                 $vendor->product_price_range = array_merge($vendor->product_price_range, $default_product_price_array);
             }
 
-            $vendor->pivot_id = null;
+            $vendor->product_vendor_id = null;
             $vendor->is_preferred = null;
 
             $product_vendor = $product_vendors->where('vh_st_vendor_id', $vendor->id)->first();
 
             if ($product_vendor) {
-                $vendor->pivot_id = $product_vendor->id;
+                $vendor->product_vendor_id = $product_vendor->id;
+                $vendor->vh_st_product_id = $id;
                 $vendor->is_preferred = $product_vendor->is_preferred;
             }
         });
@@ -2452,9 +2453,12 @@ class Product extends VaahModel
 
     //----------------------------------------------------------
 
-    public static function vendorPreferredAction(Request $request, $id, $type): array
+    public static function vendorPreferredAction(Request $request, $id, $vendor_id): array
     {
-        $product_vendor = ProductVendor::find($id);
+
+        $product_vendor = ProductVendor::where('vh_st_product_id', $id)
+            ->where('vh_st_vendor_id', $vendor_id)
+            ->first();
 
         if (!$product_vendor) {
             return [
@@ -2463,16 +2467,15 @@ class Product extends VaahModel
             ];
         }
 
-        $product_id = $product_vendor->vh_st_product_id;
+        $action = $request->get('action');
+        $is_preferred = ($action === 'preferred') ? 1 : null;
 
-        $is_preferred = ($type === 'preferred') ? 1 : null;
-
-        ProductVendor::where('vh_st_product_id', $product_id)->update(['is_preferred' => null]);
-        ProductVendor::where('id', $id)->update(['is_preferred' => $is_preferred]);
+        ProductVendor::where('vh_st_product_id', $product_vendor->vh_st_product_id)->update(['is_preferred' => null]);
+        ProductVendor::where('id', $product_vendor->id)->update(['is_preferred' => $is_preferred]);
 
         return [
             'success' => true,
-            'data' => Product::find($product_id),
+            'data' => Product::find($product_vendor->vh_st_product_id),
             'message' => 'Success.',
         ];
     }
