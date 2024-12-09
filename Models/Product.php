@@ -2277,11 +2277,8 @@ class Product extends VaahModel
 
         $messages[] = trans("vaahcms-general.saved_successfully");
         $response['messages'] = $messages;
-        $response['data'] = [
-            'user' => $user,
-            'cart' => $cart,
-        ];
 
+        $response['data'] = $cart->load('user:id,email,username,phone','products');
         return $response;
     }
     //----------------------------------------------------------
