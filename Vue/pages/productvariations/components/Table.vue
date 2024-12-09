@@ -217,7 +217,9 @@ const route = useRoute();
         <!--/paginator-->
 
     </div>
-    <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }">
+    <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }"
+    @hide="store.onHideCartDialog()"
+    >
         <div class="p-inputgroup py-3">
             <AutoComplete
                 v-model="store.item.user"

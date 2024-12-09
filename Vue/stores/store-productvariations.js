@@ -26,7 +26,7 @@ let empty_states = {
             product_variation_status:null,
             stock_status:null,
             min_quantity:null,
-            max_quantity:null
+            max_quantity:null,
         },
     },
     action: {
@@ -109,7 +109,8 @@ export const useProductVariationStore = defineStore({
                 label: 'Low Stock',
                 value: 'low_stock'
             },
-        ]
+        ],
+        product_detail:null,
 
 
 
@@ -1318,7 +1319,7 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
 
         disableUserCartAfter(){
-            this.show_cart_msg=false;
+            this.show_cart_msg=false;this.active_user=null;
         },
         //---------------------------------------------------------------------
 
@@ -1343,8 +1344,9 @@ export const useProductVariationStore = defineStore({
         async addVariationToCart(product_variation){
 
             const user_info = this.item.user ? this.item.user : this.active_user;
+
             const query = {
-                user_info: user_info,
+                user: user_info,
                 product_variation: product_variation
             };
             const options = {
@@ -1353,7 +1355,7 @@ export const useProductVariationStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/add/variation-to-cart',
+                this.ajax_url+'/cart/generate',
                 this.addVariationToCartAfter,
                 options
             );
@@ -1362,10 +1364,12 @@ export const useProductVariationStore = defineStore({
 
         addVariationToCartAfter(data,res){
             if (data){
-                this.add_to_cart = false;
-                this.item.user=null;
+
                 this.getList();
             }
+            this.add_to_cart = false;
+            this.item.user=null;
+            this.product_detail=null;
         },
         //---------------------------------------------------------------------
 
@@ -1406,9 +1410,11 @@ export const useProductVariationStore = defineStore({
 
         viewCart(id){
             this.$router.push({name: 'carts.details',params:{id:id},query:this.query})
-        }
+        },
         //---------------------------------------------------------------------
-
+        onHideCartDialog(){
+            this.product_detail=null;
+        }
 
     },
 
