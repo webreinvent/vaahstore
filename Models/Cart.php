@@ -1228,7 +1228,21 @@ class Cart extends VaahModel
         return $response;
     }
     //-------------------------------------------------
+    public static function AddUserToGuestCart($request,$uuid){
+        $cart = self::where('uuid', $uuid)->first();
+        $user=$request->input('user');
+        if ($cart->vh_user_id) {
+            return [
+                'success' => false,
+                'message' => 'A user is already attached to this cart.',
+            ];
+        }
+        $cart->vh_user_id = $user['id'];
+        $cart->save();
 
+        $response['data'] = $cart->load('products');
+        return $response;
+    }
 
 
 
