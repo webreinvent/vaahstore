@@ -540,7 +540,7 @@ export const useProductStore = defineStore({
 
         async removeAllProductVariation()
         {
-            this.item.all_variation = {};
+            this.item.product_variations = {};
         },
 
         //---------------------------------------------------------------------
@@ -703,7 +703,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterGenerateVariations(data, res){
             if (data){
-                this.item.all_variation = data;
+                this.item.product_variations = data;
                 this.variation_item.show_create_form = false;
                 this.variation_item.create_variation_data = [];
             }
@@ -726,18 +726,18 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeProductVariation(item){
-            let item_key = this.getIndexOfArray(this.item.all_variation.structured_variation, item);
+            let item_key = this.getIndexOfArray(this.item.product_variations.structured_variations, item);
             if (item_key >= 0){
-                this.item.all_variation.structured_variation.splice(item_key, 1);
+                this.item.product_variations.structured_variations.splice(item_key, 1);
             }
         },
         //---------------------------------------------------------------------
         bulkRemoveProductVariation(){
 
-            let selected_variation = this.item.all_variation.structured_variation.filter(variation => variation.is_selected);
+            let selected_variation = this.item.product_variations.structured_variations.filter(variation => variation.is_selected);
             let temp = null;
             this.variation_item.select_all_variation = false;
-            temp = this.item.all_variation.structured_variation.filter((item) => {
+            temp = this.item.product_variations.structured_variations.filter((item) => {
                 return item['is_selected'] === false;
             });
 
@@ -748,11 +748,11 @@ export const useProductStore = defineStore({
             else if(temp.length === 0)
                 {
 
-                    this.item.all_variation = {};
+                    this.item.product_variations = {};
                 }
 
             else {
-                this.item.all_variation.structured_variation = temp;
+                this.item.product_variations.structured_variations = temp;
             }
 
 
@@ -770,13 +770,13 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         selectAllVariation(){
-            this.item.all_variation.structured_variation.forEach((i)=>{
+            this.item.product_variations.structured_variations.forEach((i)=>{
                 i['is_selected'] = !this.variation_item.select_all_variation;
             })
         },
         //---------------------------------------------------------------------
         setDefault(){
-            this.item.all_variation.structured_variation.forEach((variation) => {
+            this.item.product_variations.structured_variations.forEach((variation) => {
                 if (variation['is_default'] !== this.variation_item.is_default) {
                     variation['is_default'] = false;
                 }
@@ -789,11 +789,11 @@ export const useProductStore = defineStore({
                 && Object.keys(this.variation_item.new_variation).length
                 > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
 
-                if (this.item.all_variation && Object.keys(this.item.all_variation).length > 0){
+                if (this.item.product_variations && Object.keys(this.item.product_variations).length > 0){
 
                     let error_message = [];
                     let variation_match_key = null;
-                    this.item.all_variation.structured_variation.forEach((i,k)=>{
+                    this.item.product_variations.structured_variations.forEach((i,k)=>{
                         if (i.variation_name == this.variation_item.new_variation.variation_name.trim()){
                             error_message.push('variation name must be unique');
                         }
@@ -815,7 +815,7 @@ export const useProductStore = defineStore({
                     if(error_message && error_message.length == 0){
                         let new_variation = Object.assign({}, this.variation_item.new_variation);
                         new_variation.is_selected = false;
-                        this.item.all_variation.structured_variation.push(new_variation);
+                        this.item.product_variations.structured_variations.push(new_variation);
                         this.variation_item.create_variation_data = null;
                         this.variation_item.show_create_form = false;
 
@@ -825,11 +825,11 @@ export const useProductStore = defineStore({
 
                 }else{
                     let temp = {
-                        structured_variation: [Object.assign({},this.variation_item.new_variation)],
+                        structured_variations: [Object.assign({},this.variation_item.new_variation)],
                         all_attribute_name: this.variation_item.create_variation_data.all_attribute_name
                     };
 
-                    this.item.all_variation = temp;
+                    this.item.product_variations = temp;
                     this.variation_item.create_variation_data = null;
                     this.variation_item.show_create_form = false;
                 }
@@ -2424,7 +2424,7 @@ export const useProductStore = defineStore({
 
             watch(this.item, (newVal,oldVal) =>
                 {
-                    const anyDeselected = newVal.all_variation.structured_variation.some(item => !item.is_selected);
+                    const anyDeselected = newVal.product_variations.structured_variations.some(item => !item.is_selected);
                     this.variation_item.select_all_variation = !anyDeselected;
                 },{deep: true}
             )
