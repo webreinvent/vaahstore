@@ -1230,6 +1230,11 @@ class Cart extends VaahModel
     //-------------------------------------------------
     public static function AddUserToGuestCart($request,$uuid){
         $cart = self::where('uuid', $uuid)->first();
+        if (!$cart) {
+            $response['success'] = false;
+            $response['errors'][]  = 'Cart not found with given uuid.';
+            return $response;
+        }
         $user=$request->input('user');
         if ($cart->vh_user_id) {
             return [
