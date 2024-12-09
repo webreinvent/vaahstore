@@ -79,9 +79,9 @@ function () {
         ->name('vh.backend.store.api.products.get.vendors-list');
 
     /**
-     * Action Product Vendor i.e preferred or notpreferred
+     * Action Product Vendor i.e preferred or not-preferred
      */
-    Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
+    Route::patch('/{id}/vendors/{vendor_id}/action', 'ProductsController@vendorPreferredAction')
         ->name('vh.backend.store.api.products.preferred-vendor');
 
     /**

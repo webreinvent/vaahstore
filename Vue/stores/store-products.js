@@ -2686,32 +2686,29 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async toggleIsPreferred(item)
+        async toggleIsPreferred(vendor_item)
         {
-            if(item.is_preferred)
-            {
-                await this.vendorPreferredAction('preferred', item);
-            } else{
-                await this.vendorPreferredAction('notpreferred', item);
-            }
+
+            const action = vendor_item.is_preferred ? 'preferred' : 'not-preferred';
+            await this.vendorPreferredAction(action, vendor_item);
         },
         //---------------------------------------------------------------------
 
-        async vendorPreferredAction(type, item=null){
+        async vendorPreferredAction(action, vendor_item=null){
 
-            if(!item)
+            if(!vendor_item)
             {
-                item = this.item;
+                vendor_item = this.item;
             }
 
-            this.form.action = type;
-
+            this.form.action = action;
             let ajax_url = this.ajax_url;
 
             let options = {
+                params: { action },
                 method: 'PATCH',
             };
-            ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
+            ajax_url += '/'+vendor_item.vh_st_product_id+'/vendors/'+vendor_item.id+ '/action';
             await vaah().ajax(
                 ajax_url,
                 this.vendorPreferredActionAfter,
