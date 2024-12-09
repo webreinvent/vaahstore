@@ -712,7 +712,11 @@ class Cart extends VaahModel
         if (!$cart) {
             return ['success' => false, 'data' => null];
         }
-
+        if (!$cart->user) {
+            $error_message = "No user attached to the cart. Please attach a user to proceed.";
+            $response['errors'][] = $error_message;
+            return $response;
+        }
         $response['success'] = true;
         $response['data'] = [
             'product_details' => [],
@@ -726,11 +730,12 @@ class Cart extends VaahModel
         $user = $cart->user;
         $taxonomy_id_address_types = Taxonomy::getTaxonomyByType('address-types')->where('slug', 'shipping')->value('id');
         $taxonomy_id_address_type_billing = Taxonomy::getTaxonomyByType('address-types')->where('slug', 'billing')->value('id');
-        $user_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types',$taxonomy_id_address_types)->get();
-        $user_billing_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types',$taxonomy_id_address_type_billing)->get();
-        $response['data']['user_addresses'] = $user_addresses;
-        $response['data']['user_billing_addresses'] = $user_billing_addresses;
-
+        if ($user) {
+            $user_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types', $taxonomy_id_address_types)->get();
+            $user_billing_addresses = Address::where('vh_user_id', $user->id)->where('taxonomy_id_address_types', $taxonomy_id_address_type_billing)->get();
+            $response['data']['user_addresses'] = $user_addresses;
+            $response['data']['user_billing_addresses'] = $user_billing_addresses;
+        }
         foreach ($cart->products as $product) {
             $vendor_id = $product->pivot->vh_st_vendor_id;
             $selected_vendor = Vendor::find($vendor_id);
