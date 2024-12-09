@@ -672,9 +672,10 @@ export const useCartStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        checkOut(cart)
+        async checkOut(id)
         {
-            this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
+            await this. getCartItemDetailsAtCheckout(id)
+
             this.item_user_address = null;
             this.item_new_billing_address = null;
 
@@ -852,7 +853,6 @@ export const useCartStore = defineStore({
 
         async getCartItemDetailsAtCheckoutAfter(data, res) {
             if (data) {
-
                 if (data.product_details.length === 0) {
                     this.$router.push({ name: 'carts.index', query: this.query });
                     return;
@@ -875,10 +875,9 @@ export const useCartStore = defineStore({
                     const defaultBillingAddress = data.user_billing_addresses.find(address => address.is_default === 1);
                     this.user_billing_address = defaultBillingAddress || data.user_billing_addresses[Math.floor(Math.random() * data.user_billing_addresses.length)];
                 }
+                this.$router.push({name: 'carts.check_out',params:{id:this.item.id},query:this.query})
             }
-            else{
-                this.$router.push({name: 'carts.index',query:this.query});
-            }
+           
 
         },
 

@@ -31,7 +31,7 @@ const allProductsOutOfStock = computed(() => {
                 <div >
                     <Button
                         @click="store.redirectToCart"
-                        label="Back"/><b class="mr-1 ml-3" v-if="store.item ">{{ store.item.uuid }}   - {{ store.item.user?.display_name }} ({{store.cart_products.length}})</b>
+                        label="Back"/><b class="mr-1 ml-3" v-if="store.item ">{{ store.item.uuid }}   - {{ store.item.user?.display_name }} ({{store.cart_products?.length}})</b>
                 </div>
 
 
