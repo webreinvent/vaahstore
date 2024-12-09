@@ -299,7 +299,7 @@ class Product extends VaahModel
 
     //-------------------------------------------------
 
-    public static function createVariation($request)
+    public static function generateVariation($request,$id)
     {
         $permission_slug = 'can-update-module';
 
@@ -308,7 +308,7 @@ class Product extends VaahModel
         }
 
         $input = $request->all();
-        $product_id = $input['id'];
+        $product_id = $id;
         $validation = self::validatedVariation($input['all_variation']);
         if (!$validation['success']) {
             return $validation;

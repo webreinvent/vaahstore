@@ -65,7 +65,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                             v-if="store.item && store.item.id"
                             class="p-button-sm"
                             data-testid="products-save"
-                            @click="store.saveVariation()"
+                            @click="store.saveVariation(store.item.id)"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"

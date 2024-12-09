@@ -481,10 +481,10 @@ class ProductsController extends Controller
     }
     //----------------------------------------------------------
 
-    public function createVariation(Request $request)
+    public function generateVariation(Request $request,$id)
     {
         try{
-            return Product::createVariation($request);
+            return Product::generateVariation($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
