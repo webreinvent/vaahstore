@@ -1134,7 +1134,7 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async saveVariation()
+        async saveVariation(id)
         {
             let ajax_url = this.ajax_url;
             let options = {
@@ -1142,7 +1142,7 @@ export const useProductStore = defineStore({
             };
             options.method = 'POST';
             options.params = this.item;
-            ajax_url += '/variation'
+            ajax_url +=  '/'+id+'/variations/generate'
             await vaah().ajax(
                 ajax_url,
                 this.saveVariationAfter,

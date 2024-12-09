@@ -54,10 +54,10 @@ function () {
         ->name('vh.backend.store.products.getAttributeValue');
 
     /**
-     * POST create variation
+     * Generate Variations of a product
      */
-    Route::post('/variation', 'ProductsController@createVariation')
-        ->name('vh.backend.store.products.createVariation');
+    Route::post('/{id}/variations/generate', 'ProductsController@generateVariation')
+        ->name('vh.backend.store.products.generate.variations');
 
 
     /**
