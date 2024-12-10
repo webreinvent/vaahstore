@@ -125,9 +125,9 @@ function () {
         ->name('vh.backend.store.api.carts.read');
 
     /**
-     * update items quantity by uuid
+     * Update items quantity by UUID
      */
-    Route::post('/{uuid}/update', [CartsController::class, 'updateQuantity'])
+    Route::match(['put', 'patch'], '/{uuid}/update', [CartsController::class, 'updateQuantity'])
         ->name('vh.backend.store.api.carts.update.quantity');
 
     /**
