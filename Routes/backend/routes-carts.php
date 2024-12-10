@@ -58,14 +58,10 @@ function () {
         ->name('vh.backend.store.carts.item.action');
 
     //---------------------------------------------------------
-//    /**
-//     * update cart item quantity
-//     */
-//    Route::post('/update/quantity', [CartsController::class, 'updateQuantity'])
-//        ->name('vh.backend.store.carts.update.quantity');
+
 
     /**
-     * update items quantity by uuid
+     * update items quantity by given cart uuid
      */
     Route::post('/{uuid}/update', [CartsController::class, 'updateQuantity'])
         ->name('vh.backend.store.carts.update.quantity');

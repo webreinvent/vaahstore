@@ -2132,7 +2132,7 @@ class Product extends VaahModel
     }
     //----------------------------------------------------------
 
-    protected static function findOrCreateCart($user)
+    public static function findOrCreateCart($user)
     {
 
         if ($user) {
@@ -2186,8 +2186,10 @@ class Product extends VaahModel
         ];
     }
 
+    //---------------------------API Method For Cart Generate-------------------------------
 
-    public static function addToCart($request)
+
+    public static function generateCart($request)
     {
         $response = [];
         $default_vendor = Vendor::where('is_default', 1)->first();
@@ -2200,7 +2202,6 @@ class Product extends VaahModel
             ? self::findOrCreateUser(['id' => $user_info['id']])
             : null;
 
-        // Initialize a flag to track successful additions
         $has_valid_product = false;
 
         $cart = null;
@@ -2218,7 +2219,7 @@ class Product extends VaahModel
 
             if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
                 $errors[] = "No default variation found for Product ID {$product_id}.";
-                continue; // Skip invalid product and continue processing
+                continue;
             }
 
             $selected_vendor = null;
@@ -2242,7 +2243,7 @@ class Product extends VaahModel
 
                 if (!$product_vendor) {
                     $errors[] = "product ID {$product_id} is not associated with vendor ID {$selected_vendor->id}.";
-                    continue; // Skip invalid vendor-product relation
+                    continue;
                 }
             }
 
@@ -2251,7 +2252,7 @@ class Product extends VaahModel
 
             if (!$stock_status['available'] || $stock_status['quantity'] < ($product_data['quantity'] ?? 1)) {
                 $errors[] = "Insufficient stock for variation ID {$product_with_variants['variation_id']} from vendor ID {$selected_vendor->id}.";
-                continue; // Skip insufficient stock
+                continue;
             }
             // If everything is valid, ensure cart is created
             if (!$cart) {
@@ -2270,7 +2271,6 @@ class Product extends VaahModel
                 'errors' => ['No valid products or variations added to the cart.'],
             ];
         }
-        // If there are errors, include them in the response
         if (!empty($errors)) {
             $response['errors'] = $errors;
         }
@@ -2305,14 +2305,14 @@ class Product extends VaahModel
             return ['available' => false, 'quantity' => 0];
         }
 
-        $productStock = $vendor->productStocks()
+        $product_stock = $vendor->productStocks()
             ->where('vh_st_product_id', $product_id)
             ->where('vh_st_product_variation_id', $variation_id)
             ->where('is_active', 1)
             ->first();
 
-        if ($productStock) {
-            return ['available' => true, 'quantity' => $productStock->quantity];
+        if ($product_stock) {
+            return ['available' => true, 'quantity' => $product_stock->quantity];
         }
 
         return ['available' => false, 'quantity' => 0];

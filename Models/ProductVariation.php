@@ -535,7 +535,7 @@ class ProductVariation extends VaahModel
         if ($user_id = session('vh_user_id')) {
             $user = User::find($user_id);
             if ($user) {
-                $cart = self::findOrCreateCart($user);
+                $cart = Product::findOrCreateCart($user);
                 $cart_records = $cart->products()->count();
             }
         }
@@ -1486,17 +1486,17 @@ class ProductVariation extends VaahModel
 
         // Check available quantity before creating the cart
         $item_quantity = self::getItemQuantity(
-            Vendor::find($selected_vendor_id),
+            $selected_vendor,
             $product_variation->vh_st_product_id,
             $product_variation->id
         );
 
         if (!$item_quantity['available'] || $item_quantity['quantity'] <= 0) {
-            $response['errors'][] = "This product is out of stock.";
+            $response['errors'][] = "This product is out of stock for selected vendor.";
             return $response;
         }
 
-        $cart = self::findOrCreateCart($user);
+        $cart = Product::findOrCreateCart($user);
 
 
         $existing_cart_item = self::findExistingCartItem($cart, $product_variation_id, $selected_vendor_id);
@@ -1581,28 +1581,7 @@ class ProductVariation extends VaahModel
     }
     //----------------------------------------------------------
 
-    protected static function findOrCreateCart($user)
-    {
-        if ($user) {
 
-            $existing_cart = Cart::where('vh_user_id', $user->id)->first();
-
-            if ($existing_cart) {
-                return $existing_cart;
-            } else {
-                $cart = new Cart();
-                $cart->vh_user_id = $user->id;
-                $cart->save();
-                return $cart;
-            }
-        } else {
-            $cart = new Cart();
-            $cart->save();
-
-        }
-
-        return $cart;
-    }
     //----------------------------------------------------------
 
     protected static function attachVariantionToCart($cart,$product_variation,$selected_vendor_id)
