@@ -797,7 +797,7 @@ export const useCartStore = defineStore({
 
             const options = {
                 params: query,
-                method: 'post',
+                method: 'put',
             };
 
             await vaah().ajax(
