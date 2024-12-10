@@ -810,7 +810,9 @@ export const useCartStore = defineStore({
         //---------------------------------------------------------------------
 
          updateQuantityAfter(data,res){
-             this.getItem(data.cart.id);
+            if (data){
+                this.getItem(data.id);
+            }
         },
 
         //---------------------------------------------------------------------
@@ -877,7 +879,7 @@ export const useCartStore = defineStore({
                 }
                 this.$router.push({name: 'carts.check_out',params:{id:this.item.id},query:this.query})
             }
-           
+
 
         },
 

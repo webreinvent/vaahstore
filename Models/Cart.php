@@ -611,7 +611,12 @@ class Cart extends VaahModel
     {
 
         $products = $request['products']; // List of products with their details
-
+        if (empty($products)) {
+            return [
+                'success' => false,
+                'errors' => ['Cart products list is required.']
+            ];
+        }
         $cart = is_numeric($uuid)
             ? Cart::find($uuid)
             : Cart::where('uuid', $uuid)->first();
@@ -629,6 +634,12 @@ class Cart extends VaahModel
             $variation_id = $product_details['vh_st_product_variation_id'];
             $vendor_id = $product_details['vh_st_vendor_id'];
             $new_quantity = $product_details['quantity'];
+            if (!is_numeric($new_quantity)) {
+                return [
+                    'success' => false,
+                    'errors' => ["Invalid quantity for product ID {$product_id}."]
+                ];
+            }
 
             // Handle removing products if quantity is less than 1
             if ($new_quantity < 1) {
@@ -657,14 +668,15 @@ class Cart extends VaahModel
                         'quantity' => $new_quantity,
                         'vh_st_product_variation_id' => $variation_id,
                     ]);
-                $response['messages'][] = trans("vaahcms-general.saved_successfully");
+
             }
         }
 
 
 
         $response['success'] = true;
-        $response['data']['cart'] = $cart->load('products'); // Reload cart with updated products
+        $response['messages'][] = trans("vaahcms-general.saved_successfully");
+        $response['data']= $cart->load('products'); // Reload cart with updated products
         return $response;
     }
     //-------------------------------------------------
