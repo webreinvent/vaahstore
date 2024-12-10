@@ -38,11 +38,7 @@ function () {
      */
     Route::post('/', [CartsController::class, 'createItem'])
         ->name('vh.backend.store.api.carts.create');
-    /**
-     * Get Item
-     */
-    Route::get('/{id}', [CartsController::class, 'getItem'])
-        ->name('vh.backend.store.api.carts.read');
+
     /**
      * Update Item
      */
@@ -72,11 +68,6 @@ function () {
     Route::get('/cart-check-out/{id}', [CartsController::class, 'getCartItemDetailsAtCheckout'])
         ->name('vh.backend.store.api.carts.read');
 
-    /**
-     * update cart item quantity
-     */
-    Route::post('/update/quantity', [CartsController::class, 'updateQuantity'])
-        ->name('vh.backend.store.carts.update.quantity');
 
     /**
      * delete cart item
@@ -122,9 +113,9 @@ function () {
         ->name('vh.backend.store.carts.read');
 
     /**
-     * Add to cart
+     * Generate Cart
      */
-    Route::post('/generate', 'ProductsController@addToCart')
+    Route::post('/generate', 'ProductsController@generateCart')
         ->name('vh.backend.store.carts.generate.cart');
 
     /**
@@ -140,7 +131,7 @@ function () {
         ->name('vh.backend.store.api.carts.update.quantity');
 
     /**
-     * Add guest cart to user
+     * Add user to guest cart
      */
     Route::post('/{uuid}/add', [CartsController::class, 'AddUserToGuestCart'])
         ->name('vh.backend.store.api.carts.add.user');

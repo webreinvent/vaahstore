@@ -2489,6 +2489,7 @@ export const useProductStore = defineStore({
                this.getList();
 
            }
+            this.add_to_cart = false;
             this.item.user=null;
             this.product_detail=[];
         },

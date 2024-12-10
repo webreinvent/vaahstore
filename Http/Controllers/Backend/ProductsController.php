@@ -830,10 +830,10 @@ class ProductsController extends Controller
         }
     }
 
-    public function addToCart(Request $request)
+    public function generateCart(Request $request)
     {
         try{
-            return Product::addToCart($request);
+            return Product::generateCart($request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
