@@ -1409,5 +1409,20 @@ class Store extends VaahModel
 
     }
 
+    //-------------------------------------------------
+
+    public static function getDefaultStore($request)
+    {
+        $item = self::where(['is_active' => 1, 'is_default' => 1])->first();
+        if ($item) {
+            $item->currencies = $item->currenciesData;
+            $item->languages = $item->lingualData;
+            unset($item->currenciesData, $item->lingualData);
+        }
+
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+    }
 
 }
