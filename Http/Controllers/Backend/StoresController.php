@@ -285,5 +285,20 @@ class StoresController extends Controller
     }
     //----------------------------------------------------------
 
-
+    public function getDefaultStore(Request $request)
+    {
+        try{
+            return Store::getDefaultStore($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                return $response;
+            }
+        }
+    }
 }
