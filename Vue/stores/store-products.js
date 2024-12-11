@@ -485,18 +485,19 @@ export const useProductStore = defineStore({
             if (this.selected_vendor != null) {
                 let exist = 0;
                 this.item.vendors.forEach((item) => {
-                    if (item['vendor']['id'] == this.selected_vendor['id']) {
+                    if (item['id'] == this.selected_vendor['id']) {
                         exist = 1;
                     }
                 })
                 if (exist == 0) {
                     let new_vendor = {
-                        vendor: this.selected_vendor,
+                        id: this.selected_vendor.id,
+                        name: this.selected_vendor.name,
+                        slug: this.selected_vendor.slug,
+                        status: this.selected_vendor.status,
                         is_selected: false,
-                        status : this.selected_vendor.status,
                         can_update: false,
-                        status_notes : null,
-
+                        status_notes: null,
                     };
                     this.item.vendors.push(new_vendor);
                     this.selected_vendor = null;
@@ -524,7 +525,7 @@ export const useProductStore = defineStore({
 
         async removeVendor(attribute) {
             this.item.vendors = this.item.vendors.filter(function (item) {
-                return item['vendor']['id'] != attribute['vendor']['id']
+                return item['id'] != attribute['id']
             })
             this.select_all_vendor = false;
         },
@@ -1109,25 +1110,30 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async saveVendor()
+        async attachVendors(item)
         {
-            let ajax_url = this.ajax_url;
-            let options = {
+            const query = {
+                store: item.store,
+                vendors: item.vendors
+            };
+            const options = {
+                params: query,
                 method: 'post',
             };
-            options.method = 'POST';
-            options.params = this.item;
-            ajax_url += '/vendor';
+
+            let ajax_url = this.ajax_url;
+
+            ajax_url += '/'+ item.id+ '/vendors';
             await vaah().ajax(
                 ajax_url,
-                this.saveVendorAfter,
+                this.attachVendorsAfter,
                 options
             );
         },
 
         //---------------------------------------------------------------------
 
-        async saveVendorAfter(data, res)
+        async attachVendorsAfter(data, res)
         {
             if(data)
             {

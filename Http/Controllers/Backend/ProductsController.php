@@ -176,9 +176,9 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function createVendor(Request $request){
+    public function attachVendors(Request $request, $id){
         try{
-            return Product::createVendor($request);
+            return Product::attachVendors($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
