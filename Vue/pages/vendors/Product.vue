@@ -54,7 +54,7 @@ const toggleSelectedMenuState = (event) => {
                             data-testid="products-save"
                             class="p-button-sm"
                             :disabled="!store.assets.permissions.includes('can-update-module')"
-                            @click="store.saveProduct()"
+                            @click="store.attachProducts(store.item)"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
@@ -175,7 +175,7 @@ const toggleSelectedMenuState = (event) => {
                                 <Checkbox v-model="item['is_selected']" :binary="true" />
                             </th>
                             <td>
-                                <InputText v-model="item['product']['name']" style="height:35px;" class="w-full" disabled="" />
+                                <InputText v-model="item['name']" style="height:35px;" class="w-full" disabled="" />
                             </td>
                             <td>
                                 <InputSwitch v-model="item['can_update']" style="margin-left:5px; margin-top:0.5rem" />

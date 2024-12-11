@@ -32,10 +32,10 @@ Route::group(
 
 
         /**
-         * Create Product
+         * Attach Products To A Vendor
          */
-        Route::post('/add/product', 'VendorsController@createProduct')
-            ->name('vh.backend.store.vendors.createProduct');
+        Route::post('/{id}/products', 'VendorsController@attachProducts')
+            ->name('vh.backend.store.vendors.attach.Product');
 
         /**
          * Remove All Product
