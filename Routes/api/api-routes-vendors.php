@@ -67,10 +67,10 @@ function () {
         ->name('vh.backend.store.api.vendors.item.action');
 
     /**
-     * Attach With Product
+     * Attach Products To A Vendor
      */
-    Route::post('/add/product', 'VendorsController@createProduct')
-        ->name('vh.backend.store.api.vendors.createProduct');
+    Route::post('/{id}/products', 'VendorsController@attachProducts')
+        ->name('vh.backend.store.api.vendors.attach.Product');
 
     /**
      * Attach Users With Roles
