@@ -36,11 +36,7 @@ function () {
     Route::get('/Vendors_list', 'ProductsController@getVendorsList')
         ->name('vh.backend.store.products.getVendorsList');
 
-    /**
-     * create vendor
-     */
-    Route::post('/vendor', 'ProductsController@createVendor')
-        ->name('vh.backend.store.products.vendor');
+
     /**
      * POST get attribute list
      */
@@ -201,7 +197,11 @@ function () {
     Route::get('/{id}/vendors', 'ProductsController@getVendorsListForPrduct')
         ->name('vh.backend.store.products.get.vendors-list');
 
-
+    /**
+     * Attach vendors to a product
+     */
+    Route::post('/{id}/vendors', 'ProductsController@attachVendors')
+        ->name('vh.backend.store.products.vendor');
     /**
      * Action Product Vendor i.e preferred or not-preferred
      */

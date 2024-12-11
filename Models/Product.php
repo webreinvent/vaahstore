@@ -417,8 +417,12 @@ class Product extends VaahModel
             $error_message = [];
 
             foreach ($data as $key=>$value){
-                if (!isset($value['vendor']) || empty($value['vendor'])){
-                    array_push($error_message, 'Vendor required');
+
+                if (!isset($value['id']) || empty($value['id'])) {
+                    array_push($error_message, 'Vendor ID is required.');
+                }
+                if (!isset($value['name']) || empty($value['name'])) {
+                    array_push($error_message, 'Vendor name is required.');
                 }
                 if (!isset($value['can_update'])){
                     array_push($error_message, 'Can Update required');
@@ -439,13 +443,13 @@ class Product extends VaahModel
         }else{
             return [
                 'success' => false,
-                'errors' => ['Vendor is empty.']
+                'errors' => ['Vendors data is empty.'],
             ];
         }
     }
 
     //-------------------------------------------------
-    public static function createVendor($request){
+    public static function attachVendors($request,$id){
 
         $permission_slug = 'can-update-module';
 
@@ -453,43 +457,42 @@ class Product extends VaahModel
             return vh_get_permission_denied_response($permission_slug);
         }
         $input = $request->all();
-
-        $product_id = $input['id'];
-        $store_id = $input['vh_st_store_id'];
-        $validation = self::validatedVendor($input['vendors']);
+        $product_id = $id;
+        $store = $request->input('store');
+        $vendor_data = $request->input('vendors');
+        $validation = self::validatedVendor($vendor_data);
         if (!$validation['success']) {
             return $validation;
         }
-        $vendor_data = $input['vendors'];
+
 
         $active_user = auth()->user();
 
-        foreach ($vendor_data as $key=>$value){
-
-            $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
+        foreach ($vendor_data as $key=>$vendor){
+            $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $vendor['id'], 'vh_st_product_id' => $product_id])->first();
 
             if($product_vendor){
-                $response['errors'][] = "This Vendor '{$value['vendor']['name']}' already exists.";
+                $response['errors'][] = "This Vendor '{$vendor['name']}' already exists.";
                 return $response;
             }
 
             $item = new ProductVendor();
             $item->vh_st_product_id = $product_id;
-            $item->vh_st_vendor_id = $value['vendor']['id'];
+            $item->vh_st_vendor_id = $vendor['id'];
 
             $item->added_by = $active_user->id;
 
-            $item->can_update = $value['can_update'];
+            $item->can_update = $vendor['can_update'];
 
-            $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-            if($value['status_notes'])
+            $item->taxonomy_id_product_vendor_status = $vendor['status']['id'];
+            if($vendor['status_notes'])
             {
-                $item->status_notes = $value['status_notes'];
+                $item->status_notes = $vendor['status_notes'];
             }
 
             $item->is_active = 1;
             $item->save();
-            $item->storeVendorProduct()->attach([$store_id]);
+            $item->storeVendorProduct()->attach([$store['id']]);
         }
 
         $response = self::getItem($product_id);

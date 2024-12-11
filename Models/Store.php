@@ -1420,7 +1420,7 @@ class Store extends VaahModel
             unset($item->currenciesData, $item->lingualData);
         }
 
-        $response['success'] = true;
+        $response['success'] = (bool) $item;
         $response['data'] = $item;
         return $response;
     }

@@ -67,10 +67,10 @@ function () {
         ->name('vh.backend.store.api.products.item.action');
 
     /**
-     * Attach With Vendor
+     * Attach Vendors to a Product
      */
-    Route::post('/vendor', 'ProductsController@createVendor')
-        ->name('vh.backend.store.api.products.vendor');
+    Route::post('/{id}/vendors', 'ProductsController@attachVendors')
+        ->name('vh.backend.store.products.vendor');
 
     /**
      * Get Vendors List for Item
@@ -87,7 +87,7 @@ function () {
     /**
      * Retrieve Active Attributes
      */
-    Route::post('/getAttributeList', 'ProductsController@getAttributeList')
+    Route::post('/attributes', 'ProductsController@getAttributeList')
         ->name('vh.backend.store.api.products.getAttributeList');
 
     /**
