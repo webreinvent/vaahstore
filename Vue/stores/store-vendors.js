@@ -237,14 +237,13 @@ export const useVendorStore = defineStore({
 
 
             if (!exists) {
+
                 this.item.products.push({
-                    id: this.selected_product.id,
-                    name: this.selected_product.name,
-                    vh_st_store_id: this.selected_product.vh_st_store_id,
+                    ...this.selected_product,
                     is_selected: false,
-                    can_update : false,
-                    status:this.selected_product.status,
+                    can_update: false,
                 });
+
                 this.selected_product = null;
             } else {
                 this.showUserErrorMessage(['This Product is already present'], 4000);

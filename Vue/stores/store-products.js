@@ -490,16 +490,12 @@ export const useProductStore = defineStore({
                     }
                 })
                 if (exist == 0) {
-                    let new_vendor = {
-                        id: this.selected_vendor.id,
-                        name: this.selected_vendor.name,
-                        slug: this.selected_vendor.slug,
-                        status: this.selected_vendor.status,
+                    this.item.vendors.push({
+                        ...this.selected_vendor,
                         is_selected: false,
                         can_update: false,
                         status_notes: null,
-                    };
-                    this.item.vendors.push(new_vendor);
+                    });
                     this.selected_vendor = null;
                 } else {
                     this.showUserErrorMessage(['This vendor is already present'], 4000);
