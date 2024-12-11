@@ -484,7 +484,7 @@ class Product extends VaahModel
 
             $item->can_update = $vendor['can_update'];
 
-            $item->taxonomy_id_product_vendor_status = $vendor['status']['id'];
+            $item->taxonomy_id_product_vendor_status = $vendor['taxonomy_id_vendor_status'];
             if($vendor['status_notes'])
             {
                 $item->status_notes = $vendor['status_notes'];

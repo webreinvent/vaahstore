@@ -247,7 +247,7 @@ class Vendor extends VaahModel
 
         foreach ($data as $key => $product) {
 
-            if (!isset($product['status']) || empty($product['status'])) {
+            if (!isset($product['taxonomy_id_product_status']) || empty($product['taxonomy_id_product_status'])) {
                 $error_message[] = 'Status required';
             }
             if (!isset($product['id']) || empty($product['id'])) {
@@ -307,7 +307,7 @@ class Vendor extends VaahModel
 
            $item->can_update = $product['can_update'];
 
-           $item->taxonomy_id_product_vendor_status = $product['status']['id'];
+           $item->taxonomy_id_product_vendor_status = $product['taxonomy_id_product_status'];
             if(isset($product['status_notes']))
             {
                 $item->status_notes = $product['status_notes'];
