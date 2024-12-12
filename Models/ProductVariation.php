@@ -530,6 +530,8 @@ class ProductVariation extends VaahModel
 
     public static function getList($request)
     {
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
         $user = null;
         $cart_records = 0;
         if ($user_id = session('vh_user_id')) {
@@ -539,8 +541,21 @@ class ProductVariation extends VaahModel
                 $cart_records = $cart->products()->count();
             }
         }
+        $relationships = ['status','product'];
+        foreach ($include as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated values
+                foreach ($keys as $relationship) {
+                    $relationship = trim($relationship);
+                    if (method_exists(self::class, $relationship)) {
+                        $relationships[] = $relationship;
+                    }
+                }
+            }
+        }
+
         $default_variation = self::where('is_default', 1)->first();
-        $list = self::getSorted($request->filter)->with('status','product');
+        $list = self::getSorted($request->filter)->with($relationships);
         if ($request->has('filter')) {
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
@@ -552,7 +567,12 @@ class ProductVariation extends VaahModel
             $list->quantityFilter($request->filter);
             $list->productFilter($request->filter);
         }
-
+        if ($request->has('ids')) {
+            $ids = json_decode($request->ids, true);  // Decode the JSON array
+            if (is_array($ids)) {
+                $list = $list->whereIn('id', $ids);
+            }
+        }
         $default_variation_exists = $default_variation;
 
         $rows = config('vaahcms.per_page');
@@ -563,7 +583,20 @@ class ProductVariation extends VaahModel
         }
 
         $list = $list->paginate($rows);
-
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys_to_exclude = array_merge($keys_to_exclude, array_map('trim', explode(',', $key)));
+            }
+        }
+        $keys_to_exclude = array_unique($keys_to_exclude);
+        foreach ($list as $item) {
+            foreach ($keys_to_exclude as $single_key) {
+                if (isset($item[$single_key])) {
+                    unset($item[$single_key]);
+                }
+            }
+        }
 
         $response = [
             'success' => true,
@@ -880,9 +913,25 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
 
+        $relationships = [
+            'createdByUser', 'updatedByUser', 'deletedByUser','status','product'
+        ];
+        foreach ($include as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated relationships
+                foreach ($keys as $relationship) {
+                    $relationship = trim($relationship);
+                    if (method_exists(self::class, $relationship)) {
+                        $relationships[] = $relationship; // Add to relationships if method exists
+                    }
+                }
+            }
+        }
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','product'])
+            ->with($relationships)
             ->withTrashed()
             ->first();
 
@@ -892,8 +941,25 @@ class ProductVariation extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
+        $array_item = $item->toArray();
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated exclusions
+                foreach ($keys as $exclude_key) {
+                    $exclude_key = trim($exclude_key);
+                    if (array_key_exists($exclude_key, $array_item)) {
+                        $keys_to_exclude[] = $exclude_key;
+                    }
+                }
+            }
+        }
+        foreach ($keys_to_exclude as $key_to_remove) {
+            unset($array_item[$key_to_remove]);
+        }
+
         $response['success'] = true;
-        $response['data'] = $item;
+        $response['data'] = $array_item;
 
         return $response;
 

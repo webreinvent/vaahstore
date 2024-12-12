@@ -2,6 +2,7 @@
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductStore } from '../../../stores/store-products'
 import Filters from './Filters.vue'
+import Export from "../../import/components/Export.vue"
 const store = useProductStore();
 
 onMounted(async () => {
@@ -21,6 +22,12 @@ const toggleBulkMenuState = (event) => {
     bulk_menu_state.value.toggle(event);
 };
 //--------/bulk_menu_state
+
+const export_menu_state = ref();
+const toggleExportMenuState = (event) => {
+    export_menu_state.value.toggle(event);
+};
+
 </script>
 
 <template>
@@ -65,6 +72,25 @@ const toggleBulkMenuState = (event) => {
                       :model="store.list_bulk_menu"
                       :popup="true" />
                 <!--/bulk_menu-->
+
+                <Button class="p-button-sm ml-1"
+                        type="button"
+                        @click="toggleExportMenuState"
+                        data-testid="products-export-menu"
+                        aria-haspopup="true"
+                        aria-controls="overlay_menu"
+                        label="Export"
+                >
+
+                    <span :style="{fontSize :'11px',fontWeight:'600px' }">Export</span>
+                    <i class="pi pi-angle-down ml-1"></i>
+
+                </Button>
+                <Menu ref="export_menu_state"
+                      :model="store.export_menu"
+                      :popup="true"
+                      class="font-bold"
+                />
 
             </div>
             <!--/left-->

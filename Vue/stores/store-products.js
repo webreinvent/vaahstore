@@ -28,7 +28,8 @@ let empty_states = {
             quantity : null,
             status:null,
             min_quantity:null,
-            max_quantity:null
+            max_quantity:null,
+            export_menu :[],
         },
     },
     action: {
@@ -139,6 +140,10 @@ export const useProductStore = defineStore({
         top_selling_brands:null,
         top_selling_categories:null,
         quick_filter_menu:[],filter_all: null,
+        column_to_export: {
+            columns: [],
+        },
+        is_custom_meta_export:false,
 
     }),
     getters: {
@@ -2845,7 +2850,104 @@ export const useProductStore = defineStore({
            await this.topSellingProducts();
            await this.topSellingCategories();
            await this.topSellingBrands();
-        }
+        },
+        //----------------------------------------------------------------------
+
+        toImport()
+        {
+            this.$router.push({ name : 'import.upload' });
+        },
+        //----------------------------------------------------------------------
+
+        async getExportMenu()
+        {
+            let total = this.list?.total;
+            let items_selected = this.action.items.length;
+            this.export_menu = [
+                {
+                    label: `Export Selected(${items_selected})`,
+
+                    command: () => {
+                        if (items_selected > 0) {
+                            this.$router.push({ name: 'import.export' });
+                        }
+                    },
+                    disabled: items_selected === 0
+                },
+
+                {
+                    label: `Export All (${this.list?.total})`,
+                    command: async () => {
+                        this.$router.push({ name: 'import.export', query: { type: 'export-all' } });
+
+                    }
+                },
+            ]
+        },
+        //----------------------------------------------------------------------
+
+        watchSelectedItem()
+        {
+
+            watch(this.action, (newVal,oldVal) =>
+                {
+                    this.getExportMenu();
+                },{deep: true}
+            )
+        },
+        //----------------------------------------------------------------------
+
+        async exportProducts(type,data){
+
+            this.action.type = type;
+            const [selected_columns, is_export_custom_meta] = data;
+            if (type === 'export') {
+                if (this.action.items.length < 1) {
+                    vaah().toastErrors(['Select records']);
+                    return false;
+                }
+            }
+            this.action.columns = selected_columns;
+            this.action.is_export_custom_meta = is_export_custom_meta;
+            let url = this.ajax_url + '/export/data';
+            let method = 'POST';
+            let options = {
+                params: this.action,
+                method: method,
+                show_success: false
+            };
+
+            await vaah().ajax(
+                url,
+                this.exportProductsAfter,
+                options,
+
+            );
+        },
+
+        //----------------------------------------------------------------------
+
+        async exportProductsAfter(data, res)
+        {
+            if(data && data.content && data.headers)
+            {
+                const blob = new Blob([data.content], { type: data.headers['Content-Type'] });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'exported-products.csv';
+                link.click();
+                window.URL.revokeObjectURL(url);
+                await this.getList();
+                this.getItemMenu();
+                this.getFormMenu();
+                this.column_to_export.columns = [];
+                this.is_export_custom_meta=false;
+                this.action.type=null;
+                this.action.items=[];
+            }
+
+        },
 
     }
 });

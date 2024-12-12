@@ -53,3 +53,4 @@ include_once __DIR__."/backend/routes-carts.php";
 include_once __DIR__."/backend/routes-settings.php";
 include_once __DIR__."/backend/routes-payments.php";
 include_once __DIR__."/backend/routes-shipments.php";
+include_once __DIR__."/backend/routes-import.php";

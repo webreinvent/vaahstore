@@ -765,7 +765,7 @@ class Product extends VaahModel
             if (isset($filter['from'], $filter['to'])) {
                 $from = Carbon::parse($filter['from'])->startOfDay();
                 $to = Carbon::parse($filter['to'])->endOfDay();
-                $query->whereBetween('created_at', [$from, $to]);
+                $query->whereBetween('available_at', [$from, $to]);
             }
         }
 
@@ -2647,9 +2647,152 @@ class Product extends VaahModel
         return $image_urls;
     }
 
+    //----------------------------------------------------------
 
+    public static function exportData($request)
+    {
+        $inputs = $request->all();
+        $column_to_export = $request->input('columns', []);
+        $is_custom_meta = $request->input('is_export_custom_meta', false);
+        if (empty($column_to_export)) {
+            return [
+                'success' => false,
+                'errors' => [trans("vaahcms-general.no_columns_selected")],
+            ];
+        }
+        $rules = [
+            'type' => 'required',
+        ];
+        $messages = [
+            'type.required' => trans("vaahcms-general.action_type_is_required"),
+        ];
+        $validator = \Validator::make($inputs, $rules, $messages);
 
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'errors' => errorsToArray($validator->errors()),
+            ];
+        }
 
+        // Define column headers and mapping
+        $header_mapping = [
+            'id' => 'Id',
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'summary' => 'Summary',
+            'details' => 'Details',
+            'quantity' => 'Quantity',
+            'taxonomy_id_product_type' => 'Product Type',
+            'taxonomy_id_product_status' => 'Product Status',
+            'status_notes' => 'Status Notes',
+            'vh_st_store_id' => 'Store',
+            'vh_st_brand_id' => 'Brand',
+            'is_active' => 'Is Active',
+            'is_featured_on_home_page' => 'Is Homepage Featured',
+            'is_featured_on_category_page' => 'Is Category Page Featured',
+            'launch_at' => 'Launch At',
+            'available_at' => 'Available At',
+            'created_by' => 'Created By',
+            'updated_by' => 'Updated By',
+            'deleted_by' => 'Deleted By',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+            'deleted_at' => 'Deleted At',
+            'product_categories' => 'Categories',
+            'product_variations' => 'Product Variations',
+        ];
+
+        if ($is_custom_meta) {
+            $header_mapping['meta'] = 'Meta';
+            $header_mapping['seo_title'] = 'SEO Title';
+            $header_mapping['seo_meta_description'] = 'SEO Meta Description';
+            $header_mapping['seo_meta_keyword'] = 'SEO Meta Keyword';
+            if (!in_array('meta', $column_to_export)) {
+                $column_to_export[] = 'meta';
+            }
+            if (!in_array('seo_title', $column_to_export)) {
+                $column_to_export[] = 'seo_title';
+            }
+            if (!in_array('seo_meta_description', $column_to_export)) {
+                $column_to_export[] = 'seo_meta_description';
+            }
+            if (!in_array('seo_meta_keyword', $column_to_export)) {
+                $column_to_export[] = 'seo_meta_keyword';
+            }
+        }
+
+        if (in_array("export_all_columns", $column_to_export)) {
+            $column_to_export = array_keys($header_mapping); // Export all columns
+        }
+
+        // Filter columns based on the request
+        if (!empty($column_to_export)) {
+            $header_mapping = array_filter($header_mapping, function ($key) use ($column_to_export) {
+                return in_array($key, $column_to_export);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        // Fetch records based on provided items or all records
+        $records = isset($inputs['items']) && !empty($inputs['items'])
+            ? self::withTrashed()->with(['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'])->whereIn('id', collect($inputs['items'])->pluck('id'))->get()
+            : self::withTrashed()->with(['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'])->get();
+
+        // Initialize CSV content with headers
+        $csv_content = implode(',', array_values($header_mapping)) . "\n";
+
+        // Mapping special attributes for export
+        $attribute_map = [
+            'is_active' => fn($record) => $record->is_active ? 'true' : 'false',
+            'is_featured_on_home_page' => fn($record) => $record->is_featured_on_home_page ? 'true' : 'false',
+            'is_featured_on_category_page' => fn($record) => $record->is_featured_on_category_page ? 'true' : 'false',
+            'created_by' => fn($record) => $record->createdByUser ? $record->createdByUser->email : '',
+            'updated_by' => fn($record) => $record->updatedByUser ? $record->updatedByUser->email : '',
+            'deleted_by' => fn($record) => $record->deletedByUser ? $record->deletedByUser->email : '',
+            'product_categories' => fn($record) => $record->productCategories ? $record->productCategories->pluck('name')->join(', ') : '',
+            'product_variations' => fn($record) => $record->productVariations ? $record->productVariations->pluck('name')->join(', ') : '',
+            'vh_st_store_id' => fn($record) => $record->store ? $record->store->name : '',
+            'vh_st_brand_id' => fn($record) => $record->brand ? $record->brand->name : '',
+            'taxonomy_id_product_type' => fn($record) => $record->type ? $record->type->name : '',
+            'taxonomy_id_product_status' => fn($record) => $record->status ? $record->status->name : '',
+            'meta' => fn($record) => $record->meta ?? '',
+            'seo_title' => fn($record) => $record->seo_title ?? '',
+            'seo_meta_description' => fn($record) => $record->seo_meta_description ?? '',
+            'seo_meta_keyword' => fn($record) => $record->seo_meta_keyword ?? '',
+        ];
+
+        foreach ($records as $record) {
+            $values = [];
+
+            foreach ($header_mapping as $attribute => $header) {
+                if (isset($attribute_map[$attribute])) {
+                    $value = $attribute_map[$attribute]($record);
+                } else {
+                    // Default behavior for other attributes
+                    $value = $record->{$attribute} ?? '';
+                }
+
+                // Sanitize the value (e.g., escape commas or newlines)
+                $values[] = '"' . str_replace('"', '""', $value) . '"';
+            }
+
+            // Append the row to the CSV content
+            $csv_content .= implode(',', $values) . "\n";
+        }
+
+        // Prepare response
+        return [
+            'success' => true,
+            'data' => [
+                'content' => $csv_content,
+                'headers' => [
+                    'Content-Type' => 'text/csv',
+                    'Content-Disposition' => 'attachment; filename="exported-data.csv"',
+                ],
+            ],
+            'messages' => [trans("vaahcms-general.action_successful")],
+        ];
+    }
 
 
 }
