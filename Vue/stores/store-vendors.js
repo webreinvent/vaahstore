@@ -1558,7 +1558,7 @@ export const useVendorStore = defineStore({
             let options = {
                 method: 'post',
                 params: {
-                    user_details: this.item.users,
+                    users: this.item.users,
                 }
             };
             ajax_url += '/'+ item.id+'/users/roles';

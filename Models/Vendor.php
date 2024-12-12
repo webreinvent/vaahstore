@@ -1442,13 +1442,17 @@ class Vendor extends VaahModel
 
     public static function attachUsersRoles($request,$id)
     {
-        $item = self::find($id);
+        $item = self::where('id', $id)
+            ->withTrashed()
+            ->first();
 
         if (!$item) {
-            return false;
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
+            return $response;
         }
         $user_roles = [];
-        foreach ($request->input('user_details') as $user_detail) {
+        foreach ($request->input('users') as $user_detail) {
             $user_id = $user_detail['pivot']['vh_user_id'];
             $role_id = $user_detail['pivot']['vh_role_id'];
 
@@ -1466,7 +1470,7 @@ class Vendor extends VaahModel
         VendorUser::where('vh_st_vendor_id', $id)->forceDelete();
 
         $data = [];
-        foreach ($request->user_details as $user_detail) {
+        foreach ($request->input('users') as $user_detail) {
             $user_id = $user_detail['pivot']['vh_user_id'];
             $role_id = $user_detail['pivot']['vh_role_id'];
 
