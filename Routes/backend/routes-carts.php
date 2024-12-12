@@ -73,10 +73,11 @@ function () {
         ->name('vh.backend.store.carts.delete.item');
 
     /**
-     * cart checkout
+     * Get Items At Checkout
      */
-    Route::get('/cart-check-out/{id}', [CartsController::class, 'getCartItemDetailsAtCheckout'])
+    Route::get('/{id}/checkout', [CartsController::class, 'getCartItemDetailsAtCheckout'])
         ->name('vh.backend.store.carts.read');
+
 
     /**
      * save cart-user address

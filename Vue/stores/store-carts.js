@@ -846,7 +846,7 @@ export const useCartStore = defineStore({
             if(id){
                 await this.loadAssets();
                 await vaah().ajax(
-                    ajax_url+'/cart-check-out/'+id,
+                    ajax_url+'/'+ id+'/checkout',
                     this.getCartItemDetailsAtCheckoutAfter
                 );
             }

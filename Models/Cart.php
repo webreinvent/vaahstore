@@ -152,6 +152,11 @@ class Cart extends VaahModel
     }
 
     //-------------------------------------------------
+    public function scopeFindByIdOrUuid($query, $value)
+    {
+        return $query->where('id', $value)->orWhere('uuid', $value);
+    }
+    //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
 
@@ -445,11 +450,7 @@ class Cart extends VaahModel
         $query = self::with(['createdByUser', 'updatedByUser', 'deletedByUser', 'user'])
             ->withTrashed();
 
-        if (is_numeric($id)) {
-            $item = $query->where('id', $id)->first();
-        } else {
-            $item = $query->where('uuid', $id)->first();
-        }
+        $item = $query->findByIdOrUuid($id)->first();
 
         if(!$item)
         {
@@ -617,9 +618,7 @@ class Cart extends VaahModel
                 'errors' => ['Cart products list is required.']
             ];
         }
-        $cart = is_numeric($uuid)
-            ? Cart::find($uuid)
-            : Cart::where('uuid', $uuid)->first();
+        $cart = Cart::findByIdOrUuid($uuid)->first();
 
         if (!$cart) {
             return [
@@ -719,7 +718,9 @@ class Cart extends VaahModel
     {
         $response = [];
 
-        $cart = Cart::with(['user', 'products', 'productVariations'])->find($id);
+        $cart = Cart::with(['user', 'products', 'productVariations'])
+            ->findByIdOrUuid($id)
+            ->first();
 
         if (!$cart) {
             return ['success' => false, 'data' => null];
