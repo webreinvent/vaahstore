@@ -501,10 +501,10 @@ class VendorsController extends Controller
         }
     }
 
-    public function createVendorUser(Request $request)
+    public function attachUsersRoles(Request $request,$id)
     {
         try{
-            return Vendor::createVendorUser($request);
+            return Vendor::attachUsersRoles($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

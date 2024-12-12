@@ -1551,24 +1551,22 @@ export const useVendorStore = defineStore({
 
         //-----------------------------------------------------------------------
 
-        async saveUser()
+        async attachUsersRoles(item)
         {
 
             let ajax_url = this.ajax_url;
             let options = {
                 method: 'post',
                 params: {
-                    item: this.item,
                     user_details: this.item.users,
                 }
             };
-            ajax_url += '/add/user';
+            ajax_url += '/'+ item.id+'/users/roles';
             await vaah().ajax(
                 ajax_url,
                 this.saveUserAfter,
                 options
             );
-            this.getItem(this.item.id);
         },
 
         //---------------------------------------------------------------------

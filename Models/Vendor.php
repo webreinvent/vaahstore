@@ -1440,16 +1440,15 @@ class Vendor extends VaahModel
 
     //-----------------------------------------------------------------------------
 
-    public static function createVendorUser($request)
+    public static function attachUsersRoles($request,$id)
     {
-        $item_id = $request->item['id'];
-        $item = self::find($item_id);
+        $item = self::find($id);
 
         if (!$item) {
             return false;
         }
         $user_roles = [];
-        foreach ($request->user_details as $user_detail) {
+        foreach ($request->input('user_details') as $user_detail) {
             $user_id = $user_detail['pivot']['vh_user_id'];
             $role_id = $user_detail['pivot']['vh_role_id'];
 
@@ -1464,7 +1463,7 @@ class Vendor extends VaahModel
             }
         }
 
-        VendorUser::where('vh_st_vendor_id', $item_id)->forceDelete();
+        VendorUser::where('vh_st_vendor_id', $id)->forceDelete();
 
         $data = [];
         foreach ($request->user_details as $user_detail) {
