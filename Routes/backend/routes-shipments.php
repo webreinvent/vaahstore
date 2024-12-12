@@ -86,7 +86,7 @@ function () {
     /**
      * get shipped order items
      */
-    Route::get('/{id}/get-shipped-item-list',[ShipmentsController::class, 'getShipmentItemList'])
+    Route::get('/{id}/items',[ShipmentsController::class, 'getShipmentItemList'])
         ->name('vh.backend.store.shipments.get.shipped-item-list');
 
     /**

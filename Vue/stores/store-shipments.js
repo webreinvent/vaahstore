@@ -1149,10 +1149,10 @@ export const useShipmentStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async getShipmentItemList(shipment_item_id){
-            if(shipment_item_id){
+        async getShipmentItemList(shipeed_item_id){
+            if(shipeed_item_id){
                 await vaah().ajax(
-                    ajax_url+'/'+shipment_item_id+'/get-shipped-item-list',
+                    ajax_url+'/'+shipeed_item_id+'/items',
                     this.getShipmentItemListAfter
                 );
             }
