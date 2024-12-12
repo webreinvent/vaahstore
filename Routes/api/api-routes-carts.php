@@ -63,9 +63,9 @@ function () {
         ->name('vh.backend.store.api.carts.item.action');
 
     /**
-     * cart checkout
+     * Get Items At Checkout
      */
-    Route::get('/cart-check-out/{id}', [CartsController::class, 'getCartItemDetailsAtCheckout'])
+    Route::get('/{id}/checkout', [CartsController::class, 'getCartItemDetailsAtCheckout'])
         ->name('vh.backend.store.api.carts.read');
 
 

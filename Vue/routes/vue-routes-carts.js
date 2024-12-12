@@ -19,14 +19,14 @@ routes_list = {
 };
 
 let cart_details ={
-        path: 'cart-details/:id?',
+        path: '/carts/details/:id?',
         name: 'carts.details',
         component: CartDetails,
         props: true,
     };
 
 let check_out ={
-    path: 'cart-check-out/:id?',
+    path: '/carts/checkout/:id?',
     name: 'carts.check_out',
     component: CheckOut,
     props: true,
