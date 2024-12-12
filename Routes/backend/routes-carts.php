@@ -58,10 +58,12 @@ function () {
         ->name('vh.backend.store.carts.item.action');
 
     //---------------------------------------------------------
+
+
     /**
-     * update cart item quantity
+     * update items quantity by given cart uuid
      */
-    Route::post('/update/quantity', [CartsController::class, 'updateQuantity'])
+    Route::match(['put', 'patch'],'/{uuid}/update', [CartsController::class, 'updateQuantity'])
         ->name('vh.backend.store.carts.update.quantity');
 
     /**
@@ -71,10 +73,11 @@ function () {
         ->name('vh.backend.store.carts.delete.item');
 
     /**
-     * cart checkout
+     * Get Items At Checkout
      */
-    Route::get('/cart-check-out/{id}', [CartsController::class, 'getCartItemDetailsAtCheckout'])
+    Route::get('/{id}/checkout', [CartsController::class, 'getCartItemDetailsAtCheckout'])
         ->name('vh.backend.store.carts.read');
+
 
     /**
      * save cart-user address

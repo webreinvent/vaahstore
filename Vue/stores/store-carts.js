@@ -672,9 +672,10 @@ export const useCartStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        checkOut(cart)
+        async checkOut(id)
         {
-            this.$router.push({name: 'carts.check_out',params:{id:cart},query:this.query})
+            await this. getCartItemDetailsAtCheckout(id)
+
             this.item_user_address = null;
             this.item_new_billing_address = null;
 
@@ -784,17 +785,24 @@ export const useCartStore = defineStore({
             if (event.value===null ) {
                 return;
             }
+            const cart_id= pivot_data.vh_st_cart_id;
             const query = {
-                cart_product_details:pivot_data,
-                quantity:event.value
+                products: (Array.isArray(pivot_data) ? pivot_data : [pivot_data]).map(item => ({
+                    ...item,
+                    quantity: event.value,
+                })),
+
             };
+
+
             const options = {
                 params: query,
-                method: 'post',
+                method: 'put',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/update/quantity',
+                this.ajax_url+'/'+cart_id+ '/update',
+
                 this.updateQuantityAfter,
                 options
             );
@@ -802,7 +810,9 @@ export const useCartStore = defineStore({
         //---------------------------------------------------------------------
 
          updateQuantityAfter(data,res){
-             this.getItem(data.cart.id);
+            if (data){
+                this.getItem(data.id);
+            }
         },
 
         //---------------------------------------------------------------------
@@ -836,7 +846,7 @@ export const useCartStore = defineStore({
             if(id){
                 await this.loadAssets();
                 await vaah().ajax(
-                    ajax_url+'/cart-check-out/'+id,
+                    ajax_url+'/'+ id+'/checkout',
                     this.getCartItemDetailsAtCheckoutAfter
                 );
             }
@@ -845,7 +855,6 @@ export const useCartStore = defineStore({
 
         async getCartItemDetailsAtCheckoutAfter(data, res) {
             if (data) {
-
                 if (data.product_details.length === 0) {
                     this.$router.push({ name: 'carts.index', query: this.query });
                     return;
@@ -868,10 +877,9 @@ export const useCartStore = defineStore({
                     const defaultBillingAddress = data.user_billing_addresses.find(address => address.is_default === 1);
                     this.user_billing_address = defaultBillingAddress || data.user_billing_addresses[Math.floor(Math.random() * data.user_billing_addresses.length)];
                 }
+                this.$router.push({name: 'carts.check_out',params:{id:this.item.id},query:this.query})
             }
-            else{
-                this.$router.push({name: 'carts.index',query:this.query});
-            }
+
 
         },
 

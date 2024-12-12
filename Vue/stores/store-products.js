@@ -133,7 +133,7 @@ export const useProductStore = defineStore({
         product_name:null,
         user_suggestions:null,
         active_cart_user_name:null,
-        product_detail:null,
+        product_detail:[],
         active_user:null,
         total_cart_product:0,
         top_selling_variations:null,
@@ -2445,7 +2445,8 @@ export const useProductStore = defineStore({
 
         },
         async addToCart(item){
-            this.product_detail=item;
+            this.product_detail.push(item);
+
             if (!this.show_cart_msg){
                 this.add_to_cart=true;
             }
@@ -2461,9 +2462,13 @@ export const useProductStore = defineStore({
         async addProductToCart(product){
 
             const user_info = this.item.user ? this.item.user : this.active_user;
+            const products = this.product_detail.map(product => ({
+                id: product.id,
+                quantity: 1
+            }));
             const query = {
-                user_info: user_info,
-                product: product
+                user: user_info,
+                products: products,
             };
             const options = {
                 params: query,
@@ -2471,7 +2476,7 @@ export const useProductStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/add/product-to-cart',
+                this.ajax_url+'/cart/generate',
                 this.saveProductInCartAfter,
                 options
             );
@@ -2480,9 +2485,13 @@ export const useProductStore = defineStore({
 
         saveProductInCartAfter(data,res){
            if (data){
-               this.item.user=null;
+
                this.getList();
+
            }
+            this.add_to_cart = false;
+            this.item.user=null;
+            this.product_detail=[];
         },
 
         //---------------------------------------------------------------------
@@ -2540,6 +2549,9 @@ export const useProductStore = defineStore({
 
         disableUserCartAfter(){
             this.show_cart_msg=false;
+            this.active_user=null;
+            this.product_detail=[];
+            this.getList();
         },
 
         //---------------------------------------------------------------------
@@ -2851,7 +2863,9 @@ export const useProductStore = defineStore({
            await this.topSellingCategories();
            await this.topSellingBrands();
         },
-        //----------------------------------------------------------------------
+        onHideCartDialog(){
+            this.product_detail=[];
+        },
 
         toImport()
         {

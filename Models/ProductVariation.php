@@ -537,7 +537,7 @@ class ProductVariation extends VaahModel
         if ($user_id = session('vh_user_id')) {
             $user = User::find($user_id);
             if ($user) {
-                $cart = self::findOrCreateCart($user);
+                $cart = Product::findOrCreateCart($user);
                 $cart_records = $cart->products()->count();
             }
         }
@@ -1523,12 +1523,11 @@ class ProductVariation extends VaahModel
     public static function addVariationToCart($request)
     {
         $response = [];
+        $user_info = $request->input('user');
+        $user = is_array($user_info) && isset($user_info['id'])
+            ? self::findOrCreateUser(['id' => $user_info['id']])
+            : null;
 
-        $user_info = $request->input('user_info');
-        if (empty($user_info) || !isset($user_info['id'])) {
-            $response['errors'][] = "Please provide valid user information.";
-            return $response;
-        }
         $product_variation_id = $request->input('product_variation.id');
         if (empty($product_variation_id)) {
             $response['errors'][] = "Please provide a valid product variation ID.";
@@ -1539,7 +1538,6 @@ class ProductVariation extends VaahModel
             $response['errors'][] = "Product variation not found for ID:{$product_variation_id}";
             return $response;
         }
-        $user_data = ['id' => $user_info['id']];
         $selected_vendor = self::getSelectedVendor($product_variation);
         if ($selected_vendor === null || $selected_vendor['id'] === null) {
             $default_vendor = Vendor::where('is_default', 1)->first();
@@ -1552,8 +1550,19 @@ class ProductVariation extends VaahModel
         }
         $selected_vendor_id=$selected_vendor['id'];
 
-        $user = self::findOrCreateUser($user_data);
-        $cart = self::findOrCreateCart($user);
+        // Check available quantity before creating the cart
+        $item_quantity = self::getItemQuantity(
+            $selected_vendor,
+            $product_variation->vh_st_product_id,
+            $product_variation->id
+        );
+
+        if (!$item_quantity['available'] || $item_quantity['quantity'] <= 0) {
+            $response['errors'][] = "This product is out of stock for selected vendor.";
+            return $response;
+        }
+
+        $cart = Product::findOrCreateCart($user);
 
 
         $existing_cart_item = self::findExistingCartItem($cart, $product_variation_id, $selected_vendor_id);
@@ -1572,9 +1581,10 @@ class ProductVariation extends VaahModel
         } else {
             self::attachVariantionToCart($cart, $product_variation, $selected_vendor_id);
         }
-
+        if ($user) {
         if (!Session::has('vh_user_id')) {
             Session::put('vh_user_id', $user->id);
+        }
         }
 
         $response['success'] = true;
@@ -1637,18 +1647,7 @@ class ProductVariation extends VaahModel
     }
     //----------------------------------------------------------
 
-    protected static function findOrCreateCart($user)
-    {
-        $existing_cart = Cart::where('vh_user_id', $user->id)->first();
-        if ($existing_cart) {
-            return $existing_cart;
-        } else {
-            $cart = new Cart();
-            $cart->vh_user_id = $user->id;
-            $cart->save();
-            return $cart;
-        }
-    }
+
     //----------------------------------------------------------
 
     protected static function attachVariantionToCart($cart,$product_variation,$selected_vendor_id)

@@ -31,7 +31,7 @@ const allProductsOutOfStock = computed(() => {
                 <div >
                     <Button
                         @click="store.redirectToCart"
-                        label="Back"/><b class="mr-1 ml-3" v-if="store.item && store.item.user">{{ store.item.uuid }}   - {{ store.item.user.display_name }} ({{store.cart_products.length}})</b>
+                        label="Back"/><b class="mr-1 ml-3" v-if="store.item ">{{ store.item.uuid }}   - {{ store.item.user?.display_name }} ({{store.cart_products?.length}})</b>
                 </div>
 
 
@@ -40,7 +40,7 @@ const allProductsOutOfStock = computed(() => {
 
 
             <!--table-->
-            <div v-if="store.item && store.item.user">
+            <div v-if="store.item">
             <DataTable :value="store.cart_products"
                        dataKey="id"
                        :rowClass="store.setRowClass"

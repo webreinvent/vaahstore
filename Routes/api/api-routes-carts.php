@@ -38,11 +38,7 @@ function () {
      */
     Route::post('/', [CartsController::class, 'createItem'])
         ->name('vh.backend.store.api.carts.create');
-    /**
-     * Get Item
-     */
-    Route::get('/{id}', [CartsController::class, 'getItem'])
-        ->name('vh.backend.store.api.carts.read');
+
     /**
      * Update Item
      */
@@ -67,16 +63,11 @@ function () {
         ->name('vh.backend.store.api.carts.item.action');
 
     /**
-     * cart checkout
+     * Get Items At Checkout
      */
-    Route::get('/cart-check-out/{id}', [CartsController::class, 'getCartItemDetailsAtCheckout'])
+    Route::get('/{id}/checkout', [CartsController::class, 'getCartItemDetailsAtCheckout'])
         ->name('vh.backend.store.api.carts.read');
 
-    /**
-     * update cart item quantity
-     */
-    Route::post('/update/quantity', [CartsController::class, 'updateQuantity'])
-        ->name('vh.backend.store.carts.update.quantity');
 
     /**
      * delete cart item
@@ -120,5 +111,29 @@ function () {
      */
     Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
         ->name('vh.backend.store.carts.read');
+
+    /**
+     * Generate Cart
+     */
+    Route::post('/generate', 'ProductsController@generateCart')
+        ->name('vh.backend.store.carts.generate.cart');
+
+    /**
+     * Get Item by uuid or ID
+     */
+    Route::get('/{uuid}', [CartsController::class, 'getItem'])
+        ->name('vh.backend.store.api.carts.read');
+
+    /**
+     * Update items quantity by UUID
+     */
+    Route::match(['put', 'patch'], '/{uuid}/update', [CartsController::class, 'updateQuantity'])
+        ->name('vh.backend.store.api.carts.update.quantity');
+
+    /**
+     * Add user to guest cart
+     */
+    Route::post('/{uuid}/add', [CartsController::class, 'AddUserToCart'])
+        ->name('vh.backend.store.api.carts.add.user');
 
 });

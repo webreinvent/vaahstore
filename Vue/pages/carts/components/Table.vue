@@ -36,7 +36,12 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    {{ prop.data.user.display_name }}
+                    <span v-if="!prop.data.user">
+            Guest User Cart
+        </span>
+                    <span v-else>
+            {{ prop.data.user?.display_name }}
+        </span>
                 </template>
 
             </Column>

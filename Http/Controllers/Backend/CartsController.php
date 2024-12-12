@@ -179,10 +179,10 @@ class CartsController extends Controller
     //----------------------------------------------------------
 
     //----------------------------------------------------------
-    public function updateQuantity(Request $request)
+    public function updateQuantity(Request $request,$uuid)
     {
         try{
-            return Cart::updateQuantity($request);
+            return Cart::updateQuantity($uuid,$request);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -351,6 +351,24 @@ class CartsController extends Controller
     {
         try{
             return Cart::getOrderDetails($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function AddUserToCart(Request $request,$uuid)
+    {
+        try{
+            return Cart::AddUserToCart($request,$uuid);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
