@@ -2865,7 +2865,7 @@ export const useProductStore = defineStore({
         },
         onHideCartDialog(){
             this.product_detail=[];
-        }
+        },
 
         toImport()
         {
