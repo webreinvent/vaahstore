@@ -64,7 +64,7 @@ const getDisplayName = (item) => {
                             data-testid="vendor_role-save"
                             class="p-button-sm"
                             :disabled="!store.assets.permissions.includes('can-update-module')"
-                            @click="store.saveUser()"
+                            @click="store.attachUsersRoles(store.item)"
                             icon="pi pi-save"/>
 
                     <Button data-testid="vendor_role-document" icon="pi pi-info-circle"

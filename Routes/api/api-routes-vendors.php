@@ -73,10 +73,10 @@ function () {
         ->name('vh.backend.store.api.vendors.attach.Product');
 
     /**
-     * Attach Users With Roles
+     * Attach Users With Roles To A Vendor
      */
-    Route::post('/add/user', 'VendorsController@createVendorUser')
-        ->name('vh.backend.store.vendors.createVendorUser');
+    Route::post('/{id}/users/roles', 'VendorsController@attachUsersRoles')
+        ->name('vh.backend.store.api.vendors.attach.users.roles');
 
     /**
      * Get Top Vendors By Sales on Selected Date range
