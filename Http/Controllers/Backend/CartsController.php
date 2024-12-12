@@ -365,10 +365,10 @@ class CartsController extends Controller
     }
     //----------------------------------------------------------
 
-    public function AddUserToGuestCart(Request $request,$uuid)
+    public function AddUserToCart(Request $request,$uuid)
     {
         try{
-            return Cart::AddUserToGuestCart($request,$uuid);
+            return Cart::AddUserToCart($request,$uuid);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

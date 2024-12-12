@@ -1246,7 +1246,7 @@ class Cart extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-    public static function AddUserToGuestCart($request,$uuid){
+    public static function AddUserToCart($request,$uuid){
         $cart = self::where('uuid', $uuid)->first();
         if (!$cart) {
             $response['success'] = false;
