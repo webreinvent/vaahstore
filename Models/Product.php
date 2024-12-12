@@ -2016,6 +2016,7 @@ class Product extends VaahModel
             if (!$product) {
                 $errors[] = "Invalid product ID {$product_id}.";
                 continue;
+<<<<<<< HEAD
             }
 
             $product_with_variants = self::getDefaultVariation($product);
@@ -2024,6 +2025,16 @@ class Product extends VaahModel
                 continue;
             }
 
+=======
+            }
+
+            $product_with_variants = self::getDefaultVariation($product);
+            if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
+                $errors[] = "No default variation found for Product ID {$product_id}.";
+                continue;
+            }
+
+>>>>>>> add-guest-cart-flow
             $quantity = $product_data['quantity'] ?? 1;
 
             // Store valid product data for cart creation
