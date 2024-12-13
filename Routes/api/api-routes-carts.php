@@ -94,11 +94,7 @@ function () {
         ->name('vh.backend.store.carts.update.address');
 
 
-    /**
-     * Place Order
-     */
-    Route::post('/place-order', [CartsController::class, 'placeOrder'])
-        ->name('vh.backend.store.carts.update.address');
+    
 
     /**
      * Add cart item to wishlist

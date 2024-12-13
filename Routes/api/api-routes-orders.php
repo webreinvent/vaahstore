@@ -34,9 +34,9 @@ function () {
 
 
     /**
-     * Create Item
+     * Place Order
      */
-    Route::post('/', 'OrdersController@createItem')
+    Route::post('/', 'CartsController@placeOrder')
         ->name('vh.backend.store.api.orders.create');
     /**
      * Get Item
