@@ -102,7 +102,7 @@ function () {
     Route::post('/add-to-wishlist', [CartsController::class, 'addToWishlist'])
         ->name('vh.backend.store.carts.add.to_wishlist');
 
-    
+
 
     /**
      * Generate Cart

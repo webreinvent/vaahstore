@@ -2289,8 +2289,22 @@ class Product extends VaahModel
         $messages[] = trans("vaahcms-general.saved_successfully");
         $response['messages'] = $messages;
 
-        $response['data'] = $cart->load('user:id,email,username,phone','products');
+        $response['data'] = $cart->load('user:id,email,username,phone', 'products')->toArray();
+
+        $response['data']['products'] = collect($response['data']['products'])->map(function ($product) {
+            return [
+                'id' => $product['id'],
+                'name' => $product['name'],
+                'vh_st_cart_id' => $product['pivot']['vh_st_cart_id'],
+                'vh_st_product_variation_id' => $product['pivot']['vh_st_product_variation_id'],
+                'quantity' => $product['pivot']['quantity'],
+                'vh_st_vendor_id' => $product['pivot']['vh_st_vendor_id'],
+            ];
+        })->toArray();
+
         return $response;
+
+
     }
     //----------------------------------------------------------
 
