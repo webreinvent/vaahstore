@@ -96,4 +96,10 @@ function () {
     Route::post('/charts/orders-count-by-range', 'OrdersController@fetchOrdersCountChartData')
         ->name('vh.backend.store.orders.charts.orders_count');
 
+    /**
+     * get order details after place an order
+     */
+    Route::get('/{uuid}/items', 'CartsController@getOrderDetails')
+        ->name('vh.backend.store.order.items.read');
+
 });

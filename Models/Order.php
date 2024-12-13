@@ -222,7 +222,10 @@ class Order extends VaahModel
     }
 
     //-------------------------------------------------
-
+    public function scopeFindByIdOrUuid($query, $value)
+    {
+        return $query->where('id', $value)->orWhere('uuid', $value);
+    }
 
     //-------------------------------------------------
 

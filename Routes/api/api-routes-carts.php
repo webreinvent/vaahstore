@@ -94,7 +94,7 @@ function () {
         ->name('vh.backend.store.carts.update.address');
 
 
-    
+
 
     /**
      * Add cart item to wishlist
@@ -102,11 +102,7 @@ function () {
     Route::post('/add-to-wishlist', [CartsController::class, 'addToWishlist'])
         ->name('vh.backend.store.carts.add.to_wishlist');
 
-    /**
-     * get order details after place an order
-     */
-    Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
-        ->name('vh.backend.store.carts.read');
+    
 
     /**
      * Generate Cart

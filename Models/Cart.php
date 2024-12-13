@@ -1099,7 +1099,7 @@ class Cart extends VaahModel
 
         public static function getOrderDetails($id)
         {
-            $order = Order::find($id);
+            $order = Order::findByIdOrUuid($id)->first();
 
             if (!$order) {
                 return [
