@@ -193,10 +193,10 @@ class ProductVendor extends VaahModel
     }
 
     //--------------------Add and update product price-----------------------------
-    public static function createProductPrice($request)
+    public static function addProductPrices($request,$id)
     {
         $inputs = $request->all();
-        $vendor_product_id = $inputs['id'];
+        $vendor_product_id = $id;
         $validation = self::validationProductPrice($inputs);
         if (!$validation['success']) {
             return $validation;

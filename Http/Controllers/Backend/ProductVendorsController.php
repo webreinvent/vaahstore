@@ -194,14 +194,14 @@ class ProductVendorsController extends Controller
         }
     }
     //---------------------To save and update product price-------------------------------------
-    public function createProductPrice(Request $request)
+    public function addProductPrices(Request $request,$id)
     {
         $permission_slug = 'can-update-module';
         if (!Auth::user()->hasPermission($permission_slug)) {
             return vh_get_permission_denied_response($permission_slug);
         }
         try{
-            return ProductVendor::createProductPrice($request);
+            return ProductVendor::addProductPrices($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';

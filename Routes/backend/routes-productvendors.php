@@ -33,7 +33,7 @@ function () {
     /**
      * POST create productPrice
      */
-    Route::post('/product/price', 'ProductVendorsController@createProductPrice')
+    Route::post('/{id}/prices', 'ProductVendorsController@addProductPrices')
         ->name('vh.backend.store.products.createProductPrice');
     /**
      * POST Product list for store

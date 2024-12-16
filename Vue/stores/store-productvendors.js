@@ -592,7 +592,7 @@ export const useProductVendorStore = defineStore({
                 case 'save-productprice':
                     options.method = 'POST';
                     options.params = item;
-                    ajax_url += '/product/price'
+                    ajax_url += '/'+item.id+'/prices'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`
