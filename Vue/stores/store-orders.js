@@ -1046,7 +1046,7 @@ export const useOrderStore = defineStore({
 
             if (item.id) {
                 await vaah().ajax(
-                    ajax_url + '/get-order-items'+'/' + item.id,
+                    ajax_url + '/'+ item.id +'/shipment/items',
                     this.openVendorsPanelAfter
                 );
             }

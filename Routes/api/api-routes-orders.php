@@ -41,17 +41,17 @@ function () {
     /**
      * Get Item
      */
-    Route::get('/{id}', 'OrdersController@getItem')
+    Route::get('/{uuid}', 'OrdersController@getItem')
         ->name('vh.backend.store.api.orders.read');
     /**
      * Update Item
      */
-    Route::match(['put', 'patch'], '/{id}', 'OrdersController@updateItem')
+    Route::match(['put', 'patch'], '/{uuid}', 'OrdersController@updateItem')
         ->name('vh.backend.store.api.orders.update');
     /**
      * Delete Item
      */
-    Route::delete('/{id}', 'OrdersController@deleteItem')
+    Route::delete('/{uuid}', 'OrdersController@deleteItem')
         ->name('vh.backend.store.api.orders.delete');
 
     /**
@@ -69,37 +69,37 @@ function () {
     /**
      * Get Shipped Order Items
      */
-    Route::get('/get-order-items/{id}', 'OrdersController@getShippedOrderItems')
-        ->name('vh.backend.store.orders.get.order-items');
+    Route::get('/{id}/shipment/items', 'OrdersController@getShippedOrderItems')
+        ->name('vh.backend.store.api.orders.get.order-items');
 
     /**
      * Retrieve Orders Statuses Pie Chart Data
      */
     Route::post('/charts/data', 'OrdersController@fetchOrdersChartData')
-        ->name('vh.backend.store.orders.charts.statuses_details');
+        ->name('vh.backend.store.api.orders.charts.statuses_details');
 
     /**
      * Retrieve Total Sales Over Specific Period
      */
     Route::post('/charts/total-sales-data', 'OrdersController@fetchSalesChartData')
-        ->name('vh.backend.store.orders.charts.sales_count');
+        ->name('vh.backend.store.api.orders.charts.sales_count');
 
     /**
      * Retrieve Total payment Recieved Over Specific Period
      */
     Route::post('/charts/order-payments-data', 'OrdersController@fetchOrderPaymentsData')
-        ->name('vh.backend.store.orders.charts.payments_count');
+        ->name('vh.backend.store.api.orders.charts.payments_count');
 
     /**
      * Retrieve Orders Count Details Over Specific Dates
      */
     Route::post('/charts/orders-count-by-range', 'OrdersController@fetchOrdersCountChartData')
-        ->name('vh.backend.store.orders.charts.orders_count');
+        ->name('vh.backend.store.api.orders.charts.orders_count');
 
     /**
      * get order details after place an order
      */
     Route::get('/{uuid}/items', 'CartsController@getOrderDetails')
-        ->name('vh.backend.store.order.items.read');
+        ->name('vh.backend.store.api.order.items.read');
 
 });
