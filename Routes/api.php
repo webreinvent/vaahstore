@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-
+use VaahCms\Modules\Store\Http\Controllers\Api\PublicController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,6 +12,20 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
+Route::group(
+    [
+        'prefix'     => '',
+        'namespace' => 'Api',
+    ],
+    function () {
+        //------------------------------------------------
+        Route::post( '/signin/generate/otp', 'PublicController@postGenerateOTP' );
+        //------------------------------------------------
+        Route::post( '/auth/sendResetCode/post', 'PublicController@postSendResetCode' )
+            ->name( 'vh.backend.sendResetCode.post' );
+    });
 
 include_once __DIR__."/api/api-routes-stores.php";
 include_once __DIR__."/api/api-routes-products.php";
