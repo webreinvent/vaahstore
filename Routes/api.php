@@ -21,12 +21,14 @@ Route::group(
     ],
     function () {
         //------------------------------------------------
-        Route::post( '/signin/generate/otp', 'PublicController@postGenerateOTP' );
+        Route::post( '/signin', 'PublicController@authSignIn' );
         //------------------------------------------------
-        Route::post( '/password-reset/code', 'PublicController@postSendResetCode' )
+        Route::post( '/signin/generate/otp', 'PublicController@authGenerateOTP' );
+        //------------------------------------------------
+        Route::post( '/password-reset/code', 'PublicController@authSendPasswordResetCode' )
             ->name( 'vh.backend.sendResetCode.post' );
 
-        Route::post( '/password-reset', 'PublicController@postResetPassword' )
+        Route::post( '/password-reset', 'PublicController@authResetPassword' )
             ->name( 'vh.backend.resetPassword.post' );
     });
 
