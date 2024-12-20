@@ -27,4 +27,13 @@ class PublicController  extends Controller
 
         return response()->json($response);
     }
+    //------------------------------------------------
+
+    public function postResetPassword(Request $request)
+    {
+        $response = User::resetPassword($request);
+
+        return response()->json($response);
+
+    }
 }

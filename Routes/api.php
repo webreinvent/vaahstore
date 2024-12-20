@@ -23,8 +23,11 @@ Route::group(
         //------------------------------------------------
         Route::post( '/signin/generate/otp', 'PublicController@postGenerateOTP' );
         //------------------------------------------------
-        Route::post( '/auth/sendResetCode/post', 'PublicController@postSendResetCode' )
+        Route::post( '/password-reset/code', 'PublicController@postSendResetCode' )
             ->name( 'vh.backend.sendResetCode.post' );
+
+        Route::post( '/password-reset', 'PublicController@postResetPassword' )
+            ->name( 'vh.backend.resetPassword.post' );
     });
 
 include_once __DIR__."/api/api-routes-stores.php";
