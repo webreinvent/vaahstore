@@ -539,4 +539,31 @@ class UsersController extends Controller
         }
     }
 
+    //----------------------------------------------------------
+
+    public function storePassword(Request $request): JsonResponse
+    {
+        try {
+            $response = \WebReinvent\VaahCms\Models\User::storePassword($request);
+
+            if ($response['success'] === true && $user = Auth::guard('api')->user()) {
+                $user->update(['api_token' => null]);
+                $response['data']['redirect_url'] = '';
+            }
+
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
+
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'][] = $e->getTraceAsString();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+        }
+
+        return response()->json($response);
+    }
+
 }

@@ -71,5 +71,10 @@ function () {
      */
     Route::post('/charts/data', 'UsersController@fetchCustomerCountChartData')
         ->name('vh.backend.store.users.count_chart_data');
+    /**
+     * Change User Password
+     */
+    Route::post('/change/password', 'UsersController@storePassword')
+        ->name('backend.store.api.users.profile.store.password');
 
 });
