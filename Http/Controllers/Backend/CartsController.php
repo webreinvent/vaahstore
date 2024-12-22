@@ -198,10 +198,10 @@ class CartsController extends Controller
 
     //----------------------------------------------------------
 
-    public function deleteCartItem(Request $request)
+    public function deleteCartItem(Request $request,$id,$action)
     {
         try{
-            return Cart::deleteCartItem($request);
+            return Cart::deleteCartItem($request,$id,$action);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

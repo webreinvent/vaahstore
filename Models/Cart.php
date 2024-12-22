@@ -679,24 +679,32 @@ class Cart extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-    public static function deleteCartItem($request){
-        $cart_id = $request['cart_product_details']['vh_st_cart_id'];
-        $variation_id = $request['cart_product_details']['vh_st_product_variation_id'] ?? null;
-        $product_id = $request['cart_product_details']['vh_st_product_id'];
-        $vendor_id = $request['cart_product_details']['vh_st_vendor_id'];
-        $cart = Cart::find($cart_id);
-
+    public static function deleteCartItem($request,$id,$action){
+        if ($action !== 'delete') {
+            return [
+                'data' => null,
+                'messages' => [trans("vaahcms-general.invalid_action")],
+            ];
+        }
+        $cart = self::findByIdOrUuid($id)->first();
+        if (!$cart) {
+            return [
+                'data' => null,
+                'messages' => [trans("vaahcms-general.record_does_not_exist")],
+            ];
+        }
+        $variation_id = $request['item']['vh_st_product_variation_id'] ?? null;
+        $cart_item_id=$request['item']['id'];
         if ($variation_id === null) {
-            $cart->products()->detach($request['cart_product_details']['vh_st_product_id']);
+            $cart->products()->detach($request['item']['vh_st_product_id']);
             Session::forget('vh_user_id');
         } else {
             $cart_product_table_ids = $cart->products()
-                ->wherePivot('vh_st_cart_id', $cart_id)
-                ->wherePivot('vh_st_product_id', $product_id)
-                ->wherePivot('vh_st_product_variation_id', $variation_id)
-                ->wherePivot('vh_st_vendor_id', $vendor_id)
+                ->wherePivot('id', $cart_item_id)
+
                 ->pluck('vh_st_cart_products.id')
                 ->toArray();
+
             if (!empty($cart_product_table_ids)) {
                 foreach ($cart_product_table_ids as $cart_product_id) {
                     $cart->cartItems()->detach($cart_product_id);
@@ -706,7 +714,7 @@ class Cart extends VaahModel
         }
 
         return [
-            'data' => ['cart' => $cart],
+            'data' => $cart->load('products'),
             'messages' => [trans("vaahcms-general.record_deleted")]
         ];
     }
@@ -1212,6 +1220,23 @@ class Cart extends VaahModel
         $item_detail = $request->get('item_detail');
         $user_detail = $request->get('user_detail');
         $product_id = $item_detail['vh_st_product_id'];
+
+        if (!$user_detail || !isset($user_detail['id'])) {
+            $error_message = "No user attached to the wishlist. Please attach a user to proceed.";
+            $response['success'] = false;
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
+        // Check if the user exists in the database
+        $user_exists = User::find($user_detail['id']);
+        if (!$user_exists) {
+            $error_message = "No user attached to the wishlist. Please attach a user to proceed.";
+            $response['success'] = false;
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
         $taxonomy_wishlist_status = Taxonomy::getTaxonomyByType('whishlists-status')
             ->where('slug', 'approved')
             ->pluck('id')

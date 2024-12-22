@@ -69,7 +69,7 @@ function () {
     /**
      * delete cart item
      */
-    Route::post('/delete-cart-item', [CartsController::class, 'deleteCartItem'])
+    Route::delete('/{id}/item/{action}', [CartsController::class, 'deleteCartItem'])
         ->name('vh.backend.store.carts.delete.item');
 
     /**

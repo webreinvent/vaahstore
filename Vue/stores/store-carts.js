@@ -817,17 +817,18 @@ export const useCartStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async deleteCartItem(pivot_data){
+        async deleteCartItem(data){
             const query = {
-                cart_product_details:pivot_data,
+                item:data,
+                action: 'delete',
             };
             const options = {
                 params: query,
-                method: 'post',
+                method: 'delete',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/delete-cart-item',
+                this.ajax_url+'/'+ data.vh_st_cart_id+ '/item/' +query.action,
                 this.deleteCartItemAfter,
                 options
             );
@@ -837,7 +838,7 @@ export const useCartStore = defineStore({
 
         deleteCartItemAfter(data,res){
             if (data){
-                this.getItem(data.cart.id);
+                this.getItem(data.id);
             }
         },
         //---------------------------------------------------------------------
