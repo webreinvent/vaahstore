@@ -136,7 +136,7 @@ const allProductsOutOfStock = computed(() => {
 
                             <Button class="p-button-tiny p-button-danger p-button-text"
                                     data-testid="products-table-action-trash"
-                                    @click="store.deleteCartItem(prop.data.pivot)"
+                                    @click="store.deleteCartItem(prop.data.pivot,'delete')"
                                     v-tooltip.top="'Remove'"
                                     icon="pi pi-trash" />
                         </div>

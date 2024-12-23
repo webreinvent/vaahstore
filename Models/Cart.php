@@ -124,7 +124,7 @@ class Cart extends VaahModel
     public function products()
     {
         return $this->belongsToMany(Product::class, 'vh_st_cart_products', 'vh_st_cart_id', 'vh_st_product_id')
-            ->withPivot('vh_st_product_variation_id', 'quantity','vh_st_vendor_id');
+            ->withPivot('vh_st_product_variation_id', 'quantity','vh_st_vendor_id','id');
     }
     //-------------------------------------------------
     public function productVariations()

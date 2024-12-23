@@ -817,7 +817,7 @@ export const useCartStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async deleteCartItem(data){
+        async deleteCartItem(data,action=null){
             const query = {
                 item:data,
                 action: 'delete',
@@ -828,7 +828,7 @@ export const useCartStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/'+ data.vh_st_cart_id+ '/item/' +query.action,
+                this.ajax_url+'/'+ data.vh_st_cart_id+ '/item/' +action,
                 this.deleteCartItemAfter,
                 options
             );
