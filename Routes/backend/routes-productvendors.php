@@ -38,7 +38,7 @@ function () {
     /**
      * POST Product list for store
      */
-    Route::post('/getProductForStore', 'ProductVendorsController@productForStore')
+    Route::post('/products', 'ProductVendorsController@productForStore')
         ->name('vh.backend.store.productvendors.list.productForStore');
 
     /**

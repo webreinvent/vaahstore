@@ -75,6 +75,6 @@ function () {
     /**
      * Get Products Of Store
      */
-    Route::post('/getProductForStore', 'ProductVendorsController@productForStore')
+    Route::post('/products', 'ProductVendorsController@productForStore')
         ->name('vh.backend.store.productvendors.list.productForStore');
 });

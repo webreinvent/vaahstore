@@ -300,7 +300,7 @@ export const useProductVendorStore = defineStore({
                 method: 'POST'
             };
             await vaah().ajax(
-                this.ajax_url+'/getProductForStore',
+                this.ajax_url+'/products',
                 this.afterGetProductsListforStore,
                 options
             );
