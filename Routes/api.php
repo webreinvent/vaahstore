@@ -29,7 +29,7 @@ Route::group(
         //------------------------------------------------
         Route::post( '/password-reset', 'PublicController@authResetPassword' );
 
-        Route::post( '/signout', 'PublicController@authSignOut' );
+        Route::post( '/signout', 'PublicController@authSignOut' )->middleware('auth:api');
     });
 
 include_once __DIR__."/api/api-routes-stores.php";
