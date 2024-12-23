@@ -837,9 +837,7 @@ export const useCartStore = defineStore({
         //---------------------------------------------------------------------
 
         deleteCartItemAfter(data,res){
-            if (data){
-                this.getItem(data.id);
-            }
+            data ? this.getItem(data.id) : this.$router.push({ name: 'carts.index', query: this.query });
         },
         //---------------------------------------------------------------------
 

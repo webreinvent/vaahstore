@@ -712,7 +712,13 @@ class Cart extends VaahModel
                 }
             }
         }
-
+        if ($cart->products()->count() === 0) {
+            $cart->forceDelete();
+            return [
+                'data' => null,
+                'messages' => [trans("vaahcms-general.record_deleted")]
+            ];
+        }
         return [
             'data' => $cart->load('products'),
             'messages' => [trans("vaahcms-general.record_deleted")]
