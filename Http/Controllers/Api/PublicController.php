@@ -19,27 +19,68 @@ class PublicController  extends Controller
 
     public function authGenerateOTP(Request $request)
     {
-        $response = User::sendLoginOtp($request, 'can-login-in-backend');
-        return response()->json($response);
+        try {
+            $response = User::sendLoginOtp($request, 'can-login-in-backend');
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
 
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return response()->json($response, 500);
+        }
     }
+
     //------------------------------------------------
 
     public function authSendPasswordResetCode(Request $request)
     {
-        $response = User::sendResetPasswordEmail($request, 'can-login-in-backend');
+        try {
+            $response = User::sendResetPasswordEmail($request, 'can-login-in-backend');
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
 
-        return response()->json($response);
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+
+            return response()->json($response, 500);
+        }
     }
+
     //------------------------------------------------
 
     public function authResetPassword(Request $request)
     {
-        $response = User::resetPassword($request);
+        try {
+            $response = User::resetPassword($request);
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
 
-        return response()->json($response);
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
 
+            return response()->json($response, 500);
+        }
     }
+    //------------------------------------------------
+
 
     public function authSignIn(Request $request)
     {
@@ -50,6 +91,7 @@ class PublicController  extends Controller
                 'password' => 'required_without:type',
                 'type' => 'nullable|in:otp',
                 'login_otp' => 'required_if:type,otp',
+                'remember' => 'nullable|boolean',
             ], [
                 'email.required' => trans('vaahcms-login.email_or_username_required'),
                 'email.max' => trans('vaahcms-login.email_or_username_limit'),
@@ -90,6 +132,7 @@ class PublicController  extends Controller
             return response()->json($response);
         }
     }
+    //------------------------------------------------
 
     protected function handleOtpLogin($user, $request)
     {
@@ -106,12 +149,13 @@ class PublicController  extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => ['item' => $user->makeVisible(['api_token'])],
+                'data' => ['item' => $user->makeVisible(['api_token','remember_token'])],
             ]);
         }
 
         return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_credentials')]]);
     }
+    //------------------------------------------------
 
     protected function handleStandardLogin($user, $request)
     {
@@ -127,8 +171,45 @@ class PublicController  extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => ['item' => $user->makeVisible(['api_token'])],
+            'data' => ['item' => $user->makeVisible(['api_token','remember_token'])],
         ]);
+    }
+
+    //------------------------------------------------
+
+    public function authSignOut(Request $request)
+    {
+        try {
+            if ($user = Auth::guard('api')->user()) {
+                $user->update([
+                    'api_token' => null,
+                    'remember_token' => null,
+                ]);
+                $response = [
+                    'success' => true,
+                    'message' => trans('vaahcms-general.logout_success'),
+                    'data' => [],
+                ];
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => trans('vaahcms-general.user_not_logged_in'),
+                ];
+            }
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
+
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+
+            return response()->json($response, 500);
+        }
     }
 
 

@@ -25,11 +25,11 @@ Route::group(
         //------------------------------------------------
         Route::post( '/signin', 'PublicController@authSignIn' );
         //------------------------------------------------
-        Route::post( '/password-reset/code', 'PublicController@authSendPasswordResetCode' )
-            ->name( 'vh.backend.sendResetCode.post' );
+        Route::post( '/password-reset/code', 'PublicController@authSendPasswordResetCode' );
         //------------------------------------------------
-        Route::post( '/password-reset', 'PublicController@authResetPassword' )
-            ->name( 'vh.backend.resetPassword.post' );
+        Route::post( '/password-reset', 'PublicController@authResetPassword' );
+
+        Route::post( '/signout', 'PublicController@authSignOut' );
     });
 
 include_once __DIR__."/api/api-routes-stores.php";
