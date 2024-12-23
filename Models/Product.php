@@ -2216,6 +2216,12 @@ class Product extends VaahModel
         $has_valid_product = false;
 
         $cart = null;
+        if ($request->has('uuid')) {
+            $cart = Cart::findByIdOrUuid($request->input('uuid'))->first();
+            if (!$cart) {
+                $errors[] = "Cart with UUID {$request->input('cart_uuid')} not found.";
+            }
+        }
         foreach ($request->products as $product_data) {
             $product_id = $product_data['id'];
             $product = Product::find($product_id);
