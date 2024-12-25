@@ -21,15 +21,15 @@ Route::group(
     ],
     function () {
         //------------------------------------------------
-        Route::post( '/signin/generate/otp', 'PublicController@authGenerateOTP' );
+        Route::post( '/signin/generate/otp', 'AuthController@authGenerateOTP' );
         //------------------------------------------------
-        Route::post( '/signin', 'PublicController@authSignIn' );
+        Route::post( '/signin', 'AuthController@authSignIn' );
         //------------------------------------------------
-        Route::post( '/password-reset/code', 'PublicController@authSendPasswordResetCode' );
+        Route::post( '/password-reset/code', 'AuthController@authSendPasswordResetCode' );
         //------------------------------------------------
-        Route::post( '/password-reset', 'PublicController@authResetPassword' );
+        Route::post( '/password-reset', 'AuthController@authResetPassword' );
 
-        Route::post( '/signout', 'PublicController@authSignOut' )->middleware('auth:api');
+        Route::post( '/signout', 'AuthController@authSignOut' )->middleware('auth:api');
     });
 
 include_once __DIR__."/api/api-routes-stores.php";

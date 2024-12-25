@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use WebReinvent\VaahCms\Models\User;
 
-class PublicController  extends Controller
+class AuthController  extends Controller
 {
     public function __construct()
     {
@@ -117,7 +117,12 @@ class PublicController  extends Controller
             }
             // Handle without Otp login
             return $this->handleStandardLogin($user, $request);
-
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            //  validation errors
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+            ]);
         }catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -149,7 +154,7 @@ class PublicController  extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => ['item' => $user->makeVisible(['api_token','remember_token'])],
+                'data' => ['item' => $user->makeVisible(['api_token'])],
             ]);
         }
 
@@ -159,20 +164,24 @@ class PublicController  extends Controller
 
     protected function handleStandardLogin($user, $request)
     {
-        $login_response = User::login($request);
+        if (Hash::check($request->password, $user->password)) {
 
-        // If login failed
-        if (!empty($login_response['status']) && $login_response['status'] === 'failed') {
-            return response()->json($login_response);
+            $login_response = User::login($request);
+
+            // If login failed
+            if (!empty($login_response['status']) && $login_response['status'] === 'failed') {
+                return response()->json($login_response);
+            }
+
+            // Update API token after successful login
+            $user->update(['api_token' => Str::random(80)]);
+
+            return response()->json([
+                'success' => true,
+                'data' => ['item' => $user->makeVisible(['api_token'])],
+            ]);
         }
-
-        // Update API token after successful login
-        $user->update(['api_token' => Str::random(80)]);
-
-        return response()->json([
-            'success' => true,
-            'data' => ['item' => $user->makeVisible(['api_token','remember_token'])],
-        ]);
+        return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_credentials')]]);
     }
 
     //------------------------------------------------

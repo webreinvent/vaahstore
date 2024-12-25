@@ -2720,6 +2720,9 @@ class Product extends VaahModel
             ->get();
 
         $top_selling_variations = $top_selling_variations->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
+            if (!$item->vh_st_product_variation_id) {
+                return null;
+            }
             $sales_query = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id);
 
 
@@ -2729,17 +2732,24 @@ class Product extends VaahModel
 
             $total_sales = $sales_query->sum('quantity');
             $product_variation = $item->productVariation;
-            $product_media_ids = $product_variation->medias->map(function ($media) {
-                return $media->pivot->vh_st_product_media_id;
-            });
+            if (!$product_variation) {
+                return null;
+            }
+
+            $product_media_ids = $product_variation->medias
+                ? $product_variation->medias->map(function ($media) {
+                    return $media->pivot->vh_st_product_media_id ?? null;
+                })->filter()
+                : collect();
+
             $image_urls = self::getImageUrls($product_media_ids);
 
             return [
-                'id' => $product_variation->id,
-                'name' => $product_variation->name,
-                'slug' => $product_variation->slug,
-                'total_sales' => $total_sales,
-                'image_urls' => $image_urls,
+                'id' => $product_variation->id ?? null,
+                'name' => $product_variation->name ?? null,
+                'slug' => $product_variation->slug ?? null,
+                'total_sales' => $total_sales ?? 0,
+                'image_urls' => $image_urls ?? [],
             ];
         })
             ->sortByDesc('total_sales');
