@@ -221,11 +221,22 @@ class AuthController  extends Controller
         }
     }
 
+    //-----------------------------------------------------------------------
     public function signUp(Request $request)
     {
         try {
             $response = \VaahCms\Modules\Store\Models\User::createItem($request);
+            if (isset($response['success']) && $response['success'] === true) {
+                $user = $response['data']['item'];
+
+                $user->update(['api_token' => Str::random(80)]);
+                return response()->json([
+                    'success' => true,
+                    'data' => ['item' => $user->makeVisible(['api_token'])],
+                ]);
+            }
             return response()->json($response);
+
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -236,6 +247,7 @@ class AuthController  extends Controller
             } else {
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
+
             return response()->json($response, 500);
         }
     }
