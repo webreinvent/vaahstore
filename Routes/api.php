@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-use VaahCms\Modules\Store\Http\Controllers\Api\PublicController;
+use VaahCms\Modules\Store\Http\Controllers\Api\AuthController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,6 +30,8 @@ Route::group(
         Route::post( '/password-reset', 'AuthController@authResetPassword' );
 
         Route::post( '/signout', 'AuthController@authSignOut' )->middleware('auth:api');
+
+        Route::post('/signup', 'AuthController@signUp');
     });
 
 include_once __DIR__."/api/api-routes-stores.php";

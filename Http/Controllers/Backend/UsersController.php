@@ -170,10 +170,7 @@ class UsersController extends Controller
     //----------------------------------------------------------
     public function createItem(Request $request)
     {
-        $permission_slug = 'can-update-module';
-        if (!Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
+
 
         try {
             $response = User::createItem($request);

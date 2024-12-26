@@ -221,5 +221,22 @@ class AuthController  extends Controller
         }
     }
 
+    public function signUp(Request $request)
+    {
+        try {
+            $response = \VaahCms\Modules\Store\Models\User::createItem($request);
+            return response()->json($response);
+        } catch (\Exception $e) {
+            $response = [];
+            $response['success'] = false;
 
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return response()->json($response, 500);
+        }
+    }
 }

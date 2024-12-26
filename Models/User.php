@@ -134,12 +134,7 @@ class User extends UserBase
 
     public static function createItem($request)
     {
-        if (!\Auth::user()->hasPermission('can-create-users')) {
-            $response['success'] = false;
-            $response['errors'][] = trans('vaahcms-general.permission_denied');
 
-            return $response;
-        }
 
         $inputs = $request->all();
 
