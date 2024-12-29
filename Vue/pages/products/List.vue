@@ -167,7 +167,7 @@ const toggleQuickFilterState = (event) => {
                                     <template #content>
                                         <div class="max-h-14rem overflow-y-auto">
                                             <DataTable
-                                                :value="store.top_selling_variations"
+                                                :value="store.top_selling_products"
                                                 dataKey="id"
 
                                                 class="p-datatable-sm p-datatable-hoverable-rows"
@@ -180,7 +180,7 @@ const toggleQuickFilterState = (event) => {
                                                     <template #body="prop">
                                                         <div class="flex ">
                                                             <div class="product_img">
-                                                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
+                                                                <div v-if="Array.isArray(prop.data?.image_urls) && prop.data?.image_urls.length > 0">
                                                                     <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
                                                                         <Image preview
                                                                                :src="base_url + '/' + imageUrl"
@@ -193,8 +193,8 @@ const toggleQuickFilterState = (event) => {
                                                                 </div>
                                                             </div>
                                                             <div class="product_desc ml-3">
-                                                                <h4>{{ prop.data.name }}</h4>
-                                                                <p><b> {{ prop.data.total_sales }}</b> Sold</p>
+                                                                <h4>{{ prop.data?.name }}</h4>
+                                                                <p><b> {{ prop.data?.total_sales }}</b> Sold</p>
                                                             </div>
                                                         </div>
                                                     </template>

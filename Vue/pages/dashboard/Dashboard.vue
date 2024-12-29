@@ -285,7 +285,7 @@ const toggleQuickFilterState = (event) => {
 
                     <template #content>
                         <DataTable
-                            :value="product_store.top_selling_variations"
+                            :value="product_store.top_selling_products"
                             dataKey="id"
 
                             class="p-datatable-sm p-datatable-hoverable-rows"

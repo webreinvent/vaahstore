@@ -136,7 +136,7 @@ export const useProductStore = defineStore({
         product_detail:[],
         active_user:null,
         total_cart_product:0,
-        top_selling_variations:null,
+        top_selling_products:null,
         top_selling_brands:null,
         top_selling_categories:null,
         quick_filter_menu:[],filter_all: null,
@@ -2786,7 +2786,7 @@ export const useProductStore = defineStore({
         },
         topSellingProductsAfter(data,res){
             if (data) {
-                this.top_selling_variations = data.top_selling_products;
+                this.top_selling_products = data;
             }
         },
 
@@ -2809,7 +2809,7 @@ export const useProductStore = defineStore({
         },
         topSellingBrandsAfter(data,res){
             if (data) {
-                this.top_selling_brands = data.top_selling_brands;
+                this.top_selling_brands = data;
             }
         },
         async topSellingCategories() {
@@ -2831,7 +2831,7 @@ export const useProductStore = defineStore({
         },
         topSellingCategoriesAfter(data,res){
             if (data) {
-                this.top_selling_categories = data.top_selling_categories;
+                this.top_selling_categories = data;
             }
         },
 
