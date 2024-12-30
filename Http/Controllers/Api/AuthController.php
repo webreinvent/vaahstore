@@ -86,43 +86,44 @@ class AuthController  extends Controller
     {
         try {
             // Validation
-            $request->validate([
+            $inputs = $request->all();
+            $rules = [
                 'email' => 'required|max:150',
                 'password' => 'required_without:type',
                 'type' => 'nullable|in:otp',
                 'login_otp' => 'required_if:type,otp',
                 'remember' => 'nullable|boolean',
-            ], [
+            ]; $messages = [
                 'email.required' => trans('vaahcms-login.email_or_username_required'),
                 'email.max' => trans('vaahcms-login.email_or_username_limit'),
                 'password.required_without' => trans('vaahcms-login.password_required'),
                 'login_otp.required_if' => trans('vaahcms-login.otp_required'),
-            ]);
+            ];
+            $validator = \Validator::make($inputs, $rules, $messages);
 
-            $response = ['success' => false, 'errors' => []];
+            if ($validator->fails()) {
+                $errors = errorsToArray($validator->errors());
+                return [
+                    'success' => false,
+                    'errors' => $errors,
+                ];
+            }
 
             $user = User::where('email', $request->email)
                 ->orWhere('username', $request->email)
                 ->first();
 
             if (!$user) {
-                return response()->json(['success' => false, 'errors' => [trans('vaahcms-user.no_user_exist')]]);
+                return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_credentials')]]);
             }
-            if ($user->is_active != 1) {
-                return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.inactive_account')]]);
-            }
+
             // Handle OTP login
             if ($request->type === 'otp') {
                 return $this->handleOtpLogin($user, $request);
             }
             // Handle without Otp login
             return $this->handleStandardLogin($user, $request);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            //  validation errors
-            return response()->json([
-                'success' => false,
-                'errors' => $e->errors(),
-            ]);
+
         }catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -158,7 +159,7 @@ class AuthController  extends Controller
             ]);
         }
 
-        return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_credentials')]]);
+        return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_otp')]]);
     }
     //------------------------------------------------
 
@@ -181,7 +182,7 @@ class AuthController  extends Controller
                 'data' => ['item' => $user->makeVisible(['api_token'])],
             ]);
         }
-        return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_credentials')]]);
+        return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.password_incorrect')]]);
     }
 
     //------------------------------------------------
