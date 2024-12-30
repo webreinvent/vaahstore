@@ -2709,7 +2709,8 @@ class Product extends VaahModel
 
     public static function topSellingProducts($request)
     {
-        $limit = 5;
+        $default_limit = 5;
+        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
@@ -2792,7 +2793,8 @@ class Product extends VaahModel
 
     public static function topSellingBrands($request)
     {
-        $limit = 5;
+        $default_limit = 5;
+        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
         $start_date = isset($request->start_date)
             ? Carbon::parse($request->start_date)->startOfDay()
             : Carbon::now()->startOfDay();
@@ -2835,7 +2837,8 @@ class Product extends VaahModel
 
     public static function topSellingCategories($request)
     {
-        $limit = 5;
+        $default_limit = 5;
+        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
