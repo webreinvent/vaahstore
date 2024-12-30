@@ -683,6 +683,7 @@ class Cart extends VaahModel
         if ($action !== 'delete') {
             return [
                 'data' => null,
+                'success' => false,
                 'messages' => [trans("vaahcms-general.invalid_action")],
             ];
         }
@@ -690,7 +691,8 @@ class Cart extends VaahModel
         if (!$cart) {
             return [
                 'data' => null,
-                'messages' => [trans("vaahcms-general.record_does_not_exist")],
+                'success' => false,
+                'messages' => [trans("vaahcms-general.record_not_found_with_id") . $id],
             ];
         }
         $variation_id = $request['item']['vh_st_product_variation_id'] ?? null;
@@ -716,10 +718,12 @@ class Cart extends VaahModel
             $cart->forceDelete();
             return [
                 'data' => null,
+                'success' => true,
                 'messages' => [trans("vaahcms-general.record_deleted")]
             ];
         }
         return [
+            'success' => true,
             'data' => $cart->load('products'),
             'messages' => [trans("vaahcms-general.record_deleted")]
         ];
@@ -1293,7 +1297,8 @@ class Cart extends VaahModel
         }
         $cart->vh_user_id = $user['id'];
         $cart->save();
-
+        $response['success']=true;
+        $response['messages'][]="User successfully added to cart.";
         $response['data'] = $cart->load('products');
         return $response;
     }

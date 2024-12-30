@@ -2293,14 +2293,17 @@ class Product extends VaahModel
         }
         if (!$has_valid_product) {
             return [
+                'success'=>false,
                 'errors' => ['No valid products or variations added to the cart.'],
             ];
         }
         if (!empty($errors)) {
+            $response['success'] = false;
             $response['errors'] = $errors;
         }
 
         $messages[] = trans("vaahcms-general.saved_successfully");
+        $response['success'] = true;
         $response['messages'] = $messages;
 
         $response['data'] = $cart->load('user:id,email,username,phone', 'products')->toArray();
@@ -2782,8 +2785,10 @@ class Product extends VaahModel
         if ($apply_date_range) {
             $top_selling_products = $top_selling_products->take($limit);
         }
-        $response['data'] = $top_selling_products->values();
-        return $response;
+        return [
+            'success' => true,
+            'data' => $top_selling_products->values(),
+        ];
     }
 
 
@@ -2827,8 +2832,10 @@ class Product extends VaahModel
             ->filter()
             ->sortByDesc('total_sales')
             ->take($limit);
-        $response['data'] = $query->values();
-        return $response;
+        return [
+            'success' => true,
+            'data' => $query->values(),
+        ];
 
     }
 
@@ -2881,9 +2888,10 @@ class Product extends VaahModel
                     'name' => $category->name,
                 ];
             });
-        $response['data'] = $top_categories->values();
-        return $response;
-
+        return [
+            'success' => true,
+            'data' => $top_categories->values(),
+        ];
     }
 
 
