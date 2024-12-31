@@ -135,7 +135,12 @@ class ProductAttribute extends VaahModel
     public function values()
     {
         return $this->hasMany(ProductAttributeValue::class, 'vh_st_product_attribute_id')
-            ->select('id', 'value', 'vh_st_product_attribute_id','vh_st_attribute_value_id');
+            ->select('id', 'value', 'vh_st_product_attribute_id', 'vh_st_attribute_value_id')
+            ->with([
+                'attributeValue' => function ($q) {
+                    $q->select('id', 'value as name');
+                }
+            ]);
     }
 
 

@@ -552,7 +552,7 @@ class ProductVariation extends VaahModel
                 $cart_records = $cart->products()->count();
             }
         }
-        $relationships = ['status','product','productAttributes'];
+        $relationships = ['status','product'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
@@ -602,11 +602,16 @@ class ProductVariation extends VaahModel
         }
         $keys_to_exclude = array_unique($keys_to_exclude);
         foreach ($list as $item) {
+            if ($item->productAttributes) {
+                self::extractAttributeWithValues($item);
+                unset($item->productAttributes);
+            }
             foreach ($keys_to_exclude as $single_key) {
                 if (isset($item[$single_key])) {
                     unset($item[$single_key]);
                 }
             }
+
         }
 
         $response = [
@@ -952,6 +957,10 @@ class ProductVariation extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
+        if ($item->productAttributes) {
+            self::extractAttributeWithValues($item);
+        }
+        unset($item->productAttributes);
         $array_item = $item->toArray();
         $keys_to_exclude = [];
         foreach ($exclude as $key => $value) {
@@ -1672,5 +1681,24 @@ class ProductVariation extends VaahModel
         ]);
 
     }
+    //----------------------------------------------------------
 
+    public static function extractAttributeWithValues($item): void
+    {
+        $item->product_attributes = $item->productAttributes->map(function ($attribute) {
+            $values = $attribute->values->map(function ($value) {
+                return [
+                    'id' => $value->id,
+                    'value' => $value->value,
+                    'name' => $value->attributeValue->name ?? null,
+                ];
+            });
+            return [
+                'id' => $attribute->id,
+                'vh_st_attribute_id' => $attribute->vh_st_attribute_id,
+                'name' => $attribute->attribute->name ?? null,
+                'values' => $values,
+            ];
+        });
+    }
 }

@@ -45,6 +45,11 @@ class ProductAttributeValue extends VaahModel
         return $date->format($date_time_format);
     }
 
+    //------------------Relation Used In For Variation With Values-------------------------------
+    public function attributeValue()
+    {
+        return $this->belongsTo(AttributeValue::class, 'vh_st_attribute_value_id', 'id');
+    }
     //-------------------------------------------------
 
     public function createdByUser()
