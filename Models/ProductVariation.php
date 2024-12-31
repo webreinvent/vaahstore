@@ -172,6 +172,17 @@ class ProductVariation extends VaahModel
             ->select('id','name','slug','deleted_at');
     }
 
+    public function productAttributes()
+    {
+        return $this->hasMany(ProductAttribute::class, 'vh_st_product_variation_id')
+            ->select('id', 'vh_st_product_variation_id', 'vh_st_attribute_id')
+            ->with([
+                'attribute' ,
+                'values'
+            ]);
+    }
+
+
     //-------------------------------------------------
 
     public function deletedByUser()
@@ -541,7 +552,7 @@ class ProductVariation extends VaahModel
                 $cart_records = $cart->products()->count();
             }
         }
-        $relationships = ['status','product'];
+        $relationships = ['status','product','productAttributes'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
@@ -917,7 +928,7 @@ class ProductVariation extends VaahModel
         $exclude = request()->query('exclude', []);
 
         $relationships = [
-            'createdByUser', 'updatedByUser', 'deletedByUser','status','product'
+            'createdByUser', 'updatedByUser', 'deletedByUser','status','product','productAttributes'
         ];
         foreach ($include as $key => $value) {
             if ($value === 'true') {

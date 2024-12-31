@@ -88,7 +88,12 @@ class ProductAttributeValue extends VaahModel
     {
         return $this->hasMany(AttributeValue::class,'id','vh_st_attribute_value_id')->select(['id', 'vh_st_attribute_id', 'value']);
     }
+    //-------------------------------------------------
 
+    public function productAttribute()
+    {
+        return $this->belongsTo(ProductAttribute::class, 'vh_st_product_attribute_id');
+    }
     //-------------------------------------------------
     public function scopeBetweenDates($query, $from, $to)
     {
