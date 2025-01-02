@@ -884,11 +884,18 @@ class Product extends VaahModel
                     unset($item[$single_key]);
                 }
             }
+            $all_grouped_attributes = [];
             foreach ($item->productVariations as $variation) {
-
-                ProductVariation::extractAttributeWithValues($variation);
-                unset($variation->productAttributes);
+                self::groupedAttributes($variation, $all_grouped_attributes);
             }
+            unset($item->productVariations);
+            $item->grouped_attributes = collect($all_grouped_attributes)->map(function ($values, $key) {
+                return [
+                    'attribute' => $key,
+                    'values' => array_unique($values),
+                ];
+            })->values();
+
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1148,6 +1155,9 @@ class Product extends VaahModel
             foreach ($item->productVariations as $variation) {
 
                 ProductVariation::extractAttributeWithValues($variation);
+
+
+
                 unset($variation->productAttributes);
             }
         }
@@ -3067,6 +3077,31 @@ class Product extends VaahModel
             ],
             'messages' => [trans("vaahcms-general.action_successful")],
         ];
+    }
+
+    public static function groupedAttributes($variation, &$all_grouped_attributes)
+    {
+        $grouped_attributes = [];
+
+        foreach ($variation->productAttributes as $attribute) {
+            foreach ($attribute->values as $value) {
+                $value_array = $value->toArray();
+                $attribute_name = $attribute->attribute['name'];
+                $grouped_attributes[$attribute_name][] = $value_array['attribute_value']['name'];
+            }
+        }
+
+        foreach ($grouped_attributes as $key => $values) {
+            $values = array_unique($values);
+
+            if (!isset($all_grouped_attributes[$key])) {
+                $all_grouped_attributes[$key] = $values;
+            } else {
+                $all_grouped_attributes[$key] = array_unique(array_merge($all_grouped_attributes[$key], $values));
+            }
+        }
+
+        unset($variation->productAttributes);
     }
 
 

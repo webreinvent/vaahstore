@@ -1693,11 +1693,12 @@ class ProductVariation extends VaahModel
                     'name' => $value->attributeValue->name ?? null,
                 ];
             });
+            $unique_values = array_unique(array_column($values->toArray(), 'value'));
             return [
                 'id' => $attribute->id,
                 'vh_st_attribute_id' => $attribute->vh_st_attribute_id,
-                'name' => $attribute->attribute->name ?? null,
-                'values' => $values,
+                'attribute' => $attribute->attribute->name ?? null,
+                'values' => $unique_values,
             ];
         });
     }
