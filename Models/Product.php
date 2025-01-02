@@ -818,7 +818,7 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'];
+        $relationships = ['brand', 'store', 'type', 'status', 'productVendors', 'productCategories'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
@@ -878,12 +878,12 @@ class Product extends VaahModel
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
-            
+
             $all_grouped_attributes = [];
             foreach ($item->productVariations as $variation) {
                 self::groupedAttributes($variation, $all_grouped_attributes);
             }
-//            unset($item->productVariations);
+
             $item->grouped_attributes = collect($all_grouped_attributes)->map(function ($values, $key) {
                 return [
                     'attribute' => $key,
@@ -891,12 +891,13 @@ class Product extends VaahModel
                 ];
             })->values();
 
+            $item->variations=$item->productVariations->pluck('id')->toArray();
             foreach ($keys_to_exclude as $single_key) {
                 if (isset($item[$single_key])) {
                     unset($item[$single_key]);
                 }
             }
-
+            unset($item->productVariations);
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1156,7 +1157,7 @@ class Product extends VaahModel
         if ($item->productVariations){
             foreach ($item->productVariations as $variation) {
                 self::groupedAttributes($variation, $all_grouped_attributes);
-            }
+            }unset($item->productVariations);
         }
         $array_item = $item->toArray();
 
@@ -1186,14 +1187,13 @@ class Product extends VaahModel
         $array_item['launch_at'] = date('Y-m-d', strtotime($array_item['launch_at']));
         $array_item['available_at'] = date('Y-m-d', strtotime($array_item['available_at']));
         $array_item['seo_meta_keyword'] = json_decode($array_item['seo_meta_keyword']);
-        $array_item['product_variation'] = null;
-        $array_item['all_variation'] = [];
         $array_item['grouped_attributes'] = collect($all_grouped_attributes)->map(function ($values, $key) {
             return [
                 'attribute' => $key,
                 'values' => array_unique($values),
             ];
         })->values();
+        $array_item['variations'] = $item->productVariations->pluck('id')->toArray();
         $keys_to_exclude = [];
         foreach ($exclude as $key => $value) {
             if ($value === 'true') {
