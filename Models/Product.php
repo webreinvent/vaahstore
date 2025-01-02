@@ -818,7 +818,7 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type', 'status',  'productVendors', 'productCategories'];
+        $relationships = ['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
@@ -878,23 +878,24 @@ class Product extends VaahModel
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
-
-            foreach ($keys_to_exclude as $single_key) {
-                if (isset($item[$single_key])) {
-                    unset($item[$single_key]);
-                }
-            }
+            
             $all_grouped_attributes = [];
             foreach ($item->productVariations as $variation) {
                 self::groupedAttributes($variation, $all_grouped_attributes);
             }
-            unset($item->productVariations);
+//            unset($item->productVariations);
             $item->grouped_attributes = collect($all_grouped_attributes)->map(function ($values, $key) {
                 return [
                     'attribute' => $key,
                     'values' => array_unique($values),
                 ];
             })->values();
+
+            foreach ($keys_to_exclude as $single_key) {
+                if (isset($item[$single_key])) {
+                    unset($item[$single_key]);
+                }
+            }
 
         }
         $response['success'] = true;
@@ -3085,6 +3086,7 @@ class Product extends VaahModel
     public static function groupedAttributes($variation, &$all_grouped_attributes)
     {
         $grouped_attributes = [];
+        ProductVariation::extractAttributeWithValues($variation);
 
         foreach ($variation->productAttributes as $attribute) {
             foreach ($attribute->values as $value) {
