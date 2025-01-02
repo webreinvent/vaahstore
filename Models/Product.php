@@ -193,6 +193,7 @@ class Product extends VaahModel
     {
         return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
             ->where('vh_st_product_variations.is_active', 1)->withTrashed()
+            ->with('productAttributes')
             ->select();
     }
     public function productVariationsForVendorProduct()
@@ -883,6 +884,11 @@ class Product extends VaahModel
                     unset($item[$single_key]);
                 }
             }
+            foreach ($item->productVariations as $variation) {
+
+                ProductVariation::extractAttributeWithValues($variation);
+                unset($variation->productAttributes);
+            }
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1138,7 +1144,13 @@ class Product extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
             return $response;
         }
+        if ($item->productVariations){
+            foreach ($item->productVariations as $variation) {
 
+                ProductVariation::extractAttributeWithValues($variation);
+                unset($variation->productAttributes);
+            }
+        }
         $array_item = $item->toArray();
 
         $keys_to_exclude = [];
