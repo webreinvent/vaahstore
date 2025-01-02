@@ -818,7 +818,7 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'];
+        $relationships = ['brand', 'store', 'type', 'status',  'productVendors', 'productCategories'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
@@ -830,7 +830,7 @@ class Product extends VaahModel
                 }
             }
         }
-        $list = self::getSorted($request->filter)->with($relationships);
+        $list = self::getSorted($request->filter)->with($relationships)->withCount('productVariations');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -1151,33 +1151,14 @@ class Product extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
             return $response;
         }
+        $all_grouped_attributes = [];
         if ($item->productVariations){
             foreach ($item->productVariations as $variation) {
-
-                ProductVariation::extractAttributeWithValues($variation);
-
-
-
-                unset($variation->productAttributes);
+                self::groupedAttributes($variation, $all_grouped_attributes);
             }
         }
         $array_item = $item->toArray();
 
-        $keys_to_exclude = [];
-        foreach ($exclude as $key => $value) {
-            if ($value === 'true') {
-                $keys = explode(',', $key); // Split comma-separated exclusions
-                foreach ($keys as $exclude_key) {
-                    $exclude_key = trim($exclude_key);
-                    if (array_key_exists($exclude_key, $array_item)) {
-                        $keys_to_exclude[] = $exclude_key;
-                    }
-                }
-            }
-        }
-        foreach ($keys_to_exclude as $key_to_remove) {
-            unset($array_item[$key_to_remove]);
-        }
 
         $product_vendor = [];
         if (!empty($array_item['product_vendors'])) {
@@ -1206,6 +1187,28 @@ class Product extends VaahModel
         $array_item['seo_meta_keyword'] = json_decode($array_item['seo_meta_keyword']);
         $array_item['product_variation'] = null;
         $array_item['all_variation'] = [];
+        $array_item['grouped_attributes'] = collect($all_grouped_attributes)->map(function ($values, $key) {
+            return [
+                'attribute' => $key,
+                'values' => array_unique($values),
+            ];
+        })->values();
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated exclusions
+                foreach ($keys as $exclude_key) {
+                    $exclude_key = trim($exclude_key);
+                    if (array_key_exists($exclude_key, $array_item)) {
+                        $keys_to_exclude[] = $exclude_key;
+                    }
+                }
+            }
+        }
+        foreach ($keys_to_exclude as $key_to_remove) {
+            unset($array_item[$key_to_remove]);
+        }
+
         $response['success'] = true;
         $response['data'] = $array_item;
 

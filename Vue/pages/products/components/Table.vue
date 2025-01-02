@@ -136,16 +136,16 @@ const openProductCategories = (categories,product) => {
 
                  <template #body="prop">
                      <div class="p-inputgroup">
-                         <span  v-if="prop.data.product_variations && prop.data.product_variations.length"
+                         <span  v-if="prop.data.product_variations_count && prop.data.product_variations_count!= null"
                                 class="p-inputgroup-addon cursor-pointer"
                                 v-tooltip.top="'View Variations'"
                                 @click="store.toViewVariation(prop.data)">
 
-                             <b>{{prop.data.product_variations.length}}</b>
+                             <b>{{prop.data.product_variations_count}}</b>
 
                          </span>
                          <span class="p-inputgroup-addon" v-else>
-                             <b>{{prop.data.product_variations.length}}</b>
+                             <b>{{prop.data.product_variations_count}}</b>
                          </span>
                          <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Variations'"
