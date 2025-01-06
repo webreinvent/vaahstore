@@ -91,6 +91,7 @@ export const useCartStore = defineStore({
         discount_on_order:0,
         order_paid_amount:0,
         order:null,
+        cart_uuid:null,
         user_to_cart_modal:false,
     }),
     getters: {
@@ -1178,11 +1179,46 @@ export const useCartStore = defineStore({
             this.$router.push({name: 'orders.view',params:{id:order_id}})
         },
         //---------------------------------------------------------------------
-        async addUser(item){
+        async openUserModal(item){
             this.user_to_cart_modal=true;
             this.cart_uuid=item.uuid;
 
         },
+        //---------------------------------------------------------------------
+
+        async addUserToGuestCart(user){
+            const query = {
+                user:user,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/'+this.cart_uuid+'/add-user',
+                this.addUserToCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        addUserToGuestCartAfter(data,res){
+            if (data){
+            this.cart_uuid=null;
+            this.getList();
+            this.user_to_cart_modal=false;
+            }
+        },
+        //---------------------------------------------------------------------
+
+        onHideUserDialog(){
+            this.item.user_object=null;
+            this.cart_uuid=null;
+            this.user_to_cart_modal=false;
+        },
+        //---------------------------------------------------------------------
+
 
     }
 });

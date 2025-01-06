@@ -1280,27 +1280,47 @@ class Cart extends VaahModel
 
         return $response;
     }
-    //-------------------------------------------------
-    public static function AddUserToCart($request,$uuid){
+    //---------------------------------------------------------------------
+
+    public static function AddUserToCart($request, $uuid)
+    {
+        $user = $request->input('user');
+        if (!$user) {
+            return [
+                'success' => false,
+                'errors' => ['The User field is required.'],
+            ];
+        }
         $cart = self::where('uuid', $uuid)->first();
         if (!$cart) {
-            $response['success'] = false;
-            $response['errors'][]  = 'Cart not found with given uuid.';
-            return $response;
+            return [
+                'success' => false,
+                'errors' => ['Cart not found.'],
+            ];
         }
-        $user=$request->input('user');
+
         if ($cart->vh_user_id) {
             return [
                 'success' => false,
-                'message' => 'A user is already attached to this cart.',
+                'errors' => ['A user is already linked to this cart.'],
             ];
         }
-        $cart->vh_user_id = $user['id'];
+
+        $user_id = $request->input('user.id');
+
+        if (self::where('vh_user_id', $user_id)->exists()) {
+            return [
+                'success' => false,
+                'errors' => ['User is already linked to another cart.'],
+            ];
+        }
+        $cart->vh_user_id = $user_id;
         $cart->save();
-        $response['success']=true;
-        $response['messages'][]="User successfully added to cart.";
-        $response['data'] = $cart->load('products');
-        return $response;
+        return [
+            'success' => true,
+            'messages' => ['User added to cart successfully.'],
+            'data' => $cart->load('products'),
+        ];
     }
 
 

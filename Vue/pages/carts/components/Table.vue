@@ -1,8 +1,10 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useCartStore } from '../../../stores/store-carts'
+import {useProductStore} from "../../../stores/store-products";
 
 const store = useCartStore();
+const product_store = useProductStore();
 const useVaah = vaah();
 
 </script>
@@ -57,8 +59,8 @@ const useVaah = vaah();
                             :disabled="prop.data.vh_user_id !== null && prop.data.user !== null"
                             class="p-button-tiny p-button-text"
                             data-testid="products-table-to-view"
-                            v-tooltip.top="'Attach User'"
-                            @click="store.addUser(prop.data)"
+                            v-tooltip.top="'Add User'"
+                            @click="store.openUserModal(prop.data)"
                             icon="pi pi-user-plus"
                         />
 
@@ -103,15 +105,15 @@ const useVaah = vaah();
         <!--/paginator-->
 
     </div>
-    <Dialog v-model:visible="store.user_to_cart_modal" modal  position="top" header="Add User To Cart" :style="{ width: '35rem' }">
+    <Dialog v-model:visible="store.user_to_cart_modal" modal  position="top" header="Add User To Cart" :style="{ width: '30rem' }"
+            @hide="store.onHideUserDialog">
         <div class="flex items-center gap-4 mb-4">
             <label for="username" class="font-semibold w-24 mt-2">User</label>
             <AutoComplete
-                v-model="store.item.user"
-                @change="store.setUser($event)"
+                v-model="store.item.user_object"
                 class="w-full"
-                :suggestions="store.user_suggestions"
-                @complete="store.searchUser($event)"
+                :suggestions="product_store.user_suggestions"
+                @complete="product_store.searchUser($event)"
                 placeholder="Search By Email or Phone"
                 data-testid="carts-attach_user"
                 name="carts-attach_user"
@@ -133,8 +135,8 @@ const useVaah = vaah();
         </div>
 
         <div class="flex justify-content-end gap-2">
-            <Button type="button" label="Cancel" severity="secondary" @click="store.user_to_cart_modal = false"></Button>
-            <Button type="button" label="Add" @click="store.user_to_cart_modal = false"></Button>
+            <Button type="button" label="Cancel" severity="secondary" @click="store.onHideUserDialog"></Button>
+            <Button type="button" label="Add" @click="store.addUserToGuestCart(store.item.user_object)"></Button>
         </div>
     </Dialog>
 </template>

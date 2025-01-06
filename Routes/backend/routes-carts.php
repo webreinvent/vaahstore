@@ -118,4 +118,10 @@ function () {
 
     Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
         ->name('vh.backend.store.carts.read');
+
+    /**
+     * Add user to guest cart
+     */
+    Route::post('/{uuid}/add-user', [CartsController::class, 'AddUserToCart'])
+        ->name('vh.backend.store.api.carts.add.user');
 });
