@@ -92,7 +92,7 @@ export const useCartStore = defineStore({
         order_paid_amount:0,
         order:null,
         cart_uuid:null,
-        user_to_cart_modal:false,
+        open_user_dialog:false,
     }),
     getters: {
 
@@ -1179,8 +1179,8 @@ export const useCartStore = defineStore({
             this.$router.push({name: 'orders.view',params:{id:order_id}})
         },
         //---------------------------------------------------------------------
-        async openUserModal(item){
-            this.user_to_cart_modal=true;
+        async openUserDialog(item){
+            this.open_user_dialog=true;
             this.cart_uuid=item.uuid;
 
         },
@@ -1197,7 +1197,7 @@ export const useCartStore = defineStore({
 
             await vaah().ajax(
                 this.ajax_url+'/'+this.cart_uuid+'/add-user',
-                this.addUserToCartAfter,
+                this.addUserToGuestCartAfter,
                 options
             );
         },
@@ -1207,7 +1207,8 @@ export const useCartStore = defineStore({
             if (data){
             this.cart_uuid=null;
             this.getList();
-            this.user_to_cart_modal=false;
+            this.getItem(data.id);
+            this.open_user_dialog=false;
             }
         },
         //---------------------------------------------------------------------
@@ -1215,7 +1216,7 @@ export const useCartStore = defineStore({
         onHideUserDialog(){
             this.item.user_object=null;
             this.cart_uuid=null;
-            this.user_to_cart_modal=false;
+            this.open_user_dialog=false;
         },
         //---------------------------------------------------------------------
 

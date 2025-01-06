@@ -51,7 +51,9 @@ watchEffect(() => {
 
         <Button
             @click="store.cartDetails(route_params_id)"
-            label="Back"/>
+            class="p-button-sm"
+            label="Back"><i class="pi pi-arrow-left mr-1 "></i>Back
+        </Button>
         <div class="flex gap-3 my-3">
 
             <div class="w-full">

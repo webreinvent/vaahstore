@@ -60,7 +60,7 @@ const useVaah = vaah();
                             class="p-button-tiny p-button-text"
                             data-testid="products-table-to-view"
                             v-tooltip.top="'Add User'"
-                            @click="store.openUserModal(prop.data)"
+                            @click="store.openUserDialog(prop.data)"
                             icon="pi pi-user-plus"
                         />
 
@@ -105,7 +105,7 @@ const useVaah = vaah();
         <!--/paginator-->
 
     </div>
-    <Dialog v-model:visible="store.user_to_cart_modal" modal  position="top" header="Add User To Cart" :style="{ width: '30rem' }"
+    <Dialog v-model:visible="store.open_user_dialog" modal  position="top" header="Add User To Cart" :style="{ width: '30rem' }"
             @hide="store.onHideUserDialog">
         <div class="flex items-center gap-4 mb-4">
             <label for="username" class="font-semibold w-24 mt-2">User</label>

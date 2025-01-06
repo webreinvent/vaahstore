@@ -1284,34 +1284,31 @@ class Cart extends VaahModel
 
     public static function AddUserToCart($request, $uuid)
     {
-        $user = $request->input('user');
-        if (!$user) {
-            return [
-                'success' => false,
-                'errors' => ['The User field is required.'],
-            ];
+        $inputs = $request->all();
+        $validation = self::userValidation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
+
         $cart = self::where('uuid', $uuid)->first();
         if (!$cart) {
             return [
                 'success' => false,
-                'errors' => ['Cart not found.'],
-            ];
-        }
-
-        if ($cart->vh_user_id) {
-            return [
-                'success' => false,
-                'errors' => ['A user is already linked to this cart.'],
+                'errors' => ['Record not found with Uuid.'. $uuid],
             ];
         }
 
         $user_id = $request->input('user.id');
-
+        if (!User::where('id', $user_id)->exists()) {
+            return [
+                'success' => false,
+                'errors' => ['User ID is invalid or does not exist.'],
+            ];
+        }
         if (self::where('vh_user_id', $user_id)->exists()) {
             return [
                 'success' => false,
-                'errors' => ['User is already linked to another cart.'],
+                'errors' => ['This User is already linked to another cart.'],
             ];
         }
         $cart->vh_user_id = $user_id;
@@ -1322,7 +1319,38 @@ class Cart extends VaahModel
             'data' => $cart->load('products'),
         ];
     }
+    //---------------------------------------------------------------------
 
+    public static function userValidation($inputs)
+    {
+        $rules = [];
+        $messages = [
+            'user.required' => 'The User field is required.',
+            'user.id.required' => 'Enter correct user information',
+        ];
+
+        if (isset($inputs['user'])) {
+            $rules['user.id'] = 'required';
+        } else {
+            $rules['user'] = 'required';
+        }
+
+        $validator = validator($inputs, $rules, $messages);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'errors' => $validator->errors()->all(),
+            ];
+        }
+
+        $validated_data = $validator->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data,
+        ];
+    }
 
 
 }
