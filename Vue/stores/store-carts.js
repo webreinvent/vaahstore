@@ -91,6 +91,7 @@ export const useCartStore = defineStore({
         discount_on_order:0,
         order_paid_amount:0,
         order:null,
+        user_to_cart_modal:false,
     }),
     getters: {
 
@@ -1177,7 +1178,11 @@ export const useCartStore = defineStore({
             this.$router.push({name: 'orders.view',params:{id:order_id}})
         },
         //---------------------------------------------------------------------
+        async addUser(item){
+            this.user_to_cart_modal=true;
+            this.cart_uuid=item.uuid;
 
+        },
 
     }
 });
