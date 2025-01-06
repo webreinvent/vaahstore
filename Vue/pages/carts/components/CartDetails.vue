@@ -41,10 +41,10 @@ const allProductsOutOfStock = computed(() => {
                     </b>
 
                 </div>
-                <div class="mr-4">
+                <div class="">
 
                     <Button data-testid="carts-user-modal"
-                            class="p-button-sm"
+                            class="p-button-lg"
                             v-if="!store.item.user"
                             v-tooltip.top="'Add User'"
                             @click="store.openUserDialog(store.item)">

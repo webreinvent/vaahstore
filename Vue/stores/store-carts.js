@@ -1196,7 +1196,7 @@ export const useCartStore = defineStore({
             };
 
             await vaah().ajax(
-                this.ajax_url+'/'+this.cart_uuid+'/add-user',
+                this.ajax_url+'/'+this.cart_uuid+'/user',
                 this.addUserToGuestCartAfter,
                 options
             );

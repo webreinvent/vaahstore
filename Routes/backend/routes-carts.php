@@ -122,6 +122,6 @@ function () {
     /**
      * Add user to guest cart
      */
-    Route::post('/{uuid}/add-user', [CartsController::class, 'AddUserToCart'])
+    Route::post('/{uuid}/user', [CartsController::class, 'AddUserToCart'])
         ->name('vh.backend.store.api.carts.add.user');
 });
