@@ -42,7 +42,7 @@ const useVaah = vaah();
             Guest User Cart
         </span>
                     <span v-else>
-            {{ prop.data.user?.display_name }}
+            {{ prop.data.user?.email }}
         </span>
                 </template>
 
@@ -117,7 +117,7 @@ const useVaah = vaah();
                 placeholder="Search By Email or Phone"
                 data-testid="carts-attach_user"
                 name="carts-attach_user"
-                optionLabel="name"
+                optionLabel="email"
 
                 :pt="{
                                               token: {

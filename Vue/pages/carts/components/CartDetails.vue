@@ -37,7 +37,7 @@ const allProductsOutOfStock = computed(() => {
                         <i class="pi pi-arrow-left mr-1"></i>Back
                     </Button>
                     <b class="mr-1 ml-3" v-if="store.item ">
-                        {{ store.item.uuid }}   - {{ store.item.user?.display_name }} ({{store.cart_products?.length}})
+                        {{ store.item.uuid }}   - {{ store.item.user?.email }} ({{store.cart_products?.length}})
                     </b>
 
                 </div>
@@ -200,7 +200,7 @@ const allProductsOutOfStock = computed(() => {
                 placeholder="Search By Email or Phone"
                 data-testid="carts-attach_user"
                 name="carts-attach_user"
-                optionLabel="name"
+                optionLabel="email"
 
                 :pt="{
                                               token: {

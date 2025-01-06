@@ -319,7 +319,7 @@ const openProductCategories = (categories,product) => {
                 placeholder="Enter Email or Phone"
                 data-testid="products-cart"
                 name="products-cart"
-                optionLabel="name"
+                optionLabel="email"
 
                 :pt="{
                                               token: {
