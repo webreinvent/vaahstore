@@ -30,7 +30,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
 
-            <Column field="user" header="Name"
+            <Column field="user" header="User's Email"
                     class="overflow-wrap-anywhere"
                     :sortable="true">
 

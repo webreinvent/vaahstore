@@ -257,10 +257,33 @@ class Cart extends VaahModel
                 $q1->where('name', 'LIKE', '%' . $search_item . '%')
                     ->orWhereHas('user', function ($q) use ($search_item) {
                         $q->where('name', 'LIKE', '%' . $search_item . '%')
-                            ->orWhere('first_name', 'LIKE', '%' . $search_item . '%');
+                            ->orWhere('first_name', 'LIKE', '%' . $search_item . '%')
+                            ->orWhere('phone', 'LIKE', '%' . $search_item . '%')
+                            ->orWhere('email', 'LIKE', '%' . $search_item . '%');
                     });
             });
         }
+
+    }
+    //-------------------------------------------------
+    public function scopeGuestCartFilter($query, $filter)
+    {
+        if(!isset($filter['guest'])
+            || is_null($filter['guest'])
+            || $filter['guest'] === 'null'
+        )
+        {
+            return $query;
+        }
+        $guest = $filter['guest'];
+        if ($guest === 'include') {
+            return $query;
+        } else if($guest === 'exclude'){
+            return $query->whereNotNull('vh_user_id');
+        }else if($guest === 'only'){
+            return $query->whereNull('vh_user_id');
+        }
+        return $query;
 
     }
     //-------------------------------------------------
@@ -270,6 +293,7 @@ class Cart extends VaahModel
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->guestCartFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 

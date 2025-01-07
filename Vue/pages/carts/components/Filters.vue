@@ -136,8 +136,40 @@ const store = useCartStore();
                 </div>
 
             </VhFieldVertical>
+                <Divider/>
 
 
+                <VhFieldVertical >
+                    <template #label>
+                        <b>Carts:</b>
+                    </template>
+
+                    <div class="field-radiobutton">
+                        <RadioButton name="guest-exclude"
+                                     inputId="guest-exclude"
+                                     data-testid="carts-filters-guest-exclude"
+                                     value="exclude"
+                                     v-model="store.query.filter.guest" />
+                        <label for="guest-carts-exclude" class="cursor-pointer">Exclude Guest</label>
+                    </div>
+                    <div class="field-radiobutton">
+                        <RadioButton name="guest-include"
+                                     inputId="guest-include"
+                                     data-testid="carts-filters-guest-include"
+                                     value="include"
+                                     v-model="store.query.filter.guest" />
+                        <label for="guest-carts-include" class="cursor-pointer">Include Guest</label>
+                    </div>
+                    <div class="field-radiobutton">
+                        <RadioButton name="guest-only"
+                                     inputId="guest-only"
+                                     data-testid="carts-filters-guest-only"
+                                     value="only"
+                                     v-model="store.query.filter.guest" />
+                        <label for="guest-carts-only" class="cursor-pointer">Only Guest</label>
+                    </div>
+
+                </VhFieldVertical>
         </Panel>
 
     </div>
