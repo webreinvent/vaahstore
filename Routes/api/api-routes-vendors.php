@@ -75,7 +75,7 @@ function () {
     /**
      * Attach Users With Roles To A Vendor
      */
-    Route::post('/{id}/users/roles', 'VendorsController@attachUsersRoles')
+    Route::post('/{id}/users-roles', 'VendorsController@attachUsersRoles')
         ->name('vh.backend.store.api.vendors.attach.users.roles');
 
     /**

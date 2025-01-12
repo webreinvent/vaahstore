@@ -74,7 +74,7 @@ function () {
     /**
      * Change User Password
      */
-    Route::post('/change/password', 'UsersController@storePassword')
+    Route::post('/change-password', 'UsersController@storePassword')
         ->name('backend.store.api.users.profile.store.password');
 
 });

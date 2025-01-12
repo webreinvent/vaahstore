@@ -21,17 +21,17 @@ Route::group(
     ],
     function () {
         //------------------------------------------------
-        Route::post( '/signin/generate/otp', 'AuthController@authGenerateOTP' );
+        Route::post( '/sign-in/otp', 'AuthController@authGenerateOTP' );
         //------------------------------------------------
-        Route::post( '/signin', 'AuthController@authSignIn' );
+        Route::post( '/sign-in', 'AuthController@authSignIn' );
         //------------------------------------------------
         Route::post( '/password-reset/code', 'AuthController@authSendPasswordResetCode' );
         //------------------------------------------------
         Route::post( '/password-reset', 'AuthController@authResetPassword' );
 
-        Route::post( '/signout', 'AuthController@authSignOut' )->middleware('auth:api');
+        Route::post( '/sign-out', 'AuthController@authSignOut' )->middleware('auth:api');
 
-        Route::post('/signup', 'AuthController@signUp');
+        Route::post('/sign-up', 'AuthController@signUp');
     });
 
 include_once __DIR__."/api/api-routes-stores.php";

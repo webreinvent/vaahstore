@@ -99,7 +99,7 @@ function () {
     /**
      * Generate Variations of a product
      */
-    Route::post('/{id}/variations/generate', 'ProductsController@generateVariation')
+    Route::post('/{id}/generate-variations', 'ProductsController@generateVariation')
         ->name('vh.backend.store.products.generate.variations');
 
 
@@ -107,18 +107,18 @@ function () {
     /**
      * Top Selling products
      */
-    Route::get('/top/sellings', 'ProductsController@topSellingProducts')
+    Route::get('/top-sellings', 'ProductsController@topSellingProducts')
         ->name('vh.backend.store.products.charts.top_selling_products');
 
     /**
      * Top Brands By product sales
      */
-    Route::get('/top/brands', 'ProductsController@topSellingBrands')
+    Route::get('/top-brands', 'ProductsController@topSellingBrands')
         ->name('vh.backend.store.products.charts.top_selling_brands');
 
     /**
      * Top Categories By product sales
      */
-    Route::get('/top/categories', 'ProductsController@topSellingCategories')
+    Route::get('/top-categories', 'ProductsController@topSellingCategories')
         ->name('vh.backend.store.products.charts.top_selling_categories');
 });
