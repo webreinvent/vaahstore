@@ -94,10 +94,10 @@ class AuthController  extends Controller
                 'login_otp' => 'required_if:type,otp',
                 'remember' => 'nullable|boolean',
             ]; $messages = [
-                'email.required' => trans('vaahcms-login.email_or_username_required'),
+                'email.required' => 'The email or username is required.',
                 'email.max' => trans('vaahcms-login.email_or_username_limit'),
-                'password.required_without' => trans('vaahcms-login.password_required'),
-                'login_otp.required_if' => trans('vaahcms-login.otp_required'),
+                'password.required_without' => 'Password is required',
+                'login_otp.required_if' => 'OTP is required ',
             ];
             $validator = \Validator::make($inputs, $rules, $messages);
 
@@ -197,13 +197,13 @@ class AuthController  extends Controller
                 ]);
                 $response = [
                     'success' => true,
-                    'message' => trans('vaahcms-general.logout_success'),
+                    'message' => ['Logout successful.'],
                     'data' => [],
                 ];
             } else {
                 $response = [
                     'success' => false,
-                    'message' => trans('vaahcms-general.user_not_logged_in'),
+                    'message' => ['No user is currently logged in.'],
                 ];
             }
             return response()->json($response);
@@ -215,7 +215,7 @@ class AuthController  extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else {
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+                $response['errors'][] = [trans("vaahcms-general.something_went_wrong")];
             }
 
             return response()->json($response, 500);
