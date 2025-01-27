@@ -95,7 +95,7 @@ class AuthController  extends Controller
                 'remember' => 'nullable|boolean',
             ]; $messages = [
                 'email.required' => 'The email or username is required.',
-                'email.max' => trans('vaahcms-login.email_or_username_limit'),
+                'email.max' => 'The email field may not be greater than :max characters',
                 'password.required_without' => 'Password is required',
                 'login_otp.required_if' => 'OTP is required ',
             ];
@@ -114,7 +114,7 @@ class AuthController  extends Controller
                 ->first();
 
             if (!$user) {
-                return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_credentials')]]);
+                return response()->json(['success' => false, 'errors' => ['Invalid credentials']]);
             }
 
             // Handle OTP login
@@ -159,7 +159,7 @@ class AuthController  extends Controller
             ]);
         }
 
-        return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.invalid_otp')]]);
+        return response()->json(['success' => false, 'errors' => ['The OTP you entered is invalid.']]);
     }
     //------------------------------------------------
 
@@ -182,7 +182,7 @@ class AuthController  extends Controller
                 'data' => ['item' => $user->makeVisible(['api_token'])],
             ]);
         }
-        return response()->json(['success' => false, 'errors' => [trans('vaahcms-login.password_incorrect')]]);
+        return response()->json(['success' => false, 'errors' => ['The password you entered is incorrect.']]);
     }
 
     //------------------------------------------------
@@ -197,7 +197,7 @@ class AuthController  extends Controller
                 ]);
                 $response = [
                     'success' => true,
-                    'message' => ['Logout successful.'],
+                    'message' => ['Logout successfully.'],
                     'data' => [],
                 ];
             } else {
