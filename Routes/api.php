@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-
+use VaahCms\Modules\Store\Http\Controllers\Api\AuthController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,6 +12,27 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
+Route::group(
+    [
+        'prefix'     => '',
+        'namespace' => 'Api',
+    ],
+    function () {
+        //------------------------------------------------
+        Route::post( '/sign-in/otp', 'AuthController@authGenerateOTP' );
+        //------------------------------------------------
+        Route::post( '/sign-in', 'AuthController@authSignIn' );
+        //------------------------------------------------
+        Route::post( '/password-reset/code', 'AuthController@authSendPasswordResetCode' );
+        //------------------------------------------------
+        Route::post( '/password-reset', 'AuthController@authResetPassword' );
+
+        Route::post( '/sign-out', 'AuthController@authSignOut' )->middleware('auth:api');
+
+        Route::post('/sign-up', 'AuthController@signUp');
+    });
 
 include_once __DIR__."/api/api-routes-stores.php";
 include_once __DIR__."/api/api-routes-products.php";

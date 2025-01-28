@@ -124,7 +124,7 @@ class Cart extends VaahModel
     public function products()
     {
         return $this->belongsToMany(Product::class, 'vh_st_cart_products', 'vh_st_cart_id', 'vh_st_product_id')
-            ->withPivot('vh_st_product_variation_id', 'quantity','vh_st_vendor_id');
+            ->withPivot('vh_st_product_variation_id', 'quantity','vh_st_vendor_id','id');
     }
     //-------------------------------------------------
     public function productVariations()
@@ -257,10 +257,33 @@ class Cart extends VaahModel
                 $q1->where('name', 'LIKE', '%' . $search_item . '%')
                     ->orWhereHas('user', function ($q) use ($search_item) {
                         $q->where('name', 'LIKE', '%' . $search_item . '%')
-                            ->orWhere('first_name', 'LIKE', '%' . $search_item . '%');
+                            ->orWhere('first_name', 'LIKE', '%' . $search_item . '%')
+                            ->orWhere('phone', 'LIKE', '%' . $search_item . '%')
+                            ->orWhere('email', 'LIKE', '%' . $search_item . '%');
                     });
             });
         }
+
+    }
+    //-------------------------------------------------
+    public function scopeGuestCartFilter($query, $filter)
+    {
+        if(!isset($filter['guest'])
+            || is_null($filter['guest'])
+            || $filter['guest'] === 'null'
+        )
+        {
+            return $query;
+        }
+        $guest = $filter['guest'];
+        if ($guest === 'include') {
+            return $query;
+        } else if($guest === 'exclude'){
+            return $query->whereNotNull('vh_user_id');
+        }else if($guest === 'only'){
+            return $query->whereNull('vh_user_id');
+        }
+        return $query;
 
     }
     //-------------------------------------------------
@@ -270,6 +293,7 @@ class Cart extends VaahModel
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
+        $list->guestCartFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
@@ -679,24 +703,34 @@ class Cart extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-    public static function deleteCartItem($request){
-        $cart_id = $request['cart_product_details']['vh_st_cart_id'];
-        $variation_id = $request['cart_product_details']['vh_st_product_variation_id'] ?? null;
-        $product_id = $request['cart_product_details']['vh_st_product_id'];
-        $vendor_id = $request['cart_product_details']['vh_st_vendor_id'];
-        $cart = Cart::find($cart_id);
-
+    public static function deleteCartItem($request,$id,$action){
+        if ($action !== 'delete') {
+            return [
+                'data' => null,
+                'success' => false,
+                'messages' => [trans("vaahcms-general.invalid_action")],
+            ];
+        }
+        $cart = self::findByIdOrUuid($id)->first();
+        if (!$cart) {
+            return [
+                'data' => null,
+                'success' => false,
+                'messages' => [trans("vaahcms-general.record_not_found_with_id") . $id],
+            ];
+        }
+        $variation_id = $request['item']['vh_st_product_variation_id'] ?? null;
+        $cart_item_id=$request['item']['id'];
         if ($variation_id === null) {
-            $cart->products()->detach($request['cart_product_details']['vh_st_product_id']);
+            $cart->products()->detach($request['item']['vh_st_product_id']);
             Session::forget('vh_user_id');
         } else {
             $cart_product_table_ids = $cart->products()
-                ->wherePivot('vh_st_cart_id', $cart_id)
-                ->wherePivot('vh_st_product_id', $product_id)
-                ->wherePivot('vh_st_product_variation_id', $variation_id)
-                ->wherePivot('vh_st_vendor_id', $vendor_id)
+                ->wherePivot('id', $cart_item_id)
+
                 ->pluck('vh_st_cart_products.id')
                 ->toArray();
+
             if (!empty($cart_product_table_ids)) {
                 foreach ($cart_product_table_ids as $cart_product_id) {
                     $cart->cartItems()->detach($cart_product_id);
@@ -704,9 +738,17 @@ class Cart extends VaahModel
                 }
             }
         }
-
+        if ($cart->products()->count() === 0) {
+            $cart->forceDelete();
+            return [
+                'data' => null,
+                'success' => true,
+                'messages' => [trans("vaahcms-general.record_deleted")]
+            ];
+        }
         return [
-            'data' => ['cart' => $cart],
+            'success' => true,
+            'data' => $cart->load('products'),
             'messages' => [trans("vaahcms-general.record_deleted")]
         ];
     }
@@ -1099,7 +1141,7 @@ class Cart extends VaahModel
 
         public static function getOrderDetails($id)
         {
-            $order = Order::find($id);
+            $order = Order::findByIdOrUuid($id)->first();
 
             if (!$order) {
                 return [
@@ -1212,6 +1254,23 @@ class Cart extends VaahModel
         $item_detail = $request->get('item_detail');
         $user_detail = $request->get('user_detail');
         $product_id = $item_detail['vh_st_product_id'];
+
+        if (!$user_detail || !isset($user_detail['id'])) {
+            $error_message = "No user attached to the wishlist. Please attach a user to proceed.";
+            $response['success'] = false;
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
+        // Check if the user exists in the database
+        $user_exists = User::find($user_detail['id']);
+        if (!$user_exists) {
+            $error_message = "No user attached to the wishlist. Please attach a user to proceed.";
+            $response['success'] = false;
+            $response['errors'][] = $error_message;
+            return $response;
+        }
+
         $taxonomy_wishlist_status = Taxonomy::getTaxonomyByType('whishlists-status')
             ->where('slug', 'approved')
             ->pluck('id')
@@ -1245,28 +1304,77 @@ class Cart extends VaahModel
 
         return $response;
     }
-    //-------------------------------------------------
-    public static function AddUserToCart($request,$uuid){
+    //---------------------------------------------------------------------
+
+    public static function AddUserToCart($request, $uuid)
+    {
+        $inputs = $request->all();
+        $validation = self::userValidation($inputs);
+        if (!$validation['success']) {
+            return $validation;
+        }
+
         $cart = self::where('uuid', $uuid)->first();
         if (!$cart) {
-            $response['success'] = false;
-            $response['errors'][]  = 'Cart not found with given uuid.';
-            return $response;
-        }
-        $user=$request->input('user');
-        if ($cart->vh_user_id) {
             return [
                 'success' => false,
-                'message' => 'A user is already attached to this cart.',
+                'errors' => ['Record not found with Uuid.'. $uuid],
             ];
         }
-        $cart->vh_user_id = $user['id'];
+
+        $user_id = $request->input('user.id');
+        if (!User::where('id', $user_id)->exists()) {
+            return [
+                'success' => false,
+                'errors' => ['User ID is invalid or does not exist.'],
+            ];
+        }
+        if (self::where('vh_user_id', $user_id)->exists()) {
+            return [
+                'success' => false,
+                'errors' => ['This User is already linked to another cart.'],
+            ];
+        }
+        $cart->vh_user_id = $user_id;
         $cart->save();
-
-        $response['data'] = $cart->load('products');
-        return $response;
+        return [
+            'success' => true,
+            'messages' => ['User added to cart successfully.'],
+            'data' => $cart->load('products'),
+        ];
     }
+    //---------------------------------------------------------------------
 
+    public static function userValidation($inputs)
+    {
+        $rules = [];
+        $messages = [
+            'user.required' => 'The User field is required.',
+            'user.id.required' => 'Enter correct user information',
+        ];
+
+        if (isset($inputs['user'])) {
+            $rules['user.id'] = 'required';
+        } else {
+            $rules['user'] = 'required';
+        }
+
+        $validator = validator($inputs, $rules, $messages);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'errors' => $validator->errors()->all(),
+            ];
+        }
+
+        $validated_data = $validator->validated();
+
+        return [
+            'success' => true,
+            'data' => $validated_data,
+        ];
+    }
 
 
 }

@@ -136,7 +136,7 @@ export const useProductStore = defineStore({
         product_detail:[],
         active_user:null,
         total_cart_product:0,
-        top_selling_variations:null,
+        top_selling_products:null,
         top_selling_brands:null,
         top_selling_categories:null,
         quick_filter_menu:[],filter_all: null,
@@ -485,20 +485,17 @@ export const useProductStore = defineStore({
             if (this.selected_vendor != null) {
                 let exist = 0;
                 this.item.vendors.forEach((item) => {
-                    if (item['vendor']['id'] == this.selected_vendor['id']) {
+                    if (item['id'] == this.selected_vendor['id']) {
                         exist = 1;
                     }
                 })
                 if (exist == 0) {
-                    let new_vendor = {
-                        vendor: this.selected_vendor,
+                    this.item.vendors.push({
+                        ...this.selected_vendor,
                         is_selected: false,
-                        status : this.selected_vendor.status,
                         can_update: false,
-                        status_notes : null,
-
-                    };
-                    this.item.vendors.push(new_vendor);
+                        status_notes: null,
+                    });
                     this.selected_vendor = null;
                 } else {
                     this.showUserErrorMessage(['This vendor is already present'], 4000);
@@ -524,7 +521,7 @@ export const useProductStore = defineStore({
 
         async removeVendor(attribute) {
             this.item.vendors = this.item.vendors.filter(function (item) {
-                return item['vendor']['id'] != attribute['vendor']['id']
+                return item['id'] != attribute['id']
             })
             this.select_all_vendor = false;
         },
@@ -540,7 +537,7 @@ export const useProductStore = defineStore({
 
         async removeAllProductVariation()
         {
-            this.item.all_variation = {};
+            this.item.product_variations = {};
         },
 
         //---------------------------------------------------------------------
@@ -703,7 +700,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterGenerateVariations(data, res){
             if (data){
-                this.item.all_variation = data;
+                this.item.product_variations = data;
                 this.variation_item.show_create_form = false;
                 this.variation_item.create_variation_data = [];
             }
@@ -726,18 +723,18 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeProductVariation(item){
-            let item_key = this.getIndexOfArray(this.item.all_variation.structured_variation, item);
+            let item_key = this.getIndexOfArray(this.item.product_variations.structured_variations, item);
             if (item_key >= 0){
-                this.item.all_variation.structured_variation.splice(item_key, 1);
+                this.item.product_variations.structured_variations.splice(item_key, 1);
             }
         },
         //---------------------------------------------------------------------
         bulkRemoveProductVariation(){
 
-            let selected_variation = this.item.all_variation.structured_variation.filter(variation => variation.is_selected);
+            let selected_variation = this.item.product_variations.structured_variations.filter(variation => variation.is_selected);
             let temp = null;
             this.variation_item.select_all_variation = false;
-            temp = this.item.all_variation.structured_variation.filter((item) => {
+            temp = this.item.product_variations.structured_variations.filter((item) => {
                 return item['is_selected'] === false;
             });
 
@@ -748,11 +745,11 @@ export const useProductStore = defineStore({
             else if(temp.length === 0)
                 {
 
-                    this.item.all_variation = {};
+                    this.item.product_variations = {};
                 }
 
             else {
-                this.item.all_variation.structured_variation = temp;
+                this.item.product_variations.structured_variations = temp;
             }
 
 
@@ -770,13 +767,13 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         selectAllVariation(){
-            this.item.all_variation.structured_variation.forEach((i)=>{
+            this.item.product_variations.structured_variations.forEach((i)=>{
                 i['is_selected'] = !this.variation_item.select_all_variation;
             })
         },
         //---------------------------------------------------------------------
         setDefault(){
-            this.item.all_variation.structured_variation.forEach((variation) => {
+            this.item.product_variations.structured_variations.forEach((variation) => {
                 if (variation['is_default'] !== this.variation_item.is_default) {
                     variation['is_default'] = false;
                 }
@@ -789,11 +786,11 @@ export const useProductStore = defineStore({
                 && Object.keys(this.variation_item.new_variation).length
                 > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
 
-                if (this.item.all_variation && Object.keys(this.item.all_variation).length > 0){
+                if (this.item.product_variations && Object.keys(this.item.product_variations).length > 0){
 
                     let error_message = [];
                     let variation_match_key = null;
-                    this.item.all_variation.structured_variation.forEach((i,k)=>{
+                    this.item.product_variations.structured_variations.forEach((i,k)=>{
                         if (i.variation_name == this.variation_item.new_variation.variation_name.trim()){
                             error_message.push('variation name must be unique');
                         }
@@ -815,7 +812,7 @@ export const useProductStore = defineStore({
                     if(error_message && error_message.length == 0){
                         let new_variation = Object.assign({}, this.variation_item.new_variation);
                         new_variation.is_selected = false;
-                        this.item.all_variation.structured_variation.push(new_variation);
+                        this.item.product_variations.structured_variations.push(new_variation);
                         this.variation_item.create_variation_data = null;
                         this.variation_item.show_create_form = false;
 
@@ -825,11 +822,11 @@ export const useProductStore = defineStore({
 
                 }else{
                     let temp = {
-                        structured_variation: [Object.assign({},this.variation_item.new_variation)],
+                        structured_variations: [Object.assign({},this.variation_item.new_variation)],
                         all_attribute_name: this.variation_item.create_variation_data.all_attribute_name
                     };
 
-                    this.item.all_variation = temp;
+                    this.item.product_variations = temp;
                     this.variation_item.create_variation_data = null;
                     this.variation_item.show_create_form = false;
                 }
@@ -941,12 +938,12 @@ export const useProductStore = defineStore({
         afterGetList: function (data, res)
         {
             if (res?.data?.active_cart_user) {
-                const { active_cart_user: { cart_records, display_name, vh_st_cart_id } } = res.data;
+                const { active_cart_user: { cart_records, email, vh_st_cart_id } } = res.data;
                 this.add_to_cart = false;
                 this.show_cart_msg = true;
                 this.active_user = res.data.active_cart_user;
                 this.total_cart_product = cart_records;
-                this.active_cart_user_name = display_name;
+                this.active_cart_user_name = email;
                 this.cart_id = vh_st_cart_id;
             } else {
                 this.show_cart_msg = false;
@@ -1109,25 +1106,30 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async saveVendor()
+        async attachVendors(item)
         {
-            let ajax_url = this.ajax_url;
-            let options = {
+            const query = {
+                store: item.store,
+                vendors: item.vendors
+            };
+            const options = {
+                params: query,
                 method: 'post',
             };
-            options.method = 'POST';
-            options.params = this.item;
-            ajax_url += '/vendor';
+
+            let ajax_url = this.ajax_url;
+
+            ajax_url += '/'+ item.id+ '/vendors';
             await vaah().ajax(
                 ajax_url,
-                this.saveVendorAfter,
+                this.attachVendorsAfter,
                 options
             );
         },
 
         //---------------------------------------------------------------------
 
-        async saveVendorAfter(data, res)
+        async attachVendorsAfter(data, res)
         {
             if(data)
             {
@@ -1139,7 +1141,7 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async saveVariation()
+        async saveVariation(id)
         {
             let ajax_url = this.ajax_url;
             let options = {
@@ -1147,7 +1149,7 @@ export const useProductStore = defineStore({
             };
             options.method = 'POST';
             options.params = this.item;
-            ajax_url += '/variation'
+            ajax_url +=  '/'+id+'/variations/generate'
             await vaah().ajax(
                 ajax_url,
                 this.saveVariationAfter,
@@ -2424,7 +2426,7 @@ export const useProductStore = defineStore({
 
             watch(this.item, (newVal,oldVal) =>
                 {
-                    const anyDeselected = newVal.all_variation.structured_variation.some(item => !item.is_selected);
+                    const anyDeselected = newVal.product_variations.structured_variations.some(item => !item.is_selected);
                     this.variation_item.select_all_variation = !anyDeselected;
                 },{deep: true}
             )
@@ -2562,7 +2564,7 @@ export const useProductStore = defineStore({
             this.product_name=item.name;
             if (item.id) {
                 await vaah().ajax(
-                    ajax_url + '/get-vendors-list'+'/' + item.id,
+                    ajax_url + '/'+ item.id+ '/vendors',
                     this.openVendorsPanelAfter
                 );
             }
@@ -2686,32 +2688,29 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async toggleIsPreferred(item)
+        async toggleIsPreferred(vendor_item)
         {
-            if(item.is_preferred)
-            {
-                await this.vendorPreferredAction('preferred', item);
-            } else{
-                await this.vendorPreferredAction('notpreferred', item);
-            }
+
+            const action = vendor_item.is_preferred ? 'preferred' : 'not-preferred';
+            await this.vendorPreferredAction(action, vendor_item);
         },
         //---------------------------------------------------------------------
 
-        async vendorPreferredAction(type, item=null){
+        async vendorPreferredAction(action, vendor_item=null){
 
-            if(!item)
+            if(!vendor_item)
             {
-                item = this.item;
+                vendor_item = this.item;
             }
 
-            this.form.action = type;
-
+            this.form.action = action;
             let ajax_url = this.ajax_url;
 
             let options = {
+                params: { action },
                 method: 'PATCH',
             };
-            ajax_url += '/'+item.pivot_id+'/action-for-vendor/'+type;
+            ajax_url += '/'+vendor_item.vh_st_product_id+'/vendors/'+vendor_item.id+ '/action';
             await vaah().ajax(
                 ajax_url,
                 this.vendorPreferredActionAfter,
@@ -2787,7 +2786,7 @@ export const useProductStore = defineStore({
         },
         topSellingProductsAfter(data,res){
             if (data) {
-                this.top_selling_variations = data.top_selling_products;
+                this.top_selling_products = data;
             }
         },
 
@@ -2810,7 +2809,7 @@ export const useProductStore = defineStore({
         },
         topSellingBrandsAfter(data,res){
             if (data) {
-                this.top_selling_brands = data.top_selling_brands;
+                this.top_selling_brands = data;
             }
         },
         async topSellingCategories() {
@@ -2832,7 +2831,7 @@ export const useProductStore = defineStore({
         },
         topSellingCategoriesAfter(data,res){
             if (data) {
-                this.top_selling_categories = data.top_selling_categories;
+                this.top_selling_categories = data;
             }
         },
 

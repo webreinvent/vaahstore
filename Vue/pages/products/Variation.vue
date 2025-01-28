@@ -65,7 +65,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                             v-if="store.item && store.item.id"
                             class="p-button-sm"
                             data-testid="products-save"
-                            @click="store.saveVariation()"
+                            @click="store.saveVariation(store.item.id)"
                             icon="pi pi-save"/>
 
                     <Button data-testid="products-document" icon="pi pi-info-circle"
@@ -196,7 +196,7 @@ const toggleSelectedAttributeMenuState = (event) => {
 
 <!--                Bulk action -->
                 <div class="p-1 pl-2 flex flex-wrap col-12"
-                     v-if="store.item.all_variation && store.item.all_variation.structured_variation && store.item.all_variation.structured_variation.length > 0 && Object.keys(store.item.all_variation).length > 0">
+                     v-if="store.item.product_variations && store.item.product_variations.structured_variations && store.item.product_variations.structured_variations.length > 0 && Object.keys(store.item.product_variations).length > 0">
                     <div class="col-10">
                         <!--selected_menu-->
                         <Button
@@ -219,7 +219,7 @@ const toggleSelectedAttributeMenuState = (event) => {
 
 <!--                variation table-->
                 <div class="container col-12"
-                     v-if="store.item.all_variation && store.item.all_variation.structured_variation && store.item.all_variation.structured_variation.length > 0 &&  Object.keys(store.item.all_variation).length > 0">
+                     v-if="store.item.product_variations && store.item.product_variations.structured_variations && store.item.product_variations.structured_variations.length > 0 &&  Object.keys(store.item.product_variations).length > 0">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
@@ -230,7 +230,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                             <th scope="col">Variation name</th>
 
                             <th scope="col"
-                                v-for="(item, index) in store.item.all_variation.all_attribute_name">
+                                v-for="(item, index) in store.item.product_variations.all_attribute_names">
                                 {{ item }}
                             </th>
                             <th scope="col">Is Default</th>
@@ -238,12 +238,12 @@ const toggleSelectedAttributeMenuState = (event) => {
                         </tr>
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
-                            <tr v-for="(item, index) in store.item.all_variation.structured_variation">
+                            <tr v-for="(item, index) in store.item.product_variations.structured_variations">
                                 <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
                                 <td>
                                     <InputText v-model="item['variation_name']" class="w-full " />
                                 </td>
-                                <td v-for="(i) in store.item.all_variation.all_attribute_name">
+                                <td v-for="(i) in store.item.product_variations.all_attribute_names">
                                     <div class="text-center">
                                         <InputText v-model="item[i]['value']" class="w-full md:w-5rem" disabled="true"/>
                                     </div>

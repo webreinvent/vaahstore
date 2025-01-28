@@ -69,7 +69,7 @@ function () {
     /**
      * delete cart item
      */
-    Route::post('/delete-cart-item', [CartsController::class, 'deleteCartItem'])
+    Route::delete('/{id}/item/{action}', [CartsController::class, 'deleteCartItem'])
         ->name('vh.backend.store.carts.delete.item');
 
     /**
@@ -118,4 +118,10 @@ function () {
 
     Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
         ->name('vh.backend.store.carts.read');
+
+    /**
+     * Add user to guest cart
+     */
+    Route::post('/{uuid}/user', [CartsController::class, 'AddUserToCart'])
+        ->name('vh.backend.store.api.carts.add.user');
 });

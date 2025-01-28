@@ -74,7 +74,7 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
 
     public function user(){
-        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name','username']);
+        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name','username','email']);
     }
     //-------------------------------------------------
     public static function getUnFillableColumns()

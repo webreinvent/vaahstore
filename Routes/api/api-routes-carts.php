@@ -72,8 +72,8 @@ function () {
     /**
      * delete cart item
      */
-    Route::post('/delete-cart-item', [CartsController::class, 'deleteCartItem'])
-        ->name('vh.backend.store.carts.delete.item');
+    Route::delete('/{uuid}/item/{action}', [CartsController::class, 'deleteCartItem'])
+        ->name('vh.backend.store.api.carts.delete.item');
 
     /**
      * save cart-user address
@@ -94,11 +94,7 @@ function () {
         ->name('vh.backend.store.carts.update.address');
 
 
-    /**
-     * Place Order
-     */
-    Route::post('/place-order', [CartsController::class, 'placeOrder'])
-        ->name('vh.backend.store.carts.update.address');
+
 
     /**
      * Add cart item to wishlist
@@ -106,11 +102,7 @@ function () {
     Route::post('/add-to-wishlist', [CartsController::class, 'addToWishlist'])
         ->name('vh.backend.store.carts.add.to_wishlist');
 
-    /**
-     * get order details after place an order
-     */
-    Route::get('/get-order-details/{order_id}', [CartsController::class, 'getOrderDetails'])
-        ->name('vh.backend.store.carts.read');
+
 
     /**
      * Generate Cart
@@ -133,7 +125,7 @@ function () {
     /**
      * Add user to guest cart
      */
-    Route::post('/{uuid}/add', [CartsController::class, 'AddUserToCart'])
+    Route::post('/{uuid}/user', [CartsController::class, 'AddUserToCart'])
         ->name('vh.backend.store.api.carts.add.user');
 
 });

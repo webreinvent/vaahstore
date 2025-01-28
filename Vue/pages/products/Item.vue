@@ -163,7 +163,7 @@ const openProductCategories = (categories,product) => {
                             || column === 'store'|| column === 'category_id'|| column === 'parent_category'|| column === 'categories'|| column === 'product_categories'|| column === 'type'|| column === 'status'||
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
-                            || column === 'vh_st_store_id' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
+                            || column === 'vh_st_store_id'|| column === 'product_variations' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
                             || column === 'quantity' || column === `seo_title` || column === `seo_meta_description` || column === `seo_meta_keyword`">
                         </template>
 

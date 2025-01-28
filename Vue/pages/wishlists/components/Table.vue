@@ -41,6 +41,12 @@ const useVaah = vaah();
                          <Badge v-if="prop.data.deleted_at" value="Trashed" severity="danger"></Badge>
                          <div style="word-break: break-word;">{{ prop.data.name }}</div>
                      </template>
+                     <Button class="p-button-tiny p-button-text p-0 mr-2"
+                             data-testid="taxonomies-table-to-edit"
+
+                             icon="pi pi-copy"
+                             @click="useVaah.copy(prop.data.user?.email)"
+                     > {{ prop.data.user?.email }}</Button>
                  </template>
 
              </Column>

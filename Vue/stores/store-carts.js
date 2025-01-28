@@ -91,6 +91,8 @@ export const useCartStore = defineStore({
         discount_on_order:0,
         order_paid_amount:0,
         order:null,
+        cart_uuid:null,
+        open_user_dialog:false,
     }),
     getters: {
 
@@ -817,17 +819,18 @@ export const useCartStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async deleteCartItem(pivot_data){
+        async deleteCartItem(data,action=null){
             const query = {
-                cart_product_details:pivot_data,
+                item:data,
+                action: 'delete',
             };
             const options = {
                 params: query,
-                method: 'post',
+                method: 'delete',
             };
 
             await vaah().ajax(
-                this.ajax_url+'/delete-cart-item',
+                this.ajax_url+'/'+ data.vh_st_cart_id+ '/item/' +action,
                 this.deleteCartItemAfter,
                 options
             );
@@ -836,9 +839,7 @@ export const useCartStore = defineStore({
         //---------------------------------------------------------------------
 
         deleteCartItemAfter(data,res){
-            if (data){
-                this.getItem(data.cart.id);
-            }
+            data ? this.getItem(data.id) : this.$router.push({ name: 'carts.index', query: this.query });
         },
         //---------------------------------------------------------------------
 
@@ -1176,6 +1177,46 @@ export const useCartStore = defineStore({
         //---------------------------------------------------------------------
         toOrderView(order_id){
             this.$router.push({name: 'orders.view',params:{id:order_id}})
+        },
+        //---------------------------------------------------------------------
+        async openUserDialog(item){
+            this.open_user_dialog=true;
+            this.cart_uuid=item.uuid;
+
+        },
+        //---------------------------------------------------------------------
+
+        async addUserToGuestCart(user){
+            const query = {
+                user:user,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/'+this.cart_uuid+'/user',
+                this.addUserToGuestCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        addUserToGuestCartAfter(data,res){
+            if (data){
+            this.cart_uuid=null;
+            this.getList();
+            this.getItem(data.id);
+            this.open_user_dialog=false;
+            }
+        },
+        //---------------------------------------------------------------------
+
+        onHideUserDialog(){
+            this.item.user_object=null;
+            this.cart_uuid=null;
+            this.open_user_dialog=false;
         },
         //---------------------------------------------------------------------
 

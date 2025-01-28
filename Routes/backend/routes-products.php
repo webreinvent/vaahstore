@@ -36,11 +36,7 @@ function () {
     Route::get('/Vendors_list', 'ProductsController@getVendorsList')
         ->name('vh.backend.store.products.getVendorsList');
 
-    /**
-     * create vendor
-     */
-    Route::post('/vendor', 'ProductsController@createVendor')
-        ->name('vh.backend.store.products.vendor');
+
     /**
      * POST get attribute list
      */
@@ -54,10 +50,10 @@ function () {
         ->name('vh.backend.store.products.getAttributeValue');
 
     /**
-     * POST create variation
+     * Generate Variations of a product
      */
-    Route::post('/variation', 'ProductsController@createVariation')
-        ->name('vh.backend.store.products.createVariation');
+    Route::post('/{id}/variations/generate', 'ProductsController@generateVariation')
+        ->name('vh.backend.store.products.generate.variations');
 
 
     /**
@@ -198,10 +194,18 @@ function () {
 
 
     //---------------------------------------------------------
-    Route::get('/get-vendors-list/{id}', 'ProductsController@getVendorsListForPrduct')
+    Route::get('/{id}/vendors', 'ProductsController@getVendorsListForPrduct')
         ->name('vh.backend.store.products.get.vendors-list');
 
-    Route::patch('/{id}/action-for-vendor/{action}', 'ProductsController@vendorPreferredAction')
+    /**
+     * Attach vendors to a product
+     */
+    Route::post('/{id}/vendors', 'ProductsController@attachVendors')
+        ->name('vh.backend.store.products.vendor');
+    /**
+     * Action Product Vendor i.e preferred or not-preferred
+     */
+    Route::patch('/{id}/vendors/{vendor_id}/action', 'ProductsController@vendorPreferredAction')
         ->name('vh.backend.store.products.preferred-vendor');
 
     //---------------------------------------------------------

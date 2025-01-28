@@ -69,12 +69,12 @@ function () {
     /**
      * Add Price To Product
      */
-    Route::post('/product/price', 'ProductVendorsController@createProductPrice')
+    Route::post('/{id}/prices', 'ProductVendorsController@addProductPrices')
         ->name('vh.backend.store.api.products.createProductPrice');
 
     /**
      * Get Products Of Store
      */
-    Route::post('/getProductForStore', 'ProductVendorsController@productForStore')
+    Route::post('/products', 'ProductVendorsController@productForStore')
         ->name('vh.backend.store.productvendors.list.productForStore');
 });

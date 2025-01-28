@@ -134,37 +134,36 @@ class User extends UserBase
 
     public static function createItem($request)
     {
-        if (!\Auth::user()->hasPermission('can-create-users')) {
-            $response['success'] = false;
-            $response['errors'][] = trans('vaahcms-general.permission_denied');
 
-            return $response;
-        }
 
         $inputs = $request->all();
 
-        $validate = self::validation($inputs);
-
-        if (isset($validate['success']) && !$validate['success']) {
-            return $validate;
-        }
-
-        $rules = array(
+        $rules = [
+            'email' => 'required|email|max:150',
+            'first_name' => 'required|max:150',
             'password' => 'required',
-        );
+            'username' => 'required|max:150',
+        ];
 
-        $messages = array(
-            'password.required' => trans('vaahcms-validation.the').' :attribute '.trans('vaahcms-validation.field_is_required'),
-        );
+        $messages = [
+            'email.required' => 'The Email field is required',
+            'email.email' => 'The Email must be a valid email address',
+            'email.max' => 'The Email field may not be greater than :max characters',
+            'first_name.required' => 'The First Name field is required',
+            'first_name.max' => 'The First Name field may not be greater than :max characters',
+            'password.required' => 'The Password field is required',
+            'username.required' => 'The Username field is required',
+            'username.max' => 'The Username field may not be greater than :max characters',
+        ];
 
-        $validator = \Validator::make( $inputs, $rules, $messages);
+        $validator = \Validator::make($inputs, $rules, $messages);
 
-        if ( $validator->fails() ) {
-
-            $errors             = errorsToArray($validator->errors());
-            $response['success'] = false;
-            $response['errors'] = $errors;
-            return $response;
+        if ($validator->fails()) {
+            $errors = errorsToArray($validator->errors());
+            return [
+                'success' => false,
+                'errors' => $errors,
+            ];
         }
 
         // check if already exist
@@ -189,11 +188,8 @@ class User extends UserBase
             $inputs['username'] = Str::slug($inputs['email']);
         }
 
-        if ($inputs['is_active'] === '1' || $inputs['is_active'] === 1 ) {
-            $inputs['is_active'] = 1;
-        } else {
-            $inputs['is_active'] = 0;
-        }
+        $inputs['is_active'] = !empty($inputs['is_active']) && $inputs['is_active'] == 1 ? 1 : 0;
+
 
         $inputs['created_ip'] = request()->ip();
 

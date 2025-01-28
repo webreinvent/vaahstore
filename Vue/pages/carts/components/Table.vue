@@ -1,8 +1,10 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useCartStore } from '../../../stores/store-carts'
+import {useProductStore} from "../../../stores/store-products";
 
 const store = useCartStore();
+const product_store = useProductStore();
 const useVaah = vaah();
 
 </script>
@@ -28,7 +30,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
 
-            <Column field="user" header="Name"
+            <Column field="user" header="User's Email"
                     class="overflow-wrap-anywhere"
                     :sortable="true">
 
@@ -40,19 +42,27 @@ const useVaah = vaah();
             Guest User Cart
         </span>
                     <span v-else>
-            {{ prop.data.user?.display_name }}
+            {{ prop.data.user?.email }}
         </span>
                 </template>
 
             </Column>
 
 
-            <Column field="cart details" style="width:150px;"
+            <Column field="Actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
-                    header="Cart details">
+                    header="Actions">
 
                 <template #body="prop">
                     <div class="p-inputgroup ">
+                        <Button
+                            :disabled="prop.data.vh_user_id !== null && prop.data.user !== null"
+                            class="p-button-tiny p-button-text"
+                            data-testid="products-table-to-view"
+                            v-tooltip.top="'Add User'"
+                            @click="store.openUserDialog(prop.data)"
+                            icon="pi pi-user-plus"
+                        />
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="carts-table-to-view"
@@ -95,5 +105,39 @@ const useVaah = vaah();
         <!--/paginator-->
 
     </div>
+    <Dialog v-model:visible="store.open_user_dialog" modal  position="top" header="Add User To Cart" :style="{ width: '30rem' }"
+            @hide="store.onHideUserDialog">
+        <div class="flex items-center gap-4 mb-4">
+            <label for="username" class="font-semibold w-24 mt-2">User</label>
+            <AutoComplete
+                v-model="store.item.user_object"
+                class="w-full"
+                :suggestions="product_store.user_suggestions"
+                @complete="product_store.searchUser($event)"
+                placeholder="Search By Email or Phone"
+                data-testid="carts-attach_user"
+                name="carts-attach_user"
+                optionLabel="email"
 
+                :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }">
+            </AutoComplete>
+        </div>
+
+        <div class="flex justify-content-end gap-2">
+            <Button type="button" label="Cancel" severity="secondary" @click="store.onHideUserDialog"></Button>
+            <Button type="button" label="Add" @click="store.addUserToGuestCart(store.item.user_object)"></Button>
+        </div>
+    </Dialog>
 </template>
+

@@ -176,9 +176,9 @@ class ProductsController extends Controller
     }
 
     //----------------------------------------------------------
-    public function createVendor(Request $request){
+    public function attachVendors(Request $request, $id){
         try{
-            return Product::createVendor($request);
+            return Product::attachVendors($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['status'] = 'failed';
@@ -359,15 +359,15 @@ class ProductsController extends Controller
 
             return [
                 'data' => [
-                    'structured_variation' => $structured_variation,
-                    'all_attribute_name' => $all_attribute_name
+                    'structured_variations' => $structured_variation,
+                    'all_attribute_names' => $all_attribute_name
                 ]
             ];
         } else{
             return [
                 'data' => [
-                    'all_attribute_name' => array_keys($result),
-                    'create_attribute_values' => $result
+                    'attribute_names' => array_keys($result),
+                    'attribute_values' => $result
                 ]
             ];
         }
@@ -481,10 +481,10 @@ class ProductsController extends Controller
     }
     //----------------------------------------------------------
 
-    public function createVariation(Request $request)
+    public function generateVariation(Request $request,$id)
     {
         try{
-            return Product::createVariation($request);
+            return Product::generateVariation($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -929,11 +929,11 @@ class ProductsController extends Controller
 
     //----------------------------------------------------------
 
-    public function vendorPreferredAction(Request $request,$id,$action)
+    public function vendorPreferredAction(Request $request, $id, $vendor_id)
     {
 
         try{
-            return Product::vendorPreferredAction($request,$id,$action);
+            return Product::vendorPreferredAction($request, $id, $vendor_id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

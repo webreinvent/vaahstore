@@ -300,7 +300,7 @@ export const useProductVendorStore = defineStore({
                 method: 'POST'
             };
             await vaah().ajax(
-                this.ajax_url+'/getProductForStore',
+                this.ajax_url+'/products',
                 this.afterGetProductsListforStore,
                 options
             );
@@ -592,7 +592,7 @@ export const useProductVendorStore = defineStore({
                 case 'save-productprice':
                     options.method = 'POST';
                     options.params = item;
-                    ajax_url += '/product/price'
+                    ajax_url += '/'+item.id+'/prices'
                     break;
                 /**
                  * Delete a record, hence method is `DELETE`

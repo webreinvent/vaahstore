@@ -172,6 +172,17 @@ class ProductVariation extends VaahModel
             ->select('id','name','slug','deleted_at');
     }
 
+    public function productAttributes()
+    {
+        return $this->hasMany(ProductAttribute::class, 'vh_st_product_variation_id')
+            ->select('id', 'vh_st_product_variation_id', 'vh_st_attribute_id')
+            ->with([
+                'attribute' ,
+                'values'
+            ]);
+    }
+
+
     //-------------------------------------------------
 
     public function deletedByUser()
@@ -591,11 +602,16 @@ class ProductVariation extends VaahModel
         }
         $keys_to_exclude = array_unique($keys_to_exclude);
         foreach ($list as $item) {
+            if ($item->productAttributes) {
+                self::extractAttributeWithValues($item);
+                unset($item->productAttributes);
+            }
             foreach ($keys_to_exclude as $single_key) {
                 if (isset($item[$single_key])) {
                     unset($item[$single_key]);
                 }
             }
+
         }
 
         $response = [
@@ -917,7 +933,7 @@ class ProductVariation extends VaahModel
         $exclude = request()->query('exclude', []);
 
         $relationships = [
-            'createdByUser', 'updatedByUser', 'deletedByUser','status','product'
+            'createdByUser', 'updatedByUser', 'deletedByUser','status','product','productAttributes'
         ];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
@@ -941,6 +957,10 @@ class ProductVariation extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
             return $response;
         }
+        if ($item->productAttributes) {
+            self::extractAttributeWithValues($item);
+        }
+        unset($item->productAttributes);
         $array_item = $item->toArray();
         $keys_to_exclude = [];
         foreach ($exclude as $key => $value) {
@@ -1661,5 +1681,25 @@ class ProductVariation extends VaahModel
         ]);
 
     }
+    //----------------------------------------------------------
 
+    public static function extractAttributeWithValues($item): void
+    {
+        $item->product_attributes = $item->productAttributes->map(function ($attribute) {
+            $values = $attribute->values->map(function ($value) {
+                return [
+                    'id' => $value->id,
+                    'value' => $value->value,
+                    'name' => $value->attributeValue->name ?? null,
+                ];
+            });
+            $unique_values = array_unique(array_column($values->toArray(), 'value'));
+            return [
+                'id' => $attribute->id,
+                'vh_st_attribute_id' => $attribute->vh_st_attribute_id,
+                'attribute' => $attribute->attribute->name ?? null,
+                'values' => $unique_values,
+            ];
+        });
+    }
 }

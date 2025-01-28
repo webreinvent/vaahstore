@@ -233,15 +233,17 @@ export const useVendorStore = defineStore({
             if (!this.item.products) {
                 this.item.products = [];
             }
-            const exists = this.item.products.some(item => item.product.id === this.selected_product.id);
+            const exists = this.item.products.some(product => product.id === this.selected_product.id);
+
 
             if (!exists) {
+
                 this.item.products.push({
-                    product: this.selected_product,
+                    ...this.selected_product,
                     is_selected: false,
-                    can_update : false,
-                    status:this.selected_product.status,
+                    can_update: false,
                 });
+
                 this.selected_product = null;
             } else {
                 this.showUserErrorMessage(['This Product is already present'], 4000);
@@ -260,7 +262,7 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         async removeProduct(product) {
             this.item.products = this.item.products.filter(function (item) {
-                return item['product']['id'] !== product['product']['id']
+                return item['id'] !== product['id']
             });
             this.select_all_product = false;
 
@@ -1492,24 +1494,30 @@ export const useVendorStore = defineStore({
 
         //-----------------------------------------------------------------------
 
-        async saveProduct()
+        async attachProducts(item)
         {
-            let ajax_url = this.ajax_url;
-            let options = {
-                method: 'post',
-                params : this.item,
+            const query = {
+
+                products : this.item.products,
             };
-            ajax_url += '/add/product';
+
+
+            let ajax_url = this.ajax_url;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            ajax_url += '/'+ item.id+'/products';
             await vaah().ajax(
                 ajax_url,
-                this.saveProductAfter,
+                this.attachProductsAfter,
                 options
             );
         },
 
         //---------------------------------------------------------------------
 
-        async saveProductAfter(data, res)
+        async attachProductsAfter(data, res)
         {
             if(data)
             {
@@ -1543,24 +1551,22 @@ export const useVendorStore = defineStore({
 
         //-----------------------------------------------------------------------
 
-        async saveUser()
+        async attachUsersRoles(item)
         {
 
             let ajax_url = this.ajax_url;
             let options = {
                 method: 'post',
                 params: {
-                    item: this.item,
-                    user_details: this.item.users,
+                    users: this.item.users,
                 }
             };
-            ajax_url += '/add/user';
+            ajax_url += '/'+ item.id+'/users/roles';
             await vaah().ajax(
                 ajax_url,
                 this.saveUserAfter,
                 options
             );
-            this.getItem(this.item.id);
         },
 
         //---------------------------------------------------------------------

@@ -222,7 +222,10 @@ class Order extends VaahModel
     }
 
     //-------------------------------------------------
-
+    public function scopeFindByIdOrUuid($query, $value)
+    {
+        return $query->where('id', $value)->orWhere('uuid', $value);
+    }
 
     //-------------------------------------------------
 
@@ -552,10 +555,14 @@ class Order extends VaahModel
     public static function getItem($id)
     {
 
-        $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'paymentMethod', 'user', 'orderPaymentStatus', 'payments.createdByUser'])->withCount('items')
+        $item = self::with(['createdByUser', 'updatedByUser', 'deletedByUser', 'user', 'status', 'paymentMethod', 'orderPaymentStatus',
+            'payments.createdByUser'
+        ])
+            ->withCount('items')
             ->withTrashed()
+            ->findByIdOrUuid($id)
             ->first();
+
 
         if (!$item) {
             $response['success'] = false;
@@ -582,7 +589,7 @@ class Order extends VaahModel
             return $validation;
         }
 
-        $item = self::where('id', $id)->withTrashed()->first();
+        $item = self::withTrashed()->findByIdOrUuid($id)->first();
         $item->fill($inputs);
         $item->is_paid = $inputs['paid'] > 0 ? 1 : 0;
         $item->save();
@@ -597,7 +604,7 @@ class Order extends VaahModel
 
     public static function deleteItem($request, $id)
     {
-        $item = self::where('id', $id)->withTrashed()->first();
+        $item = self::withTrashed()->findByIdOrUuid($id)->first();
         if (!$item) {
             $response['success'] = false;
             $response['messages'][] = 'Record does not exist.';
@@ -618,31 +625,26 @@ class Order extends VaahModel
 
     public static function itemAction($request, $id, $type): array
     {
-
+        $item = self::withTrashed()->findByIdOrUuid($id)->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['messages'][] = 'Record does not exist.';
+            return $response;
+        }
         switch ($type) {
             case 'activate':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->update(['is_active' => 1]);
+                $item->update(['is_active' => 1]);
                 break;
             case 'deactivate':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->update(['is_active' => null]);
+                $item->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->delete();
-                $item = self::where('id', $id)->withTrashed()->first();
+                $item->delete();
                 $item->deleted_by = auth()->user()->id;
                 $item->save();
                 break;
             case 'restore':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->restore();
-                $item = self::where('id', $id)->withTrashed()->first();
+                $item->restore();
                 $item->deleted_by = null;
                 $item->save();
                 break;
@@ -751,15 +753,22 @@ class Order extends VaahModel
 
     //-------------------------------------------------
 
-    public static function getShippedOrderItems($id)
+    public static function getShippedOrderItems($uuid)
     {
-        $order_items = OrderItem::where('vh_st_order_id', $id)
+        $order = Order::findByIdOrUuid($uuid)->first();
+
+        if (!$order) {
+            $response['success'] = false;
+            $response['messages'][] = 'Record does not exist.';
+            return $response;
+        }
+        $order_items = OrderItem::where('vh_st_order_id', $order->id)
             ->with('ProductVariation','product','vendor')
             ->get();
 
         $total_quantities = [];
 
-        $shipment_items = ShipmentItem::where('vh_st_order_id', $id)
+        $shipment_items = ShipmentItem::where('vh_st_order_id', $order->id)
             ->get()
             ->groupBy('vh_st_order_item_id');
 

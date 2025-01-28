@@ -42,9 +42,9 @@ watch(() => store.show_vendor_panel, (newValue) => {
                    :rows="20"
                    :paginator="true"
                    class="p-datatable-sm p-datatable-hoverable-rows">
-            <Column header="Sr No" style="border: 1px solid #ccc;">
+            <Column header="ID" style="border: 1px solid #ccc;">
                 <template #body="props">
-                    {{ props.index + 1 }}
+                    {{props.data.id}}
                 </template>
             </Column>
             <Column field="name" header="Vendor Name" style="border: 1px solid #ccc;">

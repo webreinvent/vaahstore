@@ -32,10 +32,10 @@ Route::group(
 
 
         /**
-         * Create Product
+         * Attach Products To A Vendor
          */
-        Route::post('/add/product', 'VendorsController@createProduct')
-            ->name('vh.backend.store.vendors.createProduct');
+        Route::post('/{id}/products', 'VendorsController@attachProducts')
+            ->name('vh.backend.store.vendors.attach.Product');
 
         /**
          * Remove All Product
@@ -120,8 +120,10 @@ Route::group(
 
         Route::any('/search/vendor/user', 'VendorsController@searchUser')
             ->name('vh.backend.store.vendors.search.role.user');
-
-        Route::post('/add/user', 'VendorsController@createVendorUser')
+        /**
+         * Attach Users With Roles To A Vendor
+         */
+        Route::post('/{id}/users/roles', 'VendorsController@attachUsersRoles')
             ->name('vh.backend.store.vendors.createVendorUser');
 
         Route::post('/remove/user', 'VendorsController@removeVendorUser')

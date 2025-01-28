@@ -193,6 +193,7 @@ class Product extends VaahModel
     {
         return $this->hasMany(ProductVariation::class,'vh_st_product_id','id')
             ->where('vh_st_product_variations.is_active', 1)->withTrashed()
+            ->with('productAttributes')
             ->select();
     }
     public function productVariationsForVendorProduct()
@@ -224,6 +225,12 @@ class Product extends VaahModel
     public function wishlists()
     {
         return $this->belongsToMany(Wishlist::class, 'vh_st_wishlist_products', 'vh_st_product_id', 'vh_st_wishlist_id');
+    }
+    //-------------------------------------------------
+    public  function medias()
+    {
+        return $this->belongsToMany(ProductMedia::class, 'vh_st_product_variation_medias', 'vh_st_product_id', 'vh_st_product_media_id')->withTrashed()
+            ->withPivot('id');
     }
     //-------------------------------------------------
     public function productVariationMedia()
@@ -299,7 +306,7 @@ class Product extends VaahModel
 
     //-------------------------------------------------
 
-    public static function createVariation($request)
+    public static function generateVariation($request,$id)
     {
         $permission_slug = 'can-update-module';
 
@@ -308,14 +315,22 @@ class Product extends VaahModel
         }
 
         $input = $request->all();
-        $product_id = $input['id'];
-        $validation = self::validatedVariation($input['all_variation']);
+        $product_id = $id;
+        $item = self::where('id', $id)
+            ->first();
+
+        if (!$item) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
+            return $response;
+        }
+        $validation = self::validatedVariation($input['product_variations']);
         if (!$validation['success']) {
             return $validation;
         }
 
-        $all_variation = $input['all_variation']['structured_variation'];
-        $all_attribute = $input['all_variation']['all_attribute_name'];
+        $all_variation = $input['product_variations']['structured_variations'];
+        $all_attribute = $input['product_variations']['all_attribute_names'];
 
         foreach ($all_variation as $key => $value) {
             // check if product  variation exist for product
@@ -365,10 +380,10 @@ class Product extends VaahModel
     //-------------------------------------------------
     public static function validatedVariation($variation){
 
-        if (isset($variation['structured_variation']) && !empty($variation['structured_variation'])){
+        if (isset($variation['structured_variations']) && !empty($variation['structured_variations'])){
             $error_message = [];
-            $all_variation = $variation['structured_variation'];
-            $all_arrtibute = $variation['all_attribute_name'];
+            $all_variation = $variation['structured_variations'];
+            $all_arrtibute = $variation['all_attribute_names'];
 
             foreach ($all_variation as $key=>$value){
 
@@ -409,8 +424,12 @@ class Product extends VaahModel
             $error_message = [];
 
             foreach ($data as $key=>$value){
-                if (!isset($value['vendor']) || empty($value['vendor'])){
-                    array_push($error_message, 'Vendor required');
+
+                if (!isset($value['id']) || empty($value['id'])) {
+                    array_push($error_message, 'Vendor ID is required.');
+                }
+                if (!isset($value['name']) || empty($value['name'])) {
+                    array_push($error_message, 'Vendor name is required.');
                 }
                 if (!isset($value['can_update'])){
                     array_push($error_message, 'Can Update required');
@@ -431,13 +450,13 @@ class Product extends VaahModel
         }else{
             return [
                 'success' => false,
-                'errors' => ['Vendor is empty.']
+                'errors' => ['Vendors data is empty.'],
             ];
         }
     }
 
     //-------------------------------------------------
-    public static function createVendor($request){
+    public static function attachVendors($request,$id){
 
         $permission_slug = 'can-update-module';
 
@@ -445,43 +464,42 @@ class Product extends VaahModel
             return vh_get_permission_denied_response($permission_slug);
         }
         $input = $request->all();
-
-        $product_id = $input['id'];
-        $store_id = $input['vh_st_store_id'];
-        $validation = self::validatedVendor($input['vendors']);
+        $product_id = $id;
+        $store = $request->input('store');
+        $vendor_data = $request->input('vendors');
+        $validation = self::validatedVendor($vendor_data);
         if (!$validation['success']) {
             return $validation;
         }
-        $vendor_data = $input['vendors'];
+
 
         $active_user = auth()->user();
 
-        foreach ($vendor_data as $key=>$value){
-
-            $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $value['vendor']['id'], 'vh_st_product_id' => $product_id])->first();
+        foreach ($vendor_data as $key=>$vendor){
+            $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $vendor['id'], 'vh_st_product_id' => $product_id])->first();
 
             if($product_vendor){
-                $response['errors'][] = "This Vendor '{$value['vendor']['name']}' already exists.";
+                $response['errors'][] = "This Vendor '{$vendor['name']}' already exists.";
                 return $response;
             }
 
             $item = new ProductVendor();
             $item->vh_st_product_id = $product_id;
-            $item->vh_st_vendor_id = $value['vendor']['id'];
+            $item->vh_st_vendor_id = $vendor['id'];
 
             $item->added_by = $active_user->id;
 
-            $item->can_update = $value['can_update'];
+            $item->can_update = $vendor['can_update'];
 
-            $item->taxonomy_id_product_vendor_status = $value['status']['id'];
-            if($value['status_notes'])
+            $item->taxonomy_id_product_vendor_status = $vendor['taxonomy_id_vendor_status'];
+            if($vendor['status_notes'])
             {
-                $item->status_notes = $value['status_notes'];
+                $item->status_notes = $vendor['status_notes'];
             }
 
             $item->is_active = 1;
             $item->save();
-            $item->storeVendorProduct()->attach([$store_id]);
+            $item->storeVendorProduct()->attach([$store['id']]);
         }
 
         $response = self::getItem($product_id);
@@ -800,7 +818,7 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type', 'status', 'productVariations', 'productVendors', 'productCategories'];
+        $relationships = ['brand', 'store', 'type', 'status', 'productVendors', 'productCategories'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
@@ -812,7 +830,7 @@ class Product extends VaahModel
                 }
             }
         }
-        $list = self::getSorted($request->filter)->with($relationships);
+        $list = self::getSorted($request->filter)->with($relationships)->withCount('productVariations');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -861,11 +879,25 @@ class Product extends VaahModel
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
 
+            $all_grouped_attributes = [];
+            foreach ($item->productVariations as $variation) {
+                self::groupedAttributes($variation, $all_grouped_attributes);
+            }
+
+            $item->grouped_attributes = collect($all_grouped_attributes)->map(function ($values, $key) {
+                return [
+                    'attribute' => $key,
+                    'values' => array_unique($values),
+                ];
+            })->values();
+
+            $item->variations=$item->productVariations->pluck('id')->toArray();
             foreach ($keys_to_exclude as $single_key) {
                 if (isset($item[$single_key])) {
                     unset($item[$single_key]);
                 }
             }
+            unset($item->productVariations);
         }
         $response['success'] = true;
         $response['data'] = $list;
@@ -1121,24 +1153,14 @@ class Product extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
             return $response;
         }
-
+        $all_grouped_attributes = [];
+        if ($item->productVariations){
+            foreach ($item->productVariations as $variation) {
+                self::groupedAttributes($variation, $all_grouped_attributes);
+            }unset($item->productVariations);
+        }
         $array_item = $item->toArray();
 
-        $keys_to_exclude = [];
-        foreach ($exclude as $key => $value) {
-            if ($value === 'true') {
-                $keys = explode(',', $key); // Split comma-separated exclusions
-                foreach ($keys as $exclude_key) {
-                    $exclude_key = trim($exclude_key);
-                    if (array_key_exists($exclude_key, $array_item)) {
-                        $keys_to_exclude[] = $exclude_key;
-                    }
-                }
-            }
-        }
-        foreach ($keys_to_exclude as $key_to_remove) {
-            unset($array_item[$key_to_remove]);
-        }
 
         $product_vendor = [];
         if (!empty($array_item['product_vendors'])) {
@@ -1165,8 +1187,29 @@ class Product extends VaahModel
         $array_item['launch_at'] = date('Y-m-d', strtotime($array_item['launch_at']));
         $array_item['available_at'] = date('Y-m-d', strtotime($array_item['available_at']));
         $array_item['seo_meta_keyword'] = json_decode($array_item['seo_meta_keyword']);
-        $array_item['product_variation'] = null;
-        $array_item['all_variation'] = [];
+        $array_item['grouped_attributes'] = collect($all_grouped_attributes)->map(function ($values, $key) {
+            return [
+                'attribute' => $key,
+                'values' => array_unique($values),
+            ];
+        })->values();
+        $array_item['variations'] = $item->productVariations->pluck('id')->toArray();
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key); // Split comma-separated exclusions
+                foreach ($keys as $exclude_key) {
+                    $exclude_key = trim($exclude_key);
+                    if (array_key_exists($exclude_key, $array_item)) {
+                        $keys_to_exclude[] = $exclude_key;
+                    }
+                }
+            }
+        }
+        foreach ($keys_to_exclude as $key_to_remove) {
+            unset($array_item[$key_to_remove]);
+        }
+
         $response['success'] = true;
         $response['data'] = $array_item;
 
@@ -2205,6 +2248,14 @@ class Product extends VaahModel
         $has_valid_product = false;
 
         $cart = null;
+        if ($request->has('uuid') && !empty($request->input('uuid'))) {
+            $cart = Cart::findByIdOrUuid($request->input('uuid'))->first();
+            if (!$cart) {
+                $response['success'] = false;
+                $response['errors'][] = "Cart with given UUID {$request->input('cart_uuid')} not found.";
+                return $response;
+            }
+        }
         foreach ($request->products as $product_data) {
             $product_id = $product_data['id'];
             $product = Product::find($product_id);
@@ -2268,18 +2319,35 @@ class Product extends VaahModel
         }
         if (!$has_valid_product) {
             return [
+                'success'=>false,
                 'errors' => ['No valid products or variations added to the cart.'],
             ];
         }
         if (!empty($errors)) {
+            $response['success'] = false;
             $response['errors'] = $errors;
         }
 
         $messages[] = trans("vaahcms-general.saved_successfully");
+        $response['success'] = true;
         $response['messages'] = $messages;
 
-        $response['data'] = $cart->load('user:id,email,username,phone','products');
+        $response['data'] = $cart->load('user:id,email,username,phone', 'products')->toArray();
+
+        $response['data']['products'] = collect($response['data']['products'])->map(function ($product) {
+            return [
+                'id' => $product['id'],
+                'name' => $product['name'],
+                'vh_st_cart_id' => $product['pivot']['vh_st_cart_id'],
+                'vh_st_product_variation_id' => $product['pivot']['vh_st_product_variation_id'],
+                'quantity' => $product['pivot']['quantity'],
+                'vh_st_vendor_id' => $product['pivot']['vh_st_vendor_id'],
+            ];
+        })->toArray();
+
         return $response;
+
+
     }
     //----------------------------------------------------------
 
@@ -2618,13 +2686,14 @@ class Product extends VaahModel
                 $vendor->product_price_range = array_merge($vendor->product_price_range, $default_product_price_array);
             }
 
-            $vendor->pivot_id = null;
+            $vendor->product_vendor_id = null;
             $vendor->is_preferred = null;
 
             $product_vendor = $product_vendors->where('vh_st_vendor_id', $vendor->id)->first();
 
             if ($product_vendor) {
-                $vendor->pivot_id = $product_vendor->id;
+                $vendor->product_vendor_id = $product_vendor->id;
+                $vendor->vh_st_product_id = $id;
                 $vendor->is_preferred = $product_vendor->is_preferred;
             }
         });
@@ -2638,9 +2707,12 @@ class Product extends VaahModel
 
     //----------------------------------------------------------
 
-    public static function vendorPreferredAction(Request $request, $id, $type): array
+    public static function vendorPreferredAction(Request $request, $id, $vendor_id): array
     {
-        $product_vendor = ProductVendor::find($id);
+
+        $product_vendor = ProductVendor::where('vh_st_product_id', $id)
+            ->where('vh_st_vendor_id', $vendor_id)
+            ->first();
 
         if (!$product_vendor) {
             return [
@@ -2649,16 +2721,15 @@ class Product extends VaahModel
             ];
         }
 
-        $product_id = $product_vendor->vh_st_product_id;
+        $action = $request->get('action');
+        $is_preferred = ($action === 'preferred') ? 1 : null;
 
-        $is_preferred = ($type === 'preferred') ? 1 : null;
-
-        ProductVendor::where('vh_st_product_id', $product_id)->update(['is_preferred' => null]);
-        ProductVendor::where('id', $id)->update(['is_preferred' => $is_preferred]);
+        ProductVendor::where('vh_st_product_id', $product_vendor->vh_st_product_id)->update(['is_preferred' => null]);
+        ProductVendor::where('id', $product_vendor->id)->update(['is_preferred' => $is_preferred]);
 
         return [
             'success' => true,
-            'data' => Product::find($product_id),
+            'data' => Product::find($product_vendor->vh_st_product_id),
             'message' => 'Success.',
         ];
     }
@@ -2667,57 +2738,85 @@ class Product extends VaahModel
 
     public static function topSellingProducts($request)
     {
-        $limit = 5;
+        $default_limit = 5;
+        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+
         $query = OrderItem::query();
         if ($apply_date_range) {
             $query->whereBetween('created_at', [$start_date, $end_date]);
         }
-        $top_selling_variations = $query
-            ->select('vh_st_product_variation_id')
-            ->with(['productVariation' => function ($q) {
-                $q->with('medias');
+        $rows = config('vaahcms.per_page');
+
+        if ($request->has('rows')) {
+            $rows = $request->rows;
+        }
+        $top_selling_products = $query
+            ->select('vh_st_product_id')
+            ->with(['product' => function ($q) {
+                $q->whereNull('deleted_at');
+                $q->with('medias','brand');
             }])
-            ->groupBy('vh_st_product_variation_id')
-            ->get();
+            ->groupBy('vh_st_product_id')->paginate($rows);
 
-        $top_selling_variations = $top_selling_variations->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
-            $sales_query = OrderItem::where('vh_st_product_variation_id', $item->vh_st_product_variation_id);
 
+
+        $top_selling_products = $top_selling_products->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
+            if (!$item->vh_st_product_id) {
+                return null;
+            }
+
+
+
+            $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
 
             if ($apply_date_range) {
                 $sales_query->whereBetween('created_at', [$start_date, $end_date]);
             }
 
             $total_sales = $sales_query->sum('quantity');
-            $product_variation = $item->productVariation;
-            $product_media_ids = $product_variation->medias->map(function ($media) {
-                return $media->pivot->vh_st_product_media_id;
-            });
-            $image_urls = self::getImageUrls($product_media_ids);
+            $products = $item->product;
 
+
+
+            if (!$products) {
+                return null;
+            }
+
+            $product_media_ids = $products->medias
+                ? $products->medias->map(function ($media) {
+                    return $media->pivot->vh_st_product_media_id ?? null;
+                })->filter()
+                : collect();
+
+            $image_urls = self::getImageUrls($product_media_ids);
+            $brand = $products->brand;
             return [
-                'id' => $product_variation->id,
-                'name' => $product_variation->name,
-                'slug' => $product_variation->slug,
-                'total_sales' => $total_sales,
-                'image_urls' => $image_urls,
+                'id' => $products->id ?? null,
+                'name' => $products->name ?? null,
+                'slug' => $products->slug ?? null,
+                'total_sales' => $total_sales ?? 0,
+                'image_urls' => $image_urls ?? [],
+                'brand' => [
+                    'id' => $brand->id ?? null,
+                    'name' => $brand->name ?? null,
+                ],
             ];
         })
+            ->filter()
             ->sortByDesc('total_sales');
 
-
         if ($apply_date_range) {
-            $top_selling_variations = $top_selling_variations->take($limit);
+            $top_selling_products = $top_selling_products->take($limit);
         }
-
         return [
-            'data' => [
-                'top_selling_products'=>$top_selling_variations->values(),]
+            'success' => true,
+            'data' => $top_selling_products->values(),
         ];
     }
+
 
 
 
@@ -2725,51 +2824,56 @@ class Product extends VaahModel
 
     public static function topSellingBrands($request)
     {
-        $limit = 5;
-        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
-        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $default_limit = 5;
+        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
+        $start_date = isset($request->start_date)
+            ? Carbon::parse($request->start_date)->startOfDay()
+            : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date)
+            ? Carbon::parse($request->end_date)->endOfDay()
+            : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
 
         $query = OrderItem::query()
-            ->selectRaw('vh_st_product_id, SUM(quantity) as total_sales')
+            ->with(['product.brand'])
             ->when($apply_date_range, function ($query) use ($start_date, $end_date) {
                 $query->whereBetween('created_at', [$start_date, $end_date]);
             })
-            ->with(['product.brand'])
-            ->groupBy('vh_st_product_id')
-            ->get();
+            ->get()
+            ->groupBy('product.brand.id')
+            ->map(function ($items, $brand_id) {
+                $brand = $items->first()->product->brand ?? null;
+                $total_sales = $items->sum('quantity');
 
-        $top_brands_by_product = $query->map(function ($item) {
-            $product = $item->product;
-            if ($product && $product->brand) {
-                return [
-                    'total_sales' => $item->total_sales,
-                    'id' => $product->brand->id,
-                    'name' => $product->brand->name,
-                    'slug' => $product->brand->slug,
-                ];
-            }
-            return null;
-        })
+                if ($brand) {
+                    return [
+                        'id' => $brand->id,
+                        'name' => $brand->name,
+                        'slug' => $brand->slug,
+                        'total_sales' => $total_sales,
+                    ];
+                }
+                return null;
+            })
             ->filter()
             ->sortByDesc('total_sales')
             ->take($limit);
-
         return [
-            'data' => [
-                'top_selling_brands' => $top_brands_by_product->values(),
-            ]
+            'success' => true,
+            'data' => $query->values(),
         ];
+
     }
+
 
     //----------------------------------------------------------
 
     public static function topSellingCategories($request)
     {
-        $limit = 5;
+        $default_limit = 5;
+        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
         $query = OrderItem::query();
 
@@ -2780,43 +2884,42 @@ class Product extends VaahModel
         $top_categories_by_product = $query
             ->select('vh_st_product_id')
             ->with(['product' => function ($query) {
-                $query->with('productCategories.parentCategory');
+                $query->with(['productCategories.parentCategory']);
             }])
             ->groupBy('vh_st_product_id')
             ->get();
 
-        $top_categories_by_product = $top_categories_by_product->map(function ($item) {
+        $top_categories = $top_categories_by_product->flatMap(function ($item) {
             $product = $item->product;
 
-            if ($product) {
-                $parent_categories = $product->productCategories->map(function ($category) {
+            if ($product && $product->productCategories) {
+                return $product->productCategories->map(function ($category) {
                     $final_parent = $category;
                     while ($final_parent && $final_parent->parentCategory) {
                         $final_parent = $final_parent->parentCategory;
                     }
                     return $final_parent;
-                })->unique('id');
-
-                return $parent_categories->map(function ($parent_category) {
-                    return [
-                        'id' => $parent_category?->id,
-                        'slug' => $parent_category?->slug,
-                        'name' => $parent_category?->name,
-                    ];
                 });
             }
-            return null;
+
+            return [];
         })
             ->filter()
-            ->flatten(1)
-            ->take($limit);
-
+            ->unique('id')
+            ->take($limit)
+            ->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'slug' => $category->slug,
+                    'name' => $category->name,
+                ];
+            });
         return [
-            'data' => [
-                'top_selling_categories' => $top_categories_by_product->values(),
-            ]
+            'success' => true,
+            'data' => $top_categories->values(),
         ];
     }
+
 
 
     //----------------------------------------------------------
@@ -2978,6 +3081,32 @@ class Product extends VaahModel
             ],
             'messages' => [trans("vaahcms-general.action_successful")],
         ];
+    }
+
+    public static function groupedAttributes($variation, &$all_grouped_attributes)
+    {
+        $grouped_attributes = [];
+        ProductVariation::extractAttributeWithValues($variation);
+
+        foreach ($variation->productAttributes as $attribute) {
+            foreach ($attribute->values as $value) {
+                $value_array = $value->toArray();
+                $attribute_name = $attribute->attribute['name'];
+                $grouped_attributes[$attribute_name][] = $value_array['attribute_value']['name'];
+            }
+        }
+
+        foreach ($grouped_attributes as $key => $values) {
+            $values = array_unique($values);
+
+            if (!isset($all_grouped_attributes[$key])) {
+                $all_grouped_attributes[$key] = $values;
+            } else {
+                $all_grouped_attributes[$key] = array_unique(array_merge($all_grouped_attributes[$key], $values));
+            }
+        }
+
+        unset($variation->productAttributes);
     }
 
 
