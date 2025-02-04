@@ -36,7 +36,6 @@ deploy_features:
     - find ./ -type d -name .git -prune -exec rm -rf {} +
     - cp -r ./store-dev/.  ./
     - pwd
-    - cp .env.example.default .env
     - composer update --ignore-platform-reqs
     - php artisan down
     #- mv .env.develop-backup .env
@@ -97,11 +96,10 @@ deploy_develop:
     - find ./ -type d -name .git -prune -exec rm -rf {} +
     - cp -r ./store-dev/.  ./
     - pwd
-    - cp .env.example.default .env
-    - composer update --ignore-platform-reqs
-    - php artisan down
     - cp .env.develop .env.develop-backup
     - mv .env.develop-backup .env
+    - composer update --ignore-platform-reqs
+    - php artisan down
     - php artisan cache:clear
     - php artisan config:cache
     - php artisan view:clear
