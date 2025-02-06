@@ -109,7 +109,7 @@ class AuthController  extends Controller
                 ];
             }
 
-            $user = User::where('email', $request->email)
+            $user = \VaahCms\Modules\Store\Models\User::where('email', $request->email)
                 ->orWhere('username', $request->email)
                 ->first();
 
@@ -146,16 +146,31 @@ class AuthController  extends Controller
         if (Hash::check(trim($request->login_otp), $user->login_otp)) {
             Auth::login($user, $request->boolean('remember'));
 
+            $max_sessions = 5;
+            if ($user->tokens()->count() >= $max_sessions) {
+                $user->tokens()->oldest()->first()->delete();
+            }
+
+            $expiration = Carbon::now()->addHours(24);
+
+            $token = $user->createToken('VaahStore')->plainTextToken;
+
+            $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
+
             $user->update([
                 'login_otp' => null,
                 'last_login_at' => now(),
                 'last_login_ip' => $request->ip(),
-                'api_token' => Str::random(80),
             ]);
 
             return response()->json([
                 'success' => true,
-                'data' => ['item' => $user->makeVisible(['api_token'])],
+                'data' => [
+                    'item' => array_merge($user->toArray(), [
+                        'api_token' => $token,
+                        'expires_at' => $expiration->toDateTimeString(),
+                    ]),
+                ],
             ]);
         }
 
@@ -174,13 +189,28 @@ class AuthController  extends Controller
                 return response()->json($login_response);
             }
 
-            // Update API token after successful login
-            $user->update(['api_token' => Str::random(80)]);
+            // Set maximum session limit
+            $max_sessions = 5;
+
+            if ($user->tokens()->count() >= $max_sessions) {
+                $user->tokens()->oldest()->first()->delete(); // Remove the oldest session
+            }
+            $expiration = Carbon::now()->addHours(24);
+
+            $token = $user->createToken('VaahStore')->plainTextToken;
+
+            $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
 
             return response()->json([
                 'success' => true,
-                'data' => ['item' => $user->makeVisible(['api_token'])],
+                'data' => [
+                    'item' => array_merge($user->toArray(), [
+                        'api_token' => $token,
+                        'expires_at' => $expiration->toDateTimeString(),
+                    ]),
+                ],
             ]);
+
         }
         return response()->json(['success' => false, 'errors' => ['The password you entered is incorrect.']]);
     }
@@ -230,10 +260,28 @@ class AuthController  extends Controller
             if (isset($response['success']) && $response['success'] === true) {
                 $user = $response['data']['item'];
 
-                $user->update(['api_token' => Str::random(80)]);
+                $max_sessions = 5;
+                if ($user->tokens()->count() >= $max_sessions) {
+                    $user->tokens()->oldest()->first()->delete(); // Remove the oldest session
+                }
+
+                // Define token expiration (e.g., 24 hours)
+                $expiration = Carbon::now()->addHours(24);
+
+                // Generate new API token
+                $token = $user->createToken('VaahStore')->plainTextToken;
+
+                // Update token expiration in the database
+                $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
+
                 return response()->json([
                     'success' => true,
-                    'data' => ['item' => $user->makeVisible(['api_token'])],
+                    'data' => [
+                        'item' => array_merge($user->toArray(), [
+                            'api_token' => $token,
+                            'expires_at' => $expiration->toDateTimeString(), // Include expiration in response
+                        ]),
+                    ],
                 ]);
             }
             return response()->json($response);

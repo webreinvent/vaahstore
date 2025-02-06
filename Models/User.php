@@ -2,8 +2,10 @@
 
 use Faker\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\User as UserBase;
@@ -11,7 +13,7 @@ use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 class User extends UserBase
 {
-
+    use HasApiTokens, Notifiable;
     public static function getUnFillableColumns()
     {
         return [

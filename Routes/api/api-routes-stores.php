@@ -6,7 +6,7 @@
 Route::group(
     [
         'prefix' => 'store/stores',
-        'middleware' => ['auth:api'],
+        'middleware' => ['auth:sanctum','token.expiry'],
         'namespace' => 'Backend',
     ],
 function () {
