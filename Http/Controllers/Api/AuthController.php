@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use WebReinvent\VaahCms\Models\User;
 
 class AuthController  extends Controller
@@ -21,7 +22,8 @@ class AuthController  extends Controller
     {
         try {
             $response = User::sendLoginOtp($request, 'can-login-in-backend');
-            return response()->json($response);
+            $status = $response['success'] ? 200 : ($response['status'] ?? 422);
+            return response()->json($response, $status);
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -42,7 +44,17 @@ class AuthController  extends Controller
     {
         try {
             $response = User::sendResetPasswordEmail($request, 'can-login-in-backend');
-            return response()->json($response);
+
+            $status = $response['success'] ? 200 : ($response['status'] ?? 422);
+
+            return response()->json($response, $status);
+
+        } catch (HttpException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => [$e->getMessage()]
+            ], $e->getStatusCode());
+
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -64,7 +76,17 @@ class AuthController  extends Controller
     {
         try {
             $response = User::resetPassword($request);
-            return response()->json($response);
+
+            $status = $response['success'] ? 200 : ($response['status'] ?? 422);
+
+            return response()->json($response, $status);
+
+        } catch (HttpException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => [$e->getMessage()]
+            ], $e->getStatusCode());
+
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -103,10 +125,10 @@ class AuthController  extends Controller
 
             if ($validator->fails()) {
                 $errors = errorsToArray($validator->errors());
-                return [
+                return response()->json([
                     'success' => false,
                     'errors' => $errors,
-                ];
+                ], 422);
             }
 
             $user = \VaahCms\Modules\Store\Models\User::where('email', $request->email)
@@ -114,7 +136,10 @@ class AuthController  extends Controller
                 ->first();
 
             if (!$user) {
-                return response()->json(['success' => false, 'errors' => ['Invalid credentials']]);
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['Invalid credentials'],
+                ], 401);
             }
 
             // Handle OTP login
@@ -174,7 +199,10 @@ class AuthController  extends Controller
             ]);
         }
 
-        return response()->json(['success' => false, 'errors' => ['The OTP you entered is invalid.']]);
+        return response()->json([
+            'success' => false,
+            'errors' => ['The OTP you entered is invalid.'],
+        ], 401);
     }
     //------------------------------------------------
 
@@ -186,14 +214,14 @@ class AuthController  extends Controller
 
             // If login failed
             if (!empty($login_response['status']) && $login_response['status'] === 'failed') {
-                return response()->json($login_response);
+                return response()->json($login_response,401);
             }
 
             // Set maximum session limit
             $max_sessions = 5;
 
             if ($user->tokens()->count() >= $max_sessions) {
-                $user->tokens()->oldest()->first()->delete(); // Remove the oldest session
+                $user->tokens()->oldest()->first()->delete();
             }
             $expiration = Carbon::now()->addHours(24);
 
@@ -212,8 +240,10 @@ class AuthController  extends Controller
             ]);
 
         }
-        return response()->json(['success' => false, 'errors' => ['The password you entered is incorrect.']]);
-    }
+        return response()->json([
+            'success' => false,
+            'errors' => ['The password you entered is incorrect.'],
+        ], 401);    }
 
     //------------------------------------------------
 
@@ -221,10 +251,7 @@ class AuthController  extends Controller
     {
         try {
             if ($user = Auth::guard('api')->user()) {
-                $user->update([
-                    'api_token' => null,
-                    'remember_token' => null,
-                ]);
+                $user->currentAccessToken()->delete();
                 $response = [
                     'success' => true,
                     'message' => ['Logout successfully.'],
@@ -235,6 +262,7 @@ class AuthController  extends Controller
                     'success' => false,
                     'message' => ['No user is currently logged in.'],
                 ];
+                return response()->json($response, 404);
             }
             return response()->json($response);
         } catch (\Exception $e) {
@@ -262,16 +290,13 @@ class AuthController  extends Controller
 
                 $max_sessions = 5;
                 if ($user->tokens()->count() >= $max_sessions) {
-                    $user->tokens()->oldest()->first()->delete(); // Remove the oldest session
+                    $user->tokens()->oldest()->first()->delete();
                 }
 
-                // Define token expiration (e.g., 24 hours)
                 $expiration = Carbon::now()->addHours(24);
 
-                // Generate new API token
                 $token = $user->createToken('VaahStore')->plainTextToken;
 
-                // Update token expiration in the database
                 $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
 
                 return response()->json([
@@ -279,7 +304,7 @@ class AuthController  extends Controller
                     'data' => [
                         'item' => array_merge($user->toArray(), [
                             'api_token' => $token,
-                            'expires_at' => $expiration->toDateTimeString(), // Include expiration in response
+                            'expires_at' => $expiration->toDateTimeString(),
                         ]),
                     ],
                 ]);
