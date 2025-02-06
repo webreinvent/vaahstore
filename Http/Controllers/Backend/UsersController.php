@@ -174,6 +174,11 @@ class UsersController extends Controller
 
         try {
             $response = User::createItem($request);
+            if ($response['success']) {
+                return response()->json($response, 201);
+            } else {
+                return response()->json($response, 422);
+            }
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -186,7 +191,7 @@ class UsersController extends Controller
             }
         }
 
-        return response()->json($response);
+        return response()->json($response, 500);
     }
     //----------------------------------------------------------
     public function getItem(Request $request, $id): JsonResponse

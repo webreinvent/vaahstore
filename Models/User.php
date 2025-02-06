@@ -173,6 +173,7 @@ class User extends UserBase
 
         if ($user) {
             $error_message = trans('vaahcms-user.email_already_registered').($user->deleted_at?' and exists in trash.':'.');
+            $response['success'] = false;
             $response['errors'][] = $error_message;
             return $response;
         }
@@ -182,6 +183,7 @@ class User extends UserBase
 
         if ($user) {
             $error_message = trans('vaahcms-user.username_already_registered').($user->deleted_at?' and exists in trash.':'.');
+            $response['success'] = false;
             $response['errors'][] = $error_message;
             return $response;
         }

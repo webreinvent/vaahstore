@@ -307,10 +307,9 @@ class AuthController  extends Controller
                             'expires_at' => $expiration->toDateTimeString(),
                         ]),
                     ],
-                ]);
+                ],201);
             }
-            return response()->json($response);
-
+            return response()->json($response,422);
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
