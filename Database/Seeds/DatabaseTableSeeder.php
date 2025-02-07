@@ -41,6 +41,7 @@ class DatabaseTableSeeder extends Seeder
         $this->seedLanguageCategories();
         $this->seedLanguageStrings();
         $this->seedStores();
+        $this->seedVendors();
 
 
         $seeder = new SettingTableSeeder();
@@ -200,7 +201,7 @@ class DatabaseTableSeeder extends Seeder
         $currenciesToInsert = [];
         $languagesToInsert = [];
 
-        for ($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 10000; $i++) {
             $store = new Store();
             $store->name = $storeNames[array_rand($storeNames)];
             $store->is_multi_currency = rand(0, 1);
@@ -249,5 +250,31 @@ class DatabaseTableSeeder extends Seeder
             Lingual::insert($languagesToInsert);
         }
     }
+
+    public function seedVendors()
+    {
+        $faker = Faker::create();
+        $store_ids = Store::pluck('id')->toArray();
+        $active_user = auth()->user();
+        $statuses = Taxonomy::getTaxonomyByType('vendor-status')->pluck('id')->toArray();
+
+        for ($i = 0; $i < 1000; $i++) {
+            $item = new Vendor;
+            $item->name =$faker->name;
+            $item->vh_st_store_id = $store_ids ? $store_ids[array_rand($store_ids)] : null;
+
+            $item->owned_by = $active_user->id;
+            $item->registered_at = null;
+            $item->auto_approve_products = 0;
+            $item->approved_by = $active_user->id;
+            $item->approved_at = null; // Set the approval date if needed
+            $item->taxonomy_id_vendor_status = $statuses ? $statuses[array_rand($statuses)] : null;
+            $item->status_notes = 'Default Vendor Status';
+            $item->is_active = 1;
+            $item->slug = Str::slug('Default Vendor ' . $i);
+            $item->save();
+        }
+    }
+
 
 }
