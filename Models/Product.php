@@ -22,6 +22,7 @@ use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
+use Illuminate\Support\Facades\Http;
 
 class Product extends VaahModel
 {
@@ -1449,7 +1450,7 @@ class Product extends VaahModel
 
         while($i < $records)
         {
-            $inputs = self::fillItem(false);
+            $inputs = self::fakeData();
 
             $item =  new self();
             $item->fill($inputs);
@@ -1491,8 +1492,8 @@ class Product extends VaahModel
         $faker = Factory::create();
 
        // fill the name field here
-        $max_chars = rand(5,100);
-        $inputs['name']=$faker->text($max_chars);
+        $inputs['name'] = $faker->name;
+        $inputs['slug'] = Str::slug($inputs['name']);
 
         // fill the product summary field here
         $max_summary_chars = rand(5,100);
@@ -1587,6 +1588,7 @@ class Product extends VaahModel
         $response['success'] = true;
         $response['data']['fill'] = $inputs;
         return $response;
+
     }
 
     //-------------------------------------------------
@@ -3107,6 +3109,63 @@ class Product extends VaahModel
         }
 
         unset($variation->productAttributes);
+    }
+
+    public static function FakeData()
+    {
+
+        $response = Http::get('https://fakestoreapi.in/api/products');
+
+        if ($response->successful()) {
+            $data = $response->json();
+            $products = $data['products'];
+dd($products);
+
+            // Map API data to your model's columns
+            $request = new Request([
+                'model_namespace' => self::class,
+                'except' => self::getUnFillableColumns()
+            ]);
+
+            $faker = Factory::create();
+
+            $inputs['name'] = $products[0]['name'];
+            $inputs['slug'] = Str::slug($products[0]['name']);
+            $inputs['details'] =$products[0]['description'];
+            $inputs['details'] =$products[0]['description'];
+
+            // fill the store field here
+            $stores = Store::where('is_active',1)->get();
+            if ($stores->count() > 0) {
+                $store_ids = $stores->pluck('id')->toArray();
+                $store_id = $store_ids[array_rand($store_ids)];
+                $inputs['vh_st_store_id'] = $store_id;
+            }
+
+
+           //Brand
+            $brand = Brand::firstOrCreate(
+                ['name' => $products[0]['brand']],
+                ['slug' => Str::slug($products[0]['brand'])]
+            );
+
+            $inputs['vh_st_brand_id'] = $brand->id;
+
+            // fill the taxonomy status field here
+            $taxonomy_status = Taxonomy::getTaxonomyByType('product-status');
+            $status_ids = $taxonomy_status->pluck('id')->toArray();
+            $status_id = $status_ids[array_rand($status_ids)];
+            $inputs['taxonomy_id_product_status'] = $status_id;
+
+            // fill the product type field here
+            $types = Taxonomy::getTaxonomyByType('product-types');
+            $type_ids = $types->pluck('id')->toArray();
+            $type_id = $type_ids[array_rand($type_ids)];
+            $inputs['taxonomy_id_product_type'] = $type_id ;
+
+            return $inputs;
+
+        }
     }
 
 
