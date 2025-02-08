@@ -6,6 +6,8 @@ use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Models\Attribute;
+use VaahCms\Modules\Store\Models\AttributeGroup;
+use VaahCms\Modules\Store\Models\AttributeGroupItem;
 use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
@@ -33,7 +35,9 @@ class SampleDataTableSeeder extends Seeder
     {
         $this->seedStores();
         $this->seedAttributes();
+        $this->seedAttributeGroups();
     }
+    //---------------------------------------------------------------
 
     public function seedStores()
     {
@@ -93,6 +97,7 @@ class SampleDataTableSeeder extends Seeder
             Lingual::insert($languages_to_insert);
         }
     }
+    //---------------------------------------------------------------
 
     public function getListFromJson($json_file_name)
     {
@@ -101,6 +106,7 @@ class SampleDataTableSeeder extends Seeder
         $list = json_decode($jsonString, true);
         return $list;
     }
+    //---------------------------------------------------------------
 
     public function seedAttributes()
     {
@@ -124,6 +130,7 @@ class SampleDataTableSeeder extends Seeder
             $this->seedAttributeValues($new_attribute->id, $attribute['values']);
         }
     }
+    //---------------------------------------------------------------
 
     private function seedAttributeValues($attribute_id, $values)
     {
@@ -139,4 +146,48 @@ class SampleDataTableSeeder extends Seeder
 
         AttributeValue::insert($attribute_values);
     }
+    //---------------------------------------------------------------
+
+    public function seedAttributeGroups()
+    {
+        $attribute_groups = $this->getListFromJson("attribute_groups.json");
+
+        foreach ($attribute_groups as $group) {
+            $existing_group = AttributeGroup::where('slug', $group['slug'])->first();
+            $new_group = $existing_group ?? new AttributeGroup();
+
+            $new_group->fill([
+                'name' => $group['name'],
+                'slug' => $group['slug'],
+                'description' => $group['description'],
+                'is_active' => 1,
+            ]);
+            $new_group->save();
+
+            $this->linkAttributesToGroup($new_group, $group['attributes']);
+        }
+    }
+    //---------------------------------------------------------------
+
+    private function linkAttributesToGroup($attribute_group, $attribute_slugs)
+    {
+        $attributes = Attribute::whereIn('slug', $attribute_slugs)->get();
+
+        $group_items = [];
+        foreach ($attributes as $attribute) {
+            $group_items[] = [
+                'vh_st_attribute_id' => $attribute->id,
+                'vh_st_attribute_group_id' => $attribute_group->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        if (!empty($group_items)) {
+            AttributeGroupItem::insert($group_items);
+        }
+    }
+    //---------------------------------------------------------------
+
+
 }

@@ -1,0 +1,58 @@
+{
+    "color_group": {
+        "name": "Color Group",
+        "slug": "color-group",
+        "description": "A group of attributes related to color",
+        "attributes": [
+            "product-color"
+        ]
+    },
+    "size_group": {
+        "name": "Size Group",
+        "slug": "size-group",
+        "description": "A group of attributes related to size",
+        "attributes": [
+            "product-size"
+        ]
+    },
+    "material_group": {
+        "name": "Material Group",
+        "slug": "material-group",
+        "description": "A group of attributes related to material",
+        "attributes": [
+            "product-material"
+        ]
+    },
+    "weight_group": {
+        "name": "Weight Group",
+        "slug": "weight-group",
+        "description": "A group of attributes related to weight",
+        "attributes": [
+            "product-weight"
+        ]
+    },
+    "condition_group": {
+        "name": "Condition Group",
+        "slug": "condition-group",
+        "description": "A group of attributes related to product condition",
+        "attributes": [
+            "product-condition"
+        ]
+    },
+    "gender_group": {
+        "name": "Gender Group",
+        "slug": "gender-group",
+        "description": "A group of attributes related to gender",
+        "attributes": [
+            "product-gender"
+        ]
+    },
+    "warranty_group": {
+        "name": "Warranty Group",
+        "slug": "warranty-group",
+        "description": "A group of attributes related to warranty",
+        "attributes": [
+            "product-warranty"
+        ]
+    }
+}
