@@ -9,9 +9,11 @@ use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\AttributeGroupItem;
 use VaahCms\Modules\Store\Models\AttributeValue;
+use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 
 class SampleDataTableSeeder extends Seeder
@@ -36,6 +38,8 @@ class SampleDataTableSeeder extends Seeder
         $this->seedStores();
         $this->seedAttributes();
         $this->seedAttributeGroups();
+//        $this->seedWarehouses();
+        $this->seedBrands();
     }
     //---------------------------------------------------------------
 
@@ -52,7 +56,7 @@ class SampleDataTableSeeder extends Seeder
         $currencies_to_insert = [];
         $languages_to_insert = [];
 
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < 500; $i++) {
             $store = new Store();
             $store->name = $faker->company;
             $store->is_multi_currency = rand(0, 1);
@@ -189,5 +193,35 @@ class SampleDataTableSeeder extends Seeder
     }
     //---------------------------------------------------------------
 
+//    public function seedWarehouses(){
+//        Warehouse::seedSampleItems(10);
+//    }
+
+
+    public function seedBrands()
+    {
+        $brands = $this->getListFromJson("brands.json");
+        $statuses = Taxonomy::getTaxonomyByType('brand-status')->pluck('id')->toArray();
+        $active_user = auth()->user();
+
+        foreach ($brands as $brandData) {
+            $brand = new Brand;
+            $existing_brand = Brand::where('slug', $brandData['slug'])->first();
+            $brand = $existing_brand ?? new Brand;
+            $brand->fill([
+                'name' => $brandData['name'],
+                'is_default' => ($brandData['name'] === 'Brand A') ? 1 : 0,
+                'registered_by' => $active_user->id,
+                'approved_by' => $active_user->id,
+                'taxonomy_id_brand_status' => $statuses ? $statuses[array_rand($statuses)] : null,
+                'status_notes' => $brandData['status_notes'],
+                'is_active' => $brandData['is_active'] ? 1 : 0,
+                'slug' => Str::slug($brandData['slug']),
+            ]);
+
+            // Save the brand
+            $brand->save();
+        }
+    }
 
 }
