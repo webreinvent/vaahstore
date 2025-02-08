@@ -1,0 +1,51 @@
+{
+    "color": {
+        "name": "Product Color",
+        "values": ["Blue", "Black", "Red", "Yellow"],
+        "slug": "product-color",
+        "type": "Color",
+        "description": "Color Description"
+    },
+    "size": {
+        "name": "Product Size",
+        "values": ["Small", "Medium", "Large", "Extra Large"],
+        "slug": "product-size",
+        "type": "Size",
+        "description": "Size Description"
+    },
+    "material": {
+        "name": "Product Material",
+        "values": ["Cotton", "Polyester", "Silk", "Leather"],
+        "slug": "product-material",
+        "type": "Material",
+        "description": "Material Description"
+    },
+    "weight": {
+        "name": "Product Weight",
+        "values": ["1.2 kg", "2.05 kg", "0.5 kg"],
+        "slug": "product-weight",
+        "type": "Weight",
+        "description": "Weight Description"
+    },
+    "condition": {
+        "name": "Product Condition",
+        "values": ["New", "Refurbished", "Used", "Open Box"],
+        "slug": "product-condition",
+        "type": "Condition",
+        "description": "Condition Description"
+    },
+    "gender": {
+        "name": "Product Gender",
+        "values": ["Men", "Women", "Unisex"],
+        "slug": "product-gender",
+        "type": "Gender",
+        "description": "Gender Description"
+    },
+    "warranty": {
+        "name": "Product Warranty",
+        "values": ["1 Year", "2 Years", "Lifetime"],
+        "slug": "product-warranty",
+        "type": "Warranty",
+        "description": "Warranty Description"
+    }
+}
