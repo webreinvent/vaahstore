@@ -11,6 +11,7 @@ use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\AttributeGroupItem;
 use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\Brand;
+use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
 use VaahCms\Modules\Store\Models\Store;
@@ -38,11 +39,12 @@ class SampleDataTableSeeder extends Seeder
      */
     function seeds()
     {
-        $this->seedStores();
-        $this->seedAttributes();
-        $this->seedAttributeGroups();
-        $this->seedWarehouses();
-        $this->seedBrands();
+//        $this->seedStores();
+//        $this->seedAttributes();
+//        $this->seedAttributeGroups();
+//        $this->seedWarehouses();
+//        $this->seedBrands();
+        $this->seedCategories();
     }
     //---------------------------------------------------------------
 
@@ -233,24 +235,67 @@ class SampleDataTableSeeder extends Seeder
         $statuses = Taxonomy::getTaxonomyByType('brand-status')->pluck('id')->toArray();
         $active_user = auth()->user();
 
-        foreach ($brands as $brandData) {
+        foreach ($brands as $brand_data) {
             $brand = new Brand;
-            $existing_brand = Brand::where('slug', $brandData['slug'])->first();
+            $existing_brand = Brand::where('slug', $brand_data['slug'])->first();
             $brand = $existing_brand ?? new Brand;
             $brand->fill([
-                'name' => $brandData['name'],
-                'is_default' => ($brandData['name'] === 'Brand A') ? 1 : 0,
+                'name' => $brand_data['name'],
+                'is_default' => ($brand_data['name'] === 'Brand A') ? 1 : 0,
                 'registered_by' => $active_user->id,
                 'approved_by' => $active_user->id,
                 'taxonomy_id_brand_status' => $statuses ? $statuses[array_rand($statuses)] : null,
-                'status_notes' => $brandData['status_notes'],
-                'is_active' => $brandData['is_active'] ? 1 : 0,
-                'slug' => Str::slug($brandData['slug']),
+                'status_notes' => $brand_data['status_notes'],
+                'is_active' => $brand_data['is_active'] ? 1 : 0,
+                'slug' => Str::slug($brand_data['slug']),
             ]);
 
             // Save the brand
             $brand->save();
         }
     }
+
+    public function seedCategories()
+    {
+        $categories = $this->getListFromJson("categories.json");
+
+        foreach ($categories as $category_data) {
+            // Save the parent category first
+            $category = Category::updateOrCreate(
+                ['slug' => $category_data['slug']],
+                [
+                    'name' => $category_data['name'],
+                    'is_active' => $category_data['is_active'],
+                    'parent_id' => null
+                ]
+            );
+
+            // If the category has children, save them with parent_id
+            if (isset($category_data['children']) && is_array($category_data['children'])) {
+                $this->saveChildCategories($category_data['children'], $category->id);
+            }
+        }
+    }
+
+//  function to save child categories
+    private function saveChildCategories(array $children, int $parent_id)
+    {
+        foreach ($children as $child_data) {
+            $child_category = Category::updateOrCreate(
+                ['slug' => $child_data['slug']],
+                [
+                    'name' => $child_data['name'],
+                    'is_active' => $child_data['is_active'],
+                    'parent_id' => $parent_id
+                ]
+            );
+
+            // If this child category also has children, save them recursively
+            if (isset($child_data['children']) && is_array($child_data['children'])) {
+                $this->saveChildCategories($child_data['children'], $child_category->id);
+            }
+        }
+    }
+
 
 }
