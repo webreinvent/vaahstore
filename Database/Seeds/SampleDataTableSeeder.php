@@ -2,6 +2,7 @@
 namespace VaahCms\Modules\Store\Database\Seeds;
 
 
+use Faker\Factory;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -13,8 +14,10 @@ use VaahCms\Modules\Store\Models\Brand;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 class SampleDataTableSeeder extends Seeder
 {
@@ -38,7 +41,7 @@ class SampleDataTableSeeder extends Seeder
         $this->seedStores();
         $this->seedAttributes();
         $this->seedAttributeGroups();
-//        $this->seedWarehouses();
+        $this->seedWarehouses();
         $this->seedBrands();
     }
     //---------------------------------------------------------------
@@ -56,7 +59,7 @@ class SampleDataTableSeeder extends Seeder
         $currencies_to_insert = [];
         $languages_to_insert = [];
 
-        for ($i = 0; $i < 500; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $store = new Store();
             $store->name = $faker->company;
             $store->is_multi_currency = rand(0, 1);
@@ -193,9 +196,35 @@ class SampleDataTableSeeder extends Seeder
     }
     //---------------------------------------------------------------
 
-//    public function seedWarehouses(){
-//        Warehouse::seedSampleItems(10);
-//    }
+    public function seedWarehouses(){
+        $vendor_ids = Vendor::pluck('id')->toArray();
+        $faker = Factory::create();
+        $statuses = Taxonomy::getTaxonomyByType('warehouse-status')->pluck('id')->toArray();
+        $active_user = auth()->user();
+        $countries = array_column(VaahCountry::getList(), 'name');
+        for ($i = 0; $i < 50; $i++) {
+            $warehouse = new Warehouse();
+            $warehouse->name =$faker->country;
+            $warehouse->vh_st_vendor_id = $vendor_ids ? $vendor_ids[array_rand($vendor_ids)] : null;
+            $warehouse->country = $countries[array_rand($countries)];
+            $warehouse->state = $faker->city;
+            $warehouse->city = $faker->city;
+            $warehouse->postal_code= $faker->randomNumber(6);
+            $warehouse->address_1 = $faker->address;
+            $warehouse->address_2 = $faker->secondaryAddress;
+
+            $warehouse->taxonomy_id_warehouse_status = $statuses ? $statuses[array_rand($statuses)] : null;
+            $warehouse->status_notes = $faker->sentence;
+            $warehouse->is_active = 1;
+            $slug = Str::slug($warehouse->name);
+            if (Warehouse::where('slug', $slug)->exists()) {
+                $slug .= '-' . Str::random(5);
+            }
+            $warehouse->slug = $slug;
+            $warehouse->save();
+        }
+
+    }
 
 
     public function seedBrands()

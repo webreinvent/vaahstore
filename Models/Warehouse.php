@@ -777,12 +777,17 @@ class Warehouse extends VaahModel
         $fillable = VaahSeeder::fill($request);
         if(!$fillable['success']){
             return $fillable;
-        }
+        }$faker = Factory::create();
         $countries = array_column(VaahCountry::getList(), 'name');
         $inputs = $fillable['data']['fill'];
-
+        $inputs['name'] = $faker->country;
         $inputs['country'] = $countries[array_rand($countries)];
         $inputs['is_active'] = 1;
+
+        $inputs['slug'] = $faker->slug;
+        $inputs['postal_code'] = $faker->randomNumber(6);
+        $inputs['address_1'] = $faker->address;
+        $inputs['address_2'] = $faker->secondaryAddress;
         $taxonomy_status = Taxonomy::getTaxonomyByType('warehouse-status');
 
         $status_ids = $taxonomy_status->pluck('id')->toArray();
@@ -804,13 +809,13 @@ class Warehouse extends VaahModel
             $inputs['vh_st_vendor_id'] = $vendor_id;
             $inputs['vendor'] = $vendor_data;
         }
-        $faker = Factory::create();
+
 
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
          */
-        $inputs['postal_code'] = $faker->randomNumber(6);
+//        $inputs['postal_code'] = $faker->randomNumber(6);
         if(!$is_response_return){
             return $inputs;
         }
