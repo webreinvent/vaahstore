@@ -29,7 +29,7 @@ Route::group(
         //------------------------------------------------
         Route::post( '/password-reset', 'AuthController@authResetPassword' );
 
-        Route::post( '/sign-out', 'AuthController@authSignOut' )->middleware('auth:api');
+        Route::post( '/sign-out', 'AuthController@authSignOut' )->middleware('auth:sanctum');
 
         Route::post('/sign-up', 'AuthController@signUp');
     });

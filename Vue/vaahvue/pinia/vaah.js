@@ -151,7 +151,11 @@ export const vaah = defineStore({
                 location.reload();
                 return;
             }
-
+            if(error.response && error.response.status !== 200 && error.response.data.errors)
+            {
+                this.toastErrors(error.response.data.errors);
+                return;
+            }
             if(debug === 1)
             {
                 this.toastErrors([error]);
