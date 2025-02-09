@@ -23,6 +23,9 @@ use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+
 class Product extends VaahModel
 {
 
@@ -3174,8 +3177,54 @@ class Product extends VaahModel
             $inputs['taxonomy_id_product_type'] = $taxonomy->id;
             $inputs['is_active'] = 1;
 
+            if (!empty($product['defaultImage']['src'])) {
+                $image_url = $product['defaultImage']['src'];
+                $image_name =  $inputs['slug'] . '.jpg'; // Generate a unique image name
+                $image_path = 'media/' . $image_name; // Define storage path
+
+                try {
+                    $image_contents = file_get_contents($image_url);
+                    Storage::disk('public')->put($image_path, $image_contents); // Save the image in storage
+
+                    // Set the image path in the inputs array
+                    $inputs['image_path'] = 'storage/' . $image_path;
+                } catch (\Exception $e) {
+                    \Log::error("Failed to download image: " . $e->getMessage());
+                }
+            }
             // Save the product
-            Product::create($inputs);
+            $product = Product::create($inputs);
+
+
+            $Product_media = new ProductMedia();
+            $Product_media->vh_st_product_id = $product->id;
+            $Product_media_taxonomy_status = Taxonomy::where('name', 'Approved')
+                ->whereHas('type', function ($query) {
+                    $query->where('slug', 'Product-medias-status');
+                })
+                ->first();
+            if (!empty($Product_media_taxonomy_status)) {
+                $Product_media->taxonomy_id_product_media_status  = $Product_media_taxonomy_status->id;
+            }
+
+            $Product_media->name = $inputs['slug'] . '.jpg';
+            $Product_media->type = 'image';
+            $Product_media->is_active = 1;
+            $Product_media->save();
+
+
+            $Product_media_image = new ProductMediaImage();
+            $Product_media_image->vh_st_product_media_id = $Product_media->id;
+            $Product_media_image->name = $inputs['slug'] . '.jpg';
+            $Product_media_image->slug = Str::slug($inputs['slug'] . '.jpg');
+            $Product_media_image->url = $inputs['image_path'];
+            $Product_media_image->path = 'storage/app/public/' . $image_path;
+            $Product_media_image->url_thumbnail = 'storage/app/public/' . $image_path;
+            $Product_media_image->save();
+
+
+
+
         }
     }
 
