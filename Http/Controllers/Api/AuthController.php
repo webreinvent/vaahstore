@@ -201,11 +201,15 @@ class AuthController  extends Controller
             return self::handleStandardLogin($user, $request);
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'errors' => [env('APP_DEBUG') ? $e->getMessage() : trans('vaahcms-general.something_went_wrong')],
-                'hint' => env('APP_DEBUG') ? $e->getTrace() : null,
-            ]);
+            $response = [];
+            $response['success'] = false;
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = [trans("vaahcms-general.something_went_wrong")];
+            }
+            return response()->json($response, 500);
         }
     }
 
@@ -329,7 +333,7 @@ class AuthController  extends Controller
         return response()->json([
             'success' => false,
             'errors' => ['The OTP you entered is invalid.'],
-        ], 401);
+        ], 422);
     }
 
 
