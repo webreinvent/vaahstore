@@ -170,6 +170,7 @@ class AuthController  extends Controller
             return response()->json($response, 500);
         }
     }
+    //-----------------------------------------------------------------------
 
     public function authSignIn(Request $request)
     {
@@ -212,6 +213,7 @@ class AuthController  extends Controller
             return response()->json($response, 500);
         }
     }
+    //-----------------------------------------------------------------------
 
     protected static function validateLoginRequest(Request $request)
     {
@@ -232,12 +234,12 @@ class AuthController  extends Controller
             'authentication_type.required' => 'Authentication type is required.',
             'authentication_value.required' => 'Authentication value is required.',
 
-            'identifier_value.phone' => 'The phone number format is invalid.',
             'identifier_value.numeric' => 'The phone number must be a valid numeric value.',
         ];
 
         return \Validator::make($request->all(), $rules, $messages);
     }
+    //-----------------------------------------------------------------------
 
     protected static function findUser(Request $request)
     {
@@ -259,6 +261,7 @@ class AuthController  extends Controller
                 return null;
         }
     }
+    //-----------------------------------------------------------------------
 
     protected static function handleStandardLogin($user, $request)
     {
@@ -271,6 +274,7 @@ class AuthController  extends Controller
             'errors' => ['The password you entered is incorrect.'],
         ], 401);
     }
+    //-----------------------------------------------------------------------
 
     protected static function generateAuthResponse($user, $request)
     {
@@ -296,18 +300,19 @@ class AuthController  extends Controller
             ],
         ]);
     }
+    //-----------------------------------------------------------------------
 
     protected static function handleOtpLogin($user, $request)
     {
         if (Hash::check(trim($request->authentication_value), $user->login_otp)) {
-            Auth::login($user, $request->boolean('remember'));
+            Auth::login($user);
 
             $max_sessions = 5;
             if ($user->tokens()->count() >= $max_sessions) {
                 $user->tokens()->oldest()->first()->delete();
             }
 
-            $expiration = Carbon::now()->addHours(24);
+            $expiration = Carbon::now()->addDays(2);
 
             $token = $user->createToken('VaahStore')->plainTextToken;
 
@@ -333,8 +338,10 @@ class AuthController  extends Controller
         return response()->json([
             'success' => false,
             'errors' => ['The OTP you entered is invalid.'],
-        ], 422);
+        ], 401);
     }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
 
 
 }
