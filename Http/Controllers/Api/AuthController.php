@@ -22,8 +22,8 @@ class AuthController  extends Controller
     {
         try {
             $response = User::sendLoginOtp($request, 'can-login-in-backend');
-            $status = $response['success'] ? 200 : ($response['status'] ?? 422);
-            return response()->json($response, $status);
+            $status_code = $response['success'] ? 200 :  422;
+            return response()->json($response, $status_code);
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -45,15 +45,9 @@ class AuthController  extends Controller
         try {
             $response = User::sendResetPasswordEmail($request, 'can-login-in-backend');
 
-            $status = $response['success'] ? 200 : ($response['status'] ?? 422);
+            $status_code = $response['success'] ? 200 : 422;
 
-            return response()->json($response, $status);
-
-        } catch (HttpException $e) {
-            return response()->json([
-                'success' => false,
-                'errors' => [$e->getMessage()]
-            ], $e->getStatusCode());
+            return response()->json($response, $status_code);
 
         } catch (\Exception $e) {
             $response = [];
@@ -77,27 +71,18 @@ class AuthController  extends Controller
         try {
             $response = User::resetPassword($request);
 
-            $status = $response['success'] ? 200 : ($response['status'] ?? 422);
+            $status_code = $response['success'] ? 200 :  422;
+            return response()->json($response, $status_code);
 
-            return response()->json($response, $status);
-
-        } catch (HttpException $e) {
-            return response()->json([
-                'success' => false,
-                'errors' => [$e->getMessage()]
-            ], $e->getStatusCode());
-
-        } catch (\Exception $e) {
+        }  catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
-
             if (env('APP_DEBUG')) {
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else {
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
-
             return response()->json($response, 500);
         }
     }
