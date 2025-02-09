@@ -253,17 +253,17 @@ class AuthController  extends Controller
     protected static function findUser(Request $request)
     {
         $identifier_key = $request->identifier_key;
-        $identifierV_value = $request->identifier_value;
+        $identifier_value = $request->identifier_value;
 
         switch ($identifier_key) {
 
             case 'email':
-                return \VaahCms\Modules\Store\Models\User::where('email', $identifierV_value)->first();
+                return \VaahCms\Modules\Store\Models\User::where('email', $identifier_value)->first();
             case 'username':
-                return \VaahCms\Modules\Store\Models\User::where('username', $identifierV_value)->first();
+                return \VaahCms\Modules\Store\Models\User::where('username', $identifier_value)->first();
             case 'phone':
-                if (is_numeric($identifierV_value)) {
-                    return \VaahCms\Modules\Store\Models\User::where('phone', $identifierV_value)->first();
+                if (is_numeric($identifier_value)) {
+                    return \VaahCms\Modules\Store\Models\User::where('phone', $identifier_value)->first();
                 }
                 return null;
             default:
@@ -290,7 +290,7 @@ class AuthController  extends Controller
             $user->tokens()->oldest()->first()->delete();
         }
 
-        $expiration = Carbon::now()->addHours(24);
+        $expiration = Carbon::now()->addDays(2);
 
         $token = $user->createToken('VaahStore')->plainTextToken;
         $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
