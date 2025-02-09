@@ -139,7 +139,7 @@ class AuthController  extends Controller
                     $user->tokens()->oldest()->first()->delete();
                 }
 
-                $expiration = Carbon::now()->addHours(24);
+                $expiration = Carbon::now()->addDays(2);
 
                 $token = $user->createToken('VaahStore')->plainTextToken;
 
