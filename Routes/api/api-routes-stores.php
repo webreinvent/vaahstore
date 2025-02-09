@@ -6,7 +6,7 @@
 Route::group(
     [
         'prefix' => 'store/stores',
-        'middleware' => ['auth:sanctum'],
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
