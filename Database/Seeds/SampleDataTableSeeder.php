@@ -15,9 +15,11 @@ use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
+use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 class SampleDataTableSeeder extends Seeder
@@ -39,12 +41,13 @@ class SampleDataTableSeeder extends Seeder
      */
     function seeds()
     {
-//        $this->seedStores();
-//        $this->seedAttributes();
-//        $this->seedAttributeGroups();
-//        $this->seedWarehouses();
-//        $this->seedBrands();
+        $this->seedStores();
+        $this->seedAttributes();
+        $this->seedAttributeGroups();
+        $this->seedWarehouses();
+        $this->seedBrands();
         $this->seedCategories();
+        $this->seedCustomers();
     }
     //---------------------------------------------------------------
 
@@ -296,6 +299,63 @@ class SampleDataTableSeeder extends Seeder
             }
         }
     }
+
+    public function seedCustomers()
+    {
+        $faker = Factory::create();
+        $country_list = VaahCountry::getList();
+        $countries = array_column($country_list, 'name');
+        $name_titles = vh_name_titles();
+        $timezones = vh_get_timezones();
+
+        $status_options = [
+            ['label' => 'Active', 'value' => 'active'],
+            ['label' => 'Inactive', 'value' => 'inactive'],
+            ['label' => 'Blocked', 'value' => 'blocked'],
+            ['label' => 'Banned', 'value' => 'banned'],
+        ];
+
+        $users = [];
+        $roles = Role::where('slug', 'customer')->first();
+
+        for ($i = 0; $i < 500; $i++) {
+            $random_country = $countries[array_rand($countries)];
+            $selected_country = collect($country_list)->where('name', $random_country)->first();
+            $random_title = collect($name_titles)->random()['name'];
+            $random_zone = collect($timezones)->random()['slug'];
+
+            $random_status = $status_options[array_rand($status_options)]['value'];
+            $random_created_at = $faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d H:i:s');
+
+            $users[] = [
+                'first_name' => $faker->firstName,
+                'username' => $faker->userName,
+                'email' => $faker->email,
+                'country' => $random_country,
+                'country_calling_code' => $selected_country ? $selected_country['calling_code'] : null,
+                'is_active' => 1,
+                'title' => $random_title,
+                'timezone' => $random_zone,
+                'phone' => $faker->phoneNumber,
+                'birth' => $faker->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d'),
+                'status' => $random_status,
+                'created_at' => $random_created_at,
+                'updated_at' => $random_created_at,
+            ];
+        }
+
+        User::insert($users);
+
+        $user_emails = array_column($users, 'email');
+        $user_ids = User::whereIn('email', $user_emails)->pluck('id');
+
+        if ($roles && $user_ids->isNotEmpty()) {
+            foreach ($user_ids as $user_id) {
+                $roles->users()->attach($user_id, ['is_active' => 1]);
+            }
+        }
+    }
+
 
 
 }

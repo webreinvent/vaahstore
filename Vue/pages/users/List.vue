@@ -83,11 +83,11 @@ const toggleCreateMenu = (event) => {
 
                                 <Charts
                                     class="border-1 border-gray-200 border-round-sm overflow-hidden"
-                                    type="line"
+                                    type="area"
                                     :chartOptions="store.customer_count_chart_options"
                                     :chartSeries="store.customer_count_chart_series"
-                                    height="250"
-                                    width="520"
+                                    height="300"
+                                    width="1000"
                                     titleAlign="center"
                                 />
 

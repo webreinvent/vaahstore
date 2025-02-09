@@ -554,6 +554,7 @@ class SettingsController extends Controller
                 'StoreTaxonomy',
                 'Lingual',
                 'Currency',
+                'Setting',
             ];
 
             $auth_user = Auth::id();
