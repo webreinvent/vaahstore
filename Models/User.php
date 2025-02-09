@@ -615,8 +615,15 @@ class User extends UserBase
                         'zoom' => ['enabled' => false],
                     ],
                     'xaxis' => [
-                        'type' => 'category',
                         'categories' => $labels,
+                        'labels' => [
+                            'show' => false,
+                            'style' => [
+                                'colors' => '#000',
+                                'fontSize' => '12px',
+                                'fontFamily' => 'Arial, sans-serif',
+                            ],
+                        ],
                     ],
                     'yaxis' => [
                         'title' => [

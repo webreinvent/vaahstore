@@ -737,7 +737,7 @@ const toggleQuickFilterState = (event) => {
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="line"
+                            type="area"
                             :chartOptions="customers_store.customer_count_chart_options"
                             :chartSeries="customers_store.customer_count_chart_series"
                             height="300"
