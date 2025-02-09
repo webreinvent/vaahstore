@@ -309,7 +309,6 @@ class Product extends VaahModel
     public static function generateVariation($request,$id)
     {
         $permission_slug = 'can-update-module';
-
         if (!\Auth::user()->hasPermission($permission_slug)) {
             return vh_get_permission_denied_response($permission_slug);
         }
@@ -3090,10 +3089,17 @@ class Product extends VaahModel
         ProductVariation::extractAttributeWithValues($variation);
 
         foreach ($variation->productAttributes as $attribute) {
+            if (!isset($attribute->attribute['name'])) {
+                continue; // Skip if attribute or name is missing
+            }
+
             foreach ($attribute->values as $value) {
-                $value_array = $value->toArray();
+                if (!isset($value->attribute_value['name'])) {
+                    continue; // Skip if attribute_value or name is missing
+                }
+
                 $attribute_name = $attribute->attribute['name'];
-                $grouped_attributes[$attribute_name][] = $value_array['attribute_value']['name'];
+                $grouped_attributes[$attribute_name][] = $value->attribute_value['name'];
             }
         }
 
@@ -3109,6 +3115,7 @@ class Product extends VaahModel
 
         unset($variation->productAttributes);
     }
+
 
     public static function seedProduct(){
         $json_file = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/products.json";
@@ -3145,10 +3152,14 @@ class Product extends VaahModel
 
 
             // Assign a random product status
-            $taxonomy_status = Taxonomy::getTaxonomyByType('product-status')->pluck('id')->toArray();
+            $taxonomy_status = Taxonomy::where('name', 'Approved')
+                ->whereHas('type', function ($query) {
+                    $query->where('name', 'Product Status');
+                })
+                ->first();
 
            if (!empty($taxonomy_status)) {
-                $inputs['taxonomy_id_product_status'] = $taxonomy_status[array_rand($taxonomy_status)];
+                $inputs['taxonomy_id_product_status'] = $taxonomy_status->id;
             }
 
             // Assign a random product type
@@ -3161,6 +3172,7 @@ class Product extends VaahModel
             );
 
             $inputs['taxonomy_id_product_type'] = $taxonomy->id;
+            $inputs['is_active'] = 1;
 
             // Save the product
             Product::create($inputs);
