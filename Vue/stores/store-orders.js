@@ -1240,8 +1240,17 @@ export const useOrderStore = defineStore({
                 tooltip: {
                     x: {
                         format: 'MMMM d, yyyy'
+                    },
+                    y: {
+                        formatter: function (value) {
+                            if (value >= 1000) {
+                                return '₹' + (value / 1000).toFixed(2) + 'k';
+                            }
+                            return '₹' + value;
+                        }
                     }
                 },
+
                 chart: {
                     background: '#fff',
                     toolbar: {
@@ -1353,7 +1362,15 @@ export const useOrderStore = defineStore({
                 },
                 tooltip: {
                     x: {
-                        format: 'MMMM d, yyyy'
+                        format: 'MMM dd, yyyy'
+                    },
+                    y: {
+                        formatter: function (value) {
+                            if (value >= 1000) {
+                                return '₹' + (value / 1000).toFixed(2) + 'k';
+                            }
+                            return '₹' + value;
+                        }
                     }
                 },
                 chart: {
