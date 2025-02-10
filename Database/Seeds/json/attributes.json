@@ -145,12 +145,5 @@
         "slug": "product-collection",
         "type": "Collection",
         "description": "The collection the product belongs to."
-    },
-    "product_type": {
-        "name": "Product Type",
-        "values": ["Shirt", "Jacket", "Laptop", "Smartphone", "Shoe", "Headphone", "Tablet", "Watch"],
-        "slug": "product-type",
-        "type": "Product Type",
-        "description": "The type or category of the product."
     }
 }
