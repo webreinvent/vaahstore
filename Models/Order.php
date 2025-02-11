@@ -729,13 +729,23 @@ class Order extends VaahModel
             if (!empty($order_items_status)) {
                 $order_items['taxonomy_id_order_items_status'] = $order_items_status->id;
             }
-            $valid_products = Product::whereHas('productVendors')->get();
-            dd($valid_products);
+            $valid_products = Product::whereHas('productVendors')->with('productVariations','productVendors')->get();
+            foreach ($valid_products as $product) {
+
+                $order_items['vh_st_product_id'] = $product['id'];
+                $order_items['vh_st_vendor_id'] = $product->productVendors->random()->vh_st_vendor_id;
+
+                $random_variation_ids = $product->productVariations->pluck('id')
+                    ->random(rand(1, $product->productVariations->count()/2));
+
+                foreach($random_variation_ids as $variation_id){
+                    $order_items['vh_st_product_variation_id'] = $variation_id;
+                }
+            }
+
             $order_items['vh_shipping_address_id'] = '';
             $order_items['vh_billing_address_id'] = '';
-            $order_items['vh_st_product_id'] = '';
-            $order_items['vh_st_product_variation_id'] = '';
-            $order_items['vh_st_vendor_id'] = '';
+
             $order_items['quantity'] = '';
             $order_items['price'] = '';
             $order_items['is_invoice_available'] = '';
