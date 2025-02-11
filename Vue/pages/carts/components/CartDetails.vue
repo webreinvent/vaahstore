@@ -46,7 +46,7 @@ const allProductsOutOfStock = computed(() => {
                     <Button data-testid="carts-user-modal"
                             class="p-button-lg"
                             v-if="!store.item.user"
-                            v-tooltip.top="'Add User'"
+                            v-tooltip.top="'Assign User'"
                             @click="store.openUserDialog(store.item)">
                         <i class="pi pi-user-plus mr-1"></i>
 
@@ -79,11 +79,12 @@ const allProductsOutOfStock = computed(() => {
                 <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
                 </Column>
 
-                <Column field="product_name" header="Product Name" class="overflow-wrap-anywhere "  :style="{width: '200px'}">
+                <Column field="product_name"  header="Product Name" class="overflow-wrap-anywhere" :style="{width: '400px'}">
                     <template #body="prop">
-                        {{ prop.data.pivot.cart_product_variation !== null ? prop.data.name + ' - ' + prop.data.pivot.cart_product_variation : prop.data.name }}
+                        {{ prop.data.pivot.cart_product_variation ? prop.data.pivot.cart_product_variation : prop.data.name }}
                     </template>
                 </Column>
+
                 <Column  header="" class="overflow-wrap-anywhere" >
                     <template #body="prop">
                         <div class=" w-full" v-if="prop.data.pivot.is_stock_available === 0">

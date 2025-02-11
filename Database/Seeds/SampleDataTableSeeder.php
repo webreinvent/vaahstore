@@ -11,6 +11,7 @@ use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\AttributeGroupItem;
 use VaahCms\Modules\Store\Models\AttributeValue;
 use VaahCms\Modules\Store\Models\Brand;
+use VaahCms\Modules\Store\Models\Cart;
 use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
@@ -48,6 +49,7 @@ class SampleDataTableSeeder extends Seeder
         $this->seedBrands();
         $this->seedCategories();
         $this->seedCustomers();
+        $this->seedCarts();
     }
     //---------------------------------------------------------------
 
@@ -356,6 +358,7 @@ class SampleDataTableSeeder extends Seeder
         }
     }
 
-
-
+    public function seedCarts(){
+        Cart::seedCarts();
+    }
 }
