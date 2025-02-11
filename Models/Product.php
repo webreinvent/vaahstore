@@ -1449,30 +1449,7 @@ class Product extends VaahModel
 
         $i = 0;
         $inputs = self::seedProduct();
-//        while($i < $records)
-//        {
-//            $inputs = self::fakeData();
-//
-//            $item =  new self();
-//            $item->fill($inputs);
-//            if(isset($item->seo_meta_keyword))
-//            {
-//                $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
-//            }
-//            $item->slug = Str::slug($inputs['slug']);
-//
-//            $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
-//            $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
-//
-//
-//
-//            $item->save();
-//            if (isset($inputs['category'])) {
-//                $item->productCategories()->attach($inputs['category']->id, ['vh_st_product_id' => $item->id]);
-//            }
-//            $i++;
-//
-//        }
+
 
     }
 
@@ -3236,7 +3213,7 @@ class Product extends VaahModel
 
         }
     }
-    
+
     public static function createProductVariations($product, $attributes)
     {
         $faker = Factory::create();
