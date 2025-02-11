@@ -791,26 +791,30 @@ class Payment extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
-            $item->date=now();
+            $random_date = Carbon::now()->subYear()->addSeconds(rand(0, Carbon::now()->diffInSeconds(Carbon::now()->subYear())));
+
+            $item->date = $random_date;
             $item->save();
             if (isset($inputs['orders']) && is_array($inputs['orders']) && count($inputs['orders']) > 0) {
                 foreach ($inputs['orders'] as  $key =>$order) {
                     $payable_amount = $order['payable_amount'];
+                    if ($payable_amount > 0) {
+                        $pay_amount = rand(0, $payable_amount);
+                        $remaining_payable_amount = $payable_amount - $pay_amount;
 
-                    $pay_amount = 0;
-                    $remaining_payable_amount = $payable_amount - $pay_amount;
+                        $order_data = [
+                            'payable_amount' => $payable_amount,
+                            'pay_amount' => $pay_amount,
+                        ];
+                        $order_payment_detail = [
+                            'payable_amount' => $order_data['payable_amount'],
+                            'payment_amount' => $order_data['pay_amount'],
+                            'remaining_payable_amount' => $remaining_payable_amount,
+                            'created_at' =>$random_date,
+                        ];
+                        $item->orders()->attach($order['id'], $order_payment_detail);
 
-                    $orderData = [
-                        'payable_amount' => $payable_amount,
-                        'pay_amount' => $pay_amount,
-                    ];
-                    $attachmentData = [
-                        'payable_amount' => $orderData['payable_amount'],
-                        'payment_amount' => $orderData['pay_amount'],
-                        'remaining_payable_amount' => $remaining_payable_amount,
-                        'created_at' => now(),
-                    ];
-                    $item->orders()->attach($order['id'], $attachmentData);
+                    }
                 }
             }
             $i++;
@@ -834,22 +838,26 @@ class Payment extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         $faker = Factory::create();
-        $orders = Order::with(['user' => function ($query) {
-            $query->select('id', 'display_name as user_name');
-        }])
-            ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
-            ->where('is_active', 1)
-            ->whereRaw('amount > paid');
+        $orders = Order::with('user:id,username')
 
-        $orders = $orders->limit(10)->get();
+            ->where('is_active', 1)
+            ->whereRaw('amount > paid')
+            ->limit(10)
+            ->get();
+
 
         if ($orders->isNotEmpty()) {
             $random_order = $orders->random();
             $inputs['orders'] = [$random_order];
+
             foreach ($orders as &$order) {
                 if ($order->user) {
-                    $order->user_name = $order->user->user_name;
+                    $order->user_name = $order->user->username;
                     $order->payable_amount= $order->amount - $order->paid;
+                    $order->pay_amount = rand(0, $order->amount);
+
+                    $inputs['amount'] = $order->pay_amount;
+
                     unset($order->user);
                 }
             }
@@ -861,11 +869,13 @@ class Payment extends VaahModel
         $payment_method_input = $payment_method->where('id',$payment_id)->first();
         $inputs['payment_method']=$payment_method_input;
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-status')->where('slug', 'failure');
+        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-status')    ;
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
         $inputs['taxonomy_id_payment_status'] = $status_id;
-        $inputs['amount'] = 0;
+
+        $inputs['transaction_id'] = $faker->unique()->uuid;
+
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
@@ -883,7 +893,7 @@ class Payment extends VaahModel
     //-------------------------------------------------
     public static function searchOrders($request){
         $query = Order::with(['user' => function ($query) {
-            $query->select('id', 'display_name as user_name');
+            $query->select('id', 'username as user_name');
         }])
             ->select('id', 'amount','paid', 'created_at', 'updated_at', 'vh_user_id')
             ->where('is_active', 1)->whereRaw('amount > paid');;
