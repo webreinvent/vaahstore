@@ -3170,7 +3170,7 @@ class Product extends VaahModel
                 ['name' => $product['articleType']],
                 [
                     'slug' => Str::slug($product['articleType']),
-                    'taxonomy_type_id' => TaxonomyType::firstOrCreate(['name' => 'Product Types'])->id
+                    'vh_taxonomy_type_id' => TaxonomyType::firstOrCreate(['name' => 'Product Types'])->id
                 ]
             );
 
@@ -3194,6 +3194,13 @@ class Product extends VaahModel
             }
             // Save the product
             $product = Product::create($inputs);
+
+            $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/attributes.json";
+            $jsonString = file_get_contents($json_file_variants);
+            $attributes = json_decode($jsonString, true);
+
+            // Create variations
+            self::createProductVariations($product, $attributes);
 
 
             $Product_media = new ProductMedia();
@@ -3225,7 +3232,66 @@ class Product extends VaahModel
 
 
 
+
+
+        }
+    }
+    
+    public static function createProductVariations($product, $attributes)
+    {
+        $faker = Factory::create();
+
+        $variation_attributes = ['color', 'size', 'gender'];
+
+        $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
+            return in_array($key, $variation_attributes);
+        }, ARRAY_FILTER_USE_KEY);
+
+        // Generate combinations of selected attributes and their values
+        $attribute_combinations = [];
+
+        foreach ($filtered_attributes as $attribute_key => $attribute) {
+            foreach ($attribute['values'] as $value) {
+                $attribute_combinations[$attribute_key][] = $value;
+            }
+        }
+
+        // Generate variations by combining values from each attribute
+        $combinations = self::combineAttributes($attribute_combinations);
+
+        // Create product variations for each combination
+        foreach ($combinations as $combination) {
+            $variation_name = $product->name . ' - ' . implode('/', $combination);
+            $variation_slug = Str::slug($product->name . ' ' . implode(' ', $combination));
+
+            ProductVariation::firstOrCreate([
+                'vh_st_product_id' => $product->id,
+                'name' => $variation_name,
+                'slug' => $variation_slug,
+                'quantity' => 0,
+                'price' => $faker->randomFloat(2, 10, 500),
+                'is_active' => 1,
+            ]);
         }
     }
 
+    /**
+     * Helper function to generate combinations of attribute values.
+     */
+    public static function combineAttributes($attributes)
+    {
+        $result = [[]];
+
+        foreach ($attributes as $attribute_values) {
+            $new_result = [];
+            foreach ($result as $combination) {
+                foreach ($attribute_values as $value) {
+                    $new_result[] = array_merge($combination, [$value]);
+                }
+            }
+            $result = $new_result;
+        }
+
+        return $result;
+    }
 }
