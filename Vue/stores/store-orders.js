@@ -1325,7 +1325,7 @@ export const useOrderStore = defineStore({
                 ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
-                    width: 3,
+                    width: 2,
                 },
                 title: {
                     text: '',

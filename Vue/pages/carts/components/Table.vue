@@ -30,7 +30,7 @@ const useVaah = vaah();
             <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
             </Column>
 
-            <Column field="user" header="User's Email"
+            <Column field="user" header="User Name"
                     class="overflow-wrap-anywhere"
                     :sortable="true">
 
@@ -38,17 +38,44 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <span v-if="!prop.data.user">
-            Guest User Cart
-        </span>
-                    <span v-else>
-            {{ prop.data.user?.email }}
-        </span>
+                    <span v-if="!prop.data.user">Guest User Cart</span>
+                    <span v-else>{{ prop.data.user?.username }}</span>
                 </template>
 
             </Column>
 
+             <Column field="user" header="Email Address"
+                     class="overflow-wrap-anywhere"
+                     :sortable="true">
+                 <template #body="prop">
+                     <span v-if="!prop.data.user">N/A</span>
 
+                     <span v-else>
+                         <Button class="p-button-tiny p-button-text p-0 mr-2"
+                                 data-testid="taxonomies-table-to-edit"
+                                 v-tooltip.top="'Copy Email'"
+                                 @click="useVaah.copy(prop.data.user?.email)"
+                                 icon="pi pi-copy"
+                         />{{ prop.data.user?.email }}</span>
+                 </template>
+
+             </Column>
+
+             <Column field="user" header="Phone Number"
+                     class="overflow-wrap-anywhere"
+                     :sortable="true">
+
+                 <template #body="prop">
+                     <span v-if="!prop.data.user">N/A</span>
+                     <span v-else>{{ prop.data.user?.phone }}</span>
+                 </template>
+
+             </Column>
+
+             <Column field="products_count" header="Products Inside"
+                     class="overflow-wrap-anywhere"
+                     :sortable="true"></Column>
+             
             <Column field="Actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     header="Actions">
@@ -59,7 +86,7 @@ const useVaah = vaah();
                             :disabled="prop.data.vh_user_id !== null && prop.data.user !== null"
                             class="p-button-tiny p-button-text"
                             data-testid="products-table-to-view"
-                            v-tooltip.top="'Add User'"
+                            v-tooltip.top="'Assign User'"
                             @click="store.openUserDialog(prop.data)"
                             icon="pi pi-user-plus"
                         />
