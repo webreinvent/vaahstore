@@ -5,14 +5,7 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use VaahCms\Modules\Store\Models\Attribute;
-use VaahCms\Modules\Store\Models\AttributeValue;
-use VaahCms\Modules\Store\Models\Currency;
-use VaahCms\Modules\Store\Models\Lingual;
-use VaahCms\Modules\Store\Models\Store;
-use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-use Faker\Factory as Faker;
 
 class DatabaseTableSeeder extends Seeder
 {
@@ -39,7 +32,6 @@ class DatabaseTableSeeder extends Seeder
         $this->seedLanguages();
         $this->seedLanguageCategories();
         $this->seedLanguageStrings();
-
 
 
         $seeder = new SettingTableSeeder();
@@ -178,8 +170,4 @@ class DatabaseTableSeeder extends Seeder
         }
 
     }
-   
-
-
-
 }

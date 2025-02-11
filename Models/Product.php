@@ -1455,8 +1455,27 @@ class Product extends VaahModel
     {
 
         $i = 0;
+        while($i < $records)
+        {
+            $inputs = self::fillItem(false);
 
-        $inputs = self::seedProducts();
+            $item =  new self();
+            $item->fill($inputs);
+            if(isset($item->seo_meta_keyword))
+            {
+                $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
+            }
+            $item->slug = Str::slug($inputs['slug']);
+
+            $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
+            $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
+            $item->save();
+            if (isset($inputs['category'])) {
+                $item->productCategories()->attach($inputs['category']->id, ['vh_st_product_id' => $item->id]);
+            }
+            $i++;
+
+        }
 
 
     }
@@ -3104,139 +3123,4 @@ class Product extends VaahModel
         unset($variation->productAttributes);
     }
 
-
-
-
-
-
-    public static function seedProducts() {
-        $json_file = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/products.json";
-        $jsonString = file_get_contents($json_file);
-        $products = json_decode($jsonString, true);
-
-        $authUserId = Auth::id();
-
-        foreach ($products as $product) {
-
-            // Check if product exists
-            $existing_product = Product::where('name', $product['name'])->first();
-            if ($existing_product) {
-                continue;
-            }
-
-            $inputs = [];
-            $inputs['name'] = $product['name'];
-            $inputs['slug'] = Str::slug($inputs['name']);
-            $inputs['summary'] = $product['info'];
-
-            // Assign a random active store
-            $stores = Store::where('is_active', 1)->pluck('id')->toArray();
-            if (!empty($stores)) {
-                $inputs['vh_st_store_id'] = $stores[array_rand($stores)];
-            }
-
-            // Assign or create brand
-            $brand = Brand::firstOrCreate(
-                ['name' => $product['brand']['name']],
-                [
-                    'slug' => Str::slug($product['brand']['name']),
-                    'registered_by' => $authUserId,
-                    'is_active' => 1,
-                    'approved_by' => $authUserId
-                ]
-            );
-            $inputs['vh_st_brand_id'] = $brand->id;
-
-            // Assign Product Status
-            $taxonomy_status = Taxonomy::where('name', 'Approved')
-                ->whereHas('type', function ($query) {
-                    $query->where('name', 'Product Status');
-                })
-                ->first();
-            if (!empty($taxonomy_status)) {
-                $inputs['taxonomy_id_product_status'] = $taxonomy_status->id;
-            }
-
-            // Assign Product Type
-            $taxonomy = Taxonomy::firstOrCreate(
-                ['name' => $product['articleType']],
-                [
-                    'slug' => Str::slug($product['articleType']),
-                    'vh_taxonomy_type_id' => TaxonomyType::firstOrCreate(['name' => 'Product Types'])->id
-                ]
-            );
-            $inputs['taxonomy_id_product_type'] = $taxonomy->id;
-            $inputs['is_active'] = 1;
-
-            // Create Product
-            $newProduct = Product::create($inputs);
-
-            $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/attributes.json";
-            $jsonString = file_get_contents($json_file_variants);
-            $attributes = json_decode($jsonString, true);
-
-            // Create variations
-            self::createProductVariations($newProduct, $attributes);
-        }
-    }
-
-    /**
-     * Create product variations based on attributes.
-     */
-
-
-    public static function createProductVariations($product, $attributes)
-    {
-        $faker = Factory::create();
-
-        $variation_attributes = ['color', 'size', 'gender'];
-
-        $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
-            return in_array($key, $variation_attributes);
-        }, ARRAY_FILTER_USE_KEY);
-
-        // Generate combinations of selected attributes and their values
-        $attribute_combinations = [];
-
-        foreach ($filtered_attributes as $attribute_key => $attribute) {
-            foreach ($attribute['values'] as $value) {
-                $attribute_combinations[$attribute_key][] = $value;
-            }
-        }
-
-        // Generate variations by combining values from each attribute
-        $combinations = self::combineAttributes($attribute_combinations);
-
-        foreach ($combinations as $combination) {
-            $variation_name = $product->name . ' - ' . implode('/', $combination);
-            $variation_slug = Str::slug($product->name . ' ' . implode(' ', $combination));
-
-            ProductVariation::firstOrCreate([
-                'vh_st_product_id' => $product->id,
-                'name' => $variation_name,
-                'slug' => $variation_slug,
-                'taxonomy_id_variation_status' => $variation_slug,
-                'quantity' => 0,
-                'price' => $faker->randomFloat(2, 10, 500),
-                'is_active' => 1,
-            ]);
-        }
-    }
-
-    public static function combineAttributes($attributes)
-    {
-        $result = [[]];
-
-        foreach ($attributes as $attribute_values) {
-            $new_result = [];
-            foreach ($result as $combination) {
-                foreach ($attribute_values as $value) {
-                    $new_result[] = array_merge($combination, [$value]);
-                }
-            }
-            $result = $new_result;
-        }
-
-        return $result;
-    }
 }
