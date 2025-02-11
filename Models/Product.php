@@ -211,6 +211,15 @@ class Product extends VaahModel
     }
 
     //-------------------------------------------------
+    public function productStocks()
+    {
+        return $this->hasMany(
+            ProductStock::class,
+            'vh_st_product_id',
+            'id'
+        );
+    }
+    //-------------------------------------------------
     public function cart()
     {
         return $this->hasOne(User::class,'vh_st_carts','id');
