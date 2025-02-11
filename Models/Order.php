@@ -706,7 +706,46 @@ class Order extends VaahModel
 
             $item = new self();
             $item->fill($inputs);
-            $item->save();
+//            $item->save();
+
+            $order_items = null;
+//            $order_items['vh_user_id'] = $item->vh_user_id;
+            $order_items['vh_st_customer_group_id'] = null;
+
+            $order_items_types = Taxonomy::inRandomOrder()
+                ->whereHas('type', function ($query) {
+                    $query->where('slug', 'Order-items-types');
+                })
+                ->first();
+            if (!empty($order_items_types)) {
+                $order_items['taxonomy_id_order_items_types'] = $order_items_types->id;
+            }
+
+            $order_items_status = Taxonomy::inRandomOrder()
+                ->whereHas('type', function ($query) {
+                    $query->where('slug', 'Order-items-status');
+                })
+                ->first();
+            if (!empty($order_items_status)) {
+                $order_items['taxonomy_id_order_items_status'] = $order_items_status->id;
+            }
+            $valid_products = Product::whereHas('productVendors')->get();
+            dd($valid_products);
+            $order_items['vh_shipping_address_id'] = '';
+            $order_items['vh_billing_address_id'] = '';
+            $order_items['vh_st_product_id'] = '';
+            $order_items['vh_st_product_variation_id'] = '';
+            $order_items['vh_st_vendor_id'] = '';
+            $order_items['quantity'] = '';
+            $order_items['price'] = '';
+            $order_items['is_invoice_available'] = '';
+            $order_items['invoice_url'] = '';
+            $order_items['tracking'] = '';
+            $order_items['is_active'] = 1;
+            $order_items['status_notes'] = '';
+
+            $order_item = new OrderItem($order_items);
+            $item->items()->save($order_item);
 
             $i++;
 
@@ -736,6 +775,27 @@ class Order extends VaahModel
 
 
         // fill the user field with any random user here
+
+        $inputs['vh_user_id'] = User::inRandomOrder()->value('id');
+        $inputs['order_status'] = 'Placed';
+        $inputs['vh_st_payment_method_id'] = PaymentMethod::inRandomOrder()->value('id');
+
+        $order_payment_status= Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'order-payment-status');
+            })
+            ->first();
+        if (!empty($order_payment_status)) {
+            $inputs['taxonomy_id_payment_status'] = $order_payment_status->id;
+        }
+
+        $inputs['order_shipment_status'] = 'Pending';
+        $inputs['delivery_fee'] = 0;
+        $inputs['taxes'] = 0;
+        $inputs['discount'] = 0;
+        $inputs['paid'] = '';
+        $inputs['is_paid'] = 0;
+        $inputs['is_active'] = 1;
 
 
         if (!$is_response_return) {
