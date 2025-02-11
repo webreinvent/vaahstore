@@ -707,7 +707,7 @@ class Order extends VaahModel
 
         $i = 0;
 
-        while ($i < 2) {
+        while ($i < $records) {
             $inputs = self::fillItem(false);
 
             $item = new self();
@@ -717,75 +717,8 @@ class Order extends VaahModel
 
             ///////////////////////////////// order items
 
-            $order_items_types = Taxonomy::inRandomOrder()
-                ->whereHas('type', function ($query) {
-                    $query->where('slug', 'Order-items-types');
-                })
-                ->first();
+            self::createOrderItem($item);
 
-
-            $order_items_status = Taxonomy::inRandomOrder()
-                ->whereHas('type', function ($query) {
-                    $query->where('slug', 'Order-items-status');
-                })
-                ->first();
-
-
-            $valid_products = Product::whereHas('productVendors')
-                ->with('productVariations', 'productVendors')
-                ->take(rand(1, 10))
-                ->get();
-
-
-            $user_addresses = StoreUser::where('id', $inputs['vh_user_id'])
-                ->with('addresses')
-                ->whereHas('addresses', function ($query) {
-                    $query->whereHas('addressType', function ($query) {
-                        $query->where('slug', 'shipping')
-                            ->orWhere('slug', 'billing');
-                    });
-                })
-                ->first();
-
-            foreach ($valid_products as $product) {
-
-                $product_id = $product['id'];
-                $vendor_id = $product->productVendors->random()->vh_st_vendor_id;
-
-                $random_variation_id = $product->productVariations->pluck('id')->random();
-                $price = $product->productVariations->where('id', $random_variation_id)->first()->price;
-
-                    $order_item = new OrderItem();
-                    $order_item['vh_st_order_id'] = $item->id;
-                    $order_item['vh_user_id'] = $item->vh_user_id;
-                    $order_item['vh_st_customer_group_id'] = null;
-
-                    if (!empty($order_items_types)) {
-                        $order_item['taxonomy_id_order_items_types'] = $order_items_types->id;
-                    }
-
-                    if (!empty($order_items_status)) {
-                        $order_item['taxonomy_id_order_items_status'] = $order_items_status->id;
-                    }
-
-                    $order_item['vh_st_product_id'] = $product_id;
-                    $order_item['vh_st_vendor_id'] = $vendor_id;
-
-                    $order_item['vh_st_product_variation_id'] = $random_variation_id;
-                    $order_item['vh_shipping_address_id'] = $user_addresses->addresses->random()->id;
-                    $order_item['vh_billing_address_id'] = $order_item['vh_shipping_address_id'];
-
-                    $order_item['quantity'] = rand(1,17);
-                    $order_item['price'] = $price;
-                    $order_item['is_invoice_available'] = '';
-                    $order_item['invoice_url'] = '';
-                    $order_item['tracking'] = '';
-                    $order_item['is_active'] = 1;
-                    $order_item['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
-                    $order_item['status_notes'] = '';
-                    $order_item->save();
-
-            }
             $total_price = OrderItem::where('vh_st_order_id', $item->id)
                 ->get()
                 ->sum(function ($order_item) {
@@ -1164,6 +1097,81 @@ class Order extends VaahModel
             $list = $list->paymentStatusFilter($request->filter);
         }
         return $list;
+    }
+
+    //-------------------------------------------------
+
+    public static function createOrderItem($item = null){
+
+        $order_items_types = Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'Order-items-types');
+            })
+            ->first();
+
+
+        $order_items_status = Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'Order-items-status');
+            })
+            ->first();
+
+
+        $valid_products = Product::whereHas('productVendors')
+            ->with('productVariations', 'productVendors')
+            ->take(rand(1, 10))
+            ->get();
+
+
+        $user_addresses = StoreUser::where('id', $item->vh_user_id)
+            ->with('addresses')
+            ->whereHas('addresses', function ($query) {
+                $query->whereHas('addressType', function ($query) {
+                    $query->where('slug', 'shipping')
+                        ->orWhere('slug', 'billing');
+                });
+            })
+            ->first();
+
+        foreach ($valid_products as $product) {
+
+            $product_id = $product['id'];
+            $vendor_id = $product->productVendors->random()->vh_st_vendor_id;
+
+            $random_variation_id = $product->productVariations->pluck('id')->random();
+            $price = $product->productVariations->where('id', $random_variation_id)->first()->price;
+
+            $order_item = new OrderItem();
+            $order_item['vh_st_order_id'] = $item->id;
+            $order_item['vh_user_id'] = $item->vh_user_id;
+            $order_item['vh_st_customer_group_id'] = null;
+
+            if (!empty($order_items_types)) {
+                $order_item['taxonomy_id_order_items_types'] = $order_items_types->id;
+            }
+
+            if (!empty($order_items_status)) {
+                $order_item['taxonomy_id_order_items_status'] = $order_items_status->id;
+            }
+
+            $order_item['vh_st_product_id'] = $product_id;
+            $order_item['vh_st_vendor_id'] = $vendor_id;
+
+            $order_item['vh_st_product_variation_id'] = $random_variation_id;
+            $order_item['vh_shipping_address_id'] = $user_addresses->addresses->random()->id;
+            $order_item['vh_billing_address_id'] = $order_item['vh_shipping_address_id'];
+
+            $order_item['quantity'] = rand(1,17);
+            $order_item['price'] = $price;
+            $order_item['is_invoice_available'] = '';
+            $order_item['invoice_url'] = '';
+            $order_item['tracking'] = '';
+            $order_item['is_active'] = 1;
+            $order_item['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+            $order_item['status_notes'] = '';
+            $order_item->save();
+
+        }
     }
 
 }
