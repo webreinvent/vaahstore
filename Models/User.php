@@ -34,6 +34,13 @@ class User extends UserBase
     }
 
     //----------------------------------------------------------
+    public function addresses()
+    {
+        return $this->hasMany(Address::class,
+            'vh_user_id','id'
+        );
+    }
+    //----------------------------------------------------------
     public function scopeCustomerGroupFilter($query, $filter)
     {
 

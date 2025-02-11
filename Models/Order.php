@@ -13,6 +13,7 @@ use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\User as StoreUser;
 
 class Order extends VaahModel
 {
@@ -709,7 +710,7 @@ class Order extends VaahModel
 //            $item->save();
 
             $order_items = null;
-//            $order_items['vh_user_id'] = $item->vh_user_id;
+            $order_items['vh_user_id'] = $item->vh_user_id;
             $order_items['vh_st_customer_group_id'] = null;
 
             $order_items_types = Taxonomy::inRandomOrder()
@@ -743,10 +744,20 @@ class Order extends VaahModel
                 }
             }
 
-            $order_items['vh_shipping_address_id'] = '';
-            $order_items['vh_billing_address_id'] = '';
+            $user_addresses = StoreUser::where('id', $inputs['vh_user_id'])
+                ->with('addresses')
+                ->whereHas('addresses', function ($query) {
+                    $query->whereHas('addressType', function ($query) {
+                        $query->where('slug', 'shipping')
+                            ->orWhere('slug', 'billing');
+                    });
+                })
+                ->first();
 
-            $order_items['quantity'] = '';
+            $order_items['vh_shipping_address_id'] = $user_addresses->addresses->random()->id;
+            $order_items['vh_billing_address_id'] = $order_items['vh_shipping_address_id'];
+
+            $order_items['quantity'] = random(1,25);
             $order_items['price'] = '';
             $order_items['is_invoice_available'] = '';
             $order_items['invoice_url'] = '';
@@ -786,7 +797,12 @@ class Order extends VaahModel
 
         // fill the user field with any random user here
 
-        $inputs['vh_user_id'] = User::inRandomOrder()->value('id');
+        $inputs['vh_user_id'] = StoreUser::whereHas('addresses', function ($query) {
+            $query->whereHas('addressType', function ($query) {
+                $query->where('slug', 'shipping')
+                    ->orWhere('slug', 'billing');
+            });
+        })->inRandomOrder()->value('id');
         $inputs['order_status'] = 'Placed';
         $inputs['vh_st_payment_method_id'] = PaymentMethod::inRandomOrder()->value('id');
 
