@@ -4,12 +4,20 @@ import {useCartStore} from '../../../stores/store-carts'
 import VhField from '../../../vaahvue/vue-three/primeflex/VhField.vue'
 import {onMounted, ref, computed, watchEffect, watch} from "vue";
 import {useRoute} from "vue-router";
+import {useRootStore} from "../../../stores/root";
 const route = useRoute();
 const store = useCartStore();
 const useVaah = vaah();
+const root = useRootStore();
+
 let route_params_id = null;
+const base_url = ref('');
+
 onMounted(async () => {
     document.title = 'Carts - Check-out';
+
+    base_url.value = root.ajax_url.replace('backend/store', '/');
+
     if (route.params && route.params.id) {
         route_params_id = route.params;
         await store.getItem(route.params.id);await store.onLoad(route);
@@ -77,12 +85,12 @@ watchEffect(() => {
                                             <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                 <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
                                                     <Image preview
-                                                           :src="'http://localhost/shivam-g001/store-dev/public/' + imageUrl"
+                                                           :src="base_url + '/' + imageUrl"
                                                            alt="Error" class="shadow-4" width="64"/>
                                                 </div>
                                             </div>
                                             <div v-else>
-                                                <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
+                                                <Image  preview src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
                                                      alt="Error" class="shadow-4" width="64"/>
                                             </div>
                                         </div>
