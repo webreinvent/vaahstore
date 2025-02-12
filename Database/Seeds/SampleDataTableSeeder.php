@@ -15,6 +15,9 @@ use VaahCms\Modules\Store\Models\Cart;
 use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
+use VaahCms\Modules\Store\Models\Order;
+use VaahCms\Modules\Store\Models\OrderItem;
+use VaahCms\Modules\Store\Models\PaymentMethod;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductMediaImage;
@@ -22,6 +25,7 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
+use VaahCms\Modules\Store\Models\User as StoreUser;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -29,6 +33,8 @@ use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+
 
 class SampleDataTableSeeder extends Seeder
 {
