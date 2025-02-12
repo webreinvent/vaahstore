@@ -62,10 +62,10 @@ class SampleDataTableSeeder extends Seeder
         $this->seedBrands();
         $this->seedCategories();
         $this->seedCustomers();
+        $this->seedVendors();
         $this->seedProducts();
         $this->seedVendorProducts();
         $this->seedCarts();
-        $this->seedVendors();
         $this->seedOrders();
 
     }
