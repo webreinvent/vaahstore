@@ -1637,22 +1637,29 @@ class Vendor extends VaahModel
                     ->keyBy('sales_date');
 
                 $formatted_data = [];
+                $has_sales = false;
                 foreach ($labels as $date_string) {
-                    $formatted_data[] = [
-                        'x' => $date_string,
-                        'y' => isset($sales_data[$date_string]) ? (int) $sales_data[$date_string]->total_sales : 0,
-                    ];
+                    $sales = isset($sales_data[$date_string]) ? (int) $sales_data[$date_string]->total_sales : 0;
+                    $formatted_data[] = ['x' => $date_string, 'y' => $sales];
+
+                    if ($sales > 0) {
+                        $has_sales = true; 
+                    }
+                }
+                if (!$has_sales) {
+                    return null;
                 }
 
                 return [
                     'name' => $item->vendor->name,
                     'data' => $formatted_data,
                 ];
-            });
+            })
+            ->filter();
 
         return [
             'data' => [
-                'chart_series' => $vendor_sales,
+                'chart_series' => $vendor_sales->values(),
                 'chart_options' => [
                     'xaxis' => [
                         'type' => 'datetime',
