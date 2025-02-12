@@ -19,6 +19,7 @@ use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductMediaImage;
 use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
@@ -28,6 +29,7 @@ use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 use Illuminate\Support\Facades\Storage;
+use VaahCms\Modules\Store\Models\User as StoreUser;
 
 class SampleDataTableSeeder extends Seeder
 {
@@ -57,6 +59,8 @@ class SampleDataTableSeeder extends Seeder
         $this->seedCustomers();
         $this->seedCarts();
         $this->seedProducts();
+        $this->seedVendors();
+        $this->seedMultipleVendorProducts();
     }
     //---------------------------------------------------------------
 
@@ -550,6 +554,124 @@ class SampleDataTableSeeder extends Seeder
         }
 
         return $result;
+    }
+
+    public function seedVendors()
+    {
+        $faker = Faker::create();
+        $store_ids = Store::pluck('id')->toArray();
+        $active_user = auth()->user();
+        $statuses = Taxonomy::getTaxonomyByType('vendor-status')->pluck('id')->toArray();
+
+        for ($i = 0; $i < 200; $i++) {
+            $item = new Vendor;
+            $item->name =$faker->name;
+            $item->vh_st_store_id = $store_ids ? $store_ids[array_rand($store_ids)] : null;
+
+            $item->owned_by = $active_user->id;
+            $item->registered_at = null;
+            $item->auto_approve_products = 0;
+            $item->approved_by = $active_user->id;
+            $item->approved_at = null; // Set the approval date if needed
+            $item->taxonomy_id_vendor_status = $statuses ? $statuses[array_rand($statuses)] : null;
+            $item->status_notes = 'Default Vendor Status';
+            $item->is_active = 1;
+            $item->slug = Str::slug('Default Vendor ' . $i);
+            $item->save();
+        }
+    }
+
+    public function seedVendorProducts()
+    {
+
+        $taxonomy_status = Taxonomy::getTaxonomyByType('product-vendor-status');
+        $status_ids = $taxonomy_status->pluck('id')->toArray();
+        $status_id = $status_ids[array_rand($status_ids)];
+        $inputs['taxonomy_id_product_vendor_status'] = $status_id;
+//        $status = $taxonomy_status->where('id',$status_id)->first();
+//        $inputs['status']=$status;
+
+        // fill the store field here
+
+        $vendors = Vendor::where('is_active', 1)->get();
+        $vendors_ids = $vendors->pluck('id')->toArray();
+//        $inputs['vendor'] = null;
+        $inputs['vh_st_vendor_id'] = null;
+        if (!empty($vendors_ids)) {
+            $vendors_id = $vendors_ids[array_rand($vendors_ids)];
+//            $vendor = $vendors->where('id', $vendors_id)->first();
+//            $inputs['vendor'] = $vendor;
+            $inputs['vh_st_vendor_id'] = $vendors_id;
+        }
+
+
+
+        $stores = Store::where('is_active', 1)->get();
+        $store_ids = $stores->pluck('id')->toArray();
+        $store_id = null;
+
+        if (!empty($store_ids)) {
+            $store_id = $store_ids[array_rand($store_ids)];
+            $store = $stores->where('id', $store_id)->first();
+
+            $store['store_vendor_product'] = $store;
+            $store['vh_st_store_id'] = $store_id;
+        }
+
+
+
+        $products = Product::where('is_active', 1)
+            ->where('vh_st_store_id', $store_id)
+            ->get();
+
+        $product_ids = $products->pluck('id')->toArray();
+
+//        $inputs['product'] = null;
+        $inputs['vh_st_product_id'] = null;
+
+        if (!empty($product_ids)) {
+
+            $product_id = $product_ids[array_rand($product_ids)];
+
+//            $product = $products->where('id', $product_id)->first();
+//
+//            $inputs['product'] = $product;
+            $inputs['vh_st_product_id'] = $product_id;
+        } else {
+            $any_active_product = Product::where('is_active', 1)
+                ->inRandomOrder()
+                ->first();
+
+//            $inputs['product'] = $any_active_product;
+            $inputs['vh_st_product_id'] = $any_active_product ? $any_active_product->id : null;
+        }
+
+
+        $users = StoreUser::where('is_active',1)->get();
+        $user_ids = $users->pluck('id')->toArray();
+        $user_id = $user_ids[array_rand($user_ids)];
+        $user = $users->where('id',$user_id)->first();
+//        $inputs['added_by_user'] = $user;
+        $inputs['added_by'] = $user_id;
+
+        $inputs['can_update'] =  rand(0,1);
+        $inputs['is_active'] = 1;
+
+        $item =  new ProductVendor();
+        $item->fill($inputs);
+
+        $item->save();
+        if (isset($inputs['store_vendor_product']) && $inputs['store_vendor_product'] ) {
+            $storeId = $inputs['store_vendor_product']->id;
+            $item->storeVendorProduct()->attach($storeId);
+        }
+    }
+
+    public function seedMultipleVendorProducts($count = 100)
+    {
+        for ($i = 0; $i < $count; $i++) {
+            $this->seedVendorProducts();
+        }
     }
 
     public function seedCarts(){
