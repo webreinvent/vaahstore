@@ -611,7 +611,7 @@ class SampleDataTableSeeder extends Seeder
         $active_user = auth()->user();
         $statuses = Taxonomy::getTaxonomyByType('vendor-status')->pluck('id')->toArray();
 
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $item = new Vendor;
             $item->name =$faker->name;
             $item->vh_st_store_id = $store_ids ? $store_ids[array_rand($store_ids)] : null;

@@ -8,13 +8,18 @@ use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\Brand;
+use VaahCms\Modules\Store\Models\Cart;
+use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\CustomerGroup;
+use VaahCms\Modules\Store\Models\Order;
+use VaahCms\Modules\Store\Models\Payment;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductAttribute;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductStock;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\ProductVendor;
+use VaahCms\Modules\Store\Models\Shipment;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
@@ -472,6 +477,11 @@ class SettingsController extends Controller
             $data['count']['Warehouses'] = Warehouse::all()->count();
 
             $data['count']['ProductStock'] = ProductStock::all()->count();
+            $data['count']['Orders'] = Order::all()->count();
+            $data['count']['Carts'] = Cart::all()->count();
+            $data['count']['Payments'] = Payment::all()->count();
+            $data['count']['Shipments'] = Shipment::all()->count();
+            $data['count']['Categories'] = Category::all()->count();
 
             $data['count']['All'] = $data['count']['ProductStock'] +  $data['count']['Warehouses']
 
@@ -481,7 +491,7 @@ class SettingsController extends Controller
 
                 $data['count']['Attributes'] +   $data['count']['Brand'] + $data['count']['Address'] + $data['count']['Wishlists'] +
 
-                $data['count']['Store'] + $data['count']['AttributeGroups'] ;
+                $data['count']['Store'] + $data['count']['AttributeGroups']+$data['count']['Orders']+$data['count']['Carts']+$data['count']['Payments']+$data['count']['Shipments']+$data['count']['Categories'] ;
 
 
             $response['success'] = true;
