@@ -257,7 +257,7 @@ class Cart extends VaahModel
                 $q1->where('name', 'LIKE', '%' . $search_item . '%')
                     ->orWhereHas('user', function ($q) use ($search_item) {
                         $q->where('name', 'LIKE', '%' . $search_item . '%')
-                            ->orWhere('first_name', 'LIKE', '%' . $search_item . '%')
+                            ->orWhere('username', 'LIKE', '%' . $search_item . '%')
                             ->orWhere('phone', 'LIKE', '%' . $search_item . '%')
                             ->orWhere('email', 'LIKE', '%' . $search_item . '%');
                     });
@@ -1375,7 +1375,7 @@ class Cart extends VaahModel
             'data' => $validated_data,
         ];
     }
-    
+
     //---------------------------------------------------------------------
 
     public static function seedCarts()
