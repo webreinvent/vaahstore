@@ -1893,6 +1893,22 @@ export const useVendorStore = defineStore({
                 },
                 grid: {
                     show: false,
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    axisTicks: {
+                        show: false,
+                    }
+                },
+                tooltip: {
+                    shared: false,
+
                 }
             };
 
