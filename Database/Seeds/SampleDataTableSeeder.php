@@ -6,6 +6,7 @@ use Faker\Factory;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeGroup;
 use VaahCms\Modules\Store\Models\AttributeGroupItem;
@@ -62,6 +63,7 @@ class SampleDataTableSeeder extends Seeder
         $this->seedBrands();
         $this->seedCategories();
         $this->seedCustomers();
+        $this->seedAddresses();
         $this->seedVendors();
         $this->seedProducts();
         $this->seedVendorProducts();
@@ -754,6 +756,38 @@ class SampleDataTableSeeder extends Seeder
             $item->payable = $total_price;
             $item->save();
 
+        }
+    }
+
+    public function  seedAddresses(){
+
+        $faker = Factory::create();
+        for ($i = 0; $i < 100 ; $i++) {
+            $inputs['address_line_1'] = $faker->address;
+            $inputs['address_line_2'] = $faker->streetAddress;
+            $inputs['city'] = $faker->city;
+            $inputs['state'] = $faker->streetSuffix;
+            $inputs['country'] = $faker->country;
+            $inputs['phone'] = $faker->phoneNumber;
+            $taxonomy_status = Taxonomy::getTaxonomyByType('address-status');
+            $status_ids = $taxonomy_status->pluck('id')->toArray();
+            $status_id = $status_ids[array_rand($status_ids)];
+            $inputs['taxonomy_id_address_status'] = $status_id;
+
+            $user_ids = User::where('is_active', 1)->pluck('id')->toArray();
+            $user_id = $user_ids[array_rand($user_ids)];
+            $inputs['vh_user_id'] = $user_id;
+
+            $address_types = Taxonomy::getTaxonomyByType('address-types');
+            $address_ids = $address_types->pluck('id')->toArray();
+            $address_id = $address_ids[array_rand($address_ids)];
+            $address_type = $address_types->where('id', $address_id)->first();
+            $inputs['taxonomy_id_address_types'] = $address_id;
+            $inputs['is_default'] = 0;
+
+            $item = new Address();
+            $item->fill($inputs);
+            $item->save();
         }
     }
 
