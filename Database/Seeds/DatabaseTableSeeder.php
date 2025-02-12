@@ -5,11 +5,6 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use VaahCms\Modules\Store\Models\Brand;
-use VaahCms\Modules\Store\Models\Product;
-use VaahCms\Modules\Store\Models\Store;
-use VaahCms\Modules\Store\Models\Vendor;
-use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class DatabaseTableSeeder extends Seeder
@@ -175,5 +170,4 @@ class DatabaseTableSeeder extends Seeder
         }
 
     }
-
 }

@@ -257,7 +257,7 @@ class Cart extends VaahModel
                 $q1->where('name', 'LIKE', '%' . $search_item . '%')
                     ->orWhereHas('user', function ($q) use ($search_item) {
                         $q->where('name', 'LIKE', '%' . $search_item . '%')
-                            ->orWhere('first_name', 'LIKE', '%' . $search_item . '%')
+                            ->orWhere('username', 'LIKE', '%' . $search_item . '%')
                             ->orWhere('phone', 'LIKE', '%' . $search_item . '%')
                             ->orWhere('email', 'LIKE', '%' . $search_item . '%');
                     });
@@ -289,7 +289,7 @@ class Cart extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('user');
+        $list = self::getSorted($request->filter)->with('user')->withCount('products');
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -1381,5 +1381,44 @@ class Cart extends VaahModel
         ];
     }
 
+    //---------------------------------------------------------------------
 
+    public static function seedCarts()
+    {
+        $users = User::where('is_active', 1)->pluck('id')->toArray();
+
+        $valid_products = Product::whereHas('productVendors')
+            ->whereHas('productStocks', function ($query) {
+                $query->where('quantity', '>', 0);
+            })
+            ->get();
+
+        if (empty($users) || $valid_products->isEmpty()) {
+            return;
+        }
+
+        for ($i = 0; $i < 100; $i++) {
+            $user_id = $users[array_rand($users)] ?? null;
+            if (!$user_id) {
+                continue;
+            }
+            $cart = new Cart();
+            $cart->vh_user_id = $user_id;
+            $cart->save();
+
+            $cart_products = $valid_products->random(rand(1, 5));
+            foreach ($cart_products as $product) {
+                $product_stock = optional($product->productStocks()->where('quantity', '>', 0)->first());
+
+                if (!$product_stock || !$product_stock->vh_st_vendor_id) {
+                    continue;
+                }
+                $cart->products()->attach($product->id, [
+                    'vh_st_product_variation_id' => $product_stock->vh_st_product_variation_id ?? null,
+                    'vh_st_vendor_id' => $product_stock->vh_st_vendor_id,
+                    'quantity' => rand(2, 8),
+                ]);
+            }
+        }
+    }
 }

@@ -1179,7 +1179,7 @@ export const useWarehouseStore = defineStore({
 
                 title: {
                     text: 'Stocks Available In Warehouse',
-                    align: 'center',
+                    align: 'left',
                     offsetY: 12,
                     style: {
                         fontSize: '16px',
@@ -1234,12 +1234,14 @@ export const useWarehouseStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
+                },fill: {
+                    colors: ['#0000FF',  '#5996f1']
                 },
                 dataLabels: {
-                    enabled: true,
+                    enabled: false,
                     textAnchor: 'center',
                     style: {
-                        colors: ['#000'],
+                        colors: ['#ffffff'],
                     },
                     formatter: function (val, opt) {
                         const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';

@@ -1247,8 +1247,17 @@ export const useOrderStore = defineStore({
                 tooltip: {
                     x: {
                         format: 'MMMM d, yyyy'
+                    },
+                    y: {
+                        formatter: function (value) {
+                            if (value >= 1000) {
+                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
+                            }
+                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
+                        }
                     }
                 },
+
                 chart: {
                     background: '#fff',
                     toolbar: {
@@ -1323,7 +1332,7 @@ export const useOrderStore = defineStore({
                 ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
-                    width: 3,
+                    width: 2,
                 },
                 title: {
                     text: '',
@@ -1360,7 +1369,15 @@ export const useOrderStore = defineStore({
                 },
                 tooltip: {
                     x: {
-                        format: 'MMMM d, yyyy'
+                        format: 'MMM dd, yyyy'
+                    },
+                    y: {
+                        formatter: function (value) {
+                            if (value >= 1000) {
+                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
+                            }
+                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
+                        }
                     }
                 },
                 chart: {

@@ -151,8 +151,8 @@ class Product extends VaahModel
     public function brand()
     {
         return $this->hasOne(Brand::class,'id','vh_st_brand_id')
-                    ->withTrashed()
-                    ->select('id','name','slug','is_default','deleted_at');
+               ->withTrashed()
+               ->select('id','name','slug','is_default','deleted_at');
     }
     //-------------------------------------------------
 
@@ -213,6 +213,15 @@ class Product extends VaahModel
             ->with('vendor');
     }
 
+    //-------------------------------------------------
+    public function productStocks()
+    {
+        return $this->hasMany(
+            ProductStock::class,
+            'vh_st_product_id',
+            'id'
+        );
+    }
     //-------------------------------------------------
     public function cart()
     {
@@ -311,6 +320,7 @@ class Product extends VaahModel
 
     public static function generateVariation($request,$id)
     {
+
         $permission_slug = 'can-update-module';
         if (!\Auth::user()->hasPermission($permission_slug)) {
             return vh_get_permission_denied_response($permission_slug);
@@ -1100,21 +1110,21 @@ class Product extends VaahModel
             case 'create-5000-records':
             case 'create-10000-records':
 
-            if(!config('store.is_dev')){
-                $response['success'] = false;
-                $response['errors'][] = 'User is not in the development environment.';
+                if(!config('store.is_dev')){
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
 
-                return $response;
-            }
+                    return $response;
+                }
 
-            preg_match('/-(.*?)-/', $type, $matches);
+                preg_match('/-(.*?)-/', $type, $matches);
 
-            if(count($matches) !== 2){
+                if(count($matches) !== 2){
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
-            }
-
-            self::seedSampleItems($matches[1]);
-            break;
         }
 
         $response['success'] = true;
@@ -1134,7 +1144,7 @@ class Product extends VaahModel
             'brand', 'store', 'type', 'status', 'productCategories'
         ];
 
-           foreach ($include as $key => $value) {
+        foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated relationships
                 foreach ($keys as $relationship) {
@@ -1360,8 +1370,8 @@ class Product extends VaahModel
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
                 $item->save();
@@ -1399,7 +1409,7 @@ class Product extends VaahModel
             'available_at' => 'required_without_all:quantity,launch_at,0',
         ],
             [    'name.required' => 'The Name field is required',
-                 'name.max' => 'The Name field may not be greater than :max characters',
+                'name.max' => 'The Name field may not be greater than :max characters',
                 'slug.required' => 'The Slug field is required',
                 'slug.max' => 'The Slug field may not be greater than :max characters',
                 'summary.max' => 'The Summary field may not be greater than :max characters',
@@ -1763,13 +1773,13 @@ class Product extends VaahModel
     {
         $query = $request['filter']['vendor'];
 
-            $vendors = Vendor::whereIn('name',$query)
-                ->orWhereIn('slug',$query)
-                ->select('id','name','slug')->get();
+        $vendors = Vendor::whereIn('name',$query)
+            ->orWhereIn('slug',$query)
+            ->select('id','name','slug')->get();
 
-            $response['success'] = true;
-            $response['data'] = $vendors;
-            return $response;
+        $response['success'] = true;
+        $response['data'] = $vendors;
+        return $response;
     }
 
     //-------------------------------------------------
@@ -2125,16 +2135,16 @@ class Product extends VaahModel
 
     private static function updateQuantity($cart, $product_id,$variation_id, $selected_vendor,$quantity)
     {
-            $pivot_record = $cart->products()
-                        ->where('vh_st_product_id', $product_id)
-                        ->where('vh_st_product_variation_id', $variation_id)
-                        ->where('vh_st_vendor_id', $selected_vendor['id'])
-                        ->withPivot('id', 'quantity')
-                        ->first();
-            if ($pivot_record) {
-                        $pivot_record->pivot->quantity += $quantity;
-                        $pivot_record->pivot->save();
-            }
+        $pivot_record = $cart->products()
+            ->where('vh_st_product_id', $product_id)
+            ->where('vh_st_product_variation_id', $variation_id)
+            ->where('vh_st_vendor_id', $selected_vendor['id'])
+            ->withPivot('id', 'quantity')
+            ->first();
+        if ($pivot_record) {
+            $pivot_record->pivot->quantity += $quantity;
+            $pivot_record->pivot->save();
+        }
     }
     //----------------------------------------------------------
 

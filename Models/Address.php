@@ -843,8 +843,14 @@ class Address extends VaahModel
         if(!$fillable['success']){
             return $fillable;
         }
+        $faker = Factory::create();
         $inputs = $fillable['data']['fill'];
-
+        $inputs['address_line_1'] = $faker->address;
+        $inputs['address_line_2'] = $faker->streetAddress;
+        $inputs['city'] = $faker->city;
+        $inputs['state'] = $faker->streetSuffix;
+        $inputs['country'] = $faker->country;
+        $inputs['phone'] = $faker->phoneNumber;
         $taxonomy_status = Taxonomy::getTaxonomyByType('address-status');
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
@@ -865,7 +871,6 @@ class Address extends VaahModel
         $inputs['taxonomy_id_address_types'] = $address_id;
         $inputs['address_type']=$address_type;
         $inputs['is_default']= 0;
-        $faker = Factory::create();
 
         /*
          * You can override the filled variables below this line.

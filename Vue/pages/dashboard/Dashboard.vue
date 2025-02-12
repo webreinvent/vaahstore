@@ -102,7 +102,7 @@ const toggleQuickFilterState = (event) => {
                                     type="area"
                                     :chartOptions="orders_store.count_chart_options"
                                     :chartSeries="orders_store.count_chart_series"
-                                    height=100
+                                    height=200
                                     titleAlign="center"
                                     title=""
 
@@ -179,7 +179,7 @@ const toggleQuickFilterState = (event) => {
                                     type="area"
                                     :chartOptions="orders_store.sales_chart_options"
                                     :chartSeries="orders_store.sales_chart_series"
-                                    height=100
+                                    height=200
                                     titleAlign="center"
 
 
@@ -258,7 +258,7 @@ const toggleQuickFilterState = (event) => {
                                     type="area"
                                     :chartOptions="orders_store.order_payments_income_chart_options"
                                     :chartSeries="orders_store.order_payments_income_chart_series"
-                                    height=100
+                                    height=200
                                     titleAlign="center"
 
 
@@ -737,7 +737,7 @@ const toggleQuickFilterState = (event) => {
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="line"
+                            type="area"
                             :chartOptions="customers_store.customer_count_chart_options"
                             :chartSeries="customers_store.customer_count_chart_series"
                             height="300"

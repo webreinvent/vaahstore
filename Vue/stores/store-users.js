@@ -1333,8 +1333,8 @@ export const useUserStore = defineStore({
             const updatedOptions = {
                 ...data.chart_options,
                 legend: {
-                    position: 'top',
-                    horizontalAlign: 'center',
+                    position: 'bottom',
+                    horizontalAlign: 'left',
                     floating: false,
                     fontSize: '14px',
                     formatter: function (val, opts) {
@@ -1343,20 +1343,61 @@ export const useUserStore = defineStore({
                         const sum = seriesData.reduce((acc, value) => acc + value, 0);
                         return `${val} - ${sum}`;
                     },
+                }, stroke: {
+                    curve: 'smooth',
+                    width: 2,
                 },
                 chart: {
                     toolbar: {
                         show: false
+                    },
+                    type:'area',
+                    margin: {
+                        left: 20,
+                        right: 20,
+                        top: 20,
+                        bottom: 20
+                    },
+
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                yaxis: {
+                    title: {
+                        text: 'Customers Count',
+                        style: {
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            color: '#263238'
+                        },
+                        offsetX: -2,
+                    },
+                    labels: {
+                        padding: 15,
                     }
                 },
                 title: {
-                    text: 'Monthly Customers Count',
-                    align: 'center',
+                    text: 'Customers History',
+                    align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
+                        fontSize: '20px',
                         fontWeight: 'bold',
                         color: '#263238'
+                    }
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
                     }
                 },
 

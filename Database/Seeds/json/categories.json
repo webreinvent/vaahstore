@@ -1,0 +1,224 @@
+[
+    {
+        "name": "Electronics",
+        "is_active": true,
+        "slug": "electronics",
+        "children": [
+            {
+                "name": "Mobile Phones",
+                "is_active": true,
+                "slug": "mobile-phones"
+            },
+            {
+                "name": "Laptops & Computers",
+                "is_active": true,
+                "slug": "laptops-computers"
+            },
+            {
+                "name": "TV & Home Appliances",
+                "is_active": true,
+                "slug": "tv-home-appliances",
+                "children": [
+                    {
+                        "name": "Smart TVs",
+                        "is_active": true,
+                        "slug": "smart-tvs"
+                    },
+                    {
+                        "name": "Refrigerators",
+                        "is_active": true,
+                        "slug": "refrigerators"
+                    },
+                    {
+                        "name": "Washing Machines",
+                        "is_active": true,
+                        "slug": "washing-machines"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Fashion",
+        "is_active": true,
+        "slug": "fashion",
+        "children": [
+            {
+                "name": "Men's Fashion",
+                "is_active": true,
+                "slug": "mens-fashion",
+                "children": [
+                    {
+                        "name": "Clothing",
+                        "is_active": true,
+                        "slug": "mens-clothing"
+                    },
+                    {
+                        "name": "Shoes",
+                        "is_active": true,
+                        "slug": "mens-shoes"
+                    },
+                    {
+                        "name": "Watches",
+                        "is_active": true,
+                        "slug": "mens-watches"
+                    }
+                ]
+            },
+            {
+                "name": "Women's Fashion",
+                "is_active": true,
+                "slug": "womens-fashion",
+                "children": [
+                    {
+                        "name": "Clothing",
+                        "is_active": true,
+                        "slug": "womens-clothing"
+                    },
+                    {
+                        "name": "Shoes",
+                        "is_active": true,
+                        "slug": "womens-shoes"
+                    },
+                    {
+                        "name": "Handbags",
+                        "is_active": true,
+                        "slug": "handbags"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Home & Furniture",
+        "is_active": true,
+        "slug": "home-furniture",
+        "children": [
+            {
+                "name": "Living Room",
+                "is_active": true,
+                "slug": "living-room"
+            },
+            {
+                "name": "Bedroom",
+                "is_active": true,
+                "slug": "bedroom"
+            },
+            {
+                "name": "Kitchen & Dining",
+                "is_active": true,
+                "slug": "kitchen-dining"
+            }
+        ]
+    },
+    {
+        "name": "Sports & Outdoors",
+        "is_active": true,
+        "slug": "sports-outdoors",
+        "children": [
+            {
+                "name": "Exercise & Fitness",
+                "is_active": true,
+                "slug": "exercise-fitness"
+            },
+            {
+                "name": "Camping & Hiking",
+                "is_active": true,
+                "slug": "camping-hiking"
+            },
+            {
+                "name": "Cycling",
+                "is_active": true,
+                "slug": "cycling"
+            }
+        ]
+    },
+    {
+        "name": "Automotive",
+        "is_active": true,
+        "slug": "automotive",
+        "children": [
+            {
+                "name": "Car Accessories",
+                "is_active": true,
+                "slug": "car-accessories"
+            },
+            {
+                "name": "Motorcycle Parts",
+                "is_active": true,
+                "slug": "motorcycle-parts"
+            },
+            {
+                "name": "Oils & Fluids",
+                "is_active": true,
+                "slug": "oils-fluids"
+            }
+        ]
+    },
+    {
+        "name": "Beauty & Personal Care",
+        "is_active": true,
+        "slug": "beauty-personal-care",
+        "children": [
+            {
+                "name": "Skincare",
+                "is_active": true,
+                "slug": "skincare"
+            },
+            {
+                "name": "Haircare",
+                "is_active": true,
+                "slug": "haircare"
+            },
+            {
+                "name": "Makeup",
+                "is_active": true,
+                "slug": "makeup"
+            }
+        ]
+    },
+    {
+        "name": "Toys & Games",
+        "is_active": true,
+        "slug": "toys-games",
+        "children": [
+            {
+                "name": "Action Figures",
+                "is_active": true,
+                "slug": "action-figures"
+            },
+            {
+                "name": "Board Games",
+                "is_active": true,
+                "slug": "board-games"
+            },
+            {
+                "name": "Educational Toys",
+                "is_active": true,
+                "slug": "educational-toys"
+            }
+        ]
+    },
+    {
+        "name": "Books & Media",
+        "is_active": true,
+        "slug": "books-media",
+        "children": [
+            {
+                "name": "Fiction",
+                "is_active": true,
+                "slug": "fiction"
+            },
+            {
+                "name": "Non-Fiction",
+                "is_active": true,
+                "slug": "non-fiction"
+            },
+            {
+                "name": "Magazines",
+                "is_active": true,
+                "slug": "magazines"
+            }
+        ]
+    }
+]
