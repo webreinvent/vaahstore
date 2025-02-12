@@ -528,6 +528,7 @@ class Order extends VaahModel
                 $list->forceDelete();
                 break;
 
+            case 'create-10-records':
             case 'create-100-records':
             case 'create-1000-records':
             case 'create-5000-records':
@@ -713,20 +714,12 @@ class Order extends VaahModel
             $item = new self();
 
             $item->fill($inputs);
+
             $item->save();
 
             ///////////////////////////////// order items
 
             self::createOrderItem($item);
-
-            $total_price = OrderItem::where('vh_st_order_id', $item->id)
-                ->get()
-                ->sum(function ($order_item) {
-                    return $order_item->price * $order_item->quantity;
-                });
-            $item->amount = $total_price;
-            $item->payable = $total_price;
-            $item->save();
 
             $i++;
 
@@ -1103,16 +1096,19 @@ class Order extends VaahModel
 
     public static function createOrderItem($item = null){
 
+
+
+
         $order_items_types = Taxonomy::inRandomOrder()
             ->whereHas('type', function ($query) {
-                $query->where('slug', 'Order-items-types');
+                $query->where('slug', 'order-items-types');
             })
             ->first();
 
 
         $order_items_status = Taxonomy::inRandomOrder()
             ->whereHas('type', function ($query) {
-                $query->where('slug', 'Order-items-status');
+                $query->where('slug', 'order-items-status');
             })
             ->first();
 
@@ -1169,7 +1165,17 @@ class Order extends VaahModel
             $order_item['is_active'] = 1;
             $order_item['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
             $order_item['status_notes'] = '';
+
             $order_item->save();
+
+            $total_price = OrderItem::where('vh_st_order_id', $item->id)
+                ->get()
+                ->sum(function ($order_item) {
+                    return $order_item->price * $order_item->quantity;
+                });
+            $item->amount = $total_price;
+            $item->payable = $total_price;
+            $item->save();
 
         }
     }
