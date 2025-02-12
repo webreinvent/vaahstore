@@ -19,6 +19,7 @@ use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductMediaImage;
 use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\Vendor;
@@ -57,6 +58,7 @@ class SampleDataTableSeeder extends Seeder
         $this->seedCustomers();
         $this->seedCarts();
         $this->seedProducts();
+        $this->seedVendorProducts();
     }
     //---------------------------------------------------------------
 
@@ -551,6 +553,59 @@ class SampleDataTableSeeder extends Seeder
 
         return $result;
     }
+
+    public function seedVendorProducts()
+    {
+
+        $store_ids = Store::pluck('id')->toArray();
+
+        if (empty($store_ids)) {
+            return;
+        }
+
+        $store_id = null;
+        $product_ids = [];
+
+        foreach ($store_ids as $id) {
+            $products = Product::where('vh_st_store_id', $id)->where('is_active', 1)->get(); // Ensure active products
+
+            if ($products->count() > 0) {
+                $store_id = $id;
+                $product_ids = $products->pluck('id')->toArray();
+                break;
+            }
+        }
+
+        if (empty($store_id) || empty($product_ids)) {
+            return;
+        }
+
+
+        $vendor_ids = Vendor::pluck('id')->toArray();
+        $status_ids = Taxonomy::getTaxonomyByType('product-vendor-status')->pluck('id')->toArray();
+
+
+
+        $active_user = optional(auth()->user()); // Avoid null reference errors
+
+        for ($i = 0; $i < 20; $i++) {
+            $vendor_product = new ProductVendor();
+            $vendor_product->vh_st_vendor_id = $vendor_ids ? $vendor_ids[array_rand($vendor_ids)] : null;
+            $vendor_product->vh_st_product_id = $product_ids ? $product_ids[array_rand($product_ids)] : null;
+            $vendor_product->taxonomy_id_product_vendor_status = $status_ids ? $status_ids[array_rand($status_ids)] : null;
+            $vendor_product->added_by = $active_user->id;
+            $vendor_product->is_active = 1;
+            $vendor_product->created_at = now();
+            $vendor_product->updated_at = now();
+            $vendor_product->save();
+            if ($vendor_product->vh_st_vendor_id && $store_id) {
+                $vendor_product->storeVendorProduct()->attach($store_id);
+            }
+
+        }
+    }
+
+
 
     public function seedCarts(){
         Cart::seedCarts();
