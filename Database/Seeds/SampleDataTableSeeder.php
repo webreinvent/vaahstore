@@ -27,6 +27,7 @@ use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
+use Illuminate\Support\Facades\Storage;
 
 class SampleDataTableSeeder extends Seeder
 {
@@ -55,6 +56,7 @@ class SampleDataTableSeeder extends Seeder
         $this->seedCategories();
         $this->seedCustomers();
         $this->seedCarts();
+        $this->seedProducts();
     }
     //---------------------------------------------------------------
 
@@ -375,9 +377,10 @@ class SampleDataTableSeeder extends Seeder
 
     public function seedProducts()
     {
-        $json_file = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/products.json";
+        $json_file = __DIR__ . DIRECTORY_SEPARATOR . "./json/products.json";
         $jsonString = file_get_contents($json_file);
         $products = json_decode($jsonString, true);
+        $image_path= null;
 
 
         foreach ($products as $product) {
@@ -439,16 +442,16 @@ class SampleDataTableSeeder extends Seeder
                     $image_contents = file_get_contents($image_url);
                     Storage::disk('public')->put($image_path, $image_contents); // Save the image in storage
 
-                    // Set the image path in the inputs array
-                    $inputs['image_path'] = 'storage/' . $image_path;
+
                 } catch (\Exception $e) {
                     \Log::error("Failed to download image: " . $e->getMessage());
                 }
             }
+
             // Save the product
             $product = Product::create($inputs);
 
-            $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/attributes.json";
+            $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "./json/attributes.json";
             $jsonString = file_get_contents($json_file_variants);
             $attributes = json_decode($jsonString, true);
 
@@ -525,7 +528,7 @@ class SampleDataTableSeeder extends Seeder
         $Product_media_image->vh_st_product_media_id = $Product_media->id;
         $Product_media_image->name = $inputs['slug'] . '.jpg';
         $Product_media_image->slug = Str::slug($inputs['slug'] . '.jpg');
-        $Product_media_image->url = $inputs['image_path'];
+        $Product_media_image->url = 'storage/' . $image_path;;
         $Product_media_image->path = 'storage/app/public/' . $image_path;
         $Product_media_image->url_thumbnail = 'storage/app/public/' . $image_path;
         $Product_media_image->save();
