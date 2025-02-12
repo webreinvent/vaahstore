@@ -15,6 +15,9 @@ use VaahCms\Modules\Store\Models\Cart;
 use VaahCms\Modules\Store\Models\Category;
 use VaahCms\Modules\Store\Models\Currency;
 use VaahCms\Modules\Store\Models\Lingual;
+use VaahCms\Modules\Store\Models\Order;
+use VaahCms\Modules\Store\Models\OrderItem;
+use VaahCms\Modules\Store\Models\PaymentMethod;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductMediaImage;
@@ -22,6 +25,7 @@ use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
+use VaahCms\Modules\Store\Models\User as StoreUser;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Warehouse;
 use WebReinvent\VaahCms\Entities\Taxonomy;
@@ -29,7 +33,8 @@ use WebReinvent\VaahCms\Models\Role;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 use Illuminate\Support\Facades\Storage;
-use VaahCms\Modules\Store\Models\User as StoreUser;
+use Carbon\Carbon;
+
 
 class SampleDataTableSeeder extends Seeder
 {
@@ -60,7 +65,8 @@ class SampleDataTableSeeder extends Seeder
         $this->seedCarts();
         $this->seedProducts();
         $this->seedVendors();
-        $this->seedMultipleVendorProducts();
+//        $this->seedMultipleVendorProducts();
+        $this->seedOrders();
     }
     //---------------------------------------------------------------
 
@@ -671,6 +677,136 @@ class SampleDataTableSeeder extends Seeder
     {
         for ($i = 0; $i < $count; $i++) {
             $this->seedVendorProducts();
+        }
+    }
+
+    public function seedOrders(){
+
+        for ($i = 0; $i < 100 ; $i++) {
+            $inputs['vh_user_id'] = StoreUser::whereHas('addresses', function ($query) {
+                $query->whereHas('addressType', function ($query) {
+                    $query->where('slug', 'shipping')
+                        ->orWhere('slug', 'billing');
+                });
+            })->inRandomOrder()->value('id');
+
+
+            $inputs['order_status'] = 'Placed';
+            $inputs['vh_st_payment_method_id'] = PaymentMethod::inRandomOrder()->value('id');
+
+            $order_payment_status = Taxonomy::inRandomOrder()
+                ->whereHas('type', function ($query) {
+                    $query->where('slug', 'order-payment-status');
+                })
+                ->first();
+            if (!empty($order_payment_status)) {
+                $inputs['taxonomy_id_payment_status'] = $order_payment_status->id;
+            }
+
+            $inputs['order_shipment_status'] = 'Pending';
+            $inputs['delivery_fee'] = 0;
+            $inputs['taxes'] = 0;
+            $inputs['discount'] = 0;
+            $inputs['paid'] = '';
+            $inputs['is_paid'] = 0;
+            $inputs['is_active'] = 1;
+            $inputs['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+
+
+            $item = new Order();
+
+            $item->fill($inputs);
+
+            $item->save();
+
+            ///////////////////////////////// order items
+
+            self::createOrderItem($item);
+        }
+
+    }
+
+    public static function createOrderItem($item = null){
+
+
+        $order_items_types = Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'order-items-types');
+            })
+            ->first();
+
+
+        $order_items_status = Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'order-items-status');
+            })
+            ->first();
+
+
+        $valid_products = Product::whereHas('productVendors')
+            ->with('productVariations', 'productVendors')
+            ->take(rand(1, 10))
+            ->get();
+
+
+        $user_addresses = StoreUser::where('id', $item->vh_user_id)
+            ->with('addresses')
+            ->whereHas('addresses', function ($query) {
+                $query->whereHas('addressType', function ($query) {
+                    $query->where('slug', 'shipping')
+                        ->orWhere('slug', 'billing');
+                });
+            })
+            ->first();
+
+        foreach ($valid_products as $product) {
+
+            $product_id = $product['id'];
+            $vendor_id = $product->productVendors->random()->vh_st_vendor_id;
+
+            $random_variation_id = $product->productVariations->pluck('id')->random();
+            $price = $product->productVariations->where('id', $random_variation_id)->first()->price;
+
+            $order_item = new OrderItem();
+            $order_item['vh_st_order_id'] = $item->id;
+            $order_item['vh_user_id'] = $item->vh_user_id;
+            $order_item['vh_st_customer_group_id'] = null;
+
+            if (!empty($order_items_types)) {
+                $order_item['taxonomy_id_order_items_types'] = $order_items_types->id;
+            }
+
+            if (!empty($order_items_status)) {
+                $order_item['taxonomy_id_order_items_status'] = $order_items_status->id;
+            }
+
+            $order_item['vh_st_product_id'] = $product_id;
+            $order_item['vh_st_vendor_id'] = $vendor_id;
+
+            $order_item['vh_st_product_variation_id'] = $random_variation_id;
+            $order_item['vh_shipping_address_id'] = $user_addresses->addresses->random()->id;
+            $order_item['vh_billing_address_id'] = $order_item['vh_shipping_address_id'];
+
+            $order_item['quantity'] = rand(1,17);
+            $order_item['price'] = $price;
+            $order_item['is_invoice_available'] = '';
+            $order_item['invoice_url'] = '';
+            $order_item['tracking'] = '';
+            $order_item['is_active'] = 1;
+            $order_item['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+            $order_item['status_notes'] = '';
+
+            $order_item->save();
+
+            $total_price = OrderItem::where('vh_st_order_id', $item->id)
+                ->get()
+                ->sum(function ($order_item) {
+                    return $order_item->price * $order_item->quantity;
+                });
+            $item->amount = $total_price;
+            $item->payable = $total_price;
+            $item->save();
+
         }
     }
 
