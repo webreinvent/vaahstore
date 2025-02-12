@@ -1406,7 +1406,8 @@ class Cart extends VaahModel
             $cart->vh_user_id = $user_id;
             $cart->save();
 
-            $cart_products = $valid_products->random(rand(1, 5));
+            $num_products = rand(1, 5);  // Max products per cart
+            $cart_products = $valid_products->random(min($num_products, $valid_products->count()));
             foreach ($cart_products as $product) {
                 $product_stock = optional($product->productStocks()->where('quantity', '>', 0)->first());
 

@@ -56,9 +56,10 @@ class SampleDataTableSeeder extends Seeder
         $this->seedBrands();
         $this->seedCategories();
         $this->seedCustomers();
-        $this->seedCarts();
         $this->seedProducts();
         $this->seedVendorProducts();
+        $this->seedCarts();
+
     }
     //---------------------------------------------------------------
 
@@ -556,39 +557,28 @@ class SampleDataTableSeeder extends Seeder
 
     public function seedVendorProducts()
     {
+        $store = Store::whereHas('products', function ($query) {
+            $query->where('is_active', 1);
+        })->first();
 
-        $store_ids = Store::pluck('id')->toArray();
-
-        if (empty($store_ids)) {
+        if (!$store) {
             return;
         }
-
-        $store_id = null;
-        $product_ids = [];
-
-        foreach ($store_ids as $id) {
-            $products = Product::where('vh_st_store_id', $id)->where('is_active', 1)->get(); // Ensure active products
-
-            if ($products->count() > 0) {
-                $store_id = $id;
-                $product_ids = $products->pluck('id')->toArray();
-                break;
-            }
-        }
-
-        if (empty($store_id) || empty($product_ids)) {
+        $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
+        if (empty($product_ids)) {
             return;
         }
-
 
         $vendor_ids = Vendor::pluck('id')->toArray();
         $status_ids = Taxonomy::getTaxonomyByType('product-vendor-status')->pluck('id')->toArray();
 
+        if (empty($vendor_ids) || empty($status_ids)) {
+            return;
+        }
+        $active_user = optional(auth()->user());
 
 
-        $active_user = optional(auth()->user()); // Avoid null reference errors
-
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $vendor_product = new ProductVendor();
             $vendor_product->vh_st_vendor_id = $vendor_ids ? $vendor_ids[array_rand($vendor_ids)] : null;
             $vendor_product->vh_st_product_id = $product_ids ? $product_ids[array_rand($product_ids)] : null;
@@ -598,13 +588,11 @@ class SampleDataTableSeeder extends Seeder
             $vendor_product->created_at = now();
             $vendor_product->updated_at = now();
             $vendor_product->save();
-            if ($vendor_product->vh_st_vendor_id && $store_id) {
-                $vendor_product->storeVendorProduct()->attach($store_id);
+            if ($vendor_product->vh_st_vendor_id && $store->id) {
+                $vendor_product->storeVendorProduct()->attach($store->id);
             }
-
         }
     }
-
 
 
     public function seedCarts(){
