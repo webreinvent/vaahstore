@@ -331,6 +331,15 @@ const toggleCreateMenu = (event) => {
                             <i class="pi pi-refresh mr-1"></i>
                         </Button>
 
+                        <Button v-if="root.assets && root.assets.module
+                                        && root.assets.module.is_dev"
+                                type="button"
+                                @click="toggleCreateMenu"
+                                class="p-button-sm"
+                                data-testid="productstocks-create-menu"
+                                icon="pi pi-angle-down"
+                                aria-haspopup="true"/>
+
 
                         <Menu ref="create_menu"
                               :model="store.list_create_menu"

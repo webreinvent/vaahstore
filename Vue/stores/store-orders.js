@@ -868,6 +868,13 @@ export const useOrderStore = defineStore({
 
             form_menu.push(
                 {
+                    label: 'Create 10 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10-records');
+                    }
+                },
+                {
                     label: 'Create 100 Records',
                     icon: 'pi pi-pencil',
                     command: () => {

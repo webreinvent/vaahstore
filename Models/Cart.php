@@ -857,12 +857,17 @@ class Cart extends VaahModel
     private static function getProductMediaIds($product)
     {
         if ($product->pivot->vh_st_product_id && $product->pivot->vh_st_product_variation_id) {
-            return $product->productVariationMedia()
+            $media_ids = $product->productVariationMedia()
                 ->where('vh_st_product_variation_id', $product->pivot->vh_st_product_variation_id)
-                ->pluck('vh_st_product_media_id')->toArray();
-        } else {
-            return ProductMedia::where('vh_st_product_id', $product->id)->pluck('id')->toArray();
+                ->pluck('vh_st_product_media_id')
+                ->toArray();
+
+            if (!empty($media_ids)) {
+                return $media_ids;
+            }
         }
+
+        return ProductMedia::where('vh_st_product_id', $product->id)->pluck('id')->toArray();
     }
     //-------------------------------------------------
 
