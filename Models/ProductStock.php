@@ -869,7 +869,13 @@ if ($product_variation) {
         $inputs = $fillable['data']['fill'];
 
         //fill the Vendor field here
-        $vendor = Vendor::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug','is_default')->first();
+        $vendor = Vendor::whereHas('productVendors.product.productVariations')
+        ->where('is_active', 1)
+            ->with('productVendors.product.productVariations')
+            ->inRandomOrder()
+            ->select('id', 'name', 'slug', 'is_default')
+            ->first();
+
         $inputs['vh_st_vendor_id'] = null;
         $inputs['vendor'] = null;
         if (!empty($vendor)) {
@@ -878,32 +884,26 @@ if ($product_variation) {
         }
 
 
+        if ($vendor && $vendor->productVendors->isNotEmpty()) {
+            $valid_product_vendors = $vendor->productVendors->filter(function ($productVendor) {
+                return $productVendor->product && $productVendor->product->productVariations->isNotEmpty();
+            });
 
+            if ($valid_product_vendors->isNotEmpty()) {
+                $product_vendor = $valid_product_vendors->random();
 
-        //fill the product field here
+                $product_id = $product_vendor->product->id;
+                $product = $product_vendor->product;
 
-        $product_ids = Product::where('is_active', 1)->whereHas('productVariations')->select('id', 'name', 'slug')->pluck('id')->toArray();
-        if (!empty($product_ids)) {
-            $product_id = $product_ids[array_rand($product_ids)];
-            $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
-            $inputs['vh_st_product_id'] = $product_id;
-            $inputs['product'] = $product;
+                $inputs['vh_st_product_id'] = $product_id;
+                $inputs['product'] = $product;
+
+                $product_variation = $product->productVariations->random();
+
+                $inputs['vh_st_product_variation_id'] = $product_variation->id;
+                $inputs['product_variation'] = $product_variation;
+            }
         }
-
-        //fill the product variation field on the basis of product selected
-
-        $product_variation_ids = ProductVariation::where('vh_st_product_id', $inputs['vh_st_product_id'])
-            ->select('id', 'name', 'price')
-            ->pluck('id')
-            ->toArray();
-        if (!empty($product_variation_ids)) {
-            $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
-            $product_variation = ProductVariation::where('id', $product_variation_id)->select('id', 'name', 'price')->first();
-
-            $inputs['vh_st_product_variation_id'] = $product_variation_id;
-            $inputs['product_variation'] = $product_variation;
-        }
-
 
         $warehouse = Warehouse::where('is_active', 1)
             ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
