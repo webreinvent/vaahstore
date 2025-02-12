@@ -38,7 +38,7 @@ const useVaah = vaah();
                     <Badge v-if="prop.data.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <span v-if="!prop.data.user">Guest User Cart</span>
+                    <span v-if="!prop.data.user?.username">Guest User Cart</span>
                     <span v-else>{{ prop.data.user?.username }}</span>
                 </template>
 
@@ -48,7 +48,7 @@ const useVaah = vaah();
                      class="overflow-wrap-anywhere"
                      :sortable="true">
                  <template #body="prop">
-                     <span v-if="!prop.data.user">N/A</span>
+                     <span v-if="!prop.data.user?.email">N/A</span>
 
                      <span v-else>
                          <Button class="p-button-tiny p-button-text p-0 mr-2"
@@ -66,8 +66,10 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <span v-if="!prop.data.user">N/A</span>
-                     <span v-else>{{ prop.data.user?.phone }}</span>
+                     <span v-if="!prop.data.user?.phone">N/A</span>
+                     <span v-else>
+                        ({{ prop.data.user.country_calling_code }}) {{ prop.data.user.phone }}
+                    </span>
                  </template>
 
              </Column>
