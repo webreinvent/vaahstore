@@ -1251,9 +1251,9 @@ export const useOrderStore = defineStore({
                     y: {
                         formatter: function (value) {
                             if (value >= 1000) {
-                                return '₹' + (value / 1000).toFixed(2) + 'k';
+                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
                             }
-                            return '₹' + value;
+                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
                         }
                     }
                 },
@@ -1374,9 +1374,9 @@ export const useOrderStore = defineStore({
                     y: {
                         formatter: function (value) {
                             if (value >= 1000) {
-                                return '₹' + (value / 1000).toFixed(2) + 'k';
+                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
                             }
-                            return '₹' + value;
+                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
                         }
                     }
                 },
