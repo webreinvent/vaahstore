@@ -23,6 +23,9 @@ use WebReinvent\VaahCms\Libraries\VaahSeeder;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+
 class Product extends VaahModel
 {
 
@@ -309,7 +312,6 @@ class Product extends VaahModel
     public static function generateVariation($request,$id)
     {
         $permission_slug = 'can-update-module';
-
         if (!\Auth::user()->hasPermission($permission_slug)) {
             return vh_get_permission_denied_response($permission_slug);
         }
@@ -1092,6 +1094,7 @@ class Product extends VaahModel
                 }
                 self::withTrashed()->forceDelete();
                 break;
+            case 'create-10-records':
             case 'create-100-records':
             case 'create-1000-records':
             case 'create-5000-records':
@@ -1446,31 +1449,8 @@ class Product extends VaahModel
     {
 
         $i = 0;
+        $inputs = self::seedProduct();
 
-        while($i < $records)
-        {
-            $inputs = self::fillItem(false);
-
-            $item =  new self();
-            $item->fill($inputs);
-            if(isset($item->seo_meta_keyword))
-            {
-                $item->seo_meta_keyword = json_encode($inputs['seo_meta_keyword']);
-            }
-            $item->slug = Str::slug($inputs['slug']);
-
-            $item->launch_at = Carbon::parse($item->launch_at)->format('Y-m-d');
-            $item->available_at = Carbon::parse($item->available_at)->format('Y-m-d');
-
-
-
-            $item->save();
-            if (isset($inputs['category'])) {
-                $item->productCategories()->attach($inputs['category']->id, ['vh_st_product_id' => $item->id]);
-            }
-            $i++;
-
-        }
 
     }
 
@@ -1491,8 +1471,8 @@ class Product extends VaahModel
         $faker = Factory::create();
 
        // fill the name field here
-        $max_chars = rand(5,100);
-        $inputs['name']=$faker->text($max_chars);
+        $inputs['name'] = $faker->name;
+        $inputs['slug'] = Str::slug($inputs['name']);
 
         // fill the product summary field here
         $max_summary_chars = rand(5,100);
@@ -1587,6 +1567,7 @@ class Product extends VaahModel
         $response['success'] = true;
         $response['data']['fill'] = $inputs;
         return $response;
+
     }
 
     //-------------------------------------------------
@@ -3089,10 +3070,17 @@ class Product extends VaahModel
         ProductVariation::extractAttributeWithValues($variation);
 
         foreach ($variation->productAttributes as $attribute) {
+            if (!isset($attribute->attribute['name'])) {
+                continue; // Skip if attribute or name is missing
+            }
+
             foreach ($attribute->values as $value) {
-                $value_array = $value->toArray();
+                if (!isset($value->attribute_value['name'])) {
+                    continue; // Skip if attribute_value or name is missing
+                }
+
                 $attribute_name = $attribute->attribute['name'];
-                $grouped_attributes[$attribute_name][] = $value_array['attribute_value']['name'];
+                $grouped_attributes[$attribute_name][] = $value->attribute_value['name'];
             }
         }
 
@@ -3110,4 +3098,184 @@ class Product extends VaahModel
     }
 
 
+    public static function seedProduct(){
+        $json_file = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/products.json";
+        $jsonString = file_get_contents($json_file);
+        $products = json_decode($jsonString, true);
+
+
+        foreach ($products as $product) {
+
+            $existing_product = Product::where('name', $product['name'])->first();
+
+            if ($existing_product) {
+                continue; // Skip to the next product if it already exists
+            }
+
+            $inputs = [];
+            $inputs['name'] = $product['name'];
+            $inputs['slug'] = Str::slug($inputs['name']);
+            $inputs['summary'] = $product['info'];
+
+            // Assign a random active store
+            $stores = Store::where('is_active', 1)->pluck('id')->toArray();
+            if (!empty($stores)) {
+                $inputs['vh_st_store_id'] = $stores[array_rand($stores)];
+            }
+
+            //Assign or create a brand
+            $brand = Brand::firstOrCreate(
+                ['name' => $product['brand']['name']],
+                ['slug' => Str::slug($product['brand']['name'])]
+            );
+            $inputs['vh_st_brand_id'] = $brand->id;
+
+
+
+            // Assign a random product status
+            $taxonomy_status = Taxonomy::where('name', 'Approved')
+                ->whereHas('type', function ($query) {
+                    $query->where('name', 'Product Status');
+                })
+                ->first();
+
+           if (!empty($taxonomy_status)) {
+                $inputs['taxonomy_id_product_status'] = $taxonomy_status->id;
+            }
+
+            // Assign a random product type
+            $taxonomy = Taxonomy::firstOrCreate(
+                ['name' => $product['articleType']],
+                [
+                    'slug' => Str::slug($product['articleType']),
+                    'vh_taxonomy_type_id' => TaxonomyType::firstOrCreate(['name' => 'Product Types'])->id
+                ]
+            );
+
+            $inputs['taxonomy_id_product_type'] = $taxonomy->id;
+            $inputs['is_active'] = 1;
+
+            if (!empty($product['defaultImage']['src'])) {
+                $image_url = $product['defaultImage']['src'];
+                $image_name =  $inputs['slug'] . '.jpg'; // Generate a unique image name
+                $image_path = 'media/' . $image_name; // Define storage path
+
+                try {
+                    $image_contents = file_get_contents($image_url);
+                    Storage::disk('public')->put($image_path, $image_contents); // Save the image in storage
+
+                    // Set the image path in the inputs array
+                    $inputs['image_path'] = 'storage/' . $image_path;
+                } catch (\Exception $e) {
+                    \Log::error("Failed to download image: " . $e->getMessage());
+                }
+            }
+            // Save the product
+            $product = Product::create($inputs);
+
+            $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "../Database/Seeds/json/attributes.json";
+            $jsonString = file_get_contents($json_file_variants);
+            $attributes = json_decode($jsonString, true);
+
+            // Create variations
+            self::createProductVariations($product, $attributes);
+
+
+            $Product_media = new ProductMedia();
+            $Product_media->vh_st_product_id = $product->id;
+            $Product_media_taxonomy_status = Taxonomy::where('name', 'Approved')
+                ->whereHas('type', function ($query) {
+                    $query->where('slug', 'Product-medias-status');
+                })
+                ->first();
+            if (!empty($Product_media_taxonomy_status)) {
+                $Product_media->taxonomy_id_product_media_status  = $Product_media_taxonomy_status->id;
+            }
+
+            $Product_media->name = $inputs['slug'] . '.jpg';
+            $Product_media->type = 'image';
+            $Product_media->is_active = 1;
+            $Product_media->save();
+
+
+            self::saveProductImages($Product_media,$inputs,$image_path);
+
+
+        }
+    }
+
+    public static function saveProductImages($Product_media = null ,$inputs = null,$image_path=null){
+
+        if (empty($Product_media) || empty($inputs) || empty($image_path)) {
+            return false;
+        }
+
+        $Product_media_image = new ProductMediaImage();
+        $Product_media_image->vh_st_product_media_id = $Product_media->id;
+        $Product_media_image->name = $inputs['slug'] . '.jpg';
+        $Product_media_image->slug = Str::slug($inputs['slug'] . '.jpg');
+        $Product_media_image->url = $inputs['image_path'];
+        $Product_media_image->path = 'storage/app/public/' . $image_path;
+        $Product_media_image->url_thumbnail = 'storage/app/public/' . $image_path;
+        $Product_media_image->save();
+
+    }
+
+    public static function createProductVariations($product, $attributes)
+    {
+        $faker = Factory::create();
+
+        $variation_attributes = ['color', 'size', 'gender'];
+
+        $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
+            return in_array($key, $variation_attributes);
+        }, ARRAY_FILTER_USE_KEY);
+
+        // Generate combinations of selected attributes and their values
+        $attribute_combinations = [];
+
+        foreach ($filtered_attributes as $attribute_key => $attribute) {
+            foreach ($attribute['values'] as $value) {
+                $attribute_combinations[$attribute_key][] = $value;
+            }
+        }
+
+        // Generate variations by combining values from each attribute
+        $combinations = self::combineAttributes($attribute_combinations);
+
+        // Create product variations for each combination
+        foreach ($combinations as $combination) {
+            $variation_name = $product->name . ' - ' . implode('/', $combination);
+            $variation_slug = Str::slug($product->name . ' ' . implode(' ', $combination));
+
+            ProductVariation::firstOrCreate([
+                'vh_st_product_id' => $product->id,
+                'name' => $variation_name,
+                'slug' => $variation_slug,
+                'quantity' => 0,
+                'price' => $faker->randomFloat(2, 10, 500),
+                'is_active' => 1,
+            ]);
+        }
+    }
+
+    /**
+     * Helper function to generate combinations of attribute values.
+     */
+    public static function combineAttributes($attributes)
+    {
+        $result = [[]];
+
+        foreach ($attributes as $attribute_values) {
+            $new_result = [];
+            foreach ($result as $combination) {
+                foreach ($attribute_values as $value) {
+                    $new_result[] = array_merge($combination, [$value]);
+                }
+            }
+            $result = $new_result;
+        }
+
+        return $result;
+    }
 }

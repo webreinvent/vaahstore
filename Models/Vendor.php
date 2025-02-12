@@ -1218,6 +1218,8 @@ class Vendor extends VaahModel
 
         $faker = Factory::create();
 
+        $inputs['name'] = $faker->name;
+        $inputs['slug'] = Str::slug($inputs['name']);
         $store = Store::where('is_active', 1)->inRandomOrder()->first();
         if ($store) {
             $inputs['vh_st_store_id'] = $store->id;
@@ -1237,6 +1239,7 @@ class Vendor extends VaahModel
 
         $inputs['email'] = $faker->email;
         $inputs['address'] = $faker->address;
+        $inputs['years_in_business'] = rand(1,25);;
 
         $owned_by = User::where('is_active',1)->inRandomOrder()->first();
         $inputs['owned_by'] =$owned_by->id;
@@ -1262,8 +1265,33 @@ class Vendor extends VaahModel
 
         $inputs['services_offered'] =  $faker->text($number_of_characters);
 
-        $inputs['country_code'] = rand(1, 999);
+        $inputs['country_code'] = $faker->countryCode;
 
+        $document_details = [
+            'invoice' => 'Invoice for services rendered on project XYZ.',
+            'contract' => 'A legally binding agreement between two parties.',
+            'license' => 'Government-issued permit for business operations.',
+            'permit' => 'Approval document for construction or business activity.',
+            'agreement' => 'Mutual understanding document between companies.',
+            'receipt' => 'Proof of payment for a completed transaction.',
+            'quotation' => 'Estimated cost for requested services or goods.',
+            'purchase order' => 'Official order request for goods or services.',
+            'business proposal' => 'Detailed plan for a new business venture.',
+            'non-disclosure agreement' => 'Confidentiality agreement between parties.',
+            'memorandum of understanding' => 'Preliminary agreement outlining terms.',
+            'letter of intent' => 'Indicates the intention to proceed with a deal.',
+            'tax certificate' => 'Official proof of tax compliance.',
+            'certificate of incorporation' => 'Legal document establishing a company.',
+            'employment contract' => 'Agreement between employer and employee.',
+            'service agreement' => 'Contract for service-based work.',
+            'vendor agreement' => 'Agreement between business and suppliers.',
+            'lease agreement' => 'Rental contract for property or equipment.',
+            'business plan' => 'Detailed strategic plan for a company.',
+            'audit report' => 'Financial examination report for a company.'
+        ];
+
+        $inputs['business_document_type'] = array_rand($document_details);
+        $inputs['business_document_detail'] = $document_details[$inputs['business_document_type']];
 
 
 

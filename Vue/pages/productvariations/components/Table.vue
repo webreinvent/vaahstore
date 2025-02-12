@@ -106,14 +106,14 @@ const route = useRoute();
              <Column field="status.name" header="Status">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.status.slug == 'approved'"
+                     <Badge v-if="prop.data.status?.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
 
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                     <Badge v-else-if="prop.data.status?.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
 
                      <Badge v-else
-                            severity="warning"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status?.name}} </Badge>
                  </template>
 
              </Column>

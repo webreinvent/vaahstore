@@ -16,6 +16,7 @@ use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Warehouse;
+use function PHPUnit\Framework\isEmpty;
 
 class ProductStock extends VaahModel
 {
@@ -869,7 +870,13 @@ if ($product_variation) {
         $inputs = $fillable['data']['fill'];
 
         //fill the Vendor field here
-        $vendor = Vendor::where('is_active', 1)->inRandomOrder()->select('id', 'name', 'slug','is_default')->first();
+        $vendor = Vendor::whereHas('productVendors.product.productVariations') // Ensure vendor has related products with variations
+        ->where('is_active', 1)
+            ->with('productVendors.product.productVariations')
+            ->inRandomOrder()
+            ->select('id', 'name', 'slug', 'is_default')
+            ->first();
+
         $inputs['vh_st_vendor_id'] = null;
         $inputs['vendor'] = null;
         if (!empty($vendor)) {
@@ -878,32 +885,27 @@ if ($product_variation) {
         }
 
 
+        if ($vendor && $vendor->productVendors->isNotEmpty()) {
+            // Get a random productVendor with a product that has variations
+            $validProductVendors = $vendor->productVendors->filter(function ($productVendor) {
+                return $productVendor->product && $productVendor->product->productVariations->isNotEmpty();
+            });
 
+            if ($validProductVendors->isNotEmpty()) {
+                $product_vendor = $validProductVendors->random(); // Get a random productVendor from filtered list
 
-        //fill the product field here
+                $product_id = $product_vendor->product->id; // Get product ID
+                $product = $product_vendor->product; // Get product data
 
-        $product_ids = Product::where('is_active', 1)->whereHas('productVariations')->select('id', 'name', 'slug')->pluck('id')->toArray();
-        if (!empty($product_ids)) {
-            $product_id = $product_ids[array_rand($product_ids)];
-            $product = Product::where(['is_active' => 1, 'id' => $product_id])->first();
-            $inputs['vh_st_product_id'] = $product_id;
-            $inputs['product'] = $product;
+                $inputs['vh_st_product_id'] = $product_id;
+                $inputs['product'] = $product;
+
+                $product_variation = $product->productVariations->random();
+
+                $inputs['vh_st_product_variation_id'] = $product_variation->id;
+                $inputs['product_variation'] = $product_variation;
+            }
         }
-
-        //fill the product variation field on the basis of product selected
-
-        $product_variation_ids = ProductVariation::where('vh_st_product_id', $inputs['vh_st_product_id'])
-            ->select('id', 'name', 'price')
-            ->pluck('id')
-            ->toArray();
-        if (!empty($product_variation_ids)) {
-            $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
-            $product_variation = ProductVariation::where('id', $product_variation_id)->select('id', 'name', 'price')->first();
-
-            $inputs['vh_st_product_variation_id'] = $product_variation_id;
-            $inputs['product_variation'] = $product_variation;
-        }
-
 
         $warehouse = Warehouse::where('is_active', 1)
             ->where('vh_st_vendor_id', $inputs['vh_st_vendor_id'])
@@ -1370,23 +1372,30 @@ if ($product_variation) {
             ->whereBetween('updated_at', [$start_date, $end_date])
             ->orderBy('quantity', 'desc')
             ->take(1)
-            ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
+            ->with(['product','product.medias', 'productVariation', 'vendor', 'productVariation.medias'])
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
         $lowest_stocks = self::whereBetween('quantity', [0, 10])
             ->whereBetween('updated_at', [$start_date, $end_date])
             ->orderBy('quantity', 'asc')
             ->take(1)
-            ->with(['product', 'productVariation', 'vendor', 'productVariation.medias'])
+            ->with(['product','product.medias', 'productVariation', 'vendor', 'productVariation.medias'])
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
         $all_stocks = self::whereBetween('updated_at', [$start_date, $end_date])->sum('quantity');
 
         $map_stocks = function ($stocks) use ($all_stocks) {
+
             return $stocks->map(function ($stock) use ($all_stocks) {
                 $product_variation = $stock->productVariation;
 
                 $product_media_ids = $product_variation->medias->pluck('pivot.vh_st_product_media_id');
+
+                if($product_media_ids->isEmpty()){
+                    $product_media_ids = ProductMedia::where('vh_st_product_id', $stock->product->id)
+                        ->pluck('id');
+                }
+
                 $image_urls = self::getImageUrls($product_media_ids);
 
                 $stock_percentage = $all_stocks > 0 ? ($stock->quantity / $all_stocks) * 100 : 0;

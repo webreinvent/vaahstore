@@ -1,0 +1,156 @@
+{
+    "color": {
+        "name": "Color",
+        "values": ["Blue", "Black", "Red", "Yellow", "Green", "White", "Pink", "Purple", "Orange", "Gray", "Brown"],
+        "slug": "product-color",
+        "type": "Color",
+        "description": "The color of the product."
+    },
+    "size": {
+        "name": "Size",
+        "values": ["Small", "Medium", "Large", "Extra Large", "XXL", "XS", "One Size"],
+        "slug": "product-size",
+        "type": "Size",
+        "description": "The size of the product."
+    },
+    "material": {
+        "name": "Material",
+        "values": ["Cotton", "Polyester", "Silk", "Leather", "Wool", "Linen", "Denim", "Nylon", "PVC", "Canvas"],
+        "slug": "product-material",
+        "type": "Material",
+        "description": "The material or fabric used to make the product."
+    },
+    "weight": {
+        "name": "Weight",
+        "values": ["1.2 kg", "2.5 kg", "0.75 kg", "3.1 kg", "0.5 kg"],
+        "slug": "product-weight",
+        "type": "Weight",
+        "description": "The weight of the product."
+    },
+    "condition": {
+        "name": "Condition",
+        "values": ["New", "Refurbished", "Used", "Open Box"],
+        "slug": "product-condition",
+        "type": "Condition",
+        "description": "The condition of the product (e.g., new, refurbished, used)."
+    },
+    "gender": {
+        "name": "Gender",
+        "values": ["Men", "Women", "Unisex"],
+        "slug": "product-gender",
+        "type": "Gender",
+        "description": "The gender the product is designed for."
+    },
+    "warranty": {
+        "name": "Warranty",
+        "values": ["1 Year", "2 Years", "Lifetime", "No Warranty"],
+        "slug": "product-warranty",
+        "type": "Warranty",
+        "description": "The warranty duration offered for the product."
+    },
+    "brand": {
+        "name": "Brand",
+        "values": ["Apple", "Samsung", "Nike", "Adidas", "Sony", "LG", "Puma", "Dell", "HP", "Microsoft"],
+        "slug": "product-brand",
+        "type": "Brand",
+        "description": "The brand of the product."
+    },
+    "rating": {
+        "name": "Rating",
+        "values": ["1 star", "2 stars", "3 stars", "4 stars", "5 stars"],
+        "slug": "product-rating",
+        "type": "Rating",
+        "description": "The average customer rating of the product."
+    },
+    "price": {
+        "name": "Price",
+        "values": ["< $10", "$10 - $50", "$50 - $100", "$100 - $500", "> $500"],
+        "slug": "product-price",
+        "type": "Price",
+        "description": "The price range of the product."
+    },
+    "availability": {
+        "name": "Availability",
+        "values": ["In Stock", "Out of Stock", "Pre-order", "Limited Edition"],
+        "slug": "product-availability",
+        "type": "Availability",
+        "description": "The availability status of the product."
+    },
+    "storage_capacity": {
+        "name": "Storage Capacity",
+        "values": ["16GB", "32GB", "64GB", "128GB", "256GB", "512GB"],
+        "slug": "product-storage",
+        "type": "Storage",
+        "description": "The storage capacity of the product (used for electronic devices like phones and computers)."
+    },
+    "dimensions": {
+        "name": "Dimensions",
+        "values": ["10 x 5 x 3 cm", "15 x 10 x 5 cm", "100 x 50 x 10 cm", "200 x 150 x 30 cm"],
+        "slug": "product-dimensions",
+        "type": "Dimensions",
+        "description": "The dimensions of the product."
+    },
+    "color_family": {
+        "name": "Color Family",
+        "values": ["Warm", "Cool", "Neutral"],
+        "slug": "product-color-family",
+        "type": "Color Family",
+        "description": "The color family classification of the product (e.g., warm, cool)."
+    },
+    "compatibility": {
+        "name": "Compatibility",
+        "values": ["iOS", "Android", "Windows", "Mac OS", "Linux"],
+        "slug": "product-compatibility",
+        "type": "Compatibility",
+        "description": "The systems or platforms the product is compatible with."
+    },
+    "energy_efficiency": {
+        "name": "Energy Efficiency",
+        "values": ["A+", "A++", "A+++", "B", "C", "D"],
+        "slug": "product-energy-efficiency",
+        "type": "Energy Efficiency",
+        "description": "The energy efficiency rating of the product (for appliances)."
+    },
+    "age_group": {
+        "name": "Age Group",
+        "values": ["Child", "Teen", "Adult", "All Ages"],
+        "slug": "product-age-group",
+        "type": "Age Group",
+        "description": "The age group the product is suitable for."
+    },
+    "length": {
+        "name": "Length",
+        "values": ["Short", "Medium", "Long"],
+        "slug": "product-length",
+        "type": "Length",
+        "description": "The length of the product (typically for clothing and accessories)."
+    },
+    "voltage": {
+        "name": "Voltage",
+        "values": ["110V", "220V", "Dual Voltage"],
+        "slug": "product-voltage",
+        "type": "Voltage",
+        "description": "The voltage specifications for electronic devices."
+    },
+    "features": {
+        "name": "Features",
+        "values": ["Waterproof", "Bluetooth", "Touchscreen", "GPS", "WiFi", "Fast Charging", "Voice Control"],
+        "slug": "product-features",
+        "type": "Features",
+        "description": "Key features of the product."
+    },
+    "collection": {
+        "name": "Collection",
+        "values": ["Summer Collection", "Winter Collection", "Spring Collection", "Fall Collection"],
+        "slug": "product-collection",
+        "type": "Collection",
+        "description": "The collection the product belongs to."
+    },
+    "product_type": {
+        "name": "Product Type",
+        "values": ["Shirt", "Jacket", "Laptop", "Smartphone", "Shoe", "Headphone", "Tablet", "Watch"],
+        "slug": "product-type",
+        "type": "Product Type",
+        "description": "The type or category of the product."
+    }
+}
