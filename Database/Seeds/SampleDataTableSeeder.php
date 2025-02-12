@@ -148,17 +148,26 @@ class SampleDataTableSeeder extends Seeder
 
     private function seedAttributeValues($attribute_id, $values)
     {
+        $existing_values = AttributeValue::where('vh_st_attribute_id', $attribute_id)
+            ->pluck('value')
+            ->toArray();
+
         $attribute_values = [];
+
         foreach ($values as $value) {
-            $attribute_values[] = [
-                'value' => $value,
-                'vh_st_attribute_id' => $attribute_id,
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+            if (!in_array($value, $existing_values)) {
+                $attribute_values[] = [
+                    'value' => $value,
+                    'vh_st_attribute_id' => $attribute_id,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
         }
 
-        AttributeValue::insert($attribute_values);
+        if (!empty($attribute_values)) {
+            AttributeValue::insert($attribute_values);
+        }
     }
     //---------------------------------------------------------------
 
