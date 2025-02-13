@@ -590,7 +590,12 @@ class User extends UserBase
             ->whereBetween($date_column, [$start_date, $end_date])
             ->selectRaw("DATE($date_column) as date")
             ->selectRaw("$count($date_column) as total_count")
-            ->selectRaw("SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_count")
+            ->selectRaw("
+            (SELECT COUNT(*) FROM vh_st_orders
+             WHERE vh_st_orders.vh_user_id = vh_users.id
+             AND vh_st_orders.created_at BETWEEN ? AND ?) as active_count",
+                [$start_date, $end_date]
+            )
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -598,8 +603,8 @@ class User extends UserBase
         $total_customers = $chart_data_query->sum('total_count');
 
         $data = [
-            ['name' => 'Total Customers', 'data' => []],
-            ['name' => 'Active Customers', 'data' => []],
+            ['name' => 'Newly Created', 'data' => []],
+            ['name' => 'Active', 'data' => []],
         ];
 
         // Generate labels dynamically based on date range

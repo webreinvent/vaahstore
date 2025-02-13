@@ -64,6 +64,7 @@ class SampleDataTableSeeder extends Seeder
     function seeds()
     {
         $this->seedStores();
+        $this->seedPaymentMethods();
         $this->seedAttributes();
         $this->seedAttributeGroups();
         $this->seedBrands();
@@ -78,7 +79,6 @@ class SampleDataTableSeeder extends Seeder
         $this->seedCarts();
         $this->seedOrders();
         $this->seedShipmentsItems();
-        $this->seedPaymentMethods();
         $this->seedPayment();
 
     }
@@ -371,7 +371,8 @@ class SampleDataTableSeeder extends Seeder
             $random_zone = collect($timezones)->random()['slug'];
 
             $random_status = $status_options[array_rand($status_options)]['value'];
-            $random_created_at = $faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d H:i:s');
+            $random_created_at = $faker->dateTimeBetween('-2 months', 'now')->format('Y-m-d H:i:s');
+
 
             $users[] = [
                 'first_name' => $faker->firstName,
@@ -663,26 +664,27 @@ class SampleDataTableSeeder extends Seeder
     //---------------------------------------------------------------
 
     public function seedOrders(){
-
+        $user_ids = StoreUser::whereHas('addresses', function ($query) {
+            $query->whereHas('addressType', function ($query) {
+                $query->where('slug', 'shipping')
+                    ->orWhere('slug', 'billing');
+            });
+        })->pluck('id')->toArray();
+        $payment_method_ids = PaymentMethod::pluck('id')->toArray();
+        $order_payment_status_ids = Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'order-payment-status');
+            })
+            ->pluck('id')->toArray();
         for ($i = 0; $i < 100 ; $i++) {
-            $inputs['vh_user_id'] = StoreUser::whereHas('addresses', function ($query) {
-                $query->whereHas('addressType', function ($query) {
-                    $query->where('slug', 'shipping')
-                        ->orWhere('slug', 'billing');
-                });
-            })->inRandomOrder()->value('id');
+            $inputs['vh_user_id'] = $user_ids[array_rand($user_ids)];
+            $inputs['vh_st_payment_method_id'] =$payment_method_ids[array_rand($payment_method_ids)];
+
+            $inputs['order_status'] = ['Placed', 'Completed'][array_rand(['Placed', 'Completed'])];
 
 
-            $inputs['order_status'] = 'Placed';
-            $inputs['vh_st_payment_method_id'] = PaymentMethod::inRandomOrder()->value('id');
-
-            $order_payment_status = Taxonomy::inRandomOrder()
-                ->whereHas('type', function ($query) {
-                    $query->where('slug', 'order-payment-status');
-                })
-                ->first();
-            if (!empty($order_payment_status)) {
-                $inputs['taxonomy_id_payment_status'] = $order_payment_status->id;
+            if (!empty($order_payment_status_ids)) {
+                $inputs['taxonomy_id_payment_status'] = $order_payment_status_ids[array_rand($order_payment_status_ids)];
             }
 
             $inputs['order_shipment_status'] = 'Pending';
@@ -692,7 +694,8 @@ class SampleDataTableSeeder extends Seeder
             $inputs['paid'] = '';
             $inputs['is_paid'] = 0;
             $inputs['is_active'] = 1;
-            $inputs['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+            $inputs['created_at'] = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+
 
 
             $item = new Order();
@@ -776,7 +779,8 @@ class SampleDataTableSeeder extends Seeder
             $order_item['invoice_url'] = '';
             $order_item['tracking'] = '';
             $order_item['is_active'] = 1;
-            $order_item['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+            $order_item['created_at'] = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+
             $order_item['status_notes'] = '';
 
             $order_item->save();
@@ -839,7 +843,8 @@ class SampleDataTableSeeder extends Seeder
             $inputs['taxonomy_id_shipment_status'] = $status_id;
             $inputs['name'] = $faker->name;
             $inputs['tracking_url'] = $faker->url;
-            $inputs['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+            $inputs['created_at'] = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+
 
             if (rand(0, 1)) {
                 $inputs['tracking_key'] = 'phone';
@@ -883,7 +888,8 @@ class SampleDataTableSeeder extends Seeder
                             'vh_st_order_item_id' => $item_id,
                             'quantity' => $item_quantity_to_be_ship,
                             'pending' => $item_quantity_to_be_ship,
-                            'created_at' => Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s'),
+                            'created_at' => Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s')
+
                         ]);
                     }
                     self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
@@ -932,7 +938,7 @@ class SampleDataTableSeeder extends Seeder
         $product_stocks = [];
 
         for ($i = 0; $i < 100; $i++) {
-            $random_created_at = $faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d H:i:s');
+            $random_created_at = $faker->dateTimeBetween('-2 months', 'now')->format('Y-m-d H:i:s');
 
             // Fetch a vendor with products and variations
             $vendor = Vendor::whereHas('productVendors.product.productVariations')
@@ -1058,12 +1064,15 @@ class SampleDataTableSeeder extends Seeder
                 $inputs['payment_gate_response'] = '';
                 $inputs['payment_gate_status'] = '';
                 $inputs['is_active'] = 1;
-                $inputs['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
-                $inputs['date'] = Carbon::now()->subYear()->addSeconds(rand(0, Carbon::now()->diffInSeconds(Carbon::now()->subYear())));;
+                $inputs['created_at'] = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+
+                $inputs['date'] = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+
 
                 $item = new OrderPayment();
                 $item->fill($inputs);
-                $random_date = Carbon::now()->subYear()->addSeconds(rand(0, Carbon::now()->diffInSeconds(Carbon::now()->subYear())));
+                $random_date = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+
 
                 $item->date = $random_date;
                 $item->save();

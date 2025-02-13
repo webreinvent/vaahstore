@@ -1341,7 +1341,9 @@ export const useUserStore = defineStore({
                         const seriesIndex = opts.seriesIndex;
                         const seriesData = opts.w.globals.series[seriesIndex];
                         const sum = seriesData.reduce((acc, value) => acc + value, 0);
-                        return `${val} - ${sum}`;
+                        const newLabel = val === 'Customer Created' ? 'Total Customers' : val;
+
+                        return `${newLabel} - ${sum}`;
                     },
                 }, stroke: {
                     curve: 'smooth',
