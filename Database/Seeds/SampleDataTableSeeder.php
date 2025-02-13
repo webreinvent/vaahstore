@@ -587,41 +587,53 @@ class SampleDataTableSeeder extends Seeder
 
     public function seedVendorProducts()
     {
-        $store = Store::whereHas('products', function ($query) {
-            $query->where('is_active', 1);
-        })->first();
-
-        if (!$store) {
-            return;
-        }
-        $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
-        if (empty($product_ids)) {
-            return;
-        }
-
-        $vendor_ids = Vendor::pluck('id')->toArray();
-        $status_ids = Taxonomy::getTaxonomyByType('product-vendor-status')->pluck('id')->toArray();
-
-        if (empty($vendor_ids) || empty($status_ids)) {
-            return;
-        }
-        $active_user = optional(auth()->user());
 
 
         for ($i = 0; $i < 100; $i++) {
+            // Fetch a random store that has active products
+            $store = Store::whereHas('products', function ($query) {
+                $query->where('is_active', 1);
+            })->inRandomOrder()->first();
+
+            if (!$store) {
+                // If no store is found, continue to the next iteration
+                continue;
+            }
+
+            // Fetch random active product IDs from the store
+            $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
+            if (empty($product_ids)) {
+                continue; // If no products, skip this iteration
+            }
+
+            // Fetch all vendor IDs and status IDs
+            $vendor_ids = Vendor::pluck('id')->toArray();
+            $status_ids = Taxonomy::getTaxonomyByType('product-vendor-status')->pluck('id')->toArray();
+
+            if (empty($vendor_ids) || empty($status_ids)) {
+                continue; // Skip if no vendors or statuses
+            }
+
+            // Get the currently authenticated user
+            $active_user = optional(auth()->user());
+
+            // Create a new ProductVendor record
             $vendor_product = new ProductVendor();
-            $vendor_product->vh_st_vendor_id = $vendor_ids ? $vendor_ids[array_rand($vendor_ids)] : null;
-            $vendor_product->vh_st_product_id = $product_ids ? $product_ids[array_rand($product_ids)] : null;
-            $vendor_product->taxonomy_id_product_vendor_status = $status_ids ? $status_ids[array_rand($status_ids)] : null;
-            $vendor_product->added_by = $active_user->id;
+            $vendor_product->vh_st_vendor_id = $vendor_ids[array_rand($vendor_ids)];
+            $vendor_product->vh_st_product_id = $product_ids[array_rand($product_ids)];
+            $vendor_product->taxonomy_id_product_vendor_status = $status_ids[array_rand($status_ids)];
+            $vendor_product->added_by = $active_user->id ?? null;
             $vendor_product->is_active = 1;
             $vendor_product->created_at = now();
             $vendor_product->updated_at = now();
             $vendor_product->save();
+
+            // Attach the store to the vendor product
             if ($vendor_product->vh_st_vendor_id && $store->id) {
                 $vendor_product->storeVendorProduct()->attach($store->id);
             }
         }
+
     }
     //---------------------------------------------------------------
 
