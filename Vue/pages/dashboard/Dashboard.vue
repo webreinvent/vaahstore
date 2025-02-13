@@ -486,7 +486,7 @@ const toggleQuickFilterState = (event) => {
                                                 <h3>
                                                     {{
                                                     prop.data.product && prop.data.productVariation
-                                                    ? prop.data.product.name + '-' + prop.data.productVariation.name
+                                                    ?  prop.data.productVariation.name
                                                     : prop.data.name
                                                     }}
                                                 </h3>
@@ -563,7 +563,7 @@ const toggleQuickFilterState = (event) => {
                                                 <h3>
                                                     {{
                                                     prop.data.product && prop.data.productVariation
-                                                    ? prop.data.product.name + '-' + prop.data.productVariation.name
+                                                    ?  prop.data.productVariation.name
                                                     : prop.data.name
                                                     }}
                                                 </h3>
