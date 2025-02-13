@@ -22,6 +22,7 @@ use VaahCms\Modules\Store\Models\PaymentMethod;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductMediaImage;
+use VaahCms\Modules\Store\Models\ProductStock;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\Store;
@@ -57,6 +58,7 @@ class SampleDataTableSeeder extends Seeder
     function seeds()
     {
         $this->seedStores();
+        $this->seedVendors();
         $this->seedAttributes();
         $this->seedAttributeGroups();
         $this->seedWarehouses();
@@ -64,11 +66,12 @@ class SampleDataTableSeeder extends Seeder
         $this->seedCategories();
         $this->seedCustomers();
         $this->seedAddresses();
-        $this->seedVendors();
         $this->seedProducts();
         $this->seedVendorProducts();
+        $this->seedProductStocks();
         $this->seedCarts();
         $this->seedOrders();
+        $this->seedPaymentMethods();
 
     }
     //---------------------------------------------------------------
@@ -262,6 +265,7 @@ class SampleDataTableSeeder extends Seeder
 
     }
 
+    //---------------------------------------------------------------
 
     public function seedBrands()
     {
@@ -288,6 +292,7 @@ class SampleDataTableSeeder extends Seeder
             $brand->save();
         }
     }
+    //---------------------------------------------------------------
 
     public function seedCategories()
     {
@@ -310,6 +315,7 @@ class SampleDataTableSeeder extends Seeder
             }
         }
     }
+    //---------------------------------------------------------------
 
 //  function to save child categories
     private function saveChildCategories(array $children, int $parent_id)
@@ -330,6 +336,7 @@ class SampleDataTableSeeder extends Seeder
             }
         }
     }
+    //---------------------------------------------------------------
 
     public function seedCustomers()
     {
@@ -387,6 +394,7 @@ class SampleDataTableSeeder extends Seeder
             }
         }
     }
+    //---------------------------------------------------------------
 
     public function seedProducts()
     {
@@ -492,6 +500,7 @@ class SampleDataTableSeeder extends Seeder
             self::saveProductImages($Product_media, $inputs, $image_path);
         }
     }
+    //---------------------------------------------------------------
 
     public static function createProductVariations($product, $attributes)
     {
@@ -530,6 +539,7 @@ class SampleDataTableSeeder extends Seeder
             ]);
         }
     }
+    //---------------------------------------------------------------
 
     public static function saveProductImages($Product_media = null ,$inputs = null,$image_path=null){
 
@@ -547,6 +557,7 @@ class SampleDataTableSeeder extends Seeder
         $Product_media_image->save();
 
     }
+    //---------------------------------------------------------------
 
     public static function combineAttributes($attributes)
     {
@@ -564,6 +575,7 @@ class SampleDataTableSeeder extends Seeder
 
         return $result;
     }
+    //---------------------------------------------------------------
 
     public function seedVendorProducts()
     {
@@ -603,6 +615,7 @@ class SampleDataTableSeeder extends Seeder
             }
         }
     }
+    //---------------------------------------------------------------
 
     public function seedVendors()
     {
@@ -628,6 +641,7 @@ class SampleDataTableSeeder extends Seeder
             $item->save();
         }
     }
+    //---------------------------------------------------------------
 
     public function seedOrders(){
 
@@ -674,6 +688,7 @@ class SampleDataTableSeeder extends Seeder
         }
 
     }
+    //---------------------------------------------------------------
 
     public static function createOrderItem($item = null){
 
@@ -758,6 +773,7 @@ class SampleDataTableSeeder extends Seeder
 
         }
     }
+    //---------------------------------------------------------------
 
     public function  seedAddresses(){
 
@@ -791,8 +807,97 @@ class SampleDataTableSeeder extends Seeder
         }
     }
 
+    //---------------------------------------------------------------
 
     public function seedCarts(){
         Cart::seedCarts();
     }
+    //---------------------------------------------------------------
+
+    public static function seedProductStocks()
+    {
+        $status_ids = Taxonomy::getTaxonomyByType('product-stock-status')->pluck('id')->toArray();
+        $faker = Factory::create();
+        $product_stocks = [];
+
+        for ($i = 0; $i < 100; $i++) {
+            $random_created_at = $faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d H:i:s');
+
+            // Fetch a vendor with products and variations
+            $vendor = Vendor::whereHas('productVendors.product.productVariations')
+                ->where('is_active', 1)
+                ->with('productVendors.product.productVariations')
+                ->inRandomOrder()
+                ->first();
+
+            if (!$vendor) {
+                continue;
+            }
+
+            $valid_product_vendors = $vendor->productVendors->filter(fn($productVendor) =>
+                $productVendor->product && $productVendor->product->productVariations->isNotEmpty()
+            );
+
+            if ($valid_product_vendors->isEmpty()) {
+                continue;
+            }
+
+            $product_vendor = $valid_product_vendors->random();
+            $product = $product_vendor->product;
+            $product_variation = $product->productVariations->random();
+
+            $warehouse = Warehouse::where('is_active', 1)
+                ->where('vh_st_vendor_id', $vendor->id)
+                ->inRandomOrder()
+                ->first();
+
+            if (!$warehouse) {
+                $warehouse = Warehouse::where('is_active', 1)
+                    ->inRandomOrder()
+                    ->first();
+            }
+
+            if (!$warehouse) {
+                continue;
+            }
+
+            // Prepare product stock data
+            $product_stocks[] = [
+                'vh_st_vendor_id' => $vendor->id,
+                'vh_st_product_id' => $product->id,
+                'vh_st_product_variation_id' => $product_variation->id,
+                'vh_st_warehouse_id' => $warehouse->id,
+                'taxonomy_id_product_stock_status' => $status_ids ? $status_ids[array_rand($status_ids)] : null,
+                'quantity' => rand(1, 200),
+                'is_active' => 1,
+                'created_at' => $random_created_at,
+                'updated_at' => $random_created_at,
+            ];
+        }
+
+        if (!empty($product_stocks)) {
+            ProductStock::insert($product_stocks);
+        }
+    }
+
+    //---------------------------------------------------------------
+    public function seedPaymentMethods()
+    {
+        $payment_methods = [
+            ['name' => 'COD', 'slug' => 'cod', 'is_active' => 1],
+            ['name' => 'Credit Card', 'slug' => 'credit-card', 'is_active' => 1],
+            ['name' => 'Debit Card', 'slug' => 'debit-card', 'is_active' => 1],
+            ['name' => 'UPI', 'slug' => 'upi', 'is_active' => 1],
+            ['name' => 'Net Banking', 'slug' => 'net-banking', 'is_active' => 1],
+            ['name' => 'Wallet', 'slug' => 'wallet', 'is_active' => 1],
+        ];
+
+        foreach ($payment_methods as $method) {
+            PaymentMethod::updateOrCreate(
+                ['slug' => $method['slug']],
+                $method
+            );
+        }
+    }
+
 }
