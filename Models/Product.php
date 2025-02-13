@@ -2776,11 +2776,17 @@ class Product extends VaahModel
                 return null;
             }
 
-            $product_media_ids = $products->medias
+            $product_media_ids = $products->medias->isNotEmpty()
                 ? $products->medias->map(function ($media) {
                     return $media->pivot->vh_st_product_media_id ?? null;
                 })->filter()
                 : collect();
+
+            // Fallback if no medias found in the relation: fetch directly from the ProductMedia model
+            if ($product_media_ids->isEmpty()) {
+                $product_media_ids = ProductMedia::where('vh_st_product_id', $item->vh_st_product_id)
+                    ->pluck('id'); // Plucking media IDs directly
+            }
 
             $image_urls = self::getImageUrls($product_media_ids);
             $brand = $products->brand;

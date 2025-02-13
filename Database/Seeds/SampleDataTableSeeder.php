@@ -437,8 +437,7 @@ class SampleDataTableSeeder extends Seeder
                 ['slug' => Str::slug($product['brand']['name'])]
             );
             $inputs['vh_st_brand_id'] = $brand->id;
-
-
+            $random_category = Category::whereNull('parent_id') ->where('is_active', 1)->inRandomOrder()->first();
             // Assign a random product status
             $taxonomy_status = Taxonomy::where('name', 'Approved')
                 ->whereHas('type', function ($query) {
@@ -479,7 +478,7 @@ class SampleDataTableSeeder extends Seeder
 
             // Save the product
             $product = Product::create($inputs);
-
+            $product->productCategories()->attach($random_category->id, ['vh_st_product_id' => $product->id]);
             $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "./json/attributes.json";
             $jsonString = file_get_contents($json_file_variants);
             $attributes = json_decode($jsonString, true);
