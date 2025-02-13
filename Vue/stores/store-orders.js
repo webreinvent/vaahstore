@@ -1530,7 +1530,8 @@ export const useOrderStore = defineStore({
                 tooltip: {
                     x: {
                         format: 'MMMM d, yyyy'
-                    }
+                    },
+                    shared: false,
                 },
 
                 chart: {

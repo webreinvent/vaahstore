@@ -1362,7 +1362,12 @@ export const useUserStore = defineStore({
                     },
 
                 },
-
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy'
+                    },
+                    shared: false,
+                },
                 dataLabels: {
                     enabled: false,
                 },
