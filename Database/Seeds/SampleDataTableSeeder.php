@@ -4,6 +4,7 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 
 use Faker\Factory;
 use Faker\Factory as Faker;
+use Faker\Provider\ar_SA\Payment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
@@ -20,6 +21,7 @@ use VaahCms\Modules\Store\Models\Lingual;
 use VaahCms\Modules\Store\Models\Order;
 use VaahCms\Modules\Store\Models\OrderItem;
 use VaahCms\Modules\Store\Models\PaymentMethod;
+use VaahCms\Modules\Store\Models\Payment as OrderPayment;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductMediaImage;
@@ -61,22 +63,23 @@ class SampleDataTableSeeder extends Seeder
      */
     function seeds()
     {
-        $this->seedStores();
-        $this->seedAttributes();
-        $this->seedAttributeGroups();
-        $this->seedWarehouses();
-        $this->seedBrands();
-        $this->seedCategories();
-        $this->seedCustomers();
-        $this->seedAddresses();
-        $this->seedVendors();
-        $this->seedProducts();
-        $this->seedVendorProducts();
-        $this->seedProductStocks();
-        $this->seedCarts();
-        $this->seedOrders();
-        $this->seedShipmentsItems();
-        $this->seedPaymentMethods();
+//        $this->seedStores();
+//        $this->seedAttributes();
+//        $this->seedAttributeGroups();
+//        $this->seedWarehouses();
+//        $this->seedBrands();
+//        $this->seedCategories();
+//        $this->seedCustomers();
+//        $this->seedAddresses();
+//        $this->seedVendors();
+//        $this->seedProducts();
+//        $this->seedVendorProducts();
+//        $this->seedProductStocks();
+//        $this->seedCarts();
+//        $this->seedOrders();
+//        $this->seedShipmentsItems();
+//        $this->seedPaymentMethods();
+        $this->seedPayment();
 
     }
     //---------------------------------------------------------------
@@ -996,5 +999,89 @@ class SampleDataTableSeeder extends Seeder
             );
         }
     }
+
+    public function seedPayment()
+    {
+        $faker = Factory::create();
+
+        for ($i = 0; $i < 100; $i++) {
+            // Fetch active orders where amount > paid
+            $orders = Order::with('user:id,username')
+                ->where('is_active', 1)
+                ->whereColumn('amount', '>', 'paid') // Correct column comparison
+                ->limit(10)
+                ->get();
+
+            $random_payment_method = PaymentMethod::where('is_active', 1)
+                ->inRandomOrder()
+                ->select('id')
+                ->first();
+            $taxonomy_status = Taxonomy::getTaxonomyByType('payment-status');
+            $status_ids = $taxonomy_status->pluck('id')->toArray();
+            $status_id = $status_ids[array_rand($status_ids)];
+
+            if ($orders->isNotEmpty()) {
+                $inputs['vh_st_payment_method_id'] = $random_payment_method['id'];
+                $inputs['transaction_id'] = $faker->uuid;
+                $inputs['taxonomy_id_payment_status'] = $status_id;
+
+                if ($orders->isNotEmpty()) {
+                    $random_order = $orders->random();
+                    $payment['orders'] = [$random_order];
+
+                    foreach ($orders as &$order) {
+                        if ($order->user) {
+                            $order->user_name = $order->user->username;
+                            $order->payable_amount = $order->amount - $order->paid;
+                            $order->pay_amount = rand(0, $order->amount);
+
+                            $inputs['amount'] = $order->pay_amount;
+
+                            unset($order->user);
+                        }
+                    }
+                }
+
+                $inputs['status_notes'] = $faker->text;
+                $inputs['notes'] = $faker->text;
+                $inputs['payment_gate_response'] = '';
+                $inputs['payment_gate_status'] = '';
+                $inputs['is_active'] = 1;
+                $inputs['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+                $inputs['date'] = Carbon::now()->subYear()->addSeconds(rand(0, Carbon::now()->diffInSeconds(Carbon::now()->subYear())));;
+
+                $item = new OrderPayment();
+                $item->fill($inputs);
+                $random_date = Carbon::now()->subYear()->addSeconds(rand(0, Carbon::now()->diffInSeconds(Carbon::now()->subYear())));
+
+                $item->date = $random_date;
+                $item->save();
+
+                if (isset($payment['orders']) && is_array($payment['orders']) && count($payment['orders']) > 0) {
+                    foreach ($payment['orders'] as $key => $order) {
+                        $payable_amount = $order['payable_amount'];
+                        if ($payable_amount > 0) {
+                            $pay_amount = rand(0, $payable_amount);
+                            $remaining_payable_amount = $payable_amount - $pay_amount;
+
+                            $order_data = [
+                                'payable_amount' => $payable_amount,
+                                'pay_amount' => $pay_amount,
+                            ];
+                            $order_payment_detail = [
+                                'payable_amount' => $order_data['payable_amount'],
+                                'payment_amount' => $order_data['pay_amount'],
+                                'remaining_payable_amount' => $remaining_payable_amount,
+                                'created_at' => $random_date,
+                            ];
+                            $item->orders()->attach($order['id'], $order_payment_detail);
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
 }
