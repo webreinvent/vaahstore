@@ -6,6 +6,7 @@ use Faker\Factory;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
 use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Attribute;
 use VaahCms\Modules\Store\Models\AttributeGroup;
@@ -25,6 +26,8 @@ use VaahCms\Modules\Store\Models\ProductMediaImage;
 use VaahCms\Modules\Store\Models\ProductStock;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\ProductVendor;
+use VaahCms\Modules\Store\Models\Shipment;
+use VaahCms\Modules\Store\Models\ShipmentItem;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
 use VaahCms\Modules\Store\Models\User as StoreUser;
@@ -36,6 +39,7 @@ use WebReinvent\VaahCms\Models\TaxonomyType;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 
 class SampleDataTableSeeder extends Seeder
@@ -57,21 +61,20 @@ class SampleDataTableSeeder extends Seeder
      */
     function seeds()
     {
-        $this->seedStores();
-        $this->seedVendors();
-        $this->seedAttributes();
-        $this->seedAttributeGroups();
-        $this->seedWarehouses();
-        $this->seedBrands();
-        $this->seedCategories();
-        $this->seedCustomers();
-        $this->seedAddresses();
-        $this->seedProducts();
-        $this->seedVendorProducts();
-        $this->seedProductStocks();
-        $this->seedCarts();
-        $this->seedOrders();
-        $this->seedPaymentMethods();
+//        $this->seedStores();
+//        $this->seedAttributes();
+//        $this->seedAttributeGroups();
+//        $this->seedWarehouses();
+//        $this->seedBrands();
+//        $this->seedCategories();
+//        $this->seedCustomers();
+//        $this->seedAddresses();
+//        $this->seedVendors();
+//        $this->seedProducts();
+//        $this->seedVendorProducts();
+//        $this->seedCarts();
+//        $this->seedOrders();
+        $this->seedShipmentsItems();
 
     }
     //---------------------------------------------------------------
@@ -807,7 +810,99 @@ class SampleDataTableSeeder extends Seeder
         }
     }
 
-    //---------------------------------------------------------------
+    public function seedShipmentsItems(){
+
+        $faker = Factory::create();
+        for ($i = 0; $i < 100 ; $i++) {
+            $phone = $faker->numerify('##########');
+            $order_id = rand(1000, 9999);
+
+            $taxonomy_status = Taxonomy::getTaxonomyByType('shipment-status');
+            $status_ids = $taxonomy_status->pluck('id')->toArray();
+            $status_id = $status_ids[array_rand($status_ids)];
+            $inputs['taxonomy_id_shipment_status'] = $status_id;
+            $inputs['name'] = $faker->name;
+            $inputs['tracking_url'] = $faker->url;
+            $inputs['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+
+            if (rand(0, 1)) {
+                $inputs['tracking_key'] = 'phone';
+                $inputs['tracking_value'] = $phone;
+            } else {
+                $inputs['tracking_key'] = 'order_id';
+                $inputs['tracking_value'] = $order_id;
+            }
+
+            $inputs['is_trackable'] = rand(0, 1);
+
+
+            $search_orders_request = new Request([
+                'query' => $inputs['query'] ?? null
+            ]);
+
+            $orders_response = Shipment::searchOrders($search_orders_request);
+
+            if ($orders_response['success'] && $orders_response['data'] instanceof \Illuminate\Support\Collection) {
+                $orders = $orders_response['data'];
+                if ($orders->isNotEmpty()) {
+                    $shipment['orders'][] = $orders->random();
+                }
+            } else {
+                $shipment['orders'][] = null;
+            }
+            $item = new Shipment();
+            $item->fill($inputs);
+            $item->save();
+
+            if (isset($shipment['orders']) && is_array($shipment['orders'])) {
+                $selected_orders = collect($shipment['orders'])->random(min(3, count($shipment['orders'])));
+                foreach ($selected_orders as $order) {
+                    $order_id = $order['id'];
+                    $order_items = $order['items'] ?? [];
+                    foreach ($order_items as $order_item) {
+                        $item_id = $order_item['id'];
+
+                        $item_quantity_to_be_ship = $order_item['quantity'];
+                        $item->orders()->attach($order_id, [
+                            'vh_st_order_item_id' => $item_id,
+                            'quantity' => $item_quantity_to_be_ship,
+                            'pending' => $item_quantity_to_be_ship,
+                            'created_at' => Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                    self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
+                }
+            }
+        }
+    }
+
+    private static function updateOrderStatusForShipment($taxonomy_id_shipment_status, $order_id)
+    {
+        $shipped_order_quantity = ShipmentItem::where('vh_st_order_id', $order_id)->sum('quantity');
+        $shipment_status_name = Taxonomy::where('id', $taxonomy_id_shipment_status)->value('name');
+        $order = Order::with('items', 'orderPaymentStatus')->findOrFail($order_id);
+        $total_order_quantity = $order->items()->sum('quantity');
+        $order_payment_status_slug = $order->orderPaymentStatus->slug;
+        self::updateOrderStatus($order, $order_payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity);
+    }
+
+    public static function updateOrderStatus($order, $payment_status_slug, $shipment_status_name, $shipped_order_quantity, $total_order_quantity)
+    {
+        $all_delivered = OrderStatusHelper::areAllShipmentsDelivered($order->id);
+        $statuses =OrderStatusHelper::getOrderStatusBasedOnShipment(
+            $payment_status_slug,
+            $shipment_status_name,
+            $shipped_order_quantity,
+            $total_order_quantity,
+            $all_delivered
+        );
+
+        // Update the order with the statuses
+        $order->order_status = $statuses['order_status'];
+        $order->order_shipment_status = $statuses['order_shipment_status'];
+        $order->save();
+    }
+
 
     public function seedCarts(){
         Cart::seedCarts();
