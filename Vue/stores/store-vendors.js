@@ -1832,7 +1832,7 @@ export const useVendorStore = defineStore({
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
-
+                filter_all: this.filter_all ?? null,
             }
             let options = {
                 params: params,
@@ -1945,10 +1945,12 @@ export const useVendorStore = defineStore({
         {
             this.filter_all = time;
             this.topSellingVendorsData();
+            this.vendorSalesByRange();
         },
         loadSalesData(){
             this.filter_all=null;
             this.topSellingVendorsData();
+            this.vendorSalesByRange();
         }
 
 
