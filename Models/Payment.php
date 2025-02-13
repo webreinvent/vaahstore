@@ -791,7 +791,7 @@ class Payment extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
-            $random_date = Carbon::now()->subYear()->addSeconds(rand(0, Carbon::now()->diffInSeconds(Carbon::now()->subYear())));
+            $random_date = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
 
             $item->date = $random_date;
             $item->save();

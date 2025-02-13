@@ -374,6 +374,59 @@ class SettingsController extends Controller
                         }
                         ProductStock::seedSampleItems($quantity);
                         break;
+                    case "Carts":
+                        $vendor = Vendor::exists();
+
+                        $product = Product::exists();
+
+                        $product_variation = ProductVariation::exists();
+
+                        $warehouse = Warehouse::exists();
+
+                        $store = Store::exists();
+
+                        if (!$store && !$warehouse && !$vendor && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_vendor_warehouse_product_and_product_variation");
+                            return $response;
+                        }
+
+                        if (!$vendor && !$warehouse && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_store_vendor_warehouse_product_and_product_variation");
+                            return $response;
+                        }
+
+                        if (!$warehouse && !$product && !$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_warehouse_product_and_product_variation");
+                            return $response;
+                        }
+
+                        if (!$product_variation) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_product_variation");
+                            return $response;
+                        }
+
+                        if (!$warehouse) {
+                            $response['success'] = false;
+                            $response['errors'][] = trans("vaahcms-vaahstore-crud-action.create_warehouse");
+                            return $response;
+                        }
+                        Cart::seedCarts($quantity);
+                        break;
+
+                    case "Payments":
+                        $order = Order::exists();
+                        if (!$order) {
+                            $response['success'] = false;
+                            $response['errors'][] = 'No Order Exist';
+                            return $response;
+                        }
+
+                        Payment::seedSampleItems($quantity);
+                        break;
                     case "VendorsProduct":
                         $product = Product::exists();
 

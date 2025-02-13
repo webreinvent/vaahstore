@@ -1383,7 +1383,7 @@ class Cart extends VaahModel
 
     //---------------------------------------------------------------------
 
-    public static function seedCarts()
+    public static function seedCarts($count=100)
     {
         $users = User::where('is_active', 1)->pluck('id')->toArray();
 
@@ -1397,7 +1397,7 @@ class Cart extends VaahModel
             return;
         }
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < $count; $i++) {
             $user_id = $users[array_rand($users)] ?? null;
             if (!$user_id) {
                 continue;
@@ -1406,7 +1406,7 @@ class Cart extends VaahModel
             $cart->vh_user_id = $user_id;
             $cart->save();
 
-            $num_products = rand(1, 5);  // Max products per cart
+            $num_products = rand(1, 2);  // Max products per cart
             $cart_products = $valid_products->random(min($num_products, $valid_products->count()));
             foreach ($cart_products as $product) {
                 $product_stock = optional($product->productStocks()->where('quantity', '>', 0)->first());
