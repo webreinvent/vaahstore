@@ -61,20 +61,22 @@ class SampleDataTableSeeder extends Seeder
      */
     function seeds()
     {
-//        $this->seedStores();
-//        $this->seedAttributes();
-//        $this->seedAttributeGroups();
-//        $this->seedWarehouses();
-//        $this->seedBrands();
-//        $this->seedCategories();
-//        $this->seedCustomers();
-//        $this->seedAddresses();
-//        $this->seedVendors();
-//        $this->seedProducts();
-//        $this->seedVendorProducts();
-//        $this->seedCarts();
-//        $this->seedOrders();
+        $this->seedStores();
+        $this->seedAttributes();
+        $this->seedAttributeGroups();
+        $this->seedWarehouses();
+        $this->seedBrands();
+        $this->seedCategories();
+        $this->seedCustomers();
+        $this->seedAddresses();
+        $this->seedVendors();
+        $this->seedProducts();
+        $this->seedVendorProducts();
+        $this->seedProductStocks();
+        $this->seedCarts();
+        $this->seedOrders();
         $this->seedShipmentsItems();
+        $this->seedPaymentMethods();
 
     }
     //---------------------------------------------------------------
