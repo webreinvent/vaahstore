@@ -1030,7 +1030,7 @@ class SampleDataTableSeeder extends Seeder
         for ($i = 0; $i < 50; $i++) {
             // Fetch active orders where amount > paid
             $orders = Order::with('user:id,username')
-                ->where('is_active', 1)
+
                 ->whereColumn('amount', '>', 'paid') // Correct column comparison
                 ->limit(10)
                 ->get();
@@ -1048,7 +1048,7 @@ class SampleDataTableSeeder extends Seeder
                 $inputs['transaction_id'] = $faker->uuid;
                 $inputs['taxonomy_id_payment_status'] = $status_id;
 
-                if ($orders->isNotEmpty()) {
+
                     $random_order = $orders->random();
                     $payment['orders'] = [$random_order];
 
@@ -1062,7 +1062,7 @@ class SampleDataTableSeeder extends Seeder
 
                             unset($order->user);
                         }
-                    }
+
                 }
 
                 $inputs['status_notes'] = $faker->text;
@@ -1082,10 +1082,10 @@ class SampleDataTableSeeder extends Seeder
 
                 $item->date = $random_date;
                 $item->save();
-
                 if (isset($payment['orders']) && is_array($payment['orders']) && count($payment['orders']) > 0) {
                     foreach ($payment['orders'] as $key => $order) {
-                        $payable_amount = $order['payable_amount'];
+
+                        $payable_amount = $order->payable;
                         if ($payable_amount > 0) {
                             $pay_amount = rand(0, $payable_amount);
                             $remaining_payable_amount = $payable_amount - $pay_amount;

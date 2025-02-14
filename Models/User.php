@@ -600,13 +600,9 @@ class User extends UserBase
             ->orderByRaw("DATE(created_at) ASC")
             ->get();
 
-        // Get total customers using Eloquent
-        $total_customers = User::whereBetween('created_at', [$start_date, $end_date])
-            ->whereHas('activeRoles', function ($query) {
-                $query->where('slug', 'customer');
-            })
+        $customers_having_order = Order::whereBetween('created_at', [$start_date, $end_date])
             ->distinct()
-            ->count();
+            ->count('vh_user_id');
 
         // Get total orders using Eloquent
         $total_orders = Order::whereBetween('created_at', [$start_date, $end_date])->count();
@@ -711,7 +707,7 @@ class User extends UserBase
                     ],
                 ],
                 'summary' => [
-                    'total_customers' => $total_customers,
+                    'total_customers' => $customers_having_order,
                     'total_orders' => $total_orders,
                     'average_order_value' => $average_order_value,
                     'avg_orders_per_customer' => $avg_orders_per_customer,

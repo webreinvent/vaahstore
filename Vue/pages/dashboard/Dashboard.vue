@@ -56,7 +56,6 @@ onMounted(async () => {
             return `&#8377;${(value / 1000).toFixed(2)}k`;
         }
 
-        // Otherwise, use currency formatting for smaller numbers
         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: 'INR',
@@ -65,16 +64,14 @@ onMounted(async () => {
         }).format(value);
     };
 
-// Function to format large numbers into "k" format for thousands
     const formatLargeNumber = (value) => {
         if (value == null) return 'Loading...';
         return value >= 1000 ? `${(value / 1000).toFixed(2)}k` : value;
     };
 
-// Once data is fetched, update the metrics
     metrics.value = [
         {
-            label: `<i class="pi pi-users text-2xl mr-2"></i>Total Customers`,
+            label: `<i class="pi pi-users text-2xl mr-2"></i>Active Customers`,
             value: customers_store.total_customers
                 ? formatLargeNumber(customers_store.total_customers)
                 : 'Loading...'
@@ -120,24 +117,7 @@ const toggleQuickFilterState = (event) => {
     quick_filter_menu_state.value.toggle(event);
 };
 const metrics = ref([]);
-// const metrics = ref([
-//     {
-//         label: 'Total Customers',
-//         value: customers_store.total_customers
-//     },
-//     {
-//         label: 'Average Order Value',
-//         value: `&#8377;${customers_store.average_order_value}`
-//     },
-//     {
-//         label: 'Total Orders',
-//         value: customers_store.total_orders
-//     },
-//     {
-//         label: 'Avg Orders per Customer',
-//         value: customers_store.avg_orders_per_customer
-//     }
-// ]);
+
 </script>
 <template>
     <div  class="flex-grow-1 shadow-1  border-round-xl has-background-white mb-2 p-3">
@@ -145,9 +125,8 @@ const metrics = ref([]);
         Selected Date Range:{{ formattedDateRange }}
     </h4>
     </div>
-    <div class="container">
-<!--        <h1 class="text-900 text-xl mb-4">Key Metrics</h1>-->
-<!--        {{root.assets.backend_logo_url}}-->
+    <div class="container mb-3 mt-1">
+
         <div class="grid">
             <div class="col-12 md:col-6 lg:col-3" v-for="metric in metrics" :key="metric.label">
                 <Card class="surface-ground h-full">
