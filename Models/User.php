@@ -600,21 +600,17 @@ class User extends UserBase
             ->orderByRaw("DATE(created_at) ASC")
             ->get();
 
-        $customers_having_order = Order::whereBetween('created_at', [$start_date, $end_date])
-            ->distinct()
-            ->count('vh_user_id');
-
         // Get total orders using Eloquent
         $total_orders = Order::whereBetween('created_at', [$start_date, $end_date])->count();
 
         // Get the total number of unique customers who have placed orders using Eloquent
-        $unique_customers_with_orders = Order::whereBetween('created_at', [$start_date, $end_date])
+        $unique_customers_with_multiple_orders = Order::whereBetween('created_at', [$start_date, $end_date])
             ->distinct('vh_user_id')
             ->count('vh_user_id');
 
         // Calculate the average orders per customer
-        $avg_orders_per_customer = $unique_customers_with_orders > 0
-            ? round($total_orders / $unique_customers_with_orders, 2)
+        $avg_orders_per_customer = $unique_customers_with_multiple_orders > 0
+            ? round($total_orders / $unique_customers_with_multiple_orders, 2)
             : 0;
 
         // Get total order value using Eloquent
@@ -707,7 +703,7 @@ class User extends UserBase
                     ],
                 ],
                 'summary' => [
-                    'total_customers' => $customers_having_order,
+                    'total_customers' => $unique_customers_with_multiple_orders,
                     'total_orders' => $total_orders,
                     'average_order_value' => $average_order_value,
                     'avg_orders_per_customer' => $avg_orders_per_customer,
