@@ -589,16 +589,37 @@ class User extends UserBase
         $chart_data_query = $list
             ->whereBetween('created_at', [$start_date, $end_date])
             ->selectRaw("DATE(created_at) as date")
-            ->selectRaw("COUNT(*) as total_count")
+            ->selectRaw("COUNT(*) as joined")
             ->selectRaw("
             (SELECT COUNT(*) FROM vh_st_orders
             WHERE vh_st_orders.vh_user_id = vh_users.id
-            AND vh_st_orders.created_at BETWEEN ? AND ?) as active_count",
+            AND vh_st_orders.created_at BETWEEN ? AND ?) as customer_order_activity",
                 [$start_date, $end_date]
             )
             ->groupByRaw("DATE(created_at)")
             ->orderByRaw("DATE(created_at) ASC")
             ->get();
+
+        // Initialize data array for the chart
+        $data = [
+            ['name' => 'Total', 'data' => []],
+            ['name' => 'Joined', 'data' => []],
+            ['name' => 'Customer Order Activity', 'data' => []],
+        ];
+        $initial_customer_count =User::where('created_at', '<', $start_date)
+            ->count();
+        $cumulative_count = $initial_customer_count;
+        $labels = [];
+        foreach ($chart_data_query as $item) {
+            $date = Carbon::parse($item->date);
+            $labels[] = $date->format('Y-m-d');
+
+            $cumulative_count += $item->joined;
+            $data[0]['data'][] = $cumulative_count;
+
+            $data[1]['data'][] = $item->joined;
+            $data[2]['data'][] = $item->customer_order_activity;
+        }
 
         // Get total orders using Eloquent
         $total_orders = Order::whereBetween('created_at', [$start_date, $end_date])->count();
@@ -620,22 +641,6 @@ class User extends UserBase
         $average_order_value = $total_orders > 0
             ? round($total_order_value / $total_orders, 2)
             : 0;
-
-        // Initialize data array for the chart
-        $data = [
-            ['name' => 'Newly Created', 'data' => []],
-            ['name' => 'Active', 'data' => []],
-        ];
-
-        // Generate labels dynamically based on date range
-        $labels = [];
-        foreach ($chart_data_query as $item) {
-            $date = Carbon::parse($item->date);
-            $labels[] = $date->format('Y-m-d');
-
-            $data[0]['data'][] = $item->total_count;
-            $data[1]['data'][] = $item->active_count;
-        }
 
         // Return the data for the chart
         return [

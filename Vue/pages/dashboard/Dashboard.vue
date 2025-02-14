@@ -71,25 +71,25 @@ onMounted(async () => {
 
     metrics.value = [
         {
-            label: `<i class="pi pi-users text-2xl mr-2"></i>Active Customers`,
+            label: `<i class="pi pi-users text-2xl mr-2"></i><b>Active Customers</b>`,
             value: customers_store.total_customers
                 ? formatLargeNumber(customers_store.total_customers)
                 : 'Loading...'
         },
         {
-            label: `<i class="pi pi-briefcase text-2xl mr-2"></i>Average Order Value`,
+            label: `<i class="pi pi-briefcase text-2xl mr-2"></i><b>Average Order Value</b>`,
             value: customers_store.average_order_value
                 ? formatCurrency(customers_store.average_order_value)
                 : 'Loading...'
         },
         {
-            label: `<i class="pi pi-shopping-bag text-2xl mr-2"></i>Total Orders`,
+            label: `<i class="pi pi-shopping-bag text-2xl mr-2"></i><b>Total Orders</b>`,
             value: customers_store.total_orders
                 ? formatLargeNumber(customers_store.total_orders)
                 : 'Loading...'
         },
         {
-            label: 'Avg Orders per Customer',
+            label: `<b>Avg Orders per Customer</b>`,
             value: customers_store.avg_orders_per_customer
                 ? formatLargeNumber(customers_store.avg_orders_per_customer)
                 : 'Loading...'
@@ -180,7 +180,7 @@ const metrics = ref([]);
                                     type="area"
                                     :chartOptions="orders_store.count_chart_options"
                                     :chartSeries="orders_store.count_chart_series"
-                                    height=200
+                                    height=300
                                     titleAlign="center"
                                     title=""
 
@@ -257,7 +257,7 @@ const metrics = ref([]);
                                     type="area"
                                     :chartOptions="orders_store.sales_chart_options"
                                     :chartSeries="orders_store.sales_chart_series"
-                                    height=200
+                                    height=300
                                     titleAlign="center"
 
 
@@ -336,7 +336,7 @@ const metrics = ref([]);
                                     type="area"
                                     :chartOptions="orders_store.order_payments_income_chart_options"
                                     :chartSeries="orders_store.order_payments_income_chart_series"
-                                    height=200
+                                    height=300
                                     titleAlign="center"
 
 
@@ -823,11 +823,11 @@ const metrics = ref([]);
 
 
 
-            <div class="col-7">
+            <div class="col-6">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="area"
+
                             :chartOptions="customers_store.customer_count_chart_options"
                             :chartSeries="customers_store.customer_count_chart_series"
                             height="300"
@@ -839,7 +839,7 @@ const metrics = ref([]);
                 </Card>
             </div>
 
-            <div class="col-5">
+            <div class="col-6">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts

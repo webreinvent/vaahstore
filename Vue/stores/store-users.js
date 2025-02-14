@@ -1342,6 +1342,8 @@ export const useUserStore = defineStore({
             this.updateChartSeries(seriesData);
             const updatedOptions = {
                 ...data.chart_options,
+
+
                 legend: {
                     position: 'bottom',
                     horizontalAlign: 'left',
@@ -1350,26 +1352,37 @@ export const useUserStore = defineStore({
                     formatter: function (val, opts) {
                         const seriesIndex = opts.seriesIndex;
                         const seriesData = opts.w.globals.series[seriesIndex];
+                        const seriesName = opts.w.globals.seriesNames[seriesIndex];
                         const sum = seriesData.reduce((acc, value) => acc + value, 0);
                         const newLabel = val === 'Customer Created' ? 'Total Customers' : val;
+                        // Only display the last value for the "Total" series
+                        if (seriesName === 'Total') {
+                            const lastValue = seriesData[seriesData.length - 1]; // Last value of the "Total" series
+                            return `${seriesName} - ${lastValue}`;
+                        }
 
+                        // For other series, just show the normal label
                         return `${newLabel} - ${sum}`;
                     },
-                }, stroke: {
-                    curve: 'smooth',
-                    width: 2,
                 },
+
+                stroke: {
+                    curve: 'monotoneCubic',
+                    width: 2, // Set the stroke width for all series
+                    dropShadow: {
+                        enabled: true,  // Enable shadow
+                        top: 2,         // Shadow offset top
+                        left: 2,        // Shadow offset left
+                        blur: 4,        // Shadow blur effect
+                        opacity: 1    // Shadow opacity
+                    }
+                },colors: [ '#CED4DC','#008FFB', '#00E396',],
                 chart: {
                     toolbar: {
                         show: false
                     },
                     type:'area',
-                    margin: {
-                        left: 20,
-                        right: 20,
-                        top: 20,
-                        bottom: 20
-                    },
+
 
                 },
                 tooltip: {
@@ -1396,7 +1409,7 @@ export const useUserStore = defineStore({
                     }
                 },
                 title: {
-                    text: 'Customers History',
+                    text: 'Customers Trend',
                     align: 'left',
                     offsetY: 12,
                     style: {
