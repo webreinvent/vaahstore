@@ -1409,7 +1409,7 @@ export const useUserStore = defineStore({
                     }
                 },
                 title: {
-                    text: 'Customers Trend',
+                    text: 'Customers Track',
                     align: 'left',
                     offsetY: 12,
                     style: {

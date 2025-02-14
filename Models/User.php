@@ -604,7 +604,7 @@ class User extends UserBase
         $data = [
             ['name' => 'Total', 'data' => []],
             ['name' => 'Joined', 'data' => []],
-            ['name' => 'Customer Order Activity', 'data' => []],
+            ['name' => 'Order Activity', 'data' => []],
         ];
         $initial_customer_count =User::where('created_at', '<', $start_date)
             ->count();
