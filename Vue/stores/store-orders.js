@@ -1490,6 +1490,8 @@ export const useOrderStore = defineStore({
 
             this.updateChartSeries(series_data);
 
+            const totals = data.totals || { total_orders: 0, completed_orders: 0 };
+
             const updated_area_chart_options = {
                 ...data.chart_options, // Merge existing options
                 stroke: {
@@ -1511,7 +1513,6 @@ export const useOrderStore = defineStore({
                 },
                 xaxis: {
                     type: 'datetime',
-
                     labels: {
                         show: false,
                     },
@@ -1539,7 +1540,6 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-
                 },
                 toolbar: {
                     show: false,
@@ -1553,13 +1553,32 @@ export const useOrderStore = defineStore({
                 grid: {
                     show: false,
                 },
-                legend: {
-                    show: false
-                }
 
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'left',
+                    fontSize: '14px',
+                    labels: {
+                        colors: '#000',
+                    },
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 5
+                    },
+                    formatter: function(seriesName, opts) {
+                        if (seriesName === 'Created') {
+                            return `${seriesName}: ${totals.total_orders}`;
+                        } else if (seriesName === 'Completed') {
+                            return `${seriesName}: ${totals.completed_orders}`;
+                        }
+                        return seriesName;
+                    }
+                }
             };
 
             this.updateChartOptions(updated_area_chart_options);
+
         },
 
 

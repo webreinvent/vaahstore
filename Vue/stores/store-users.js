@@ -128,7 +128,10 @@ export const useUserStore = defineStore({
         },
         customer_count_chart_options: {},
         customer_count_chart_series: [],
-
+        total_customers:null,
+        total_orders:null,
+        avg_orders_per_customer :null,
+        average_order_value :null,
     }),
     getters: {
 
@@ -1325,6 +1328,13 @@ export const useUserStore = defineStore({
             if (!data || !Array.isArray(data.chart_series)) {
                 return;
             }
+
+            this.total_customers =data.summary.total_customers;
+           this.total_orders =data.summary.total_orders;
+            this.avg_orders_per_customer =data.summary.avg_orders_per_customer;
+            this.average_order_value  =data.summary.average_order_value;
+            console.log(this.total_customers)
+
             const seriesData = data.chart_series.map(series => ({
                 name: series.name ,
                 data: Array.isArray(series.data) ? series.data : [],

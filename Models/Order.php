@@ -952,43 +952,41 @@ class Order extends VaahModel
         $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
         $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
 
+        // Generate labels for x-axis (each day in the range)
         $labels = [];
         foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
             $labels[] = $date->format('Y-m-d');
         }
 
-        $date_column = 'created_at';
-        $count = 'COUNT';
-        $group_by_column = 'DATE(created_at)';
-
+        // Get filtered orders
         $list = Order::query();
+        $filtered_data = self::appliedFilters($list, $request); // Applying filters
 
-        $filtered_data = self::appliedFilters($list, $request);
-
-        $order_data_query = $filtered_data->selectRaw("$group_by_column as order_date")
-        ->selectRaw("$count($date_column) as total_count")
-        ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_count")
-            ->selectRaw("SUM(CASE WHEN order_status != 'Completed' THEN 1 ELSE 0 END) as pending_count");
-
-        if ($inputs['start_date'] && $inputs['end_date']) {
-            $order_data_query = $order_data_query->whereBetween('created_at', [$start_date, $end_date]);
-        }
-
-        $chart_data = $order_data_query->groupBy('order_date')
+        // Query for daily breakdown (Chart Data)
+        $order_data_query = (clone $filtered_data)
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->selectRaw("DATE(created_at) as order_date")
+            ->selectRaw("COUNT(id) as total_count")
+            ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_count")
+            ->groupBy('order_date')
             ->orderBy('order_date')
             ->get();
 
         $total_orders = [];
         $completed_orders = [];
 
-        foreach ($chart_data as $item) {
-            $order_date = Carbon::parse($item->order_date);
-
+        foreach ($order_data_query as $item) {
             $total_orders[] = ['x' => $item->order_date, 'y' => (int)$item->total_count];
             $completed_orders[] = ['x' => $item->order_date, 'y' => (int)$item->completed_count];
         }
 
-
+        // 🛠 **Fixing the issue in totals query**
+        // Ensuring totals are limited to the selected date range
+        $totals = (clone $filtered_data)
+            ->whereBetween('created_at', [$start_date, $end_date]) // Ensure correct filtering
+            ->selectRaw("COUNT(id) as total_orders")
+            ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_orders")
+            ->first();
 
         return [
             'data' => [
@@ -1010,9 +1008,14 @@ class Order extends VaahModel
                         'categories' => $labels,
                     ],
                 ],
+                'totals' => [
+                    'total_orders' => (int) ($totals->total_orders ?? 0),  // Fixed: Only orders in date range
+                    'completed_orders' => (int) ($totals->completed_orders ?? 0),  // Fixed: Only completed orders in date range
+                ],
             ],
         ];
     }
+
 
     //-------------------------------------------------
 

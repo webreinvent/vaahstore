@@ -4,6 +4,7 @@ use Faker\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
@@ -572,36 +573,63 @@ class User extends UserBase
     //----------------------------------------------------------
 
 
+
+
     public static function fetchCustomerCountChartData(Request $request)
     {
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
-        $date_column = 'created_at';
-        $count = 'COUNT';
-
+        // Get all customers with the role "customer"
         $list = User::whereHas('activeRoles', function ($query) {
             $query->where('slug', 'customer');
         });
 
-
-
+        // Get chart data query using Eloquent
         $chart_data_query = $list
-            ->whereBetween($date_column, [$start_date, $end_date])
-            ->selectRaw("DATE($date_column) as date")
-            ->selectRaw("$count($date_column) as total_count")
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->selectRaw("DATE(created_at) as date")
+            ->selectRaw("COUNT(*) as total_count")
             ->selectRaw("
             (SELECT COUNT(*) FROM vh_st_orders
-             WHERE vh_st_orders.vh_user_id = vh_users.id
-             AND vh_st_orders.created_at BETWEEN ? AND ?) as active_count",
+            WHERE vh_st_orders.vh_user_id = vh_users.id
+            AND vh_st_orders.created_at BETWEEN ? AND ?) as active_count",
                 [$start_date, $end_date]
             )
-            ->groupBy('date')
-            ->orderBy('date')
+            ->groupByRaw("DATE(created_at)")
+            ->orderByRaw("DATE(created_at) ASC")
             ->get();
 
-        $total_customers = $chart_data_query->sum('total_count');
+        // Get total customers using Eloquent
+        $total_customers = User::whereBetween('created_at', [$start_date, $end_date])
+            ->whereHas('activeRoles', function ($query) {
+                $query->where('slug', 'customer');
+            })
+            ->distinct()
+            ->count();
 
+        // Get total orders using Eloquent
+        $total_orders = Order::whereBetween('created_at', [$start_date, $end_date])->count();
+
+        // Get the total number of unique customers who have placed orders using Eloquent
+        $unique_customers_with_orders = Order::whereBetween('created_at', [$start_date, $end_date])
+            ->distinct('vh_user_id')
+            ->count('vh_user_id');
+
+        // Calculate the average orders per customer
+        $avg_orders_per_customer = $unique_customers_with_orders > 0
+            ? round($total_orders / $unique_customers_with_orders, 2)
+            : 0;
+
+        // Get total order value using Eloquent
+        $total_order_value = Order::whereBetween('created_at', [$start_date, $end_date])->sum('payable');
+
+        // Calculate average order value
+        $average_order_value = $total_orders > 0
+            ? round($total_order_value / $total_orders, 2)
+            : 0;
+
+        // Initialize data array for the chart
         $data = [
             ['name' => 'Newly Created', 'data' => []],
             ['name' => 'Active', 'data' => []],
@@ -617,6 +645,7 @@ class User extends UserBase
             $data[1]['data'][] = $item->active_count;
         }
 
+        // Return the data for the chart
         return [
             'data' => [
                 'chart_series' => $data,
@@ -681,10 +710,18 @@ class User extends UserBase
                         ],
                     ],
                 ],
+                'summary' => [
+                    'total_customers' => $total_customers,
+                    'total_orders' => $total_orders,
+                    'average_order_value' => $average_order_value,
+                    'avg_orders_per_customer' => $avg_orders_per_customer,
+                ],
             ],
-
         ];
     }
+
+
+
 
     //----------------------------------------------------------
 

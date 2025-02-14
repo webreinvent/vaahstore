@@ -76,7 +76,6 @@ class SampleDataTableSeeder extends Seeder
         $this->seedProducts();
         $this->seedVendorProducts();
         $this->seedProductStocks();
-        $this->seedCarts();
         $this->seedOrders();
         $this->seedShipmentsItems();
         $this->seedPayment();
@@ -364,7 +363,7 @@ class SampleDataTableSeeder extends Seeder
         $users = [];
         $roles = Role::where('slug', 'customer')->first();
 
-        for ($i = 0; $i < 500; $i++) {
+        for ($i = 0; $i < 100; $i++) {
             $random_country = $countries[array_rand($countries)];
             $selected_country = collect($country_list)->where('name', $random_country)->first();
             $random_title = collect($name_titles)->random()['name'];
@@ -644,7 +643,7 @@ class SampleDataTableSeeder extends Seeder
         $active_user = auth()->user();
         $statuses = Taxonomy::getTaxonomyByType('vendor-status')->pluck('id')->toArray();
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $item = new Vendor;
             $item->name =$faker->name;
             $item->vh_st_store_id = $store_ids ? $store_ids[array_rand($store_ids)] : null;
@@ -664,19 +663,16 @@ class SampleDataTableSeeder extends Seeder
     //---------------------------------------------------------------
 
     public function seedOrders(){
-        $user_ids = StoreUser::whereHas('addresses', function ($query) {
-            $query->whereHas('addressType', function ($query) {
-                $query->where('slug', 'shipping')
-                    ->orWhere('slug', 'billing');
-            });
-        })->pluck('id')->toArray();
+        $user_ids = StoreUser::pluck('id')->toArray();
+
+
         $payment_method_ids = PaymentMethod::pluck('id')->toArray();
         $order_payment_status_ids = Taxonomy::inRandomOrder()
             ->whereHas('type', function ($query) {
                 $query->where('slug', 'order-payment-status');
             })
             ->pluck('id')->toArray();
-        for ($i = 0; $i < 100 ; $i++) {
+        for ($i = 0; $i < 200 ; $i++) {
             $inputs['vh_user_id'] = $user_ids[array_rand($user_ids)];
             $inputs['vh_st_payment_method_id'] =$payment_method_ids[array_rand($payment_method_ids)];
 
@@ -694,7 +690,7 @@ class SampleDataTableSeeder extends Seeder
             $inputs['paid'] = '';
             $inputs['is_paid'] = 0;
             $inputs['is_active'] = 1;
-            $inputs['created_at'] = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+            $inputs['created_at'] = Carbon::now()->subMonths(1)->addDays(rand(0, 30))->format('Y-m-d H:i:s');
 
 
 
@@ -770,8 +766,18 @@ class SampleDataTableSeeder extends Seeder
             $order_item['vh_st_vendor_id'] = $vendor_id;
 
             $order_item['vh_st_product_variation_id'] = $random_variation_id;
-            $order_item['vh_shipping_address_id'] = $user_addresses->addresses->random()->id;
-            $order_item['vh_billing_address_id'] = $order_item['vh_shipping_address_id'];
+            if ($user_addresses && $user_addresses->addresses->count() > 0) {
+                $random_address = $user_addresses->addresses->random();
+
+                // Assign random shipping and billing address IDs
+                $order_item['vh_shipping_address_id'] = $random_address->id;
+                $order_item['vh_billing_address_id'] = $random_address->id;  // Same address for billing
+            } else {
+                // Handle the case where no addresses are available for the user
+                // Example: Set default values or handle the error
+                $order_item['vh_shipping_address_id'] = null;
+                $order_item['vh_billing_address_id'] = null;
+            }
 
             $order_item['quantity'] = rand(1,17);
             $order_item['price'] = $price;
@@ -801,7 +807,7 @@ class SampleDataTableSeeder extends Seeder
     public function  seedAddresses(){
 
         $faker = Factory::create();
-        for ($i = 0; $i < 100 ; $i++) {
+        for ($i = 0; $i < 50 ; $i++) {
             $inputs['address_line_1'] = $faker->address;
             $inputs['address_line_2'] = $faker->streetAddress;
             $inputs['city'] = $faker->city;
@@ -927,7 +933,7 @@ class SampleDataTableSeeder extends Seeder
 
 
     public function seedCarts(){
-        Cart::seedCarts();
+        Cart::seedCarts(100);
     }
     //---------------------------------------------------------------
 
@@ -937,7 +943,7 @@ class SampleDataTableSeeder extends Seeder
         $faker = Factory::create();
         $product_stocks = [];
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $random_created_at = $faker->dateTimeBetween('-2 months', 'now')->format('Y-m-d H:i:s');
 
             // Fetch a vendor with products and variations
@@ -1021,7 +1027,7 @@ class SampleDataTableSeeder extends Seeder
     {
         $faker = Factory::create();
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             // Fetch active orders where amount > paid
             $orders = Order::with('user:id,username')
                 ->where('is_active', 1)

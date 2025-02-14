@@ -2,7 +2,7 @@
 import {useProductStore} from "../../stores/store-products";
 import {useRootStore} from "../../stores/root";
 import {useRoute} from "vue-router";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useOrderStore} from "../../stores/store-orders";
 
 const customers_store = useUserStore();
@@ -24,6 +24,17 @@ const product_stock_store = useProductStockStore();
 const root = useRootStore();
 const route = useRoute();
 const base_url = ref('');
+const formattedDateRange = computed(() => {
+    const startDate = root.filter_start_date;
+    const endDate = root.filter_end_date;
+
+    if (!startDate || !endDate) return "Date range not selected";
+
+    const formatOptions = { year: "numeric", month: "short", day: "2-digit" };
+    const formatter = new Intl.DateTimeFormat("en-US", formatOptions);
+
+    return `${formatter.format(new Date(startDate))} - ${formatter.format(new Date(endDate))}`;
+});
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     base_url.value = root.ajax_url.replace('backend/store', '/');
@@ -36,7 +47,58 @@ onMounted(async () => {
     await product_store.topSellingProducts();
     await product_store.topSellingBrands();
     await product_store.topSellingCategories();
-    customers_store.fetchCustomerCountChartData();
+    await customers_store.fetchCustomerCountChartData();
+
+    const formatCurrency = (value) => {
+        if (value == null) return 'Loading...';
+
+        if (value >= 1000) {
+            return `&#8377;${(value / 1000).toFixed(2)}k`;
+        }
+
+        // Otherwise, use currency formatting for smaller numbers
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+    };
+
+// Function to format large numbers into "k" format for thousands
+    const formatLargeNumber = (value) => {
+        if (value == null) return 'Loading...';
+        return value >= 1000 ? `${(value / 1000).toFixed(2)}k` : value;
+    };
+
+// Once data is fetched, update the metrics
+    metrics.value = [
+        {
+            label: `<i class="pi pi-users text-2xl mr-2"></i>Total Customers`,
+            value: customers_store.total_customers
+                ? formatLargeNumber(customers_store.total_customers)
+                : 'Loading...'
+        },
+        {
+            label: `<i class="pi pi-briefcase text-2xl mr-2"></i>Average Order Value`,
+            value: customers_store.average_order_value
+                ? formatCurrency(customers_store.average_order_value)
+                : 'Loading...'
+        },
+        {
+            label: `<i class="pi pi-shopping-bag text-2xl mr-2"></i>Total Orders`,
+            value: customers_store.total_orders
+                ? formatLargeNumber(customers_store.total_orders)
+                : 'Loading...'
+        },
+        {
+            label: 'Avg Orders per Customer',
+            value: customers_store.avg_orders_per_customer
+                ? formatLargeNumber(customers_store.avg_orders_per_customer)
+                : 'Loading...'
+        }
+    ];
+
     await vendor_store.topSellingVendorsData();
 
 
@@ -57,9 +119,46 @@ const quick_filter_menu_state = ref();
 const toggleQuickFilterState = (event) => {
     quick_filter_menu_state.value.toggle(event);
 };
+const metrics = ref([]);
+// const metrics = ref([
+//     {
+//         label: 'Total Customers',
+//         value: customers_store.total_customers
+//     },
+//     {
+//         label: 'Average Order Value',
+//         value: `&#8377;${customers_store.average_order_value}`
+//     },
+//     {
+//         label: 'Total Orders',
+//         value: customers_store.total_orders
+//     },
+//     {
+//         label: 'Avg Orders per Customer',
+//         value: customers_store.avg_orders_per_customer
+//     }
+// ]);
 </script>
 <template>
-
+    <div  class="flex-grow-1 shadow-1  border-round-xl has-background-white mb-2 p-3">
+    <h4 class="text-lg font-semibold text-center">
+        Selected Date Range:{{ formattedDateRange }}
+    </h4>
+    </div>
+    <div class="container">
+<!--        <h1 class="text-900 text-xl mb-4">Key Metrics</h1>-->
+<!--        {{root.assets.backend_logo_url}}-->
+        <div class="grid">
+            <div class="col-12 md:col-6 lg:col-3" v-for="metric in metrics" :key="metric.label">
+                <Card class="surface-ground h-full">
+                    <template #content>
+                        <div class="text-500 mb-2 text-sm"><p v-html="metric.label"></p></div>
+                        <div class="text-900 text-xl font-semibold"><p v-html="metric.value"></p></div>
+                    </template>
+                </Card>
+            </div>
+        </div>
+    </div>
     <div>
         <div class="grid">
             <div class="col-4">
@@ -274,6 +373,10 @@ const toggleQuickFilterState = (event) => {
         </div>
         <div class="grid mt-2">
             <!--          Top Products-->
+
+
+<!--asas-->
+
             <div class="col-4">
                 <Card class="border-round-xl shadow-md h-full">
                     <template #title>
@@ -435,6 +538,10 @@ const toggleQuickFilterState = (event) => {
                     </template>
                 </Card>
             </div>
+
+
+
+
             <div class="col-3">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden mb-2 " :pt="{content: {
                                             class: 'py-0',
@@ -594,6 +701,10 @@ const toggleQuickFilterState = (event) => {
                     </template>
                 </Card>
             </div>
+
+
+
+
             <div class="col-3">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #title>
@@ -774,4 +885,19 @@ const toggleQuickFilterState = (event) => {
 
 </template>
 
+<style scoped>
+.container {
 
+
+    margin: 0 auto;
+}
+
+.p-card {
+    background-color: var(--surface-ground);
+    box-shadow: none !important;
+}
+
+.p-card .p-card-content {
+    padding: 1.5rem;
+}
+</style>
