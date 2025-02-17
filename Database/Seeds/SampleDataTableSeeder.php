@@ -364,7 +364,7 @@ class SampleDataTableSeeder extends Seeder
         $users = [];
         $roles = Role::where('slug', 'customer')->first();
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 20; $i++) {
             $random_country = $countries[array_rand($countries)];
             $selected_country = collect($country_list)->where('name', $random_country)->first();
             $random_title = collect($name_titles)->random()['name'];
@@ -514,7 +514,7 @@ class SampleDataTableSeeder extends Seeder
     {
         $faker = Factory::create();
 
-        $variation_attributes = ['color', 'size', 'gender'];
+        $variation_attributes = ['color', 'size'];
 
         $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
             return in_array($key, $variation_attributes);
@@ -542,7 +542,7 @@ class SampleDataTableSeeder extends Seeder
                 'name' => $variation_name,
                 'slug' => $variation_slug,
                 'quantity' => 0,
-                'price' => $faker->randomFloat(2, 10, 500),
+                'price' => $faker->randomFloat(2, 10, 100),
                 'is_active' => 1,
             ]);
         }
