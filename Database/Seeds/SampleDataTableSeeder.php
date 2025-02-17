@@ -6,6 +6,7 @@ use Faker\Factory;
 use Faker\Factory as Faker;
 use Faker\Provider\ar_SA\Payment;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
 use VaahCms\Modules\Store\Models\Address;
@@ -662,22 +663,22 @@ class SampleDataTableSeeder extends Seeder
     }
     //---------------------------------------------------------------
 
-    public function seedOrders(){
+
+
+    public function seedOrders()
+    {
         $user_ids = StoreUser::pluck('id')->toArray();
-
-
         $payment_method_ids = PaymentMethod::pluck('id')->toArray();
         $order_payment_status_ids = Taxonomy::inRandomOrder()
             ->whereHas('type', function ($query) {
                 $query->where('slug', 'order-payment-status');
             })
             ->pluck('id')->toArray();
-        for ($i = 0; $i < 200 ; $i++) {
+
+        for ($i = 0; $i < 200; $i++) {
             $inputs['vh_user_id'] = $user_ids[array_rand($user_ids)];
-            $inputs['vh_st_payment_method_id'] =$payment_method_ids[array_rand($payment_method_ids)];
-
+            $inputs['vh_st_payment_method_id'] = $payment_method_ids[array_rand($payment_method_ids)];
             $inputs['order_status'] = ['Placed', 'Completed'][array_rand(['Placed', 'Completed'])];
-
 
             if (!empty($order_payment_status_ids)) {
                 $inputs['taxonomy_id_payment_status'] = $order_payment_status_ids[array_rand($order_payment_status_ids)];
@@ -690,33 +691,29 @@ class SampleDataTableSeeder extends Seeder
             $inputs['paid'] = '';
             $inputs['is_paid'] = 0;
             $inputs['is_active'] = 1;
-            $inputs['created_at'] = Carbon::now()->subMonths(1)->addDays(rand(0, 30))->format('Y-m-d H:i:s');
 
+            // Generate a random created_at date (within the last month)
+            $created_at = Carbon::now()->subMonths(1)->addDays(rand(0, 30))->format('Y-m-d H:i:s');
+            $inputs['created_at'] = $created_at;
 
+            // Create the order using Eloquent
+            $order = Order::create($inputs);
 
-            $item = new Order();
-
-            $item->fill($inputs);
-
-            $item->save();
-
-            ///////////////////////////////// order items
-
-            self::createOrderItem($item);
+            // Now create the order items for the created order
+            $this->createOrderItem($order);
         }
-
     }
     //---------------------------------------------------------------
 
-    public static function createOrderItem($item = null){
 
 
+    public static function createOrderItem(Order $order)
+    {
         $order_items_types = Taxonomy::inRandomOrder()
             ->whereHas('type', function ($query) {
                 $query->where('slug', 'order-items-types');
             })
             ->first();
-
 
         $order_items_status = Taxonomy::inRandomOrder()
             ->whereHas('type', function ($query) {
@@ -724,14 +721,12 @@ class SampleDataTableSeeder extends Seeder
             })
             ->first();
 
-
         $valid_products = Product::whereHas('productVendors')
             ->with('productVariations', 'productVendors')
             ->take(rand(1, 10))
             ->get();
 
-
-        $user_addresses = StoreUser::where('id', $item->vh_user_id)
+        $user_addresses = StoreUser::where('id', $order->vh_user_id)
             ->with('addresses')
             ->whereHas('addresses', function ($query) {
                 $query->whereHas('addressType', function ($query) {
@@ -742,7 +737,6 @@ class SampleDataTableSeeder extends Seeder
             ->first();
 
         foreach ($valid_products as $product) {
-
             $product_id = $product['id'];
             $vendor_id = $product->productVendors->random()->vh_st_vendor_id;
 
@@ -750,8 +744,8 @@ class SampleDataTableSeeder extends Seeder
             $price = $product->productVariations->where('id', $random_variation_id)->first()->price;
 
             $order_item = new OrderItem();
-            $order_item['vh_st_order_id'] = $item->id;
-            $order_item['vh_user_id'] = $item->vh_user_id;
+            $order_item['vh_st_order_id'] = $order->id;
+            $order_item['vh_user_id'] = $order->vh_user_id;
             $order_item['vh_st_customer_group_id'] = null;
 
             if (!empty($order_items_types)) {
@@ -764,8 +758,8 @@ class SampleDataTableSeeder extends Seeder
 
             $order_item['vh_st_product_id'] = $product_id;
             $order_item['vh_st_vendor_id'] = $vendor_id;
-
             $order_item['vh_st_product_variation_id'] = $random_variation_id;
+
             if ($user_addresses && $user_addresses->addresses->count() > 0) {
                 $random_address = $user_addresses->addresses->random();
 
@@ -785,23 +779,35 @@ class SampleDataTableSeeder extends Seeder
             $order_item['invoice_url'] = '';
             $order_item['tracking'] = '';
             $order_item['is_active'] = 1;
-            $order_item['created_at'] = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+            $created_at = Carbon::now()->subMonths(1)->addDays(rand(0, 30))->format('Y-m-d H:i:s');
+            $order_item['created_at'] = $created_at;
 
             $order_item['status_notes'] = '';
 
+            // Save the order item
             $order_item->save();
 
-            $total_price = OrderItem::where('vh_st_order_id', $item->id)
+            $total_price = OrderItem::where('vh_st_order_id', $order->id)
                 ->get()
                 ->sum(function ($order_item) {
                     return $order_item->price * $order_item->quantity;
                 });
-            $item->amount = $total_price;
-            $item->payable = $total_price;
-            $item->save();
+
+            DB::update('UPDATE vh_st_orders
+            SET amount = ?, payable = ?
+            WHERE id = ?',
+                [$total_price, $total_price, $order->id]);
+
+            if ($order->order_status === 'Completed') {
+                DB::update('UPDATE vh_st_orders
+                SET updated_at = ?
+                WHERE id = ?',
+                    [Carbon::now()->subMonths(1)->addDays(rand(0, 30))->format('Y-m-d H:i:s'), $order->id]);
+            }
 
         }
     }
+
     //---------------------------------------------------------------
 
     public function  seedAddresses(){

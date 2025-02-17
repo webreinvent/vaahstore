@@ -965,27 +965,37 @@ class Order extends VaahModel
         // Query for daily breakdown (Chart Data)
         $order_data_query = (clone $filtered_data)
             ->whereBetween('created_at', [$start_date, $end_date])
-            ->selectRaw("DATE(created_at) as order_date")
-            ->selectRaw("COUNT(id) as total_count")
-            ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_count")
+            ->selectRaw("DATE(created_at) as order_date, COUNT(id) as total_count")
             ->groupBy('order_date')
             ->orderBy('order_date')
+            ->get();
+
+        $completed_data_query = (clone $filtered_data)
+            ->where('order_status', 'Completed') // Only count completed orders
+            ->whereBetween('updated_at', [$start_date, $end_date]) // Use updated_at for completion date
+            ->selectRaw("DATE(updated_at) as completed_date, COUNT(id) as completed_count")
+            ->groupBy('completed_date')
+            ->orderBy('completed_date')
             ->get();
 
         $total_orders = [];
         $completed_orders = [];
 
+        // Process created orders
         foreach ($order_data_query as $item) {
             $total_orders[] = ['x' => $item->order_date, 'y' => (int)$item->total_count];
-            $completed_orders[] = ['x' => $item->order_date, 'y' => (int)$item->completed_count];
         }
 
-        // 🛠 **Fixing the issue in totals query**
-        // Ensuring totals are limited to the selected date range
+        // Process completed orders
+        foreach ($completed_data_query as $item) {
+            $completed_orders[] = ['x' => $item->completed_date, 'y' => (int)$item->completed_count];
+        }
+
+        // Ensure totals are limited to the selected date range
         $totals = (clone $filtered_data)
             ->whereBetween('created_at', [$start_date, $end_date]) // Ensure correct filtering
             ->selectRaw("COUNT(id) as total_orders")
-            ->selectRaw("SUM(CASE WHEN order_status = 'Completed' THEN 1 ELSE 0 END) as completed_orders")
+            ->selectRaw("SUM(CASE WHEN order_status = 'Completed' AND updated_at BETWEEN ? AND ? THEN 1 ELSE 0 END) as completed_orders", [$start_date, $end_date])
             ->first();
 
         return [
@@ -1015,6 +1025,7 @@ class Order extends VaahModel
             ],
         ];
     }
+
 
 
     //-------------------------------------------------
