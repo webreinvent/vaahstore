@@ -121,9 +121,10 @@ const metrics = ref([]);
 </script>
 <template>
     <div  class="flex-grow-1 shadow-1  border-round-xl has-background-white mb-2 p-3">
-    <h4 class="text-lg font-semibold text-center">
+    <h4 class="text-lg">
         Selected Date Range:{{ formattedDateRange }}
     </h4>
+        <h6 class="text-sm">Note : For Change the Date Range Navigate to Store>Settings</h6>
     </div>
     <div class="container mb-3 mt-1">
 
