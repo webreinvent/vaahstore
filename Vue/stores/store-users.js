@@ -1385,6 +1385,28 @@ export const useUserStore = defineStore({
 
 
                 },
+                grid: {
+                    borderColor: '#e0e0e0',
+                    strokeDashArray: 0,
+                    position: 'back',
+                    xaxis: {
+                        lines: {
+                            show: false,
+                        }
+                    },
+                    yaxis: {
+                        lines: {
+                            show: false,
+                        }
+                    },
+                    padding: {
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    }
+                },
+
                 tooltip: {
                     x: {
                         format: 'MMMM d, yyyy'

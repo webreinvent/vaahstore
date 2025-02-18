@@ -1882,7 +1882,7 @@ export const useVendorStore = defineStore({
                 },
 
                 legend: {
-                    show: false,
+                    show: series_data.length<=5,
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,

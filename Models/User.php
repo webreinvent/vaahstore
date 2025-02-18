@@ -663,49 +663,7 @@ class User extends UserBase
                             ],
                         ],
                     ],
-                    'yaxis' => [
-                        'title' => [
-                            'text' => 'Customers Count',
-                            'color' => '#008FFB',
-                            'rotate' => -90,
-                            'style' => [
-                                'fontFamily' => 'Arial, sans-serif',
-                                'fontWeight' => 'bold',
-                            ],
-                        ],
-                    ],
-                    'title' => [
-                        'text' => 'Daily Customers Count',
-                        'align' => 'center',
-                    ],
-                    'legend' => [
-                        'position' => 'top',
-                        'horizontalAlign' => 'center',
-                        'onItemClick' => [
-                            'toggleDataSeries' => true,
-                        ],
-                    ],
-                    'grid' => [
-                        'borderColor' => '#e0e0e0',
-                        'strokeDashArray' => 0,
-                        'position' => 'back',
-                        'xaxis' => [
-                            'lines' => [
-                                'show' => false,
-                            ],
-                        ],
-                        'yaxis' => [
-                            'lines' => [
-                                'show' => false,
-                            ],
-                        ],
-                        'padding' => [
-                            'top' => 0,
-                            'right' => 0,
-                            'bottom' => 0,
-                            'left' => 0,
-                        ],
-                    ],
+
                 ],
                 'summary' => [
                     'total_customers' => $unique_customers_with_multiple_orders,
