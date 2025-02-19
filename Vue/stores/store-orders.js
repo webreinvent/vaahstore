@@ -1512,10 +1512,12 @@ export const useOrderStore = defineStore({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
             }));
-
+            const totals = {
+                total_orders: series_data.find(series => series.name === "Created")?.data.reduce((sum, item) => sum + item.y, 0) || 0,
+                completed_orders: series_data.find(series => series.name === "Completed")?.data.reduce((sum, item) => sum + item.y, 0) || 0
+            };
             this.updateChartSeries(series_data);
 
-            const totals = data.totals || { total_orders: 0, completed_orders: 0 };
 
             const updated_area_chart_options = {
                 ...data.chart_options, // Merge existing options
@@ -1591,7 +1593,7 @@ export const useOrderStore = defineStore({
                         horizontal: 10,
                         vertical: 5
                     },
-                    formatter: function(seriesName, opts) {
+                    formatter: function (seriesName) {
                         if (seriesName === 'Created') {
                             return `${seriesName}: ${totals.total_orders}`;
                         } else if (seriesName === 'Completed') {

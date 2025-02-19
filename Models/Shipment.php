@@ -876,7 +876,7 @@ class Shipment extends VaahModel
                                 'vh_st_order_item_id' => $item_id,
                                 'quantity' => $item_quantity_to_be_ship,
                                 'pending' => $item_quantity_to_be_ship,
-                                'created_at' => now(),
+                                'created_at' =>Carbon::now()->subDays(rand(1, 30)),
                             ]);
                         }
                     self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
@@ -909,7 +909,7 @@ class Shipment extends VaahModel
         $inputs['taxonomy_id_shipment_status'] = $status_id;
         $status = $taxonomy_status->where('id',$status_id)->first();
         $inputs['status']=$status;
-
+        $inputs['created_at']=Carbon::now()->subDays(rand(1, 30));
         $search_orders_request = new Request([
             'query' => $inputs['query'] ?? null
         ]);
@@ -1153,7 +1153,7 @@ $order_item_pairs = $orders->flatMap(function ($order) {
 
     //----------------------------------------------------------
 
-    public static function ordersShipmentByDateRange($request)
+    /*public static function ordersShipmentByDateRange($request)
     {
         $inputs = $request->all();
 
@@ -1204,12 +1204,139 @@ $order_item_pairs = $orders->flatMap(function ($order) {
                 ],
             ]
         ];
+    }*/
+    public static function ordersShipmentByDateRange($request)
+    {
+        $inputs = $request->all();
+
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $labels = [];
+        foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+        // Fetch shipment data: count of shipped orders and total quantity shipped each day
+        $shipment_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
+            ->selectRaw('DATE(created_at) as shipment_date, COUNT(DISTINCT vh_st_order_id) as shipped_orders, SUM(quantity) as shipped_quantity')
+            ->groupBy('shipment_date')
+            ->orderBy('shipment_date')
+            ->get()
+            ->keyBy('shipment_date');
+
+        // Total number of orders and shipped orders count
+        $total_orders = Order::count();
+        $overall_shipped_orders = ShipmentItem::distinct('vh_st_order_id')->count('vh_st_order_id');
+        // Prepare data for the chart
+        $shipped_orders_so_far = 0;
+        $formatted_shipped_data = [];
+        $formatted_quantities_shipped_data = [];
+
+        foreach ($labels as $date_string) {
+            // Get shipped orders and quantity for the current day
+            $shipped_orders = $shipment_data[$date_string]->shipped_orders ?? 0;
+            $shipped_quantity = $shipment_data[$date_string]->shipped_quantity ?? 0;
+            $shipped_orders_so_far += $shipped_orders;
+
+            // Prepare chart data for shipped orders (Orders In Shipment)
+            $formatted_shipped_data[] = ['x' => $date_string, 'y' => $shipped_orders];  // Total shipped orders
+
+            // Prepare chart data for quantities shipped (Quantities Shipped)
+            $formatted_quantities_shipped_data[] = ['x' => $date_string, 'y' => $shipped_quantity];  // Total quantity shipped
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    ['name' => 'Orders In Shipment', 'data' => $formatted_shipped_data],         // Orders shipped
+                    ['name' => 'Quantities Shipped', 'data' => $formatted_quantities_shipped_data], // Quantities shipped
+                ],
+                'chart_options' => [
+                    'xaxis' => ['type' => 'datetime', 'categories' => $labels],
+                ],
+            ]
+        ];
     }
 
     //----------------------------------------------------------
 
 
 
+    /*public static function ordersShipmentItemsByDateRange($request)
+    {
+        $inputs = $request->all();
+
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $previous_date = $start_date->copy()->subDay();
+
+        $period = new \DatePeriod($previous_date, new \DateInterval('P1D'), $end_date);
+        $labels = [];
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+        // Fetch the total shipped quantity before the start date
+        $previous_shipped_quantity = ShipmentItem::where('created_at', '<', $start_date)->sum('quantity');
+
+        // Fetch shipment data within the selected date range
+        $shipped_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
+            ->selectRaw('DATE(created_at) as shipment_date, SUM(quantity) as total_quantity')
+            ->groupBy('shipment_date')
+            ->orderBy('shipment_date')
+            ->get()
+            ->keyBy('shipment_date');
+
+        $total_shipment_quantity_available = OrderItem::sum('quantity');
+        $overall_shipped_quantity = ShipmentItem::sum('quantity');
+
+        // Initialize cumulative shipped quantity with previous shipped quantity
+        $cumulative_shipped_quantity = $previous_shipped_quantity;
+
+        $formatted_shipped_data = [];
+        $formatted_pending_data = [];
+
+        foreach ($labels as $date_string) {
+            $shipped_quantity = isset($shipped_data[$date_string]) ? (int) $shipped_data[$date_string]->total_quantity : 0;
+            $cumulative_shipped_quantity += $shipped_quantity; // Update cumulative shipped quantity
+
+            $formatted_shipped_data[] = [
+                'x' => $date_string,
+                'y' => $cumulative_shipped_quantity,
+            ];
+
+            $pending_quantity = ($inputs['start_date'] === $inputs['end_date'])
+                ? max($total_shipment_quantity_available - $overall_shipped_quantity, 0)
+                : max($total_shipment_quantity_available - $cumulative_shipped_quantity, 0);
+
+            $formatted_pending_data[] = [
+                'x' => $date_string,
+                'y' => $pending_quantity < 0 ? 0 : $pending_quantity,
+            ];
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    [
+                        'name' => 'Pending Shipment Quantity',
+                        'data' => $formatted_pending_data,
+                    ],
+                    [
+                        'name' => 'Total Shipped Quantity',
+                        'data' => $formatted_shipped_data,
+                    ],
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels,
+                    ],
+                ],
+            ]
+        ];
+    }*/
     public static function ordersShipmentItemsByDateRange($request)
     {
         $inputs = $request->all();
@@ -1231,12 +1358,12 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->orderBy('shipment_date')
             ->get()
             ->keyBy('shipment_date');
-
+        $previous_shipped_quantity = ShipmentItem::where('created_at', '<', $start_date)->sum('quantity');
+//        dd($previous_shipped_quantity,$start_date);
         $total_shipment_quantity_available = OrderItem::sum('quantity');
-
         $overall_shipped_quantity=ShipmentItem::sum('quantity');
 
-        $cumulative_shipped_quantity = 0;
+        $cumulative_shipped_quantity = $previous_shipped_quantity;
 
         $formatted_shipped_data = [];
         $formatted_pending_data = [];

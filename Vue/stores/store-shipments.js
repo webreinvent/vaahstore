@@ -1480,10 +1480,7 @@ export const useShipmentStore = defineStore({
 
             const updated_area_chart_options = {
                 ...data.chart_options,
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
-                },
+                stroke: { curve: 'smooth', width: 4 },
                 title: {
                     text: 'Quantity Shipped Over Date Range',
                     align: 'center',

@@ -899,7 +899,7 @@ class SampleDataTableSeeder extends Seeder
                         $item->orders()->attach($order_id, [
                             'vh_st_order_item_id' => $item_id,
                             'quantity' => $item_quantity_to_be_ship,
-                            'pending' => $item_quantity_to_be_ship,
+                            'pending' => 0,
                             'created_at' => Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s')
 
                         ]);
@@ -909,6 +909,49 @@ class SampleDataTableSeeder extends Seeder
             }
         }
     }
+
+
+
+
+
+
+    /*public function seedShipmentsItems()
+    {
+        $faker = Factory::create();
+        $orders = Order::inRandomOrder()->limit(150)->get();
+        $taxonomy_status = Taxonomy::getTaxonomyByType('shipment-status')->pluck('id');
+
+        foreach ($orders as $order) {
+            $createdAt = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
+            $status_id = $taxonomy_status->random();
+
+            $inputs = [
+                'taxonomy_id_shipment_status' => $status_id,
+                'name' => $faker->name,
+                'tracking_url' => $faker->url,
+                'created_at' => $createdAt,
+                'tracking_key' => rand(0, 1) ? 'phone' : 'order_id',
+                'tracking_value' => rand(0, 1) ? $faker->numerify('##########') : $order->id,
+                'is_trackable' => rand(0, 1),
+            ];
+
+            $shipment = Shipment::create($inputs);
+
+            foreach ($order->items as $order_item) {
+                if ($order_item->quantity > 1) { // Ensure at least 1 remains in order
+                    $shippedQuantity = rand(1, $order_item->quantity - 1);
+                    $shipment->orders()->attach($order->id, [
+                        'vh_st_order_item_id' => $order_item->id,
+                        'quantity' => $order_item->quantity,
+                        'pending' => 0,
+                        'created_at' => $createdAt
+                    ]);
+                }
+            }
+
+//            self::updateOrderStatusForShipment($status_id, $order->id);
+        }
+    }*/
 
     private static function updateOrderStatusForShipment($taxonomy_id_shipment_status, $order_id)
     {

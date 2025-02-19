@@ -106,7 +106,7 @@ onMounted(async () => {
 
     await vendor_store.vendorSalesByRange();
 
-    await shipment_store.ordersShipmentItemsByDateRange();
+    await shipment_store.ordersShipmentByDateRange();
     await shipment_store.shipmentItemsByStatusBarChart();
     await warehouse_store.warehouseStockInBarChart();
     await payment_store.paymentMethodsPieChartData();
@@ -844,12 +844,14 @@ const metrics = ref([]);
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="area"
-                            :chartOptions="shipment_store.shipment_by_items_chart_options"
-                            :chartSeries="shipment_store.shipment_by_items_chart_series"
+                            type="line"
+                            :chartOptions="shipment_store.shipment_by_order_chart_options"
+                            :chartSeries="shipment_store.shipment_by_order_chart_series"
+                            title=""
+                            height="300"
 
-                            titleAlign="center"
                         />
+
                     </template>
 
                 </Card>

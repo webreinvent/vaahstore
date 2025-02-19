@@ -99,7 +99,7 @@ const toggleCreateMenu = (event) => {
                             />
                             <Charts
                                 class="border-1 border-gray-200 border-round-sm overflow-hidden"
-                                type="area"
+
                                 :chartOptions="store.shipment_by_items_chart_options"
                                 :chartSeries="store.shipment_by_items_chart_series"
                                 height=200 width=350
