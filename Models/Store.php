@@ -141,7 +141,13 @@ class Store extends VaahModel
             ->withTrashed()
             ->select(['id', 'name', 'is_default', 'slug']);
     }
+    //-------------------------------------------------
 
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'vh_st_store_id', 'id')
+            ->withTrashed();
+    }
 
     //-------------------------------------------------
 

@@ -1200,7 +1200,7 @@ export const useOrderStore = defineStore({
             }));
             this.updateSalesChartSeries(series_data);
             const isNegativeGrowth = this.growth_rate < 0;
-            const chartColor = isNegativeGrowth ? '#FF0000' : '#00FF00';
+            const chartColor = isNegativeGrowth ? '#4e78e1' : '#00FF00';
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
@@ -1221,7 +1221,7 @@ export const useOrderStore = defineStore({
                     offsetX: 0,
                     offsetY: 0,
                     style: {
-                        color: '#FF0000',
+                        color: '#476baf',
                         fontSize: '14px',
                         fontFamily: undefined
                     }
@@ -1259,11 +1259,36 @@ export const useOrderStore = defineStore({
                 },
 
                 chart: {
-                    background: '#fff',
+                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
+                    type:'area',
+                    // dropShadow: {
+                    //     enabled: true,
+                    //     color: '#000',
+                    //     top: 18,
+                    //     left: 7,
+                    //     blur: 20,
+                    //     opacity: 1
+                    // },
+                    // zoom: {
+                    //     type: 'x',
+                    //     enabled: true,
+                    //     autoScaleYaxis: true
+                    // },
+
                 },
+                // fill: {
+                //     type: 'gradient',
+                //     gradient: {
+                //         shadeIntensity: 1,
+                //         inverseColors: false,
+                //         opacityFrom: 1,
+                //         opacityTo: 0.9,
+                //         stops: [0, 90, 100]
+                //     },
+                // },
                 toolbar: {
                     show: false,
                     offsetX: 0,
@@ -1487,8 +1512,12 @@ export const useOrderStore = defineStore({
                 name: series.name,
                 data: Array.isArray(series.data) ? series.data : [],
             }));
-
+            const totals = {
+                total_orders: series_data.find(series => series.name === "Created")?.data.reduce((sum, item) => sum + item.y, 0) || 0,
+                completed_orders: series_data.find(series => series.name === "Completed")?.data.reduce((sum, item) => sum + item.y, 0) || 0
+            };
             this.updateChartSeries(series_data);
+
 
             const updated_area_chart_options = {
                 ...data.chart_options, // Merge existing options
@@ -1511,7 +1540,6 @@ export const useOrderStore = defineStore({
                 },
                 xaxis: {
                     type: 'datetime',
-
                     labels: {
                         show: false,
                     },
@@ -1530,7 +1558,8 @@ export const useOrderStore = defineStore({
                 tooltip: {
                     x: {
                         format: 'MMMM d, yyyy'
-                    }
+                    },
+                    shared: true,
                 },
 
                 chart: {
@@ -1538,7 +1567,6 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-
                 },
                 toolbar: {
                     show: false,
@@ -1552,13 +1580,32 @@ export const useOrderStore = defineStore({
                 grid: {
                     show: false,
                 },
-                legend: {
-                    show: false
-                }
 
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'left',
+                    fontSize: '14px',
+                    labels: {
+                        colors: '#000',
+                    },
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 5
+                    },
+                    formatter: function (seriesName) {
+                        if (seriesName === 'Created') {
+                            return `${seriesName}: ${totals.total_orders}`;
+                        } else if (seriesName === 'Completed') {
+                            return `${seriesName}: ${totals.completed_orders}`;
+                        }
+                        return seriesName;
+                    }
+                }
             };
 
             this.updateChartOptions(updated_area_chart_options);
+
         },
 
 

@@ -1616,43 +1616,65 @@ class Vendor extends VaahModel
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
 
+        $apply_date_range = !isset($inputs['filter_all']) || !$inputs['filter_all'];
+
+        $top_vendors = [];
+        if ($apply_date_range) {
+            $top_vendors = self::topSellingVendorsData($request)['data']->pluck('id')->toArray();
+        }
+
         $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->addDay());
         $labels = [];
         foreach ($period as $date) {
             $labels[] = $date->format('Y-m-d');
         }
 
-        $vendor_sales = OrderItem::select('vh_st_vendor_id')
-            ->groupBy('vh_st_vendor_id')
-            ->with('vendor') // Load the vendor relationship
+        $query = OrderItem::select('vh_st_vendor_id')->groupBy('vh_st_vendor_id')->with('vendor');
+
+        if ($apply_date_range) {
+            $query->whereIn('vh_st_vendor_id', $top_vendors);
+        }
+
+        $vendor_sales = $query
             ->get()
-            ->map(function ($item) use ($start_date, $end_date, $request, $labels) {
-                $sales_data = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id)
-                    ->whereBetween('created_at', [$start_date, $end_date])
-                    ->selectRaw('DATE(created_at) as sales_date')
-                    ->selectRaw('SUM(quantity) as total_sales')
+            ->map(function ($item) use ($start_date, $end_date, $labels, $apply_date_range) {
+                $sales_query = OrderItem::where('vh_st_vendor_id', $item->vh_st_vendor_id);
+
+                if ($apply_date_range) {
+                    $sales_query->whereBetween('created_at', [$start_date, $end_date]);
+                }
+
+                $sales_data = $sales_query
+                    ->selectRaw('DATE(created_at) as sales_date, SUM(quantity) as total_sales')
                     ->groupBy('sales_date')
                     ->orderBy('sales_date')
                     ->get()
                     ->keyBy('sales_date');
 
                 $formatted_data = [];
+                $has_sales = false;
                 foreach ($labels as $date_string) {
-                    $formatted_data[] = [
-                        'x' => $date_string,
-                        'y' => isset($sales_data[$date_string]) ? (int) $sales_data[$date_string]->total_sales : 0,
-                    ];
+                    $sales = isset($sales_data[$date_string]) ? (int) $sales_data[$date_string]->total_sales : 0;
+                    $formatted_data[] = ['x' => $date_string, 'y' => $sales];
+
+                    if ($sales > 0) {
+                        $has_sales = true;
+                    }
+                }
+                if (!$has_sales) {
+                    return null;
                 }
 
                 return [
                     'name' => $item->vendor->name,
                     'data' => $formatted_data,
                 ];
-            });
+            })
+            ->filter();
 
         return [
             'data' => [
-                'chart_series' => $vendor_sales,
+                'chart_series' => $vendor_sales->values(),
                 'chart_options' => [
                     'xaxis' => [
                         'type' => 'datetime',

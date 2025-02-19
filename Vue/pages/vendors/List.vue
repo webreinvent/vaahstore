@@ -138,10 +138,10 @@ function toggleDatasetVisibility(index) {
                         </template>
 
                         <template #content>
+                            <div class="max-h-14rem overflow-y-auto">
                             <DataTable
                                 :value="store.top_selling_vendors"
                                 dataKey="id"
-
                                 class="p-datatable-sm p-datatable-hoverable-rows"
                                 :nullSortOrder="-1"
                                 v-model:selection="store.action.items"
@@ -174,6 +174,7 @@ function toggleDatasetVisibility(index) {
                                     </div>
                                 </template>
                             </DataTable>
+                            </div>
                         </template>
                     </Card>
                     <div class="w-full bg-white border-round-2xl shadow-2">

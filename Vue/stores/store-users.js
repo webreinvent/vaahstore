@@ -128,7 +128,10 @@ export const useUserStore = defineStore({
         },
         customer_count_chart_options: {},
         customer_count_chart_series: [],
-
+        total_customers:null,
+        total_orders:null,
+        avg_orders_per_customer :null,
+        average_order_value :null,
     }),
     getters: {
 
@@ -1325,6 +1328,13 @@ export const useUserStore = defineStore({
             if (!data || !Array.isArray(data.chart_series)) {
                 return;
             }
+
+            this.total_customers =data.summary.total_customers;
+           this.total_orders =data.summary.total_orders;
+            this.avg_orders_per_customer =data.summary.avg_orders_per_customer;
+            this.average_order_value  =data.summary.average_order_value;
+            console.log(this.total_customers)
+
             const seriesData = data.chart_series.map(series => ({
                 name: series.name ,
                 data: Array.isArray(series.data) ? series.data : [],
@@ -1332,6 +1342,8 @@ export const useUserStore = defineStore({
             this.updateChartSeries(seriesData);
             const updatedOptions = {
                 ...data.chart_options,
+
+
                 legend: {
                     position: 'bottom',
                     horizontalAlign: 'left',
@@ -1340,27 +1352,67 @@ export const useUserStore = defineStore({
                     formatter: function (val, opts) {
                         const seriesIndex = opts.seriesIndex;
                         const seriesData = opts.w.globals.series[seriesIndex];
+                        const seriesName = opts.w.globals.seriesNames[seriesIndex];
                         const sum = seriesData.reduce((acc, value) => acc + value, 0);
-                        return `${val} - ${sum}`;
+                        const newLabel = val === 'Customer Created' ? 'Total Customers' : val;
+                        // Only display the last value for the "Total" series
+                        if (seriesName === 'Total') {
+                            const lastValue = seriesData[seriesData.length - 1]; // Last value of the "Total" series
+                            return `${seriesName} - ${lastValue}`;
+                        }
+
+                        // For other series, just show the normal label
+                        return `${newLabel} - ${sum}`;
                     },
-                }, stroke: {
-                    curve: 'smooth',
-                    width: 2,
                 },
+
+                stroke: {
+                    curve: 'monotoneCubic',
+                    width: 2, // Set the stroke width for all series
+                    dropShadow: {
+                        enabled: true,  // Enable shadow
+                        top: 2,         // Shadow offset top
+                        left: 2,        // Shadow offset left
+                        blur: 4,        // Shadow blur effect
+                        opacity: 1    // Shadow opacity
+                    }
+                },colors: [ '#CED4DC','#008FFB', '#00E396',],
                 chart: {
                     toolbar: {
                         show: false
                     },
                     type:'area',
-                    margin: {
-                        left: 20,
-                        right: 20,
-                        top: 20,
-                        bottom: 20
-                    },
+
 
                 },
+                grid: {
+                    borderColor: '#e0e0e0',
+                    strokeDashArray: 0,
+                    position: 'back',
+                    xaxis: {
+                        lines: {
+                            show: false,
+                        }
+                    },
+                    yaxis: {
+                        lines: {
+                            show: false,
+                        }
+                    },
+                    padding: {
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    }
+                },
 
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy'
+                    },
+                    shared: false,
+                },
                 dataLabels: {
                     enabled: false,
                 },
@@ -1379,7 +1431,7 @@ export const useUserStore = defineStore({
                     }
                 },
                 title: {
-                    text: 'Customers History',
+                    text: 'Customers Track',
                     align: 'left',
                     offsetY: 12,
                     style: {

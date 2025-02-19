@@ -1832,7 +1832,7 @@ export const useVendorStore = defineStore({
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
-
+                filter_all: this.filter_all ?? null,
             }
             let options = {
                 params: params,
@@ -1882,7 +1882,7 @@ export const useVendorStore = defineStore({
                 },
 
                 legend: {
-                    show: false,
+                    show: series_data.length<=5,
                     position: 'bottom',
                     horizontalAlign: 'center',
                     floating: false,
@@ -1893,6 +1893,22 @@ export const useVendorStore = defineStore({
                 },
                 grid: {
                     show: false,
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    axisTicks: {
+                        show: false,
+                    }
+                },
+                tooltip: {
+                    shared: false,
+
                 }
             };
 
@@ -1929,10 +1945,12 @@ export const useVendorStore = defineStore({
         {
             this.filter_all = time;
             this.topSellingVendorsData();
+            this.vendorSalesByRange();
         },
         loadSalesData(){
             this.filter_all=null;
             this.topSellingVendorsData();
+            this.vendorSalesByRange();
         }
 
 

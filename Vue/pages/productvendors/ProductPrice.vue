@@ -101,36 +101,41 @@ const toggleFormMenu = (event) => {
 
 
             </div>
-                <div v-if="store.item" class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
+                <div v-if="store.item"
+                     class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
 
-                    <table class="p-datatable-table " v-if="store.product_variation_list && store.product_variation_list.length > 0">
-                        <thead class="p-datatable-thead">
-                        <tr>
-                            <th>Variations Name</th>
-                            <th>Price</th>
-                        </tr>
-                        </thead>
-                        <tbody class="p-datatable-tbody">
-                        <tr v-for="(variation, index) in store.product_variation_list" :key="index">
-                            <td>{{ variation.name }}
-                                <Badge v-if="variation.deleted_at"
-                                       value="Trashed"
-                                       severity="danger"></Badge></td>
-                            <td>
+                    <div v-if="store.product_variation_list && store.product_variation_list.length > 0">
+                    <DataTable :value="store.product_variation_list"
+                               dataKey="id"
+                               paginator
+                               :rows="20"
+                               :rowsPerPageOptions="[5, 10, 20, 50]"
+                               class="p-datatable-sm p-datatable-hoverable-rows"
+                               stripedRows
+                               responsiveLayout="scroll">
+
+                        <Column field="variations_name" header="Variations Name">
+                            <template #body="props">
+                                {{props.data.name}}
+                            </template>
+                        </Column>
+
+                        <Column field="price" header="Price">
+                            <template #body="props">
                                 <InputNumber
                                     :placeholder="'Enter Price '"
-                                    :inputId="'minmax-buttons-' + index"
-                                    :name="'productprices-amount-' + index"
-                                    v-model="variation.amount"
-
+                                    :inputId="'minmax-buttons-' + props.index"
+                                    :name="'productprices-amount-' + props.index"
+                                    v-model="props.data.amount"
                                     mode="decimal"
                                     class="p-inputtext-sm h-2rem m-1"
-                                    :data-testid="'productprices-amount-' + index"
+                                    :data-testid="'productprices-amount-' + props.index"
                                 />
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                            </template>
+                        </Column>
+
+                    </DataTable>
+                    </div>
                     <div v-else  style="text-align: center;font-size: 15px; color: #888;">
                         Click to Create New Product Variation.
                             <Button label="Create Variation" severity="info" raised

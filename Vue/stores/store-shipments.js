@@ -1385,8 +1385,8 @@ export const useShipmentStore = defineStore({
                     }
                 },
                 title: {
-                    text: 'Orders In Shipment Over Date Range',
-                    align: 'center',
+                    text: 'Order Shipments Trends',
+                    align: 'left',
                     offsetY: 12,
                     style: {
                         fontSize: '16px',
@@ -1417,7 +1417,7 @@ export const useShipmentStore = defineStore({
                 legend: {
                     show: true,
                     position: 'bottom',
-                    horizontalAlign: 'center',
+                    horizontalAlign: 'left',
                     floating: false,
                     fontSize: '11px',
 
@@ -1480,10 +1480,7 @@ export const useShipmentStore = defineStore({
 
             const updated_area_chart_options = {
                 ...data.chart_options,
-                stroke: {
-                    curve: 'smooth',
-                    width: 3,
-                },
+                stroke: { curve: 'smooth', width: 4 },
                 title: {
                     text: 'Quantity Shipped Over Date Range',
                     align: 'center',

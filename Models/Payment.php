@@ -791,7 +791,7 @@ class Payment extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
-            $random_date = Carbon::now()->subYear()->addSeconds(rand(0, Carbon::now()->diffInSeconds(Carbon::now()->subYear())));
+            $random_date = Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s');
 
             $item->date = $random_date;
             $item->save();
@@ -869,7 +869,7 @@ class Payment extends VaahModel
         $payment_method_input = $payment_method->where('id',$payment_id)->first();
         $inputs['payment_method']=$payment_method_input;
 
-        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-status')    ;
+        $taxonomy_status = Taxonomy::getTaxonomyByType('payment-status') ;
         $status_ids = $taxonomy_status->pluck('id')->toArray();
         $status_id = $status_ids[array_rand($status_ids)];
         $inputs['taxonomy_id_payment_status'] = $status_id;

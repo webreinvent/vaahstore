@@ -186,6 +186,14 @@ export const useSettingStore = defineStore({
                 count: 0,
                 is_disabled:false,
                 is_loading:false
+            },{
+                label: 'Categories',
+                value: 'Categories',
+                is_checked: false,
+                quantity: null ,
+                count: 0,
+                is_disabled:false,
+                is_loading:false
             },
             {
                 label: 'Wishlists',
@@ -197,8 +205,41 @@ export const useSettingStore = defineStore({
                 labelsToCheck: ['Customer'],
                 is_loading:false
             },
-
-
+            {
+                label: 'Carts',
+                value: 'Carts',
+                is_checked: false,
+                quantity: null ,
+                count: 0,
+                is_disabled:false,
+                is_loading:false
+            },{
+                label: 'Orders',
+                value: 'Orders',
+                is_checked: false,
+                quantity: null ,
+                count: 0,
+                is_disabled:false,
+                is_loading:false
+            },
+            {
+                label: 'Payments',
+                value: 'Payments',
+                is_checked: false,
+                quantity: null ,
+                count: 0,
+                is_disabled:false,
+                is_loading:false
+            },
+            {
+                label: 'Shipments',
+                value: 'Shipments',
+                is_checked: false,
+                quantity: null ,
+                count: 0,
+                is_disabled:false,
+                is_loading:false
+            },
 
         ],
         selected_crud:[],

@@ -2,7 +2,7 @@
 import {useProductStore} from "../../stores/store-products";
 import {useRootStore} from "../../stores/root";
 import {useRoute} from "vue-router";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useOrderStore} from "../../stores/store-orders";
 
 const customers_store = useUserStore();
@@ -24,6 +24,17 @@ const product_stock_store = useProductStockStore();
 const root = useRootStore();
 const route = useRoute();
 const base_url = ref('');
+const formattedDateRange = computed(() => {
+    const startDate = root.filter_start_date;
+    const endDate = root.filter_end_date;
+
+    if (!startDate || !endDate) return "Date range not selected";
+
+    const formatOptions = { year: "numeric", month: "short", day: "2-digit" };
+    const formatter = new Intl.DateTimeFormat("en-US", formatOptions);
+
+    return `${formatter.format(new Date(startDate))} - ${formatter.format(new Date(endDate))}`;
+});
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     base_url.value = root.ajax_url.replace('backend/store', '/');
@@ -36,7 +47,55 @@ onMounted(async () => {
     await product_store.topSellingProducts();
     await product_store.topSellingBrands();
     await product_store.topSellingCategories();
-    customers_store.fetchCustomerCountChartData();
+    await customers_store.fetchCustomerCountChartData();
+
+    const formatCurrency = (value) => {
+        if (value == null) return 'Loading...';
+
+        if (value >= 1000) {
+            return `&#8377;${(value / 1000).toFixed(2)}k`;
+        }
+
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+    };
+
+    const formatLargeNumber = (value) => {
+        if (value == null) return 'Loading...';
+        return value >= 1000 ? `${(value / 1000).toFixed(2)}k` : value;
+    };
+
+    metrics.value = [
+        {
+            label: `<i class="pi pi-users text-2xl mr-2"></i><b>Active Customers</b>`,
+            value: customers_store.total_customers
+                ? formatLargeNumber(customers_store.total_customers)
+                : 'Loading...'
+        },
+        {
+            label: `<i class="pi pi-briefcase text-2xl mr-2"></i><b>Average Order Value</b>`,
+            value: customers_store.average_order_value
+                ? formatCurrency(customers_store.average_order_value)
+                : 'Loading...'
+        },
+        {
+            label: `<i class="pi pi-shopping-bag text-2xl mr-2"></i><b>Total Orders</b>`,
+            value: customers_store.total_orders
+                ? formatLargeNumber(customers_store.total_orders)
+                : 'Loading...'
+        },
+        {
+            label: `<b>Avg Orders per Customer</b>`,
+            value: customers_store.avg_orders_per_customer
+                ? formatLargeNumber(customers_store.avg_orders_per_customer)
+                : 'Loading...'
+        }
+    ];
+
     await vendor_store.topSellingVendorsData();
 
 
@@ -47,7 +106,7 @@ onMounted(async () => {
 
     await vendor_store.vendorSalesByRange();
 
-    await shipment_store.ordersShipmentItemsByDateRange();
+    await shipment_store.ordersShipmentByDateRange();
     await shipment_store.shipmentItemsByStatusBarChart();
     await warehouse_store.warehouseStockInBarChart();
     await payment_store.paymentMethodsPieChartData();
@@ -57,9 +116,29 @@ const quick_filter_menu_state = ref();
 const toggleQuickFilterState = (event) => {
     quick_filter_menu_state.value.toggle(event);
 };
+const metrics = ref([]);
+
 </script>
 <template>
+    <div  class="flex-grow-1 shadow-1  border-round-xl has-background-white mb-2 p-3">
+    <h4 class="text-lg">
+        Selected Date Range:{{ formattedDateRange }}
+    </h4>
+        <h6 class="text-sm">Note : For Change the Date Range Navigate to Store>Settings</h6>
+    </div>
+    <div class="container mb-3 mt-1">
 
+        <div class="grid">
+            <div class="col-12 md:col-6 lg:col-3" v-for="metric in metrics" :key="metric.label">
+                <Card class="surface-ground h-full">
+                    <template #content>
+                        <div class="text-500 mb-2 text-sm"><p v-html="metric.label"></p></div>
+                        <div class="text-900 text-xl font-semibold"><p v-html="metric.value"></p></div>
+                    </template>
+                </Card>
+            </div>
+        </div>
+    </div>
     <div>
         <div class="grid">
             <div class="col-4">
@@ -102,7 +181,7 @@ const toggleQuickFilterState = (event) => {
                                     type="area"
                                     :chartOptions="orders_store.count_chart_options"
                                     :chartSeries="orders_store.count_chart_series"
-                                    height=200
+                                    height=300
                                     titleAlign="center"
                                     title=""
 
@@ -179,7 +258,7 @@ const toggleQuickFilterState = (event) => {
                                     type="area"
                                     :chartOptions="orders_store.sales_chart_options"
                                     :chartSeries="orders_store.sales_chart_series"
-                                    height=200
+                                    height=300
                                     titleAlign="center"
 
 
@@ -258,7 +337,7 @@ const toggleQuickFilterState = (event) => {
                                     type="area"
                                     :chartOptions="orders_store.order_payments_income_chart_options"
                                     :chartSeries="orders_store.order_payments_income_chart_series"
-                                    height=200
+                                    height=300
                                     titleAlign="center"
 
 
@@ -274,6 +353,10 @@ const toggleQuickFilterState = (event) => {
         </div>
         <div class="grid mt-2">
             <!--          Top Products-->
+
+
+<!--asas-->
+
             <div class="col-4">
                 <Card class="border-round-xl shadow-md h-full">
                     <template #title>
@@ -435,6 +518,10 @@ const toggleQuickFilterState = (event) => {
                     </template>
                 </Card>
             </div>
+
+
+
+
             <div class="col-3">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden mb-2 " :pt="{content: {
                                             class: 'py-0',
@@ -486,7 +573,7 @@ const toggleQuickFilterState = (event) => {
                                                 <h3>
                                                     {{
                                                     prop.data.product && prop.data.productVariation
-                                                    ? prop.data.product.name + '-' + prop.data.productVariation.name
+                                                    ?  prop.data.productVariation.name
                                                     : prop.data.name
                                                     }}
                                                 </h3>
@@ -563,7 +650,7 @@ const toggleQuickFilterState = (event) => {
                                                 <h3>
                                                     {{
                                                     prop.data.product && prop.data.productVariation
-                                                    ? prop.data.product.name + '-' + prop.data.productVariation.name
+                                                    ?  prop.data.productVariation.name
                                                     : prop.data.name
                                                     }}
                                                 </h3>
@@ -594,6 +681,10 @@ const toggleQuickFilterState = (event) => {
                     </template>
                 </Card>
             </div>
+
+
+
+
             <div class="col-3">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #title>
@@ -733,11 +824,11 @@ const toggleQuickFilterState = (event) => {
 
 
 
-            <div class="col-7">
+            <div class="col-6">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="area"
+
                             :chartOptions="customers_store.customer_count_chart_options"
                             :chartSeries="customers_store.customer_count_chart_series"
                             height="300"
@@ -749,16 +840,18 @@ const toggleQuickFilterState = (event) => {
                 </Card>
             </div>
 
-            <div class="col-5">
+            <div class="col-6">
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="area"
-                            :chartOptions="shipment_store.shipment_by_items_chart_options"
-                            :chartSeries="shipment_store.shipment_by_items_chart_series"
+                            type="line"
+                            :chartOptions="shipment_store.shipment_by_order_chart_options"
+                            :chartSeries="shipment_store.shipment_by_order_chart_series"
+                            title=""
+                            height="300"
 
-                            titleAlign="center"
                         />
+
                     </template>
 
                 </Card>
@@ -774,4 +867,19 @@ const toggleQuickFilterState = (event) => {
 
 </template>
 
+<style scoped>
+.container {
 
+
+    margin: 0 auto;
+}
+
+.p-card {
+    background-color: var(--surface-ground);
+    box-shadow: none !important;
+}
+
+.p-card .p-card-content {
+    padding: 1.5rem;
+}
+</style>
