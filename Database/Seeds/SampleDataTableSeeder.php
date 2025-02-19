@@ -888,25 +888,28 @@ class SampleDataTableSeeder extends Seeder
             $item->save();
 
             if (isset($shipment['orders']) && is_array($shipment['orders'])) {
-                $selected_orders = collect($shipment['orders'])->random(min(3, count($shipment['orders'])));
-                foreach ($selected_orders as $order) {
-                    $order_id = $order['id'];
-                    $order_items = $order['items'] ?? [];
-                    foreach ($order_items as $order_item) {
-                        $item_id = $order_item['id'];
+                $selected_order = collect($shipment['orders'])->random(); // Pick only one order
 
-                        $item_quantity_to_be_ship = $order_item['quantity'];
-                        $item->orders()->attach($order_id, [
-                            'vh_st_order_item_id' => $item_id,
-                            'quantity' => $item_quantity_to_be_ship,
-                            'pending' => 0,
-                            'created_at' => Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s')
+                $order_id = $selected_order['id'];
+                $order_items = $selected_order['items'] ?? [];
 
-                        ]);
-                    }
-                    self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
-                }
+                // Pick only one random order item
+                $order_item = collect($order_items)->random();
+
+                $item_id = $order_item['id'];
+                $item_quantity_to_be_ship = $order_item['quantity'];
+
+                $item->orders()->attach($order_id, [
+                    'vh_st_order_item_id' => $item_id,
+                    'quantity' => rand(1,2),
+                    'pending' => 0,
+                    'created_at' => Carbon::now()->subMonths(2)->addDays(rand(0, 60))->format('Y-m-d H:i:s')
+                ]);
+
+                self::updateOrderStatusForShipment($inputs['taxonomy_id_shipment_status'], $order_id);
             }
+
+
         }
     }
 
@@ -1033,8 +1036,8 @@ class SampleDataTableSeeder extends Seeder
                 continue;
             }
 
-            // Prepare product stock data
-            $product_stocks[] = [
+            // Create product stock
+            $stock = ProductStock::create([
                 'vh_st_vendor_id' => $vendor->id,
                 'vh_st_product_id' => $product->id,
                 'vh_st_product_variation_id' => $product_variation->id,
@@ -1044,13 +1047,29 @@ class SampleDataTableSeeder extends Seeder
                 'is_active' => 1,
                 'created_at' => $random_created_at,
                 'updated_at' => $random_created_at,
-            ];
-        }
+            ]);
 
-        if (!empty($product_stocks)) {
-            ProductStock::insert($product_stocks);
+            // **Update Variation Quantity**
+            $product_variation = ProductVariation::where('id', $stock->vh_st_product_variation_id)
+                ->withTrashed()
+                ->first();
+
+            if ($product_variation) {
+                $product_variation->increment('quantity', $stock->quantity);
+
+                // **Update Product Quantity (Sum of Variations)**
+                $product = Product::where('id', $stock->vh_st_product_id)
+                    ->withTrashed()
+                    ->first();
+
+                if ($product) {
+                    $product->quantity = $product->productVariations()->withTrashed()->sum('quantity');
+                    $product->save();
+                }
+            }
         }
     }
+
 
     //---------------------------------------------------------------
     public function seedPaymentMethods()
