@@ -1559,7 +1559,7 @@ export const useOrderStore = defineStore({
                     x: {
                         format: 'MMMM d, yyyy'
                     },
-                    shared: false,
+                    shared: true,
                 },
 
                 chart: {

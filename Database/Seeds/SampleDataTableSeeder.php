@@ -43,7 +43,7 @@ use WebReinvent\VaahExtend\Facades\VaahCountry;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
+use Carbon\CarbonPeriod;
 
 class SampleDataTableSeeder extends Seeder
 {
@@ -669,40 +669,58 @@ class SampleDataTableSeeder extends Seeder
     {
         $user_ids = StoreUser::pluck('id')->toArray();
         $payment_method_ids = PaymentMethod::pluck('id')->toArray();
-        $order_payment_status_ids = Taxonomy::inRandomOrder()
-            ->whereHas('type', function ($query) {
-                $query->where('slug', 'order-payment-status');
-            })
-            ->pluck('id')->toArray();
+        $order_payment_status_ids = Taxonomy::whereHas('type', function ($query) {
+            $query->where('slug', 'order-payment-status');
+        })->pluck('id')->toArray();
 
-        for ($i = 0; $i < 200; $i++) {
-            $inputs['vh_user_id'] = $user_ids[array_rand($user_ids)];
-            $inputs['vh_st_payment_method_id'] = $payment_method_ids[array_rand($payment_method_ids)];
-            $inputs['order_status'] = ['Placed', 'Completed'][array_rand(['Placed', 'Completed'])];
+        $start_date = Carbon::now()->subMonths(1)->startOfMonth(); // Start from beginning of last month
+        $end_date = Carbon::now()->endOfMonth(); // End of current month
 
-            if (!empty($order_payment_status_ids)) {
-                $inputs['taxonomy_id_payment_status'] = $order_payment_status_ids[array_rand($order_payment_status_ids)];
+        $date_range = CarbonPeriod::create($start_date, $end_date); // Use CarbonPeriod for iteration
+
+        foreach ($date_range as $date) {
+            $date = Carbon::parse($date); // Ensure it is Carbon instance
+            $orders_on_date = rand(2, 10); // Randomly create 2-10 orders per day
+
+            for ($i = 0; $i < $orders_on_date; $i++) {
+                $inputs = [];
+
+                $inputs['vh_user_id'] = $user_ids[array_rand($user_ids)];
+                $inputs['vh_st_payment_method_id'] = $payment_method_ids[array_rand($payment_method_ids)];
+
+                $is_completed = rand(0, 1); // 50% chance of being "Completed"
+                $inputs['order_status'] = $is_completed ? 'Completed' : 'Placed';
+
+                if (!empty($order_payment_status_ids)) {
+                    $inputs['taxonomy_id_payment_status'] = $order_payment_status_ids[array_rand($order_payment_status_ids)];
+                }
+
+                $inputs['order_shipment_status'] = 'Pending';
+                $inputs['delivery_fee'] = 0;
+                $inputs['taxes'] = 0;
+                $inputs['discount'] = 0;
+                $inputs['paid'] = $is_completed ? rand(50, 500) : 0;
+                $inputs['is_paid'] = $is_completed ? 1 : 0;
+                $inputs['is_active'] = 1;
+
+                // Ensure created_at is within the current day in the loop
+                $created_at = $date->copy()->setTime(rand(0, 23), rand(0, 59), rand(0, 59));
+                $inputs['created_at'] = $created_at;
+
+                // Create the order
+                $order = Order::create($inputs);
+
+                // Set completed date (some completed earlier, some later)
+                if ($is_completed) {
+                    $completed_at = (clone $created_at)->addDays(rand(0, 5))->setTime(rand(0, 23), rand(0, 59), rand(0, 59));
+                    $order->update(['updated_at' => $completed_at]);
+                }
+
+                // Create the order items for the created order
+                $this->createOrderItem($order);
             }
+        }}
 
-            $inputs['order_shipment_status'] = 'Pending';
-            $inputs['delivery_fee'] = 0;
-            $inputs['taxes'] = 0;
-            $inputs['discount'] = 0;
-            $inputs['paid'] = '';
-            $inputs['is_paid'] = 0;
-            $inputs['is_active'] = 1;
-
-            // Generate a random created_at date (within the last month)
-            $created_at = Carbon::now()->subMonths(1)->addDays(rand(0, 30))->format('Y-m-d H:i:s');
-            $inputs['created_at'] = $created_at;
-
-            // Create the order using Eloquent
-            $order = Order::create($inputs);
-
-            // Now create the order items for the created order
-            $this->createOrderItem($order);
-        }
-    }
     //---------------------------------------------------------------
 
 
@@ -800,7 +818,7 @@ class SampleDataTableSeeder extends Seeder
 
             if ($order->order_status === 'Completed') {
                 DB::update('UPDATE vh_st_orders
-                SET updated_at = ?
+                SET updated_at = ?,paid = payable
                 WHERE id = ?',
                     [Carbon::now()->subMonths(1)->addDays(rand(0, 30))->format('Y-m-d H:i:s'), $order->id]);
             }
