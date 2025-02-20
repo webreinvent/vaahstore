@@ -10,10 +10,12 @@ import Table from "./components/Table.vue";
 import Charts from "../../components/Charts.vue";
 
 const store = useOrderStore();
+const payment_store = usePaymentStore();
 const root = useRootStore();
 const route = useRoute();
 
 import {useConfirm} from "primevue/useconfirm";
+import {usePaymentStore} from "../../stores/store-payments";
 
 const confirm = useConfirm();
 
@@ -27,6 +29,7 @@ onMounted(async () => {
 
     await store.fetchOrdersChartData();
     await store.fetchSalesChartData();
+    await payment_store.paymentMethodsPieChartData();
 
     /**
      * watch routes to update view, column width
@@ -308,7 +311,14 @@ const toggleCreateMenu = (event) => {
 
                             />
 
-
+                            <Charts
+                                class="border-round-3xl mb-2 border"
+                                type="pie"
+                                :chartOptions="payment_store.payment_methods_chart_options"
+                                :chartSeries="payment_store.payment_methods_chart_series"
+                                height=250 width=400
+                                titleAlign="center"
+                            />
 
 
 
