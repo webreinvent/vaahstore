@@ -200,7 +200,7 @@ class User extends UserBase
             $inputs['username'] = Str::slug($inputs['email']);
         }
 
-        $inputs['is_active'] = !empty($inputs['is_active']) && $inputs['is_active'] == 1 ? 1 : 0;
+        $inputs['is_active'] = isset($inputs['is_active']) && $inputs['is_active'] == 0 ? 0 : 1;
 
 
         $inputs['created_ip'] = request()->ip();
