@@ -337,6 +337,17 @@ class Category extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
+        $nested = $request->input('include.nested', false);
+
+        if ($nested) {
+            return [
+                'success' => true,
+                'data' => Category::with('subCategories')
+                    ->whereNull('parent_id')
+                    ->where('is_active', 1)
+                    ->get()
+            ];
+        }
         $list = self::with('parentCategory');
         $list ->getSorted($request->filter);
         $list->isActiveFilter($request->filter);

@@ -6,7 +6,7 @@ use VaahCms\Modules\Store\Http\Controllers\Backend\CategoriesController;
 Route::group(
     [
         'prefix' => 'store/categories',
-        'middleware' => ['auth:api'],
+
         'namespace' => 'Backend',
     ],
 function () {
