@@ -1235,7 +1235,7 @@ export const useWarehouseStore = defineStore({
                         fontFamily: undefined
                     }
                 },fill: {
-                    colors: ['#0000FF',  '#5996f1']
+                    colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
                 },
                 dataLabels: {
                     enabled: false,
