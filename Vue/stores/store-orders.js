@@ -1245,18 +1245,21 @@ export const useOrderStore = defineStore({
                     },
                 },
                 tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    y: {
-                        formatter: function (value) {
-                            if (value >= 1000) {
-                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
-                            }
-                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
-                        }
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const value = series[seriesIndex][dataPointIndex] ?? 0;
+                        const formattedValue = value >= 1000 ? (value / 1000).toFixed(2) + 'k' : value;
+
+                        return `<div style="
+                                background: #fff; padding: 10px; border-radius: 50%;
+                                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05);">
+                                <strong style="color: #333; font-size: 14px;">${date}</strong>
+                                <div style="font-size: 14px; color: ${chartColor};">Sale: <strong>&#8377;${formattedValue}</strong></div>
+                            </div>`;
                     }
                 },
+
 
                 chart: {
                     background: '#f6f7f9',
@@ -1393,18 +1396,23 @@ export const useOrderStore = defineStore({
                     },
                 },
                 tooltip: {
-                    x: {
-                        format: 'MMM dd, yyyy'
-                    },
-                    y: {
-                        formatter: function (value) {
-                            if (value >= 1000) {
-                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
-                            }
-                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
-                        }
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const value = series[seriesIndex][dataPointIndex] ?? 0;
+                        const formattedValue = value >= 1000 ? (value / 1000).toFixed(2) + 'k' : value;
+
+                        return `<div style="
+            background: #fff; padding: 12px; border-radius: 50%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+            min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+            <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+            <div style="font-size: 14px; color: #008FFB;">
+                Amount: <strong>&#8377;${formattedValue}</strong>
+            </div>
+        </div>`;
                     }
                 },
+
                 chart: {
                     background: '#fff',
                     toolbar: {
@@ -1555,12 +1563,29 @@ export const useOrderStore = defineStore({
                         show: false,
                     },
                 },
+
                 tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    shared: true,
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const createdCount = series[0][dataPointIndex] ?? 0;
+                        const completedCount = series[1][dataPointIndex] ?? 0;
+
+                        const isCreatedVisible = !w.globals.collapsedSeriesIndices.includes(0);
+                        const isCompletedVisible = !w.globals.collapsedSeriesIndices.includes(1);
+
+                        return `<div style="
+                            background: #fff; padding: 12px; border-radius: 50%;
+                            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                            min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                            <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                            <div style="font-size: 14px;">
+                                ${isCreatedVisible ? `<div>Created: <strong>${createdCount}</strong></div>` : ''}
+                                ${isCompletedVisible ? `<div>Completed: <strong>${completedCount}</strong></div>` : ''}
+                            </div>
+                        </div>`;
+                    }
                 },
+
 
                 chart: {
                     background: '#fff',
@@ -1568,11 +1593,7 @@ export const useOrderStore = defineStore({
                         show: false,
                     },
                 },
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
+
 
                 dataLabels: {
                     enabled: false,
