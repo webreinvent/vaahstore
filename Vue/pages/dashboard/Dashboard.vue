@@ -796,7 +796,7 @@ const metrics = ref([]);
                             :chartOptions="shipment_store.shipment_items_by_status_chart_options"
                             :chartSeries="shipment_store.shipment_items_by_status_chart_series"
 
-                            titleAlign="center"
+
                         />
                     </template>
 

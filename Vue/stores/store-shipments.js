@@ -1605,7 +1605,8 @@ export const useShipmentStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
+                },
+                colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
                 dataLabels: {
                                     enabled: true,
                                     textAnchor: 'start',
@@ -1618,7 +1619,7 @@ export const useShipmentStore = defineStore({
                                     },
                                     offsetX: 0,
                                     dropShadow: {
-                                        enabled: false,
+                                        enabled: true,
                                     },
                                 },
                 plotOptions: {
@@ -1626,6 +1627,8 @@ export const useShipmentStore = defineStore({
                         barHeight: '80%',
                         distributed: true,
                         horizontal: true,
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
                         dataLabels: {
                             position: 'bottom',
                         },
@@ -1638,7 +1641,7 @@ export const useShipmentStore = defineStore({
                 },
                 title: {
                     text: 'Shipped Quantities Status',
-                    align: 'center',
+                    align: 'left',
                     offsetY: 12,
                     style: {
                         fontSize: '16px',
@@ -1649,7 +1652,7 @@ export const useShipmentStore = defineStore({
 
                 subtitle: {
                     text: 'Status as DataLabels inside bars',
-                    align: 'center',
+                    align: 'left',
                 },
 
                 markers: {
