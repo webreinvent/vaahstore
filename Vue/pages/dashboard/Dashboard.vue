@@ -778,7 +778,7 @@ const metrics = ref([]);
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="pie"
+                            type="donut"
                             :chartOptions="payment_store.payment_methods_chart_options"
                             :chartSeries="payment_store.payment_methods_chart_series"
                             height=250
