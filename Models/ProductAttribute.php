@@ -127,15 +127,28 @@ class ProductAttribute extends VaahModel
 
     public function productVariation()
     {
-        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')
-            ->select('name', 'id', 'is_default');
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->withTrashed()
+            ->select('name', 'id', 'is_default','deleted_at');
     }
+    //-------------------------------------------------
+
+    public function values()
+    {
+        return $this->hasMany(ProductAttributeValue::class, 'vh_st_product_attribute_id')
+            ->select('id', 'value', 'vh_st_product_attribute_id', 'vh_st_attribute_value_id')
+            ->with([
+                'attributeValue' => function ($q) {
+                    $q->select('id', 'value as name');
+                }
+            ]);
+    }
+
 
     //-------------------------------------------------
     public function attribute()
     {
-        return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')
-            ->select('name', 'id', 'type');
+        return $this->hasOne(Attribute::class,'id','vh_st_attribute_id')->withTrashed()
+            ->select('name', 'id', 'type','deleted_at');
     }
 
     //-------------------------------------------------
@@ -664,7 +677,9 @@ class ProductAttribute extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->get()->each(function ($record) {
+                    $record->update(['deleted_by' => null]);
+                });
                 $list->restore();
                 break;
             case 'delete-all':
@@ -891,12 +906,14 @@ class ProductAttribute extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            foreach ($inputs['attribute_values'] as $key=>$value){
-                $item1 = new ProductAttributeValue();
-                $item1->vh_st_product_attribute_id = $item->id;
-                $item1->vh_st_attribute_value_id = $value['id'];
-                $item1->value = $value['new_value'] ?? $value['default_value'];
-                $item1->save();
+            if (isset($inputs['attribute_values'])) {
+                foreach ($inputs['attribute_values'] as $key => $value) {
+                    $item1 = new ProductAttributeValue();
+                    $item1->vh_st_product_attribute_id = $item->id;
+                    $item1->vh_st_attribute_value_id = $value['id'];
+                    $item1->value = $value['new_value'] ?? $value['default_value'];
+                    $item1->save();
+                }
             }
             $i++;
 
@@ -919,6 +936,11 @@ class ProductAttribute extends VaahModel
         $inputs = $fillable['data']['fill'];
 
         $product_variations = ProductVariation::where('is_active', 1)->get();
+        if ($product_variations->isEmpty()) {
+            $response['success'] = false;
+            $response['errors'][] = 'No product variation exist.';
+            return $response;
+        }
         $product_variation_ids = $product_variations->pluck('id')->toArray();
         $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
         $product_variation = $product_variations->where('id',$product_variation_id)->first();
@@ -926,6 +948,11 @@ class ProductAttribute extends VaahModel
         $inputs['vh_st_product_variation_id'] = $product_variation_id;
 
         $attributes = Attribute::get();
+        if ($attributes->isEmpty()) {
+            $response['success'] = false;
+            $response['errors'][] = 'No Attribute exist.';
+            return $response;
+        }
         $attribute_ids = $attributes->pluck('id')->toArray();
         $attribute_id = $attribute_ids[array_rand($attribute_ids)];
         $attribute = $attributes->where('id',$attribute_id)->first();

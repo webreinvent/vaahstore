@@ -30,26 +30,31 @@ const useVaah = vaah();
             <Column field="product.name" header="Product"
                     :sortable="true" >
 
-                <template #body="prop">
-                    <Badge v-if="prop.data.deleted_at"
+                <template #body="prop" >
+                    <Badge v-if="prop.data.product && prop.data.product.deleted_at"
                            value="Trashed"
                            severity="danger"></Badge>
-                    <Badge v-if="prop.data.product == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.product.name}}
-                         </span>
+                    <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                        {{ prop.data.product.name }}
+                    </div>
                 </template>
 
             </Column>
 
              <Column field="product_variation.name" header="Product Variations" >
                  <template #body="prop">
-                     <div class="flex flex-wrap gap-2 " v-if="prop.data.product_variation_media && prop.data.product_variation_media.length > 0">
-                         <template v-for="(variation, index) in prop.data.product_variation_media" :key="index">
-                             <Badge class=" h-max max-w-full" v-if="variation.name">{{ variation.name }}</Badge>
-                             <Badge  v-else value="Trashed" severity="danger"></Badge>
+                     <div class="flex flex-wrap gap-2" v-if="prop.data.product_variation_media && prop.data.product_variation_media.length > 0">
+                         <template v-if="prop.data.product_variation_media.some(variation => variation.deleted_at === null)">
+                             <!-- Display variation names -->
+                             <template v-for="(variation, index) in prop.data.product_variation_media" :key="index">
+                                 <Badge class="h-max max-w-full" v-if="variation.deleted_at === null">
+                                     {{ variation.name }}
+                                 </Badge>
+                             </template>
+                             <Badge v-if="prop.data.product_variation_media.some(variation => variation.deleted_at !== null)" value="Trashed" severity="danger"></Badge>
+                         </template>
+                         <template v-else>
+                             <Badge value="Trashed" severity="danger"></Badge>
                          </template>
                      </div>
                  </template>

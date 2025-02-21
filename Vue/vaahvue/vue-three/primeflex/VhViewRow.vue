@@ -1,5 +1,8 @@
 <script setup>
 import {vaah} from '../../pinia/vaah.js'
+import {useProductVariationStore} from "../../../stores/store-productvariations";
+
+const store = useProductVariationStore();
 
 const props = defineProps({
     label: {
@@ -20,6 +23,10 @@ const props = defineProps({
     can_copy:{
         type: Boolean,
         default: false
+    },
+    meta_tags:{
+        type:Object,
+        default:null,
     }
 })
 
@@ -46,18 +53,18 @@ const props = defineProps({
 
             </td>
         </template>
-        <template v-else-if="type==='vendor'">
+
+        <template v-else-if="type==='register-approve'">
             <td colspan="2" >
 
                 <template v-if="typeof value === 'object' && value !== null">
-                    <span   >
-                        {{value.name}}
-                    </span>
-
+                    {{value.first_name}}
                 </template>
 
             </td>
         </template>
+
+
 
         <template v-else-if="type==='status'">
             <td colspan="2" >
@@ -125,9 +132,21 @@ const props = defineProps({
             <td colspan="2" >
                 <template v-if="typeof value === 'object' && value && value.length > 0">
                     <span v-for="data in value">
-                        <Tag :severity="primary" :value="data" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
+                        <Tag class="h-max max-w-full mb-1" :severity="primary" :value="data" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag> &nbsp;
                     </span>
                 </template>
+            </td>
+        </template>
+        <template v-else-if="type==='vendor'">
+            <td colspan="2" >
+
+                <template v-if="typeof value === 'object' && value !== null">
+                    <Tag   >
+                        {{value.name}}
+                    </Tag>
+
+                </template>
+
             </td>
         </template>
 
@@ -145,15 +164,15 @@ const props = defineProps({
         </template>
 
 
-                <template v-else-if="type==='attributeValues'">
-                    <td colspan="2">
-                        <template v-if="typeof value === 'object' && value !== null">
+        <template v-else-if="type==='attributeValues'">
+            <td colspan="2">
+                <template v-if="typeof value === 'object' && value !== null">
               <span v-for="data in value">
 <!--                <Tag :value="`${data.name} (${data.type})`" :rounded="true"  style="border-radius:20px;padding:5px 10px;"></Tag>-->
 <Tag :value="`${data.name} `" :rounded="true" style="border-radius:20px;padding:5px 10px; margin-right: 10px; margin-bottom: 10px;"></Tag>              </span>
-                        </template>
-                    </td>
                 </template>
+            </td>
+        </template>
 
         <template v-else-if="type==='productAttributeValues'">
 
@@ -162,9 +181,9 @@ const props = defineProps({
                 <template v-if="typeof value === 'object' && value !== null">
                     <table class="table">
                         <tbody>
-                            <tr>
-                                <td v-for="data in value"><div style="word-break: break-word;"><tag>{{data.new_value}}</tag></div></td>
-                            </tr>
+                        <tr>
+                            <td v-for="data in value"><div style="word-break: break-word;"><tag>{{data.new_value}}</tag></div></td>
+                        </tr>
                         </tbody>
                     </table>
                 </template>
@@ -174,13 +193,12 @@ const props = defineProps({
 
         <template v-else-if="type==='image_preview'">
 
-            <td colspan="2" >
-
-                <Image :src="value"
-                       preview
-                       alt="Image"
-                       width="150" />
-
+            <td colspan="2" v-if="value">
+                <Image
+                    :src="`image/uploads/brands/`+value"
+                    preview
+                    alt="Image"
+                    width="70"/>
             </td>
         </template>
 
@@ -188,6 +206,17 @@ const props = defineProps({
             <td colspan="2">
                 <Badge value="Yes" v-if="value===1 || value=='yes'" severity="success"></Badge>
                 <Badge v-else value="No" severity="danger"></Badge>
+            </td>
+        </template>
+
+        <template v-else-if="type==='quantity'">
+            <td colspan="2">
+                <Badge v-if="store.item.quantity === 0"
+                       severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
+                <Badge v-else-if="store.item.quantity > 0 && store.item.quantity < 10"
+                       severity="warning">Low Stock</Badge>
+                <Badge v-else-if="store.item.quantity >= 10"
+                       severity="success">In Stock</Badge>
             </td>
         </template>
         <template v-else-if="type==='description'">
@@ -213,9 +242,27 @@ const props = defineProps({
 
                 <template v-if="value !== null">
 
-<!--                    <pre class="pre-tag"> {{value}}</pre>-->
+                    <!--                    <pre class="pre-tag"> {{value}}</pre>-->
                     <pre style="font-family: Inter, ui-sans-serif, system-ui; white-space: break-spaces;word-break: break-all;">{{value}}</pre>
                 </template>
+            </td>
+        </template>
+
+        <template v-else-if="type==='gender'">
+
+            <td colspan="2">
+                <Badge v-if="value === 'm'" severity="success">
+                    Male
+                </Badge>
+
+                <Badge v-else-if="value === 'f'" severity="danger">
+                    Female
+                </Badge>
+
+                <Badge v-else-if="value === 'o'" severity="success">
+                    Other
+                </Badge>
+
             </td>
         </template>
 
@@ -230,9 +277,9 @@ const props = defineProps({
 <style scoped>
 
 .pre-tag{
-font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,
-sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
-Noto Color Emoji;
+    font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,
+    sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
+    Noto Color Emoji;
 
 }
 

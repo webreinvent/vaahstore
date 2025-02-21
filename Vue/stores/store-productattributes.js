@@ -288,6 +288,7 @@ export const useProductAttributeStore = defineStore({
 
             let productVariation = toRaw(event.value);
             this.item.vh_st_product_variation_id = productVariation.id;
+
         },
         //---------------------------------------------------------------------
 
@@ -301,7 +302,7 @@ export const useProductAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
+        
         async getAssets() {
 
             if(this.assets_is_fetching === true){

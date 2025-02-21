@@ -29,6 +29,7 @@ const store = useAddressStore();
                         :dropdown="true" optionLabel="name"
                         data-testid="addresses-type"
                         forceSelection
+                        append-to="self"
                         class="w-full">
                     </AutoComplete>
                 </div>
@@ -54,6 +55,7 @@ const store = useAddressStore();
                     :suggestions="store.user_suggestion"
                     @complete="store.searchUser($event)"
                     placeholder="Select User"
+                    append-to="self"
                     class="w-full">
                 </AutoComplete>
 
@@ -68,11 +70,32 @@ const store = useAddressStore();
                 <Calendar v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
+                          data-testid="addresses-filters-date_range"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >
+
+            <VhFieldVertical >
+                <template #label>
+                    <b>Status By:</b>
+                </template>
+                    <MultiSelect
+                        v-model="store.query.filter.status"
+                        :options="store.status"
+                        filter
+                        optionValue="slug"
+                        optionLabel="name"
+                        data-testid="addresses-filter-status"
+                        placeholder="Select Status"
+                        display="chip"
+                        append-to="self"
+                        class="w-full relative" />
+
+
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>
@@ -81,14 +104,14 @@ const store = useAddressStore();
                 <div class="field-radiobutton">
                     <RadioButton name="default-address-yes"
                                  value="true"
-                                 data-testid="stores-filters-default-address-yes"
+                                 data-testid="addresses-filters-default-address-yes"
                                  v-model="store.query.filter.is_default" />
                     <label for="default-address-yes">Yes</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="default-address-no"
                                  value="false"
-                                 data-testid="stores-filters-default-address-no"
+                                 data-testid="addresses-filters-default-address-no"
                                  v-model="store.query.filter.is_default" />
                     <label for="default-address-no">No</label>
                 </div>
@@ -96,34 +119,7 @@ const store = useAddressStore();
             </VhFieldVertical>
 
 
-            <VhFieldVertical >
-                <template #label>
-                    <b>Status:</b>
-                </template>
 
-                <div class="field-radiobutton">
-                    <RadioButton name="status-pending"
-                                 value="pending"
-                                 data-testid="addresses-filters-status-pending"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-pending">Pending</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-rejected"
-                                 data-testid="addresses-filters-status-rejected"
-                                 value="rejected"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-rejected">Rejected</label>
-                </div>
-                <div class="field-radiobutton">
-                    <RadioButton name="status-approved"
-                                 data-testid="addresses-filters-status-approved"
-                                 value="approved"
-                                 v-model="store.query.filter.status" />
-                    <label for="status-approved">Approved</label>
-                </div>
-
-            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>

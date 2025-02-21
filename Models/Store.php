@@ -50,6 +50,12 @@ class Store extends VaahModel
     protected $appends = [
     ];
 
+    //--------------------------------------------------
+
+    protected $casts =[
+        'allowed_ips'=>'array',
+    ];
+
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
     {
@@ -129,8 +135,21 @@ class Store extends VaahModel
 
     //-------------------------------------------------
 
+    public function vendors()
+    {
+        return $this->hasMany(Vendor::class, 'vh_st_store_id', 'id')
+            ->withTrashed()
+            ->select(['id', 'name', 'is_default', 'slug']);
+    }
+    //-------------------------------------------------
 
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'vh_st_store_id', 'id')
+            ->withTrashed();
+    }
 
+    //-------------------------------------------------
 
     public function createdByUser()
     {
@@ -190,7 +209,7 @@ class Store extends VaahModel
             ->endOfDay()
             ->toDateTimeString();
 
-       return $query->whereBetween('created_at', [$from, $to]);
+        return $query->whereBetween('created_at', [$from, $to]);
 
     }
 
@@ -219,6 +238,11 @@ class Store extends VaahModel
     public static function createItem($request)
     {
 
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $validation = self::validation($inputs);
@@ -236,8 +260,8 @@ class Store extends VaahModel
         }
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -245,8 +269,8 @@ class Store extends VaahModel
         $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -257,12 +281,6 @@ class Store extends VaahModel
 
         $item = new self();
         $item->fill($inputs);
-
-        if(isset($item->allowed_ips))
-        {
-            $item->allowed_ips = json_encode($inputs['allowed_ips']);
-
-        }
 
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
@@ -485,24 +503,12 @@ class Store extends VaahModel
     {
 
 
-        if(!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        )
-        {
+        if (!isset($filter['status'])) {
             return $query;
         }
-
         $status = $filter['status'];
-
-        if($status == 'all')
-        {
-            return $query;
-        }
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('name', $status)
-                ->orWhere('slug',$status);
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('slug', $status);
         });
 
     }
@@ -667,38 +673,52 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function getList($request)
     {
+        // Fetch the default store record
+        $default_store = self::where('is_default', 1)->first();
 
+        // Fetch all records based on the filters
         $list = self::getSorted($request->filter)->with('status');
-        $list->isActiveFilter($request->filter);
-        $list->trashedFilter($request->filter);
-        $list->searchFilter($request->filter);
-        $list->statusFilter($request->filter);
-        $list->defaultFilter($request->filter);
-        $list->multiCurrencyFilter($request->filter);
-        $list->multiLanguageFilter($request->filter);
-        $list->multiVendorFilter($request->filter);
-        $list->dateFilter($request->filter);
-
-        $rows = config('vaahcms.per_page');
-
-        if($request->has('rows'))
-        {
-            $rows = $request->rows;
+        if ($request->has('filter')) {
+            $list->isActiveFilter($request->filter);
+            $list->trashedFilter($request->filter);
+            $list->searchFilter($request->filter);
+            $list->statusFilter($request->filter);
+            $list->defaultFilter($request->filter);
+            $list->multiCurrencyFilter($request->filter);
+            $list->multiLanguageFilter($request->filter);
+            $list->multiVendorFilter($request->filter);
+            $list->dateFilter($request->filter);
+            $list->storeIdFilter($request->filter);
         }
 
+        // Check if the default store exists
+        $default_store_exists = $default_store;
+
+        $rows = config('vaahcms.per_page');
+        if ($request->has('rows')) {
+            $rows = $request->rows;
+        }
         $list = $list->paginate($rows);
 
-        $response['success'] = true;
-        $response['data'] = $list;
+        $response = [
+            'success' => true,
+            'data' => $list,
+        ];
+
+        if (!$default_store_exists) {
+            $response['message'] = true;
+        }
 
         return $response;
-
-
     }
-
     //-------------------------------------------------
     public static function updateList($request)
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         $inputs = $request->all();
 
@@ -759,6 +779,11 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
 
         $rules = array(
@@ -781,6 +806,10 @@ class Store extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        foreach($items_id as $item_id)
+        {
+            self::deleteRelatedRecords($item_id);
+        }
         self::whereIn('id', $items_id)->forceDelete();
         StorePaymentMethod::deleteStores($items_id);
         Vendor::deleteStores($items_id);
@@ -797,6 +826,12 @@ class Store extends VaahModel
 
     public static function listAction($request, $type): array
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
         if(isset($inputs['items']))
         {
@@ -842,6 +877,10 @@ class Store extends VaahModel
                 break;
             case 'delete':
                 if(isset($items_id) && count($items_id) > 0) {
+                    foreach($items_id as $item_id)
+                    {
+                        self::deleteRelatedRecords($item_id);
+                    }
                     self::whereIn('id', $items_id)->forceDelete();
                     StorePaymentMethod::deleteStores($items_id);
                     Vendor::deleteStores($items_id);
@@ -860,10 +899,15 @@ class Store extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
+                $list->onlyTrashed()->update(['deleted_by' => null]);
                 $list->restore();
                 break;
             case 'delete-all':
+                $items_id = self::withTrashed()->pluck('id')->toArray();
+                foreach ($items_id as $item_id)
+                {
+                    self::deleteRelatedRecords($item_id);
+                }
                 $list->forceDelete();
                 StorePaymentMethod::deleteStores($items_id);
                 Vendor::deleteStores($items_id);
@@ -874,21 +918,21 @@ class Store extends VaahModel
             case 'create-5000-records':
             case 'create-10000-records':
 
-            if(!config('store.is_dev')){
-                $response['success'] = false;
-                $response['errors'][] = 'User is not in the development environment.';
+                if(!config('store.is_dev')){
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
 
-                return $response;
-            }
+                    return $response;
+                }
 
-            preg_match('/-(.*?)-/', $type, $matches);
+                preg_match('/-(.*?)-/', $type, $matches);
 
-            if(count($matches) !== 2){
+                if(count($matches) !== 2){
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
-            }
-
-            self::seedSampleItems($matches[1]);
-            break;
         }
 
         $response['success'] = true;
@@ -950,8 +994,6 @@ class Store extends VaahModel
             $item->languages = $languages;
         }
 
-        $item->allowed_ips = json_decode($item->allowed_ips);
-
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -962,6 +1004,12 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $inputs = $request->all();
         $validation = self::validation($inputs);
         if (!$validation['success']) {
@@ -978,8 +1026,8 @@ class Store extends VaahModel
             ->where('name', $inputs['name'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This name is already exist.";
+            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -989,15 +1037,13 @@ class Store extends VaahModel
             ->where('slug', $inputs['slug'])->first();
 
         if ($item) {
-            $response['success'] = false;
-            $response['errors'][] = "This slug is already exist.";
+            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
         $item = self::where('id', $id)->withTrashed()->first();
         $item->fill($inputs);
-
-        $item->allowed_ips = json_encode($inputs['allowed_ips']);
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -1048,16 +1094,19 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function deleteItem($request, $id)
     {
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
+
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
             $response['success'] = false;
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
+        self::deleteRelatedRecords($item->id);
         $item->forceDelete();
-        StorePaymentMethod::deleteStores($item->id);
-        Vendor::deleteStores($item->id);
-        Product::deleteStores($item->id);
 
         $response['success'] = true;
         $response['data'] = [];
@@ -1069,6 +1118,11 @@ class Store extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
+
+        $permission_slug = 'can-update-module';
+        if (!\Auth::user()->hasPermission($permission_slug)) {
+            return vh_get_permission_denied_response($permission_slug);
+        }
 
         switch($type)
         {
@@ -1085,8 +1139,8 @@ class Store extends VaahModel
                 break;
             case 'trash':
                 self::where('id', $id)
-                ->withTrashed()
-                ->delete();
+                    ->withTrashed()
+                    ->delete();
                 $item = self::where('id',$id)->withTrashed()->first();
                 $item->deleted_by = auth()->user()->id;
                 $item->is_default = null;
@@ -1128,8 +1182,7 @@ class Store extends VaahModel
 
             $item =  new self();
             $item->fill($inputs);
-            $item->save();
-            $item->allowed_ips =json_encode($inputs['allowed_ips']);
+//            $item->save();
             $item->slug = Str::slug($inputs['slug']);
             $item->save();
 
@@ -1200,47 +1253,28 @@ class Store extends VaahModel
         $inputs['taxonomy_id_store_status'] = $status_id;
         $inputs['status']=$status;
 
-        $inputs['is_multi_currency'] = rand(0,1);
-        $inputs['is_multi_lingual'] =  rand(0,1);
+        $inputs['name'] = $faker->company;
+        $inputs['is_multi_currency'] =rand(0, 1);
+        $inputs['is_multi_lingual'] = rand(0, 1);
 
-        $currency_list = Taxonomy::getTaxonomyByType('Currency')->toArray();
-        $random_currencies = array_rand($currency_list, 3);
-        $selected_currencies = [];
-        $inputs['default_currency'] = null;
-
-        foreach ($random_currencies as $index) {
-            $selected_currencies[] = $currency_list[$index];
+        $currencies = vh_st_get_country_currencies();
+        $random_currencies = collect($currencies)->random(2);
+        if ($inputs['is_multi_currency'] == 1 && !$random_currencies->isEmpty()) {
+            $inputs['currencies'] = $random_currencies;
+        }
+        $languages = vh_st_get_country_languages();
+        $random_languages = collect($languages)->random(2);
+        if ($inputs['is_multi_lingual'] == 1 && !$random_languages->isEmpty()) {
+            $inputs['languages'] = $random_languages;
         }
 
-        if($inputs['is_multi_currency'] == 1)
-        {
-            $inputs['default_currency'] = $selected_currencies[0];
-            foreach ($selected_currencies as $currency)
-            {
 
-                $inputs['currencies'][] = $currency;
-            }
-        }
 
-        $language_list = Taxonomy::getTaxonomyByType('Language')->toArray();
-        $random_languages = array_rand($language_list, 3);
-        $selected_languages = [];
-        $inputs['default_language'] = null;
-        foreach ($random_languages as $index) {
-            $selected_languages[] = $language_list[$index];
-        }
-        if($inputs['is_multi_lingual'] == 1)
-        {
-            $inputs['default_language'] = $selected_languages[0];
-            foreach ($selected_languages as $language)
-            {
 
-                $inputs['languages'][] = $language;
-            }
+        $inputs['allowed_ips'] = array_map(function () use ($faker) {
+            return $faker->ipv4;
+        }, range(1, 10));
 
-        }
-
-        $inputs['allowed_ips'][] = $faker->ipv4;
         $inputs['is_multi_vendor'] = 1;
         $inputs['is_active'] = 1;
         /*
@@ -1258,5 +1292,144 @@ class Store extends VaahModel
     }
 
     //-------------------------------------------------
+
+
+    public function scopestoreIdFilter($query, $filter)
+    {
+
+        if(!isset($filter['store_ids']))
+        {
+            return $query;
+        }
+        $search = $filter['store_ids'];
+        $query->where(function ($q) use ($search) {
+            $q->where(function ($q) use ($search) {
+                $q->whereIn('id', $search );
+
+            });
+        });
+    }
+
+    //------------------------------------------------
+    public static function deleteRelatedRecords($id)
+    {
+        $item = self::where('id', $id)->withTrashed()->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
+            return $response;
+        }
+        self::deletePaymentMethod($item->id);
+        self::deleteVendor($item->id);
+        self::deleteProduct($item->id);
+    }
+
+    //------------------------------------------------
+
+    public static function deletePaymentMethod($id)
+    {
+        $response=[];
+        $is_exist = StorePaymentMethod::where('vh_st_store_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            StorePaymentMethod::where('vh_st_store_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+    }
+
+    //------------------------------------------------
+
+    public static function deleteVendor($id)
+    {
+        $response=[];
+        $is_exist = Vendor::where('vh_st_store_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            $vendor_ids = Vendor::where('vh_st_store_id',$id)->withTrashed()->pluck('id')->toArray();
+            foreach($vendor_ids as $vendor_id)
+            {
+                self::deleteVendorRelatedRecords($vendor_id);
+            }
+            Vendor::where('vh_st_store_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //------------------------------------------------
+
+    public static function deleteProduct($id)
+    {
+
+        $response=[];
+        $is_exist = Product::where('vh_st_store_id',$id)
+            ->withTrashed()
+            ->get();
+
+        if($is_exist){
+            $product_ids = Product::where('vh_st_store_id',$id)->withTrashed()->pluck('id')->toArray();
+            foreach($product_ids as $product_id)
+            {
+                Product::deleteRelatedRecords($product_id);
+            }
+            Product::where('vh_st_store_id',$id)->withTrashed()->forcedelete();
+            $response['success'] = true;
+        }else{
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+    //------------------------------------------------
+
+    public static function deleteVendorRelatedRecords($id)
+    {
+
+        $is_product_exist = ProductVendor::where('vh_st_vendor_id',$id)->withTrashed()->get();
+        if($is_product_exist)
+        {
+            ProductVendor::where('vh_st_vendor_id',$id)->withTrashed()->forcedelete();
+        }
+        $is_warehouse_exist = Warehouse::where('vh_st_vendor_id',$id)->withTrashed()->get();
+        if($is_warehouse_exist)
+        {
+            Warehouse::where('vh_st_vendor_id',$id)->withTrashed()->forcedelete();
+        }
+
+        $is_stock_exist = ProductStock::where('vh_st_vendor_id',$id)->withTrashed()->get();
+        if($is_stock_exist)
+        {
+            ProductStock::where('vh_st_vendor_id',$id)->withTrashed()->forcedelete();
+
+        }
+
+    }
+
+    //-------------------------------------------------
+
+    public static function getDefaultStore($request)
+    {
+        $item = self::where(['is_active' => 1, 'is_default' => 1])->first();
+        if ($item) {
+            $item->currencies = $item->currenciesData;
+            $item->languages = $item->lingualData;
+            unset($item->currenciesData, $item->lingualData);
+        }
+
+        $response['success'] = (bool) $item;
+        $response['data'] = $item;
+        return $response;
+    }
 
 }

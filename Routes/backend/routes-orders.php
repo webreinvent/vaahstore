@@ -48,11 +48,7 @@ function () {
     Route::get('/{id}', 'OrdersController@getItem')
         ->name('vh.backend.store.orders.read');
 
-    /**
-     * POST create orderItem
-     */
-    Route::post('/items', 'OrdersController@createOrderItems')
-        ->name('vh.backend.store.products.createOrderItems');
+
 
     /**
      * Update Item
@@ -78,47 +74,31 @@ function () {
         ->name('vh.backend.store.orders.item.action');
 
     //---------------------------------------------------------
+    Route::get('/{id}/shipment/items', 'OrdersController@getShippedOrderItems')
+        ->name('vh.backend.store.orders.get.order-items');
 
     /**
-     * Search Products
+     * Retrieve Orders Statuses Pie Chart Data
      */
-
-    Route::post('/search/product', 'OrdersController@searchProduct')
-        ->name('vh.backend.store.orders.search.product');
-
-    //---------------------------------------------------------
+    Route::post('/charts/data', 'OrdersController@fetchOrdersChartData')
+        ->name('vh.backend.store.orders.charts.statuses_details');
 
     /**
-     * Search Product Variations
+     * Retrieve Total Sales Over Specific Period
      */
-
-    Route::post('/search/product-variation','OrdersController@searchProductVariation')
-        ->name('vh.backend.store.orders.search.product-variation');
-
-    //---------------------------------------------------------
+    Route::post('/charts/total-sales-data', 'OrdersController@fetchSalesChartData')
+        ->name('vh.backend.store.orders.charts.sales_count');
 
     /**
-     * Search Vendor
+     * Retrieve Total payment Recieved Over Specific Period
      */
-
-    Route::post('/search/vendor', 'OrdersController@searchVendor')
-        ->name('vh.backend.store.orders.search.vendor');
-
-    //---------------------------------------------------------
+    Route::post('/charts/order-payments-data', 'OrdersController@fetchOrderPaymentsData')
+        ->name('vh.backend.store.orders.charts.payments_count');
 
     /**
-     * Search Customer Group
+     * Retrieve Orders Count Details Over Specific Dates
      */
+    Route::post('/charts/orders-count-by-range', 'OrdersController@fetchOrdersCountChartData')
+        ->name('vh.backend.store.orders.charts.orders_count');
 
-    Route::post('/search/customer-group', 'OrdersController@searchCustomerGroup')
-        ->name('vh.backend.store.orders.search.customer-group');
-
-    //---------------------------------------------------------
-
-    /**
-     * Search User
-     */
-
-    Route::post('/search/user', 'OrdersController@searchUser')
-        ->name('vh.backend.store.orders.search.user');
 });

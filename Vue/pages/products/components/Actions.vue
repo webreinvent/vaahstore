@@ -1,9 +1,8 @@
 <script  setup>
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductStore } from '../../../stores/store-products'
-
 import Filters from './Filters.vue'
-
+import Export from "../../import/components/Export.vue"
 const store = useProductStore();
 
 onMounted(async () => {
@@ -16,7 +15,6 @@ const selected_menu_state = ref();
 const toggleSelectedMenuState = (event) => {
     selected_menu_state.value.toggle(event);
 };
-//--------/selected_menu_state
 
 //--------bulk_menu_state
 const bulk_menu_state = ref();
@@ -24,6 +22,12 @@ const toggleBulkMenuState = (event) => {
     bulk_menu_state.value.toggle(event);
 };
 //--------/bulk_menu_state
+
+const export_menu_state = ref();
+const toggleExportMenuState = (event) => {
+    export_menu_state.value.toggle(event);
+};
+
 </script>
 
 <template>
@@ -41,7 +45,9 @@ const toggleBulkMenuState = (event) => {
                     @click="toggleSelectedMenuState"
                     data-testid="products-actions-menu"
                     aria-haspopup="true"
-                    aria-controls="overlay_menu">
+                    aria-controls="overlay_menu"
+                    :disabled="!store.assets.permissions.includes('can-update-module')">
+
                     <i class="pi pi-angle-down"></i>
                     <Badge v-if="store.action.items.length > 0"
                            :value="store.action.items.length" />
@@ -58,13 +64,33 @@ const toggleBulkMenuState = (event) => {
                     data-testid="products-actions-bulk-menu"
                     aria-haspopup="true"
                     aria-controls="bulk_menu_state"
-                    class="ml-1 p-button-sm">
+                    class="ml-1 p-button-sm"
+                    :disabled="!store.assets.permissions.includes('can-update-module')">
                     <i class="pi pi-ellipsis-h"></i>
                 </Button>
                 <Menu ref="bulk_menu_state"
                       :model="store.list_bulk_menu"
                       :popup="true" />
                 <!--/bulk_menu-->
+
+                <Button class="p-button-sm ml-1"
+                        type="button"
+                        @click="toggleExportMenuState"
+                        data-testid="products-export-menu"
+                        aria-haspopup="true"
+                        aria-controls="overlay_menu"
+                        label="Export"
+                >
+
+                    <span :style="{fontSize :'11px',fontWeight:'600px' }">Export</span>
+                    <i class="pi pi-angle-down ml-1"></i>
+
+                </Button>
+                <Menu ref="export_menu_state"
+                      :model="store.export_menu"
+                      :popup="true"
+                      class="font-bold"
+                />
 
             </div>
             <!--/left-->

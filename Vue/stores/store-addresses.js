@@ -81,6 +81,7 @@ export const useAddressStore = defineStore({
         current_list:[],
         filter_selected_users : null,
         filter_selected_address_type : null,
+        default_message:null,country_suggestions: null,
     }),
     getters: {
 
@@ -264,7 +265,7 @@ export const useAddressStore = defineStore({
                 this.assets = data;
                 this.types = data.taxonomy.types;
                 this.status = data.taxonomy.status;
-
+                this.countries = data.countries;
                 if (data.rows) {
                     data.rows=this.query.rows;
                 }
@@ -289,10 +290,13 @@ export const useAddressStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_message = (res && res.data && res.data.message)
+                ? 'There is no default address. Mark an address as default.'
+                : null;
             if(data)
             {
                 this.list = data;
-                this.query.rows=data.per_page;
+                this.query.rows = data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -1262,7 +1266,13 @@ export const useAddressStore = defineStore({
                 this.filter_selected_users = data;
             }
         },
+        searchCountry(event) {
 
+            this.country_suggestions = this.countries.filter((department) => {
+                return department.toLowerCase().startsWith(event.query.toLowerCase());
+            });
+
+        },
 
     }
 });

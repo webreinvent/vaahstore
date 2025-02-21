@@ -33,12 +33,12 @@ function () {
     /**
      * POST create productPrice
      */
-    Route::post('/product/price', 'ProductVendorsController@createProductPrice')
+    Route::post('/{id}/prices', 'ProductVendorsController@addProductPrices')
         ->name('vh.backend.store.products.createProductPrice');
     /**
      * POST Product list for store
      */
-    Route::post('/getProductForStore', 'ProductVendorsController@productForStore')
+    Route::post('/products', 'ProductVendorsController@productForStore')
         ->name('vh.backend.store.productvendors.list.productForStore');
 
     /**
@@ -105,11 +105,31 @@ function () {
         ->name('vh.backend.store.productvendors.search.status');
 
     /**
-     * Product variation status
+     * Search Active Stores
      */
-    Route::any('/search/product/variation', 'ProductVendorsController@searchProductVariation')
-        ->name('vh.backend.store.productvendors.search.variation');
+    Route::any('/search/active-store', 'ProductVendorsController@searchActiveStores')
+        ->name('vh.backend.store.productvendors.search.active-store');
 
-    //---------------------------------------------------------
+    /**
+     * Search Products for filter
+     */
+    Route::post('/filter/search/product', 'ProductVendorsController@getProduct')
+        ->name('vh.backend.store.productvendors.search.filter.product');
 
+    /**
+     * Search Products after refresh
+     */
+    Route::post('/search/products-by-slug', 'ProductVendorsController@getProductsBySlug')
+        ->name('vh.backend.store.productvendors.search.filter-product-by-slug');
+
+
+    /**
+     * search variations of product
+     */
+
+    Route::post('/search/product-variation', 'ProductVendorsController@searchVariationOfProduct')
+        ->name('vh.backend.store.productvendors.search.product-variation');
+
+    Route::any('/get/default/values', 'ProductVendorsController@getDefaultValues')
+        ->name('vh.backend.store.productvendors.search.default.values');
 });

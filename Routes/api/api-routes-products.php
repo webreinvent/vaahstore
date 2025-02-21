@@ -1,11 +1,12 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/products
+ * API url will be: <base-url>/api/store/products
  */
 Route::group(
     [
         'prefix' => 'store/products',
+
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,59 @@ function () {
     Route::any('/{id}/action/{action}', 'ProductsController@itemAction')
         ->name('vh.backend.store.api.products.item.action');
 
+    /**
+     * Attach Vendors to a Product
+     */
+    Route::post('/{id}/vendors', 'ProductsController@attachVendors')
+        ->name('vh.backend.store.products.vendor');
+
+    /**
+     * Get Vendors List for Item
+     */
+    Route::get('/{id}/vendors', 'ProductsController@getVendorsListForPrduct')
+        ->name('vh.backend.store.api.products.get.vendors-list');
+
+    /**
+     * Action Product Vendor i.e preferred or not-preferred
+     */
+    Route::patch('/{id}/vendors/{vendor_id}/action', 'ProductsController@vendorPreferredAction')
+        ->name('vh.backend.store.api.products.preferred-vendor');
+
+    /**
+     * Retrieve Active Attributes
+     */
+    Route::post('/attributes', 'ProductsController@getAttributeList')
+        ->name('vh.backend.store.api.products.getAttributeList');
+
+    /**
+     * Retrieve Active AttributeValues
+     */
+    Route::post('/getAttributeValue', 'ProductsController@getAttributeValue')
+        ->name('vh.backend.store.api.products.getAttributeValue');
+
+    /**
+     * Generate Variations of a product
+     */
+    Route::post('/{id}/generate-variations', 'ProductsController@generateVariation')
+        ->name('vh.backend.store.products.generate.variations');
 
 
+
+    /**
+     * Top Selling products
+     */
+    Route::get('/top-sellings', 'ProductsController@topSellingProducts')
+        ->name('vh.backend.store.products.charts.top_selling_products');
+
+    /**
+     * Top Brands By product sales
+     */
+    Route::get('/top-brands', 'ProductsController@topSellingBrands')
+        ->name('vh.backend.store.products.charts.top_selling_brands');
+
+    /**
+     * Top Categories By product sales
+     */
+    Route::get('/top-categories', 'ProductsController@topSellingCategories')
+        ->name('vh.backend.store.products.charts.top_selling_categories');
 });

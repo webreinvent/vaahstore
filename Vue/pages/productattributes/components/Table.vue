@@ -30,13 +30,13 @@ const useVaah = vaah();
              <Column field="product_variation.name" header="Product Variation"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.product_variation && prop.data.product_variation.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.product_variation && prop.data.product_variation.is_default">Default</Badge>
                      <div style="word-break: break-word;" v-if="prop.data.product_variation && prop.data.product_variation.name">
-                         {{prop.data.product_variation.name}}</div>
+                         {{ prop.data.product_variation.name }}
+                     </div>
                  </template>
 
              </Column>
@@ -44,9 +44,13 @@ const useVaah = vaah();
              <Column field="attribute.name" header="Attribute"
                      :sortable="true">
 
-                 <template #body="prop">
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.attribute && prop.data.attribute.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
                      <div style="word-break: break-word;" v-if="prop.data.attribute && prop.data.attribute.name">
-                         {{prop.data.attribute.name}}</div>
+                         {{ prop.data.attribute.name }}
+                     </div>
                  </template>
 
              </Column>
@@ -105,21 +109,8 @@ const useVaah = vaah();
 
 
             </Column>
-             <template #empty>
-                 <tr>
-                     <td>
-
-
-                         <h1 style="font-family: Inter,ui-sans-serif,system-ui,
-                         -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,
-                         Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
-                         Noto Color Emoji;
-                         font-size: .8rem;
-                         margin-left: 19rem;
-                         font-weight: 400;">No Record found.</h1>
-
-                     </td>
-                 </tr>
+             <template #empty="prop">
+                 <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
              </template>
 
         </DataTable>

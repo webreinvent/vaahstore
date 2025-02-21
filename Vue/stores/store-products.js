@@ -2,6 +2,8 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
 
@@ -18,6 +20,16 @@ let empty_states = {
             is_active: null,
             trashed: null,
             sort: null,
+            product_variations : null,
+            vendors : null,
+            stores : null,
+            brands : null,
+            product_types : null,
+            quantity : null,
+            status:null,
+            min_quantity:null,
+            max_quantity:null,
+            export_menu :[],
         },
     },
     action: {
@@ -39,7 +51,6 @@ export const useProductStore = defineStore({
         list: null,
         item: null,
         fillable:null,
-        active_vendors:null,
         active_brands:null,
         active_stores:null,
         selected_vendor:null,
@@ -96,6 +107,44 @@ export const useProductStore = defineStore({
         item_menu_state: null,
         form_menu_list: [],
         searched_stored : null,
+        selected_dates : null,
+        filtered_product_variations : null,
+        selected_product_variations : null,
+        selected_vendors : null,
+        filtered_vendors : null,
+        filter_selected_store : null,
+        filter_selected_brands : null,
+        display_seo_modal : false,
+        seo_meta_value : null,
+        quantity:
+            {
+                from :null,
+                to :null,
+            },
+        prev_list:[],
+        current_list:[],
+        vendor_suggestion : null,
+        min_quantity : null,
+        max_quantity : null,
+        filter_category:null,
+        product_category_filter:null,
+        add_to_cart:false,
+        show_cart_msg:false,
+        product_name:null,
+        user_suggestions:null,
+        active_cart_user_name:null,
+        product_detail:[],
+        active_user:null,
+        total_cart_product:0,
+        top_selling_products:null,
+        top_selling_brands:null,
+        top_selling_categories:null,
+        quick_filter_menu:[],filter_all: null,
+        column_to_export: {
+            columns: [],
+        },
+        is_custom_meta_export:false,
+
     }),
     getters: {
 
@@ -149,6 +198,37 @@ export const useProductStore = defineStore({
         },
 
         //---------------------------------------------------------------------
+
+        async searchProductVariation(event) {
+            const query = {
+                filter: {
+                    q: event,
+                },
+            };
+
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/product-variation',
+                this.searchProductVariationAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductVariationAfter(data, res) {
+
+            if (data) {
+                this.filtered_product_variations = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
         async searchStore(event) {
             const query = {
                 filter: {
@@ -193,6 +273,43 @@ export const useProductStore = defineStore({
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+            if (this.route.query.filter && this.route.query.filter.category) {
+                await this.setCategoryInFilterAfterRefresh();
+            }
+            if(this.query.filter.vendors)
+            {
+                this.setVendorsAfterPageRefresh();
+            }
+            if(this.query.filter.brands)
+            {
+                this.setBrandsAfterPageRefresh();
+            }
+            if(this.query.filter.product_variations)
+            {
+                this.setProductVariationsAfterPageRefresh();
+            }
+            if(this.query.filter.stores)
+            {
+                this.setStoresAfterPageRefresh();
+            }
+            if(this.query.filter.product_types)
+            {
+                this.setProductTypeAfterPageRefresh();
+            }
+
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
+
+            if(route.query && route.query.filter && route.query.filter.quantity)
+            {
+                this.quantity=route.query.filter.quantity;
+                this.min_quantity = this.quantity[0];
+                this.max_quantity = this.quantity[1];
+            }
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
@@ -202,9 +319,12 @@ export const useProductStore = defineStore({
                     this.list_view_width = 12;
                     break;
                 case 'products.variation':
+                    this.view = 'small';
+                    this.list_view_width = 6;
+                    break;
                 case 'products.vendor':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 6;
                     break;
                 default:
                     this.view = 'small';
@@ -259,6 +379,8 @@ export const useProductStore = defineStore({
                         if (newVal && newVal !== "") {
                             this.item.name = newVal;
                             this.item.slug = vaah().strToSlug(newVal);
+                        }else{
+                            this.item.slug="";
                         }
                     }, {deep: true}
                 )
@@ -268,6 +390,7 @@ export const useProductStore = defineStore({
                         }
                     }, {deep: true}
                 )
+
             }
             if (this.form_menu_list.length === 0) {
                 this.getFormMenu();
@@ -276,6 +399,20 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
+        watchQuantity()
+        {
+            watch(() => [this.quantity?.from, this.quantity?.to], ([min, max]) => {
+                // Check if both from and too quantity are entered
+
+                if (min !== null && min !== '' && max !== null && max !== '') {
+                        this.query.filter.quantity = this.quantity;
+                }
+
+            });
+
+        },
+
+        //---------------------------------------------------------------------
         setStore(event) {
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
@@ -284,23 +421,18 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         setFilterStore(event) {
+            const unique_store = [];
+            const check_names = new Set();
 
-            let store = toRaw(event.value);
-            if(store.slug)
-            {
-                this.query.filter.store = store.slug;
+            for (const store of this.filter_selected_store) {
+                if (!check_names.has(store.name)) {
+                    unique_store.push(store);
+                    check_names.add(store.name);
+                }
             }
-        },
-
-        //---------------------------------------------------------------------
-
-        checkQuantity(event) {
-            this.item.quantity = event.value;
-            if (this.item.quantity > 0) {
-                this.item.in_stock = 1;
-            } else {
-                this.item.in_stock = 0;
-            }
+            const store_slugs = unique_store.map(type => type.slug);
+            this.filter_selected_store = unique_store;
+            this.query.filter.stores = store_slugs;
         },
 
         //---------------------------------------------------------------------
@@ -308,21 +440,36 @@ export const useProductStore = defineStore({
             this.query.filter.quantity = event.value;
         },
         //---------------------------------------------------------------------
-        checkInStock(event) {
-
-            if (this.item.in_stock == 0) {
-                this.item.quantity = 0;
-            }
-        },
-        //---------------------------------------------------------------------
         setBrand(event) {
             let brand = toRaw(event.value);
-            this.item.vh_st_brand_id = brand.id;
+            this.item.vh_st_brand_id = null;
+            if(brand)
+            {
+                this.item.vh_st_brand_id = brand.id;
+            }
         },
         //---------------------------------------------------------------------
         setType(event) {
             let type = toRaw(event.value);
             this.item.taxonomy_id_product_type = type.id;
+        },
+
+        //---------------------------------------------------------------------
+
+        addFilterProductType(event) {
+            const unique_product_type = [];
+            const check_names = new Set();
+
+            for (const product_type of this.filter_selected_product_type) {
+                if (!check_names.has(product_type.name)) {
+                    unique_product_type.push(product_type);
+                    check_names.add(product_type.name);
+                }
+            }
+            const product_type_slugs = unique_product_type.map(type => type.slug);
+            this.filter_selected_product_type = unique_product_type;
+            this.query.filter.product_types = product_type_slugs;
+
         },
 
         //---------------------------------------------------------------------
@@ -338,19 +485,18 @@ export const useProductStore = defineStore({
             if (this.selected_vendor != null) {
                 let exist = 0;
                 this.item.vendors.forEach((item) => {
-                    if (item['vendor']['id'] == this.selected_vendor['id']) {
+                    if (item['id'] == this.selected_vendor['id']) {
                         exist = 1;
                     }
                 })
                 if (exist == 0) {
-                    let new_vendor = {
-                        vendor: this.selected_vendor,
+                    this.item.vendors.push({
+                        ...this.selected_vendor,
                         is_selected: false,
                         can_update: false,
-                        status: null,
                         status_notes: null,
-                    };
-                    this.item.vendors.push(new_vendor);
+                    });
+                    this.selected_vendor = null;
                 } else {
                     this.showUserErrorMessage(['This vendor is already present'], 4000);
                 }
@@ -375,7 +521,7 @@ export const useProductStore = defineStore({
 
         async removeVendor(attribute) {
             this.item.vendors = this.item.vendors.filter(function (item) {
-                return item['vendor']['id'] != attribute['vendor']['id']
+                return item['id'] != attribute['id']
             })
             this.select_all_vendor = false;
         },
@@ -391,7 +537,7 @@ export const useProductStore = defineStore({
 
         async removeAllProductVariation()
         {
-            this.item.all_variation = {};
+            this.item.product_variations = {};
         },
 
         //---------------------------------------------------------------------
@@ -402,7 +548,6 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
         async bulkRemoveAttribute() {
-
             let selected_attribute = this.variation_item.product_attributes.filter(attribute => attribute.is_selected);
                 let temp = null;
                 this.select_all_attribute = false;
@@ -513,6 +658,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         addNewProductAttribute(data = null){
 
+            this.select_all_attribute = null;
             if (this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 0){
                 let  new_attribute = {
                     ...this.variation_item.selected_attribute,
@@ -523,6 +669,7 @@ export const useProductStore = defineStore({
                     return false;
                 }
                 this.variation_item.product_attributes.push(new_attribute);
+                this.variation_item.selected_attribute = null;
                 this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
             }
             else if(this.variation_item.selected_attribute && this.variation_item.attribute_option_type == 1){
@@ -532,6 +679,7 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         addProductAttributeFromGroup(data){
             data.forEach((i)=>{
+                i.is_selected = false;
                 this.variation_item.product_attributes.push(i);
             })
             this.variation_item.product_attributes = this.getUnique(this.variation_item.product_attributes, it=> it.id);
@@ -546,12 +694,13 @@ export const useProductStore = defineStore({
 
             if (this.variation_item.product_attributes && this.variation_item.product_attributes.length > 0){
                 this.getAttributeValues(this.afterGenerateVariations, 'generate');
+                this.select_all_variation = null;
             }
         },
         //---------------------------------------------------------------------
         afterGenerateVariations(data, res){
             if (data){
-                this.item.all_variation = data;
+                this.item.product_variations = data;
                 this.variation_item.show_create_form = false;
                 this.variation_item.create_variation_data = [];
             }
@@ -574,18 +723,18 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         removeProductVariation(item){
-            let item_key = this.getIndexOfArray(this.item.all_variation.structured_variation, item);
+            let item_key = this.getIndexOfArray(this.item.product_variations.structured_variations, item);
             if (item_key >= 0){
-                this.item.all_variation.structured_variation.splice(item_key, 1);
+                this.item.product_variations.structured_variations.splice(item_key, 1);
             }
         },
         //---------------------------------------------------------------------
         bulkRemoveProductVariation(){
 
-            let selected_variation = this.item.all_variation.structured_variation.filter(variation => variation.is_selected);
+            let selected_variation = this.item.product_variations.structured_variations.filter(variation => variation.is_selected);
             let temp = null;
             this.variation_item.select_all_variation = false;
-            temp = this.item.all_variation.structured_variation.filter((item) => {
+            temp = this.item.product_variations.structured_variations.filter((item) => {
                 return item['is_selected'] === false;
             });
 
@@ -593,13 +742,14 @@ export const useProductStore = defineStore({
                 vaah().toastErrors(['Select a Variation to remove']);
                 return false;
             }
-            else if(temp.length === this.item.all_variation.structured_variation.length)
+            else if(temp.length === 0)
                 {
-                    this.item.all_variation = {};
+
+                    this.item.product_variations = {};
                 }
 
             else {
-                this.item.all_variation.structured_variation = temp;
+                this.item.product_variations.structured_variations = temp;
             }
 
 
@@ -617,9 +767,17 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         selectAllVariation(){
-            this.item.all_variation.structured_variation.forEach((i)=>{
+            this.item.product_variations.structured_variations.forEach((i)=>{
                 i['is_selected'] = !this.variation_item.select_all_variation;
             })
+        },
+        //---------------------------------------------------------------------
+        setDefault(){
+            this.item.product_variations.structured_variations.forEach((variation) => {
+                if (variation['is_default'] !== this.variation_item.is_default) {
+                    variation['is_default'] = false;
+                }
+            });
         },
         //---------------------------------------------------------------------
         addNewProductVariation(new_record){
@@ -628,17 +786,16 @@ export const useProductStore = defineStore({
                 && Object.keys(this.variation_item.new_variation).length
                 > Object.keys(this.variation_item.create_variation_data.all_attribute_name).length){
 
-                if (this.item.all_variation && Object.keys(this.item.all_variation).length > 0){
+                if (this.item.product_variations && Object.keys(this.item.product_variations).length > 0){
 
                     let error_message = [];
                     let variation_match_key = null;
-                    this.item.all_variation.structured_variation.forEach((i,k)=>{
+                    this.item.product_variations.structured_variations.forEach((i,k)=>{
                         if (i.variation_name == this.variation_item.new_variation.variation_name.trim()){
                             error_message.push('variation name must be unique');
                         }
                         this.variation_item.create_variation_data.all_attribute_name.forEach((i_new, k_new)=>{
                             if (i[i_new]['value'] == this.variation_item.new_variation[i_new]['value']){
-                                // console.log(k);;
                                 if (variation_match_key == k){
                                     error_message.push('variation already exist');
                                 }else{
@@ -655,7 +812,7 @@ export const useProductStore = defineStore({
                     if(error_message && error_message.length == 0){
                         let new_variation = Object.assign({}, this.variation_item.new_variation);
                         new_variation.is_selected = false;
-                        this.item.all_variation.structured_variation.push(new_variation);
+                        this.item.product_variations.structured_variations.push(new_variation);
                         this.variation_item.create_variation_data = null;
                         this.variation_item.show_create_form = false;
 
@@ -665,11 +822,11 @@ export const useProductStore = defineStore({
 
                 }else{
                     let temp = {
-                        structured_variation: [Object.assign({},this.variation_item.new_variation)],
+                        structured_variations: [Object.assign({},this.variation_item.new_variation)],
                         all_attribute_name: this.variation_item.create_variation_data.all_attribute_name
                     };
 
-                    this.item.all_variation = temp;
+                    this.item.product_variations = temp;
                     this.variation_item.create_variation_data = null;
                     this.variation_item.show_create_form = false;
                 }
@@ -707,17 +864,65 @@ export const useProductStore = defineStore({
                 this.types = data.taxonomy.types;
                 this.active_vendors = data.active_vendors;
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
+                this.min_quantity = data.min_quantity;
+                this.max_quantity = data.max_quantity;
+                this.categories_data=data.category;
+                if(this.route.query && this.route.query.filter && this.route.query.filter.quantity)
+                {
+                    this.min_quantity=this.route.query.filter.quantity[0];
+                    this.max_quantity=this.route.query.filter.quantity[1];
+                }
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+                    data.rows = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
                     this.item = vaah().clone(data.empty_item);
                 }
 
+
             }
         },
+        convertToTreeSelectFormat(data) {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            let categories = [];
+
+            data.forEach(category => {
+                let categoryItem = {
+                    key: category.id,
+                    label: category.name,
+                    data : category.slug,
+                    children: []
+                };
+
+                if (category.sub_categories && category.sub_categories.length > 0) {
+                    categoryItem.children = this.convertToTreeSelectFormat(category.sub_categories);
+                }
+
+                categories.push(categoryItem);
+            });
+
+            return categories;
+        },
+
+        setParentId() {
+            if (this.item.categories) {
+                const checkedItem = Object.entries(this.item.categories).find(([key, value]) => value === true);
+                if (checkedItem) {
+                    this.item.parent_id = checkedItem[0];
+                } else {
+                    this.item.parent_id = null;
+                }
+            }
+        },
+
+
+
+
+
         //---------------------------------------------------------------------
         async getList() {
             let options = {
@@ -732,10 +937,28 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            if (res?.data?.active_cart_user) {
+                const { active_cart_user: { cart_records, email, vh_st_cart_id } } = res.data;
+                this.add_to_cart = false;
+                this.show_cart_msg = true;
+                this.active_user = res.data.active_cart_user;
+                this.total_cart_product = cart_records;
+                this.active_cart_user_name = email;
+                this.cart_id = vh_st_cart_id;
+            } else {
+                this.show_cart_msg = false;
+            }
             if(data)
             {
                 this.list = data;
+                this.query.rows=data.per_page;
+                this.topSellingProducts();
+                this.topSellingBrands();
+                this.topSellingCategories();
             }
+        },
+        viewCart(id){
+            this.$router.push({name: 'carts.details',params:{id:id},query:this.query})
         },
         //---------------------------------------------------------------------
 
@@ -750,16 +973,39 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         async getItemAfter(data, res)
         {
+
             if(data)
             {
                 this.item = data;
+                this.item.categories = this.convertToTreeSelectData(data.product_categories);
+
             }else{
                 this.$router.push({name: 'products.index'});
             }
             await this.getItemMenu();
             await this.getFormMenu();
         },
-        //---------------------------------------------------------------------
+
+        convertToTreeSelectData(category) {
+            if (category && category.length) {
+                return category.reduce((acc, curr) => {
+                    const categoryId = curr.id.toString();
+                    acc[categoryId] = true;
+
+                    return acc;
+                }, {});
+            }
+            return {};
+        },
+
+
+
+
+
+
+
+
+
         isListActionValid()
         {
 
@@ -860,25 +1106,30 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async saveVendor()
+        async attachVendors(item)
         {
-            let ajax_url = this.ajax_url;
-            let options = {
+            const query = {
+                store: item.store,
+                vendors: item.vendors
+            };
+            const options = {
+                params: query,
                 method: 'post',
             };
-            options.method = 'POST';
-            options.params = this.item;
-            ajax_url += '/vendor';
+
+            let ajax_url = this.ajax_url;
+
+            ajax_url += '/'+ item.id+ '/vendors';
             await vaah().ajax(
                 ajax_url,
-                this.saveVendorAfter,
+                this.attachVendorsAfter,
                 options
             );
         },
 
         //---------------------------------------------------------------------
 
-        async saveVendorAfter(data, res)
+        async attachVendorsAfter(data, res)
         {
             if(data)
             {
@@ -890,7 +1141,7 @@ export const useProductStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async saveVariation()
+        async saveVariation(id)
         {
             let ajax_url = this.ajax_url;
             let options = {
@@ -898,7 +1149,7 @@ export const useProductStore = defineStore({
             };
             options.method = 'POST';
             options.params = this.item;
-            ajax_url += '/variation'
+            ajax_url +=  '/'+id+'/variations/generate'
             await vaah().ajax(
                 ajax_url,
                 this.saveVariationAfter,
@@ -919,6 +1170,35 @@ export const useProductStore = defineStore({
             }
         },
 
+        //---------------------------------------------------------------------
+        async removeCategory(type, item=null){
+
+            if(!item)
+            {
+                item = this.item;
+            }
+
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                method: 'POST',
+                params:item.pivot
+            };
+            ajax_url += '/category/'+type;
+            await vaah().ajax(
+                ajax_url,
+                this.removeCategoryAfter,
+                options
+            );
+        },
+        removeCategoryAfter(data,res){
+            if (data){
+                this.getList();
+                if (this.route.name === 'products.view'){
+                    this.getItem(data.product.id);
+                }
+            }
+        },
         //---------------------------------------------------------------------
 
         async itemAction(type, item=null){
@@ -959,6 +1239,7 @@ export const useProductStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -1000,38 +1281,63 @@ export const useProductStore = defineStore({
         {
             if(data)
             {
+                this.prev_list =this.list.data;
                 this.item = data;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
+            }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+        },
 
+        //---------------------------------------------------------------------
 
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
+
         //---------------------------------------------------------------------
+
         async formActionAfter (data)
         {
-            console.log()
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
-                    this.setActiveItemAsEmpty();
-                    break;
                 case 'create-and-close':
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'products.index'});
                     break;
+                case 'save-and-new':
+                    this.setActiveItemAsEmpty();
+                    this.$router.push({name: 'products.form'});
+                    await this.getFormMenu();
+                    break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                    this.route.params.id = null;
+                    this.$router.push({name: 'products.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
                     break;
                 case 'delete':
                     this.item = null;
@@ -1080,13 +1386,16 @@ export const useProductStore = defineStore({
             if(data)
             {
                 let self = this;
+                if (data.fill.category) {
+                    const category_after_fill = [data.fill.category]
+                    this.item.categories = this.convertToTreeSelectData(category_after_fill);
+                }
                 Object.keys(data.fill).forEach(function(key) {
                     self.item[key] = data.fill[key];
                 });
             }
         },
 
-        //---------------------------------------------------------------------
 
         //---------------------------------------------------------------------
         onItemSelection(items)
@@ -1113,9 +1422,39 @@ export const useProductStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmActivateAll()
+        {
+            this.action.type = 'activate-all';
+            vaah().confirmDialogActivate(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmDeactivateAll()
+        {
+            this.action.type = 'deactivate-all';
+            vaah().confirmDialogDeactivate(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrash(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestore(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
         async delayedSearch()
         {
             let self = this;
@@ -1176,6 +1515,17 @@ export const useProductStore = defineStore({
             //reset query strings
             await this.resetQueryString();
             this.searched_store = null;
+            this.selected_product_variations = null;
+            this.filter_selected_brands = null;
+            this.filter_selected_store = null;
+            this.selected_vendors = null;
+            this.filter_selected_product_type = null;
+            this.selected_dates = null;
+            this.min_quantity = this.assets.min_quantity;
+            this.max_quantity = this.assets.max_quantity;
+            this.product_category_filter=null;
+            this.quantity = null;
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
@@ -1207,7 +1557,48 @@ export const useProductStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultStore();
+            this.getCategories();
+
             this.$router.push({name: 'products.form'})
+        },
+        //---------------------------------------------------------------------
+        async getCategories(){
+            const options = {
+                method: 'get',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/categories',
+                this.getCategoriesAfter,
+                options
+            );
+        },
+        getCategoriesAfter(data,res){
+            this.categories_dropdown_data = this.convertToTreeSelectFormat(data.categories);
+        },
+        //---------------------------------------------------------------------
+        async getDefaultStore()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/store',
+                this.getDefaultStoreAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultStoreAfter(data,res) {
+            if(data)
+            {
+                this.item.store = data;
+                this.item.vh_st_store_id=data.id;
+            }
         },
         //---------------------------------------------------------------------
         toView(item)
@@ -1243,6 +1634,7 @@ export const useProductStore = defineStore({
         {
             this.item = item;
             this.$router.push({name: 'products.form', params:{id:item.id}})
+            this.getCategories();
         },
         //---------------------------------------------------------------------
         isViewLarge()
@@ -1388,13 +1780,13 @@ export const useProductStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -1404,14 +1796,14 @@ export const useProductStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -1467,6 +1859,13 @@ export const useProductStore = defineStore({
             let form_menu = [];
 
             form_menu.push(
+                {
+                    label: 'Create 10 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10-records');
+                    }
+                },
                 {
                     label: 'Create 100 Records',
                     icon: 'pi pi-pencil',
@@ -1535,6 +1934,15 @@ export const useProductStore = defineStore({
                         command: () => {
 
                             this.itemAction('save-and-clone');
+
+                        }
+                    },
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
 
                         }
                     },
@@ -1613,6 +2021,954 @@ export const useProductStore = defineStore({
 
         },
         //---------------------------------------------------------------------
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
+        async reloadPage()
+        {
+            await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
+        },
+        //---------------------------------------------------------------------
+
+        addProductVariation() {
+
+            const unique_product_variations = [];
+            const check_names = new Set();
+
+            for (const product_variations of this.selected_product_variations) {
+                if (!check_names.has(product_variations.name)) {
+                    unique_product_variations.push(product_variations);
+                    check_names.add(product_variations.name);
+                }
+            }
+            const product_variations_slugs = unique_product_variations.map(variation => variation.slug);
+            this.selected_product_variations = unique_product_variations;
+            this.query.filter.product_variations = product_variations_slugs;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        addProductVendor() {
+
+            const unique_vendors = [];
+            const check_names = new Set();
+
+            for (const product_vendors of this.selected_vendors) {
+                if (!check_names.has(product_vendors.name)) {
+                    unique_vendors.push(product_vendors);
+                    check_names.add(product_vendors.name);
+                }
+            }
+            const product_vendors_slugs = unique_vendors.map(vendors => vendors.slug);
+            this.selected_vendors = unique_vendors;
+            this.query.filter.vendors = product_vendors_slugs;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        addFilterBrand() {
+
+            const unique_brands = [];
+            const check_names = new Set();
+
+            for (const brands of this.filter_selected_brands) {
+                if (!check_names.has(brands.name)) {
+                    unique_brands.push(brands);
+                    check_names.add(brands.name);
+                }
+            }
+            const brands_slugs = unique_brands.map(brands => brands.slug);
+            this.filter_selected_brands = unique_brands;
+            this.query.filter.brands = brands_slugs;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchProductVendor(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url + '/search/product-vendor',
+                this.searchProductVendorAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchProductVendorAfter(data, res) {
+
+            if (data) {
+                this.vendor_suggestion = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        openModal(item){
+            this.seo_meta_value = JSON.stringify(item,null,2);
+            this.display_seo_modal=true;
+        },
+
+        //---------------------------------------------------------------------
+        async setVendorsAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    vendor: this.query.filter.vendors,
+                },
+            };
+                const options = {
+                    params: query,
+                    method: 'post',
+                };
+
+                await vaah().ajax(
+                    this.ajax_url+'/search/vendors-using-slug',
+                    this.setVendorsAfterPageRefreshAfter,
+                    options
+                );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setVendorsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_vendors = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setBrandsAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    brand: this.query.filter.brands,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/brands-using-slug',
+                this.setBrandsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setBrandsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_brands = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setProductVariationsAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    variation: this.query.filter.product_variations,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/variations-using-slug',
+                this.setProductVariationsAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setProductVariationsAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.selected_product_variations = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async setStoresAfterPageRefresh()
+        {
+            let query = {
+                filter: {
+                    store: this.query.filter.stores,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/stores-using-slug',
+                this.setStoresAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setStoresAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_store = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+        async setProductTypeAfterPageRefresh()
+        {
+
+            let query = {
+                filter: {
+                    product_type: this.query.filter.product_types,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product-types-using-slug',
+                this.setProductTypeAfterPageRefreshAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+        setProductTypeAfterPageRefreshAfter(data, res) {
+
+            if (data) {
+                this.filter_selected_product_type = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        toViewVendors(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    products: [product.slug],trashed: 'include'
+                }
+            };
+            const route = {
+                name: 'vendors.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+
+        //---------------------------------------------------------------------
+
+        toViewVariation(product)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    products: [product.slug],trashed: 'include'
+                }
+            };
+            const route = {
+                name: 'productvariations.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+
+        //---------------------------------------------------------------------
+
+
+
+        //---------------------------------------------------------------------
+
+
+        minQuantity(event){
+            this.query.filter.min_quantity = event.value
+
+        },
+
+        //---------------------------------------------------------------------
+
+        maxQuantity(event){
+            this.query.filter.max_quantity = event.value
+        },
+
+        //---------------------------------------------------------------------
+
+
+
+
+
+        //---------------------------------------------------------------------
+        updateMinQuantity(event)
+        {
+            this.quantity.from = event.value;
+        },
+
+        //---------------------------------------------------------------------
+
+        updateMaxQuantity(event)
+        {
+            this.quantity.to = event.value;
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchVendor(event) {
+
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor',
+                this.searchVendorAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchVendorAfter(data,res) {
+            if(data)
+            {
+                this.filtered_vendors = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        checkDate()
+        {
+            if (moment(this.item.available_at).isBefore(this.item.launch_date))
+            {
+                this.item.available_at = null;
+                vaah().toastErrors(['Avaialble date should be after launch date']);
+
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        watchAttributes()
+        {
+            watch(this.variation_item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.product_attributes.some(item => !item.is_selected);
+                    // Update select_all_product variable
+                    this.select_all_attribute = !anyDeselected;
+                },{deep: true}
+            )
+        },
+
+        //---------------------------------------------------------------------
+        watchVariations()
+        {
+
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.product_variations.structured_variations.some(item => !item.is_selected);
+                    this.variation_item.select_all_variation = !anyDeselected;
+                },{deep: true}
+            )
+
+        },
+
+        //---------------------------------------------------------------------
+
+        watchVendors()
+        {
+
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const anyDeselected = newVal.vendors.some(item => !item.is_selected);
+                    this.select_all_vendor = !anyDeselected;
+                },{deep: true}
+            )
+
+        },
+        async addToCart(item){
+            this.product_detail.push(item);
+
+            if (!this.show_cart_msg){
+                this.add_to_cart=true;
+            }
+            if (this.show_cart_msg && this.active_user !== null) {
+                await this.addProductToCart(item);
+            }
+
+        },
+        showMsg(){
+            this.add_to_cart = false;
+            this.show_cart_msg=true;
+        },
+        async addProductToCart(product){
+
+            const user_info = this.item.user ? this.item.user : this.active_user;
+            const products = this.product_detail.map(product => ({
+                id: product.id,
+                quantity: 1
+            }));
+            const query = {
+                user: user_info,
+                products: products,
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/cart/generate',
+                this.saveProductInCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        saveProductInCartAfter(data,res){
+           if (data){
+
+               this.getList();
+
+           }
+            this.add_to_cart = false;
+            this.item.user=null;
+            this.product_detail=[];
+        },
+
+        //---------------------------------------------------------------------
+
+        async searchUser(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUsersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchUsersAfter(data,res) {
+            if(data)
+            {
+                this.user_suggestions = data;
+
+
+            }
+        },
+
+        setUser(event) {
+            let user = toRaw(event.value);
+            if (user && user.id) {
+                this.item.vh_user_id = user.id;
+            }
+
+        },
+        //---------------------------------------------------------------------
+
+        async disableActiveCart(){
+            const query = {
+                user_info: this.active_user
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/disable/active-cart',
+                this.disableUserCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        disableUserCartAfter(){
+            this.show_cart_msg=false;
+            this.active_user=null;
+            this.product_detail=[];
+            this.getList();
+        },
+
+        //---------------------------------------------------------------------
+        async openVendorsPanel(item)
+        {
+            this.show_vendor_panel = true;
+            this.product_id=item.id;
+            this.product_name=item.name;
+            if (item.id) {
+                await vaah().ajax(
+                    ajax_url + '/'+ item.id+ '/vendors',
+                    this.openVendorsPanelAfter
+                );
+            }
+        },
+
+        selectCategoryForFilter(event) {
+            const selected_categories = this.query.filter.category || [];
+            const existing_category = selected_categories.find(category => category === event.data.toLowerCase());
+            if (!existing_category) {
+                selected_categories.push(event.data.toLowerCase());
+                this.query.filter.category = selected_categories;
+            }
+        },
+
+
+        //---------------------------------------------------------------------
+
+        removeCategoryForFilter(event) {
+            let selected_categories = Array.isArray(this.query.filter.category) ? [...this.query.filter.category] : [];
+
+            if (Array.isArray(selected_categories)) {
+                const index = selected_categories.findIndex(category => category === event.data.toLowerCase());
+
+                if (index !== -1) {
+                    selected_categories.splice(index, 1);
+                }
+
+                this.query.filter.category = selected_categories;
+            }
+        },
+
+
+        //---------------------------------------------------------------------
+
+        async setCategoryInFilterAfterRefresh() {
+            if (this.route.query.filter && this.route.query.filter.category) {
+                let category = this.route.query.filter.category;
+
+                let query = {
+                    filter: {
+                        category: category
+                    }
+                };
+
+                const options = {
+                    params: query,
+                    method: 'post'
+                };
+
+                await vaah().ajax(
+                    this.ajax_url+'/search/category-using-slug',
+                    this.setCategoryInFilterAfterRefreshAfter,
+                    options
+                );
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
+        setCategoryInFilterAfterRefreshAfter(data, res) {
+
+            if (data) {
+                this.product_category_filter = this.convertFilterCategoryToTreeSelect(data);
+            }
+        },
+        //---------------------------------------------------------------------
+
+        convertFilterCategoryToTreeSelect(data) {
+            const tree_select_data = {};
+            for (const category_name in data) {
+                if (data.hasOwnProperty(category_name)) {
+                    const category = data[category_name];
+                    const category_id = category.id.toString();
+                    tree_select_data[category_id] = true;
+                }
+            }
+            return tree_select_data;
+        },
+
+
+        //---------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------
+
+        openVendorsPanelAfter(data, res) {
+
+            if (data) {
+                data.sort((a, b) => {
+                    const preferred_vendor = b.is_preferred - a.is_preferred;
+                    if (preferred_vendor !== 0) {
+                        return preferred_vendor;
+                    }
+
+                    const default_vendor = b.is_default - a.is_default;
+                    if (default_vendor !== 0) {
+                        return default_vendor;
+                    }
+
+                    return b.quantity - a.quantity;
+                });
+
+                this.item.vendor_data = data;
+            } else {
+                this.$router.push({name: 'products.index', query: this.query});
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+
+
+        //---------------------------------------------------------------------
+
+        async toggleIsPreferred(vendor_item)
+        {
+
+            const action = vendor_item.is_preferred ? 'preferred' : 'not-preferred';
+            await this.vendorPreferredAction(action, vendor_item);
+        },
+        //---------------------------------------------------------------------
+
+        async vendorPreferredAction(action, vendor_item=null){
+
+            if(!vendor_item)
+            {
+                vendor_item = this.item;
+            }
+
+            this.form.action = action;
+            let ajax_url = this.ajax_url;
+
+            let options = {
+                params: { action },
+                method: 'PATCH',
+            };
+            ajax_url += '/'+vendor_item.vh_st_product_id+'/vendors/'+vendor_item.id+ '/action';
+            await vaah().ajax(
+                ajax_url,
+                this.vendorPreferredActionAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        async vendorPreferredActionAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+                await this.openVendorsPanel(data);
+            }
+
+        },
+        //---------------------------------------------------------------------
+
+        minPrice(event){
+          this.query.filter.min_price=event.value;
+        },
+        maxPrice(event){
+            this.query.filter.max_price=event.value;
+
+        },
+        //---------------------------------------------------------------------
+
+        redirectToVendorProducts()
+        {
+            this.$router.push({name: 'productvendors.index'});
+        },
+        //---------------------------------------------------------------------
+
+        getPriceRangeOfProduct(prices) {
+
+            if (!prices || !Array.isArray(prices)) {
+                return 'Not available';
+            }
+
+            const numericPrices = prices.filter(price => typeof price === 'number');
+
+            if (numericPrices.length === 0) {
+                return '';
+            }
+
+            const minPrice = Math.min(...numericPrices);
+            const maxPrice = Math.max(...numericPrices);
+
+            if (minPrice === maxPrice) {
+                return `${minPrice}`;
+            }
+
+            return `${minPrice} - ${maxPrice}`;
+        },
+        //---------------------------------------------------------------------
+        async topSellingProducts() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-products',
+                this.topSellingProductsAfter,
+                options
+            );
+        },
+        topSellingProductsAfter(data,res){
+            if (data) {
+                this.top_selling_products = data;
+            }
+        },
+
+        async topSellingBrands() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-brands',
+                this.topSellingBrandsAfter,
+                options
+            );
+        },
+        topSellingBrandsAfter(data,res){
+            if (data) {
+                this.top_selling_brands = data;
+            }
+        },
+        async topSellingCategories() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/top-selling-categories',
+                this.topSellingCategoriesAfter,
+                options
+            );
+        },
+        topSellingCategoriesAfter(data,res){
+            if (data) {
+                this.top_selling_categories = data;
+            }
+        },
+
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+                {
+                    label: 'All',
+                    command: () => {
+                        this.updateQuickFilter('all');
+                    }
+                },
+
+            ];
+
+        },
+        updateQuickFilter(time)
+        {
+            this.filter_all = time;
+            this.topSellingProducts();
+             this.topSellingCategories();
+             this.topSellingBrands();
+        },
+        //---------------------------------------------------------------------
+        async loadProductChartsData(){
+            this.filter_all=null;
+           await this.topSellingProducts();
+           await this.topSellingCategories();
+           await this.topSellingBrands();
+        },
+        onHideCartDialog(){
+            this.product_detail=[];
+        },
+
+        toImport()
+        {
+            this.$router.push({ name : 'import.upload' });
+        },
+        //----------------------------------------------------------------------
+
+        async getExportMenu()
+        {
+            let total = this.list?.total;
+            let items_selected = this.action.items.length;
+            this.export_menu = [
+                {
+                    label: `Export Selected(${items_selected})`,
+
+                    command: () => {
+                        if (items_selected > 0) {
+                            this.$router.push({ name: 'import.export' });
+                        }
+                    },
+                    disabled: items_selected === 0
+                },
+
+                {
+                    label: `Export All (${this.list?.total})`,
+                    command: async () => {
+                        this.$router.push({ name: 'import.export', query: { type: 'export-all' } });
+
+                    }
+                },
+            ]
+        },
+        //----------------------------------------------------------------------
+
+        watchSelectedItem()
+        {
+
+            watch(this.action, (newVal,oldVal) =>
+                {
+                    this.getExportMenu();
+                },{deep: true}
+            )
+        },
+        //----------------------------------------------------------------------
+
+        async exportProducts(type,data){
+
+            this.action.type = type;
+            const [selected_columns, is_export_custom_meta] = data;
+            if (type === 'export') {
+                if (this.action.items.length < 1) {
+                    vaah().toastErrors(['Select records']);
+                    return false;
+                }
+            }
+            this.action.columns = selected_columns;
+            this.action.is_export_custom_meta = is_export_custom_meta;
+            let url = this.ajax_url + '/export/data';
+            let method = 'POST';
+            let options = {
+                params: this.action,
+                method: method,
+                show_success: false
+            };
+
+            await vaah().ajax(
+                url,
+                this.exportProductsAfter,
+                options,
+
+            );
+        },
+
+        //----------------------------------------------------------------------
+
+        async exportProductsAfter(data, res)
+        {
+            if(data && data.content && data.headers)
+            {
+                const blob = new Blob([data.content], { type: data.headers['Content-Type'] });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'exported-products.csv';
+                link.click();
+                window.URL.revokeObjectURL(url);
+                await this.getList();
+                this.getItemMenu();
+                this.getFormMenu();
+                this.column_to_export.columns = [];
+                this.is_export_custom_meta=false;
+                this.action.type=null;
+                this.action.items=[];
+            }
+
+        },
+
     }
 });
 

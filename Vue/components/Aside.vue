@@ -16,9 +16,9 @@ function isActive(routePaths) {
 
 const selected_page = ref({
     menuitem: ({ props }) => ({
-        class: route.matched && route.matched[1] &&
-        route.matched[1].path === props.item.route ? 'p-focus' : ''
-    })
+        class: route.path === props.item.route ? 'p-focus' : ''
+    }),
+    submenuheader: {class: 'sticky top-0 bg-white z-1 border-bottom-1 border-gray-200'}
 });
 
 const items = ref([
@@ -26,9 +26,34 @@ const items = ref([
         label: 'Store',
         items: [
             {
+                label: 'Dashboard',
+                icon: 'fa-regular fa-building',
+                route: "/",
+            },
+            {
                 label: 'Stores',
                 icon: 'fa-regular fa-building',
-                route: "/stores"
+                route: "/stores",
+            },
+            {
+                label: 'Carts',
+                icon: 'pi pi-shopping-cart',
+                route: "/carts",
+            },
+            {
+                label: 'Orders',
+                icon: 'fa-regular fa-check-square',
+                route: "/orders"
+            },
+            {
+                label: 'Payments',
+                icon: 'pi pi-paypal',
+                route: "/payments"
+            },
+            {
+                label: 'Shipments',
+                icon: 'fa fa-truck',
+                route: "/shipments"
             },
             {
                 label: 'Store Payment Methods',
@@ -38,12 +63,12 @@ const items = ref([
             {
                 label: 'Vendors',
                 icon: 'fa-regular fa-handshake',
-                route: "/vendors"
+                route: "/vendors",
             },
             {
                 label: 'Vendor Products',
                 icon: 'fa-regular fa-clone',
-                route: "/productvendors"
+                route: "/vendorproducts"
             },
             {
                 label: 'Products',
@@ -71,6 +96,11 @@ const items = ref([
                 route: "/productstocks"
             },
             {
+                label: 'Categories',
+                icon: 'fa-solid fa-list',
+                route: "/categories"
+            },
+            {
                 label: 'Brands',
                 icon: 'fa-regular fa-copyright',
                 route: "/brands"
@@ -90,11 +120,7 @@ const items = ref([
                 icon: 'fa-regular fa-folder-closed',
                 route: "/attributesgroup"
             },
-            {
-                label: 'Orders',
-                icon: 'fa-regular fa-check-square',
-                route: "/orders"
-            },
+
             {
                 label: 'Payment Methods',
                 icon: 'fa-regular fa-dollar',
@@ -106,14 +132,26 @@ const items = ref([
                 route: "/addresses"
             },
             {
+                label: 'Wishlists',
+                icon: 'fa-regular fa-chart-bar',
+                route: "/wishlists"
+            },
+            {
+                label: 'Customers',
+                icon: 'fa-regular fa-chart-bar',
+                route: "/customers"
+            },
+            {
                 label: 'Customer Groups',
                 icon: 'fa-regular fa-user',
                 route: "/customergroups"
             },
+
+
             {
-                label: 'Wishlists',
-                icon: 'fa-regular fa-chart-bar',
-                route: "/whishlists"
+                label: 'Settings',
+                icon: 'fas fas-spin fa-cog',
+                route: "/settings/general"
             },
         ]
     },
@@ -122,12 +160,11 @@ const items = ref([
 </script>
 <template>
 
-    <div v-if="height">
-        <Menu :model="items"  class="w-full" :pt="selected_page">
+
+    <div v-if="height" class="border-round-2xl overflow-hidden shadow-1 sticky" style="top: 54px">
+        <Menu :model="items" :pt="selected_page"  class="w-full overflow-y-auto py-0" style="max-height: calc(100vh - 54px);" >
             <template #item="{ item, props }">
-                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom
-                 :class="{ 'router-link-active' : isActive(item.route) }"
-                >
+                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
                         <span :class="item.icon" />
                         <span class="ml-2">{{ item.label }}</span>

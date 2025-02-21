@@ -1,15 +1,20 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/stores
+ * API url will be: <base-url>/api/store/stores
  */
 Route::group(
     [
         'prefix' => 'store/stores',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
-
+    /**
+     * Get Default Store
+     */
+    Route::get('/default', 'StoresController@getDefaultStore')
+        ->name('vh.backend.store.api.stores.default.store');
     /**
      * Get Assets
      */
@@ -20,6 +25,7 @@ function () {
      */
     Route::get('/', 'StoresController@getList')
         ->name('vh.backend.store.api.stores.list');
+
     /**
      * Update List
      */

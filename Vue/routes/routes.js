@@ -1,6 +1,6 @@
 let routes= [];
 
-// import dashboard from "./vue-routes-dashboard";
+import dashboard from "./vue-routes-dashboard";
 import brand from "./vue-routes-brands";
 import store from "./vue-routes-stores";
 import vendor from "./vue-routes-vendors";
@@ -17,8 +17,15 @@ import paymentmethods from "./vue-routes-paymentmethods";
 import storepaymentmethods from "./vue-routes-storepaymentmethods";
 import addresses from "./vue-routes-addresses";
 import customergroups from "./vue-routes-customergroups";
-import whishlists from "./vue-routes-whishlists";
+import wishlists from "./vue-routes-wishlists";
 import productAttribute from "./vue-routes-productattributes";
+import categories from "./vue-routes-categories";
+import users from "./vue-routes-users";
+import cart from "./vue-routes-carts";
+import settings from "./vue-routes-settings";
+import payments from "./vue-routes-payments";
+import shipments from "./vue-routes-shipments";
+import routes_import from "./vue-routes-import";
 
 // routes = routes.concat(dashboard);
 routes = routes.concat(brand);
@@ -36,8 +43,18 @@ routes = routes.concat(paymentmethods);
 routes = routes.concat(storepaymentmethods);
 routes = routes.concat(addresses);
 routes = routes.concat(customergroups);
-routes = routes.concat(whishlists);
+routes = routes.concat(wishlists);
 routes = routes.concat(attributeGroups);
 routes = routes.concat(productAttribute);
+routes = routes.concat(users);
+routes = routes.concat(categories);
+routes = routes.concat(cart);
+routes = routes.concat(settings);
+routes = routes.concat(payments);
+routes = routes.concat(shipments);
+routes = routes.concat(dashboard);
+routes = routes.concat(routes_import);
+
+
 
 export default routes;

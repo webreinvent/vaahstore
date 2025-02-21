@@ -41,6 +41,7 @@ const store = useProductMediaStore();
                                   :suggestions="store.variation_suggestion"
                                   @complete="store.searchVariation($event)"
                                   placeholder="Select Variations"
+                                  append-to="self"
                                   class="w-full " />
                 </VhField>
 
@@ -63,6 +64,7 @@ const store = useProductMediaStore();
                           data-testid="productmedias-filters-created_date"
                           :manualInput="false"
                           class="w-full"
+                          append-to="self"
                           placeholder="Choose date range"
 
                 />
@@ -85,6 +87,7 @@ const store = useProductMediaStore();
                                   :suggestions="store.media_suggestion"
                                   @complete="store.searchMediaType($event)"
                                   placeholder="Select Media Type"
+                                  append-to="self"
                                   class="w-full " />
                 </VhField>
 
@@ -106,7 +109,8 @@ const store = useProductMediaStore();
                         data-testid="productmedias-filters-status"
                         placeholder="Select Status"
                         display="chip"
-                        class="w-full" />
+                        class="w-full relative"
+                        appendTo="self" />
                 </VhField>
 
 

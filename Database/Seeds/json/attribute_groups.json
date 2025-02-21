@@ -1,0 +1,170 @@
+{
+    "color_group": {
+        "name": "Color Group",
+        "slug": "color-group",
+        "description": "A group of attributes related to color",
+        "attributes": [
+            "product-color"
+        ]
+    },
+    "size_group": {
+        "name": "Size Group",
+        "slug": "size-group",
+        "description": "A group of attributes related to size",
+        "attributes": [
+            "product-size"
+        ]
+    },
+    "material_group": {
+        "name": "Material Group",
+        "slug": "material-group",
+        "description": "A group of attributes related to material",
+        "attributes": [
+            "product-material"
+        ]
+    },
+    "weight_group": {
+        "name": "Weight Group",
+        "slug": "weight-group",
+        "description": "A group of attributes related to weight",
+        "attributes": [
+            "product-weight"
+        ]
+    },
+    "condition_group": {
+        "name": "Condition Group",
+        "slug": "condition-group",
+        "description": "A group of attributes related to product condition",
+        "attributes": [
+            "product-condition"
+        ]
+    },
+    "gender_group": {
+        "name": "Gender Group",
+        "slug": "gender-group",
+        "description": "A group of attributes related to gender",
+        "attributes": [
+            "product-gender"
+        ]
+    },
+    "warranty_group": {
+        "name": "Warranty Group",
+        "slug": "warranty-group",
+        "description": "A group of attributes related to warranty",
+        "attributes": [
+            "product-warranty"
+        ]
+    },
+    "brand_group": {
+        "name": "Brand Group",
+        "slug": "brand-group",
+        "description": "A group of attributes related to product brand",
+        "attributes": [
+            "product-brand"
+        ]
+    },
+    "rating_group": {
+        "name": "Rating Group",
+        "slug": "rating-group",
+        "description": "A group of attributes related to product rating",
+        "attributes": [
+            "product-rating"
+        ]
+    },
+    "price_group": {
+        "name": "Price Group",
+        "slug": "price-group",
+        "description": "A group of attributes related to product pricing",
+        "attributes": [
+            "product-price"
+        ]
+    },
+    "availability_group": {
+        "name": "Availability Group",
+        "slug": "availability-group",
+        "description": "A group of attributes related to product availability",
+        "attributes": [
+            "product-availability"
+        ]
+    },
+    "storage_group": {
+        "name": "Storage Group",
+        "slug": "storage-group",
+        "description": "A group of attributes related to product storage capacity",
+        "attributes": [
+            "product-storage"
+        ]
+    },
+    "dimensions_group": {
+        "name": "Dimensions Group",
+        "slug": "dimensions-group",
+        "description": "A group of attributes related to product dimensions",
+        "attributes": [
+            "product-dimensions"
+        ]
+    },
+    "compatibility_group": {
+        "name": "Compatibility Group",
+        "slug": "compatibility-group",
+        "description": "A group of attributes related to product compatibility",
+        "attributes": [
+            "product-compatibility"
+        ]
+    },
+    "energy_efficiency_group": {
+        "name": "Energy Efficiency Group",
+        "slug": "energy-efficiency-group",
+        "description": "A group of attributes related to product energy efficiency",
+        "attributes": [
+            "product-energy-efficiency"
+        ]
+    },
+    "age_group_group": {
+        "name": "Age Group Group",
+        "slug": "age-group-group",
+        "description": "A group of attributes related to product age suitability",
+        "attributes": [
+            "product-age-group"
+        ]
+    },
+    "length_group": {
+        "name": "Length Group",
+        "slug": "length-group",
+        "description": "A group of attributes related to product length",
+        "attributes": [
+            "product-length"
+        ]
+    },
+    "voltage_group": {
+        "name": "Voltage Group",
+        "slug": "voltage-group",
+        "description": "A group of attributes related to product voltage",
+        "attributes": [
+            "product-voltage"
+        ]
+    },
+    "features_group": {
+        "name": "Features Group",
+        "slug": "features-group",
+        "description": "A group of attributes related to product features",
+        "attributes": [
+            "product-features"
+        ]
+    },
+    "collection_group": {
+        "name": "Collection Group",
+        "slug": "collection-group",
+        "description": "A group of attributes related to product collection",
+        "attributes": [
+            "product-collection"
+        ]
+    },
+    "product_type_group": {
+        "name": "Product Type Group",
+        "slug": "product-type-group",
+        "description": "A group of attributes related to product type",
+        "attributes": [
+            "product-type"
+        ]
+    }
+}

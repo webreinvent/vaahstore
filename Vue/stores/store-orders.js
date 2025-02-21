@@ -2,6 +2,8 @@ import {toRaw,watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
 
@@ -75,18 +77,33 @@ export const useOrderStore = defineStore({
         vendor_suggestion: null,
         customer_group_suggestion: null,
         form_menu_list: [],
-        order_product_menu_list : [],
         types : null,
         filtered_product_variations : null,
         filtered_venders :null,
         vendors : null,
         filtered_customer_groups : null,
         filtered_users : null,
+
+        order_list_table_with_vendor:null,
+        order_name:null,
+        count_chart_options: {},
+        count_chart_series: [],
+
+        pie_chart_options: {},
+        pie_chart_series: [],
+        sales_chart_options: {},
+        sales_chart_series: [],
+
+        order_payments_income_chart_options: {},
+        order_payments_income_chart_series: [],
+        order_payments_chart_series:null,
+        selection: 'one_month',
     }),
     getters: {
 
     },
     actions: {
+
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -108,196 +125,20 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        searchType(event) {
 
-            this.type_suggestion= this.types.filter((types) => {
-                return types.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-        searchStatusOrderItems(event) {
-
-            this.status_order_items_suggestion= this.status_order_items.filter((status_order_items) => {
-                        return status_order_items.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
 
         //---------------------------------------------------------------------
 
-        async searchProduct(event)
-        {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product',
-                this.searchProductAfter,
-                options
-            );
-
-        },
 
         //---------------------------------------------------------------------
 
-        searchProductAfter(data,res) {
-            if(data)
-            {
-                this.products = data;
-            }
-        },
 
         //---------------------------------------------------------------------
 
-        async searchProductVariation(event)
-        {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/product-variation',
-                this.searchProductVariationAfter,
-                options
-            );
-        },
 
         //---------------------------------------------------------------------
 
-        searchProductVariationAfter(data,res) {
-            if(data)
-            {
-                this.filtered_product_variations = data;
-            }
-        },
 
-        //---------------------------------------------------------------------
-
-        async searchVendor(event) {
-
-                const query = {
-                    filter: {
-                        q: event,
-                    },
-                };
-
-                const options = {
-                    params: query,
-                    method: 'post',
-                };
-                await vaah().ajax(
-                    this.ajax_url+'/search/vendor',
-                    this.searchVendorAfter,
-                    options
-                );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchVendorAfter(data,res) {
-            if(data)
-            {
-                this.filtered_venders = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchCustomerGroup(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/customer-group',
-                this.searchCustomerGroupAfter,
-                options
-            );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchCustomerGroupAfter(data,res) {
-
-            if(data)
-            {
-                this.filtered_customer_groups = data;
-                console.log(data);
-            }
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchStatus(event) {
-
-            this.status_suggestion= this.status_orders.filter((status_orders) => {
-                return status_orders.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
-
-        //---------------------------------------------------------------------
-
-        async searchUser(event) {
-
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
-
-            const options = {
-                params: query,
-                method: 'post',
-            };
-            await vaah().ajax(
-                this.ajax_url+'/search/user',
-                this.searchUserAfter,
-                options
-            );
-
-        },
-
-        //---------------------------------------------------------------------
-
-        searchUserAfter(data,res) {
-            if(data)
-            {
-                this.filtered_users = data;
-            }
-        },
-
-        //---------------------------------------------------------------------
-
-        //---------------------------------------------------------------------
-        searchPaymentMethod(event) {
-
-            this.payment_method_suggestion= this.payment_methods.filter((payment_methods) => {
-                return payment_methods.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
-        },
 
 
 
@@ -308,6 +149,10 @@ export const useOrderStore = defineStore({
                 case 'orders.index':
                     this.view = 'large';
                     this.list_view_width = 12;
+                    break;
+                case 'orders.view':
+                    this.view = 'small';
+                    this.list_view_width = 5;
                     break;
                 default:
                     this.view = 'small';
@@ -363,129 +208,15 @@ export const useOrderStore = defineStore({
             )
         },
         // //---------------------------------------------------------------------
-        //  watchItem(amount)
-        //   {
-        //       if(amount && amount !== "")
-        //       {
-        //          alert(amount);
-        //       }
-        //   },
-        // //---------------------------------------------------------------------
 
-        // watchAmount()
-        // {
-        //     if(this.item){
-        //         watch(() => [this.item.amount, this.item.delivery_fee,this.item.taxes, this.item.discount],
-        //             ([newAmount, newDeliveryFee,newTaxes, newDiscount], [oldAmount, oldDeliveryFee,oldTaxes, oldDiscount]) =>
-        //             {
-        //
-        //                 let payable = newAmount + newDeliveryFee + newTaxes - newDiscount;
-        //                     this.item.payable = payable;
-        //
-        //             },{deep: true}
-        //         )
-        //     }
-        //     if (this.form_menu_list.length === 0) {
-        //         this.getFormMenu();
-        //     }
-        // },
 
 
         //---------------------------------------------------------------------
-        updateAmount(event)
-        {
-            this.item.amount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-        updateDeliveryFee(event)
-        {
-            this.item.delivery_fee = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-
-        updateTaxAmount(event)
-        {
-            this.item.taxes = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
-
-        //---------------------------------------------------------------------
-        updateDiscountAmount(event)
-        {
-            this.item.discount = event.value;
-            let total_payable = this.item.amount + this.item.delivery_fee + this.item.taxes - this.item.discount;
-            this.item.payable = total_payable;
-        },
 
         //---------------------------------------------------------------------
 
 
-        setUser(event) {
-            let user = toRaw(event.value);
-            this.item.vh_user_id = user.id;
-        },
-        //---------------------------------------------------------------------
-        setPaymentMethod(event) {
-            let payment_method = toRaw(event.value);
-            this.item.vh_st_payment_method_id = payment_method.id;
-        },
-        //---------------------------------------------------------------------
-        setStatus(event) {
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_order_status = status.id;
 
-        },
-        //---------------------------------------------------------------------
-
-        setOrderItemType(event) {
-            let type = toRaw(event.value);
-            this.item.taxonomy_id_order_items_types = type.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemProduct(event) {
-            let product = toRaw(event.value);
-            this.item.vh_st_product_id = product.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemProductVariation(event) {
-            let product_variation = toRaw(event.value);
-            this.item.vh_st_product_variation_id = product_variation.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemVendor(event) {
-            let vendor = toRaw(event.value);
-            this.item.vh_st_vendor_id = vendor.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemCustomerGroup(event) {
-            let customer_group = toRaw(event.value);
-            this.item.vh_st_customer_group_id = customer_group.id;
-        },
-        //---------------------------------------------------------------------
-        setOrderItemStatus(event) {
-
-            let status = toRaw(event.value);
-            this.item.taxonomy_id_order_items_status = status.id;
-        },
-        //---------------------------------------------------------------------
-        checkPaidAmount(event)
-        {
-            this.item.paid = event.value;
-            if(this.item.paid > 0)
-            {
-                this.item.is_paid = 1;
-            }
-            else {
-                this.item.is_paid = 0;
-            }
-        },
         //---------------------------------------------------------------------
 
         async getAssets() {
@@ -505,16 +236,10 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.assets = data;
-                this.status_orders = data.taxonomy.status_orders;
-                this.active_users = data.active_users;
+
+
                 this.payment_methods = data.payment_methods;
 
-                this.types = data.taxonomy.types;
-                this.products = data.products;
-                this.product_variations = data.product_variations;
-                this.status_order_items = data.taxonomy.status_order_items;
-                this.customer_groups = data.customer_groups;
-                this.vendors = data.vendors;
                 if(data.rows)
                 {
                     this.query.rows = data.rows;
@@ -543,6 +268,10 @@ export const useOrderStore = defineStore({
             if(data)
             {
                 this.list = data;
+                this.fetchOrdersChartData();
+                this.fetchSalesChartData();
+                this.fetchOrderPaymentsData();
+                this.fetchOrdersCountChartData();
             }
         },
         //---------------------------------------------------------------------
@@ -669,37 +398,7 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async createOrder()
-        {
-           let item = this.item;
-           let id = this.route.params.order_id;
-           item.id = id;
-            let ajax_url = this.ajax_url;
-            let options = {
-                method: 'post',
-            };
 
-            options.params = item;
-            ajax_url += '/items';
-            await vaah().ajax(
-                ajax_url,
-                this.createOrderAfter,
-                options
-            );
-
-        },
-        //---------------------------------------------------------------------
-
-        async createOrderAfter(data)
-        {
-            if(data)
-            {
-                await this.getList();
-                this.setActiveItemAsEmpty();
-                this.getItemMenu();
-                this.getFormMenu();
-            }
-        },
 
         //---------------------------------------------------------------------
 
@@ -728,12 +427,12 @@ export const useOrderStore = defineStore({
                  * Create a record, hence method is `POST`
                  * https://docs.vaah.dev/guide/laravel.html#create-one-or-many-records
                  */
-                case 'create-and-new':
-                case 'create-and-close':
-                case 'create-and-clone':
-                    options.method = 'POST';
-                    options.params = item;
-                    break;
+                // case 'create-and-new':
+                // case 'create-and-close':
+                // case 'create-and-clone':
+                //     options.method = 'POST';
+                //     options.params = item;
+                //     break;
 
                 /**
                  * Update a record with many columns, hence method is `PUT`
@@ -794,18 +493,18 @@ export const useOrderStore = defineStore({
             switch (this.form.action)
             {
 
-                case 'create-and-new':
+
                 case 'save-and-new':
-                case 'order-items':
+
                     this.setActiveItemAsEmpty();
                     break;
-                case 'create-and-close':
+
                 case 'save-and-close':
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'orders.index'});
                     break;
                 case 'save-and-clone':
-                case 'create-and-clone':
+
                     this.item.id = null;
                     await this.getFormMenu();
                     break;
@@ -955,11 +654,14 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------------------------
         async resetQuery()
         {
+
             //reset query strings
             await this.resetQueryString();
 
             //reload page list
             await this.getList();
+            await this.fetchOrdersChartData();
+
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -982,18 +684,7 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'orders.index'})
         },
         //---------------------------------------------------------------------
-        toForm()
-        {
-            this.item = vaah().clone(this.assets.empty_item);
-            this.getFormMenu();
-            this.$router.push({name: 'orders.form'})
-        },
-        //---------------------------------------------------------------------
-        toOrderItem(id)
-        {
-            this.$router.push({name: 'orders.orderitems', params:{order_id:id}});
 
-        },
         //---------------------------------------------------------------------
 
         toView(item)
@@ -1177,6 +868,13 @@ export const useOrderStore = defineStore({
 
             form_menu.push(
                 {
+                    label: 'Create 10 Records',
+                    icon: 'pi pi-pencil',
+                    command: () => {
+                        this.listAction('create-10-records');
+                    }
+                },
+                {
                     label: 'Create 100 Records',
                     icon: 'pi pi-pencil',
                     command: () => {
@@ -1282,33 +980,8 @@ export const useOrderStore = defineStore({
                 },)
 
 
-            } else{
-                form_menu = [
-                    {
-                        label: 'Create & Close',
-                        icon: 'pi pi-check',
-                        command: () => {
-                            this.itemAction('create-and-close');
-                        }
-                    },
-                    {
-                        label: 'Create & Clone',
-                        icon: 'pi pi-copy',
-                        command: () => {
-
-                            this.itemAction('create-and-clone');
-
-                        }
-                    },
-                    {
-                        label: 'Reset',
-                        icon: 'pi pi-refresh',
-                        command: () => {
-                            this.setActiveItemAsEmpty();
-                        }
-                    }
-                ];
             }
+
 
             form_menu.push({
                 label: 'Fill',
@@ -1322,33 +995,621 @@ export const useOrderStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async getOrderProductMenu()
-        {
-            let order_product_menu = [];
 
-            order_product_menu = [
-
-                    {
-                        label: 'Reset',
-                        icon: 'pi pi-refresh',
-                        command: () => {
-                            this.setActiveItemAsEmpty();
-                        }
-                    },
-                    {
-                        label: 'Fill',
-                        icon: 'pi pi-pencil',
-                        command: () => {
-                            this.getFormInputs();
-                        }
-                    },
-
-
-                ];
-
-            this.order_product_menu_list = order_product_menu;
+        toOrderDetails(order){
+            this.$router.push({name: 'carts.order_details',params:{order_id:order.id},query:this.query})
 
         },
+        //---------------------------------------------------------------------
+
+        formatDateTime (datetimeString) {
+            if (!datetimeString) return '';
+
+            const datetime = new Date(datetimeString);
+
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+
+            return datetime.toLocaleDateString('en-US', options);
+        },
+        //---------------------------------------------------------------------
+
+        toPaymentHistory(payment,user){
+            const query = {
+                filter: {
+                    order: [user.name]
+                }
+            };
+            const route = {
+                name: 'payments.view',
+                params: { id: payment.id },
+                query: query
+            };
+            this.$router.push(route);
+
+        },
+        //---------------------------------------------------------------------
+
+        toOrderPayment(order_id) {
+            this.$router.push({
+                name: 'payments.form',
+                query:{ order_id : order_id}
+            });
+        },
+        //---------------------------------------------------
+
+        async openOrderItems(item)
+        {
+            this.show_orders_panel = true;
+            this.order_id=item.id;
+            this.order_name=item.user.display_name;
+
+            if (item.id) {
+                await vaah().ajax(
+                    ajax_url + '/'+ item.id +'/shipment/items',
+                    this.openVendorsPanelAfter
+                );
+            }
+        },
+        openVendorsPanelAfter(data, res) {
+
+            if (data) {
+                this.order_list_table_with_vendor=data;
+            } else {
+                this.$router.push({name: 'orders.index', query: this.query});
+            }
+        },
+        //---------------------------------------------------
+
+        async fetchOrdersChartData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/data',
+                this.fetchOrdersChartDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+        fetchOrdersChartDataAfter(data, res) {
+
+            this.updatePieChartSeries(data.chart_series?.orders_statuses_pie_chart);
+
+            const updated_pie_chart_options = {
+                ...data.chart_options,
+                title: {
+                    text: 'Status Distribution',
+                    align: 'left',
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                legend: {
+                    position: 'right',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '12px',
+                    offsetX: -10,
+                    offsetY: 35,
+                    formatter: function (val, opts) {
+                        return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
+                    },
+                    labels: {
+                        useSeriesColors: true,
+                    },
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '60%',
+                            labels: {
+                                show: true,
+                                name: {
+                                    show: true,
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    color: '#263238',
+                                },
+                                value: {
+                                    show: true,
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    color: '#000',
+                                    formatter: function(val) {
+                                        return val;
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+
+            this.updatePieChartOptions(updated_pie_chart_options);
+        },
+        //---------------------------------------------------
+
+
+        async fetchSalesChartData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/total-sales-data',
+                this.fetchSalesChartDataAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------
+
+        fetchSalesChartDataAfter(data, res) {
+            if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
+                return;
+            }
+            this.chart_series = data.chart_series;
+            this.overall_sales = data.chart_series?.overall_total_sales;
+            this.growth_rate = data.chart_series?.growth_rate;
+
+
+            const series_data = data.chart_series.orders_sales_chart_data.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            this.updateSalesChartSeries(series_data);
+            const isNegativeGrowth = this.growth_rate < 0;
+            const chartColor = isNegativeGrowth ? '#4e78e1' : '#00FF00';
+
+            const updated_sales_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 2,
+
+                },
+                title: {
+                    text: '',
+
+                },
+                colors: [chartColor],
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#476baf',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy'
+                    },
+                    y: {
+                        formatter: function (value) {
+                            if (value >= 1000) {
+                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
+                            }
+                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
+                        }
+                    }
+                },
+
+                chart: {
+                    background: '#f6f7f9',
+                    toolbar: {
+                        show: false,
+                    },
+                    type:'area',
+                    // dropShadow: {
+                    //     enabled: true,
+                    //     color: '#000',
+                    //     top: 18,
+                    //     left: 7,
+                    //     blur: 20,
+                    //     opacity: 1
+                    // },
+                    // zoom: {
+                    //     type: 'x',
+                    //     enabled: true,
+                    //     autoScaleYaxis: true
+                    // },
+
+                },
+                // fill: {
+                //     type: 'gradient',
+                //     gradient: {
+                //         shadeIntensity: 1,
+                //         inverseColors: false,
+                //         opacityFrom: 1,
+                //         opacityTo: 0.9,
+                //         stops: [0, 90, 100]
+                //     },
+                // },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+                legend: {
+                    show: false
+                },
+
+            };
+
+            this.updateSalesChartOptions(updated_sales_chart_options);
+
+
+
+        },
+
+        //---------------------------------------------------
+
+        async fetchOrderPaymentsData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/order-payments-data',
+                this.fetchOrderPaymentsDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+
+        fetchOrderPaymentsDataAfter(data, res) {
+            if (!data || !Array.isArray(data.order_payments_chart_series?.orders_payment_income_chart_data)) {
+                return;
+            }
+
+            this.order_payments_chart_series = data.order_payments_chart_series;
+
+            this.overall_income = data.order_payments_chart_series?.overall_income;
+            this.income_growth_rate = data.order_payments_chart_series?.income_growth_rate;
+
+
+
+            const series_data = data.order_payments_chart_series.orders_payment_income_chart_data.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            this.updateOrderPaymentsIncomeChartSeries(series_data);
+
+
+            const updated_order_payments_income_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 2,
+                },
+                title: {
+                    text: '',
+
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                tooltip: {
+                    x: {
+                        format: 'MMM dd, yyyy'
+                    },
+                    y: {
+                        formatter: function (value) {
+                            if (value >= 1000) {
+                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
+                            }
+                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
+                        }
+                    }
+                },
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+                legend: {
+                    show: false
+                },
+
+            };
+
+            this.updateOrderPaymentsIncomeChartOptions(updated_order_payments_income_chart_options);
+        },
+
+        //---------------------------------------------------
+
+        updateChartOptions(newOptions) {
+            this.count_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            this.count_chart_series = [...newSeries];
+        },
+        //---------------------------------------------------
+
+        //---------------------------------------------------
+        updatePieChartOptions(newOptions) {
+            this.pie_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updatePieChartSeries(newSeries) {
+            this.pie_chart_series = [...newSeries];
+        },
+
+        //---------------------------------------------------
+
+        updateOrderPaymentsChartOptions(options) {
+            this.order_payments_chart_options = options;
+        },
+        //---------------------------------------------------
+
+        updateSalesChartSeries(series) {
+            this.sales_chart_series = series;
+        },
+        //---------------------------------------------------
+
+        updateSalesChartOptions(options) {
+            this.sales_chart_options = options;
+        },
+        //---------------------------------------------------
+
+
+        updateOrderPaymentsIncomeChartSeries(series) {
+            this.order_payments_income_chart_series = series;
+        },
+        //---------------------------------------------------
+
+        updateOrderPaymentsIncomeChartOptions(options) {
+            this.order_payments_income_chart_options = options;
+        },
+
+        //---------------------------------------------------
+
+
+        async fetchOrdersCountChartData() {
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/orders-count-by-range',
+                this.fetchOrdersCountChartDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------
+
+        fetchOrdersCountChartDataAfter(data,res){
+            if (!data || !Array.isArray(data.chart_series?.orders_count_bar_chart)) {
+                return;
+            }
+
+            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+            const totals = {
+                total_orders: series_data.find(series => series.name === "Created")?.data.reduce((sum, item) => sum + item.y, 0) || 0,
+                completed_orders: series_data.find(series => series.name === "Completed")?.data.reduce((sum, item) => sum + item.y, 0) || 0
+            };
+            this.updateChartSeries(series_data);
+
+
+            const updated_area_chart_options = {
+                ...data.chart_options, // Merge existing options
+                stroke: {
+                    curve: 'smooth',
+                    width: 2,
+                },
+
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+                tooltip: {
+                    x: {
+                        format: 'MMMM d, yyyy'
+                    },
+                    shared: true,
+                },
+
+                chart: {
+                    background: '#fff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
+                toolbar: {
+                    show: false,
+                    offsetX: 0,
+                    offsetY: 40,
+                },
+
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+
+                legend: {
+                    show: true,
+                    position: 'bottom',
+                    horizontalAlign: 'left',
+                    fontSize: '14px',
+                    labels: {
+                        colors: '#000',
+                    },
+                    itemMargin: {
+                        horizontal: 10,
+                        vertical: 5
+                    },
+                    formatter: function (seriesName) {
+                        if (seriesName === 'Created') {
+                            return `${seriesName}: ${totals.total_orders}`;
+                        } else if (seriesName === 'Completed') {
+                            return `${seriesName}: ${totals.completed_orders}`;
+                        }
+                        return seriesName;
+                    }
+                }
+            };
+
+            this.updateChartOptions(updated_area_chart_options);
+
+        },
+
+
+
     }
 });
 

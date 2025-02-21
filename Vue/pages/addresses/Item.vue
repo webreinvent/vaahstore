@@ -172,7 +172,7 @@ const toggleItemMenu = (event) => {
                                         <b>Address</b>
                                     </td>
                                     <td  colspan="2" >
-                                        <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                             {{store.item.address}}</div>
                                     </td>
                                 </tr>

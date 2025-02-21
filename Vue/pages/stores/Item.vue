@@ -70,7 +70,11 @@ const toggleItemMenu = (event) => {
 
                 <div class="flex flex-row">
 
-                    <div class="p-panel-title" style="display: flex; align-items: center;">
+                    <div v-if="store.item && store.item.id"
+                         class="p-panel-title"
+                         style="display: flex; align-items: center;"
+
+                    >
                         <Tag class="tag-space" :value="store.item.id" style="border-radius:20px;padding:5px 10px;" />
                         <div style="word-break: break-word;margin-left: 5px;">{{ store.item.name.replace('.', '') }}</div>
                     </div>
@@ -164,7 +168,7 @@ const toggleItemMenu = (event) => {
                                     <b>Name</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.name}}</div>
                                 </td>
                             </tr>
@@ -175,7 +179,7 @@ const toggleItemMenu = (event) => {
                                     <b>Slug</b>
                                 </td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         {{store.item.slug}}</div>
                                 </td>
                             </tr>
@@ -183,11 +187,11 @@ const toggleItemMenu = (event) => {
                                 <td :style="{width: label_width}">
                                     <b>Status</b>
                                 </td>
-                                <td  colspan="2" >
-                                    <Tag v-if="store.item.status.name === 'Approved'"  severity="success" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
-                                    <Tag v-else-if="store.item.status.name === 'Pending'"  severity="warning" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
-                                    <Tag v-else-if="store.item.status.name === 'Rejected'"  severity="danger" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
-                                    <Tag v-else severity="primary" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                <td  colspan="2"  >
+                                    <Tag v-if="store.item && store.item.status && store.item.status.name === 'Approved'"  severity="success" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item && store.item.status && store.item.status.name === 'Pending'"  severity="warning" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item && store.item.status && store.item.status.name === 'Rejected'"  severity="danger" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else severity="primary" :value="store.item && store.item.status && store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
                                 </td>
                             </tr>
                         </template>
@@ -249,7 +253,7 @@ const toggleItemMenu = (event) => {
                                     <b>Default Currency</b>
                                 </td>
                                 <td  colspan="2" v-if="store.item.default_currency && store.item.default_currency.name">
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         <Tag :severity="primary" :value="store.item.default_currency.name" :rounded="true" style="border-radius:20px;padding:5px 10px;">
                                         </Tag>
                                     </div>
@@ -290,7 +294,7 @@ const toggleItemMenu = (event) => {
                                     <b>Default Language</b>
                                 </td>
                                 <td  colspan="2" v-if="store.item.default_language && store.item.default_language.name">
-                                    <div class="word-overflow" style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                    <div class="word-overflow" style="overflow-wrap: break-word;word-wrap:break-word;">
                                         <Tag :severity="primary" :value="store.item.default_language.name" :rounded="true" style="border-radius:20px;padding:5px 10px;"></Tag>
                                     </div>
                                 </td>

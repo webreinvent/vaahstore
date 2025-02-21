@@ -12,6 +12,26 @@ const store = useOrderStore();
 
         <Sidebar v-model:visible="store.show_filters"
                  position="right">
+            <VhFieldVertical >
+                <template #label>
+                    <b>Order Payment Status:</b>
+                </template>
+                <VhField label="Product Status">
+                    <MultiSelect
+                        v-model="store.query.filter.payment_status"
+                        :options="store.assets.taxonomy.order_payment_status"
+                        filter
+                        data-testid="orders-filters-payment-status"
+                        optionValue="slug"
+                        optionLabel="name"
+                        placeholder="Select Payment Status"
+                        display="chip"
+                        append-to="self"
+                        class="w-full relative" />
+                </VhField>
+
+
+            </VhFieldVertical>
 
             <VhFieldVertical >
                 <template #label>

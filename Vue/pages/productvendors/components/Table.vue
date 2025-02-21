@@ -29,55 +29,69 @@ const useVaah = vaah();
              <Column field="vendor.name" header="Vendor"
                      :sortable="true">
 
-                 <template #body="prop">
-                     <Badge v-if="prop.data.deleted_at"
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.vendor && prop.data.vendor.deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
-                     <Badge v-if="prop.data.vendor == null"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span v-else>
-                     {{prop.data.vendor.name}}
-                         </span>
-                     <span v-if="prop.data.vendor && prop.data.vendor.is_default && prop.data.vendor.is_default == 1">
-                         <badge>&nbsp;(Default)</badge>
-                     </span>
-
+                     <div style="word-break: break-word;" v-if="prop.data.vendor && prop.data.vendor.name">
+                         {{ prop.data.vendor.name }}
+                     </div>
                  </template>
 
              </Column>
 
-            <Column field="product.name" header="Product"
-                    :sortable="true">
-
-                <template #body="prop">
-                    <Badge v-if="prop.data.product == null"
-                           value="Trashed"
-                           severity="danger"></Badge>
-                    <span v-else>
-                     {{prop.data.product.name}}
-                         </span>
-                </template>
-
-            </Column>
-
-             <Column field="add_price" header="Add Price"
-                     :sortable="false"  >
-
-
-                 <template #body="prop">
-                     <Button class="p-button-tiny"
-                             v-tooltip.top="'Add Price Item'"
-                             icon="pi pi-plus" severity="success"
-                             @click="store.toProductPrice(prop.data)"
-                             :disabled="$route.path.includes('price') && prop.data.id===store.item?.id"
-                         >
-
-                     </Button>
-
+             <Column field="product.name" header="Product"
+                     :sortable="true">
+                 <template #body="prop" >
+                     <Badge v-if="prop.data.product && prop.data.product.deleted_at"
+                            value="Trashed"
+                            severity="danger"></Badge>
+                     <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                         {{ prop.data.product.name }}
+                     </div>
                  </template>
 
              </Column>
+
+             <Column field="add_price" header="Add Price" :sortable="false">
+                 <template #body="prop">
+                     <div class="p-inputgroup flex-1">
+            <span class="p-inputgroup-addon"
+                  v-tooltip.top="'Total Variations'"
+                  @click="prop.data.product?.product_variations_for_vendor_product?.length && store.toViewProductVariations(prop.data.product)"
+                  :class="{ 'cursor-pointer': prop.data.product?.product_variations_for_vendor_product?.length }">
+                <b>{{ prop.data.product?.product_variations_for_vendor_product?.length || 0 }}</b>
+            </span>
+                         <Button class="p-button-tiny"
+                                 v-tooltip.top="'Add Price Item'"
+                                 icon="pi pi-plus" severity="info"
+                                 style="cursor: pointer;"
+                                 @click="store.toProductPrice(prop.data)"
+                                 :disabled="$route.path.includes('price') && prop.data.id===store.item?.id">
+                             <i class="pi pi-plus" style="color: white"></i>
+                         </Button>
+                     </div>
+                 </template>
+             </Column>
+
+             <Column header="Product Price Range(min-max)" :sortable="false">
+                 <template #body="prop">
+                     <div class="p-inputgroup flex-1">
+                         <div v-tooltip.top="'Variations Price Range'">
+                             <Badge severity="info" v-if="prop.data && Array.isArray(prop.data.product_price_range)&& prop.data.product_price_range.length > 0">
+                                 {{ prop.data.product_price_range.join(' - ') }}
+                             </Badge>
+                             <Badge severity="danger" v-else>
+                                 Not Available
+                             </Badge>
+                         </div>
+                     </div>
+                 </template>
+             </Column>
+
+
+
+
 
              <Column field="added_by" header="Added By"
                      v-if="store.isViewLarge()"
@@ -95,6 +109,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="status.name" header="Status"
+                     v-if="store.isViewLarge()"
                      :sortable="true">
 
                  <template #body="prop">
@@ -102,30 +117,30 @@ const useVaah = vaah();
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status"
-                            severity="primary"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Pending'"
+                            severity="warning"> {{prop.data.status.name}}</Badge>
                  </template>
 
              </Column>
 
              <Column field="updated_at" header="Updated"
                         v-if="store.isViewLarge()"
-                        style="width:150px;"
+
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
+                        {{useVaah.ago(prop.data.updated_at)}}
                     </template>
 
                 </Column>
 
             <Column field="is_active" v-if="store.isViewLarge()"
                     :sortable="false"
-                    style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
                     <InputSwitch v-model.bool="prop.data.is_active"
+                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                  data-testid="productvendors-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
@@ -135,7 +150,7 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
@@ -149,7 +164,8 @@ const useVaah = vaah();
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button v-if=" store.assets.permissions.includes('can-update-module') "
+                                class="p-button-tiny p-button-text"
                                 data-testid="productvendors-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
@@ -158,7 +174,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvendors-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -166,7 +182,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productvendors-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isViewLarge() && prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
@@ -179,7 +195,9 @@ const useVaah = vaah();
 
             </Column>
 
-
+             <template #empty="prop">
+                 <div  style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
+             </template>
         </DataTable>
         <!--/table-->
 

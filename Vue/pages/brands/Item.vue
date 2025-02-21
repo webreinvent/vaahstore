@@ -7,7 +7,6 @@ import { useBrandStore } from '../../stores/store-brands'
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useBrandStore();
 const route = useRoute();
-
 onMounted(async () => {
 
     /**
@@ -32,17 +31,6 @@ onMounted(async () => {
      * Watch if url record id is changed, if changed
      * then fetch the new records from database
      */
-    /*watch(route, async (newVal,oldVal) =>
-        {
-            if(newVal.params && !newVal.params.id
-                && newVal.name === 'articles.view')
-            {
-                store.toList();
-
-            }
-            await store.getItem(route.params.id);
-        }, { deep: true }
-    )*/
 
 });
 
@@ -59,6 +47,12 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
+
+            <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                    <pre v-html="store.item.status_notes"></pre>
+                </div>
+            </Message>
 
             <template class="p-1" #header>
 
@@ -79,6 +73,7 @@ const toggleItemMenu = (event) => {
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="brands-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -87,6 +82,7 @@ const toggleItemMenu = (event) => {
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="brands-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -126,6 +122,7 @@ const toggleItemMenu = (event) => {
                             <Button label="Restore"
                                     class="p-button-sm"
                                     data-testid="brands-item-restore"
+                                    :disabled="!store.assets.permissions.includes('can-update-module')"
                                     @click="store.itemAction('restore')">
                             </Button>
                         </div>
@@ -135,92 +132,141 @@ const toggleItemMenu = (event) => {
                 </Message>
 
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
-                <table class="p-datatable-table">
-                    <tbody class="p-datatable-tbody">
-                    <template v-for="(value, column) in store.item ">
+                    <table class="p-datatable-table">
+                        <tbody class="p-datatable-tbody">
+                        <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'status' || column === 'updated_by' ||
-                         column === 'registered_by_user' || column === 'approved_by_user'">
-                        </template>
+                            <template v-if=" column === 'created_by'
+                                     ||  column === 'status'
+                                     ||  column === 'status_notes'
+                                     ||  column === 'updated_by'
+                                     ||  column === 'image'
+                                     ||  column === 'meta_title'
+                                     ||  column === 'meta_description'
+                                     ||  column === 'meta_keywords'
+                                     ||  column === 'registered_by'
+                                     ||  column === 'registered_at'
+                                     ||  column === 'registered_by_user'
+                                     ||  column === 'approved_by_user'
+                                     ||  column === 'approved_by'
+                                     ||  column === 'approved_at'
+                                     ||  column === 'is_default'
+                                     ||  column ==='deleted_by'
+                                     ||  column === 'meta'
+                                     ||  column === 'taxonomy_id_brand_status'
+                                        ">
+                            </template>
 
-                        <template v-else-if="column === 'id' || column === 'uuid'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       :can_copy="true"
-                            />
-                        </template>
+                            <template v-else-if="column === 'id' || column === 'uuid'">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           :can_copy="true"
+                                />
+                            </template>
 
-                        <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
+                            <template v-else-if="column === 'slug' ">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           type="slug"
+                                />
+
+                                <VhViewRow label="Brand Logo"
+                                           :value="store.item.image"
+                                           type="image_preview"
+
+                                />
+                                <VhViewRow label="Registered By"
+                                           :value="store.item.registered_by_user"
+                                           type="register-approve"
+                                />
+                                <VhViewRow label="Registered At"
+                                           :value="store.item.registered_at"
+
+                                />
+
+                                <VhViewRow label="Approved By"
+                                           :value="store.item.approved_by_user"
+                                           type="register-approve"
+                                />
+                                <VhViewRow label="Approved At"
+                                           :value="store.item.approved_at"
+
+                                />
+                            </template>
+
+                            <template v-else-if="(column === 'created_by_user' || column === 'updated_by_user'
                          || column === 'deleted_by_user') && (typeof value === 'object' && value !== null)">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="user"
-                            />
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           type="user"
+                                />
+                            </template>
+
+
+                            <template v-else-if="column === 'is_active'">
+                                <tr>
+                                    <td><b>Meta</b></td>
+                                    <td>
+                                        <Button icon="pi pi-eye"
+                                                label="view"
+                                                class="p-button-outlined p-button-secondary p-button-rounded p-button-sm"
+                                                @click="store.openModal()"
+                                                :disabled="!store.item.meta_title &&
+                                            !store.item.meta_description &&
+                                            !(store.item && store.item.meta_keywords && Array.isArray(store.item.meta_keywords) &&
+                                             store.item.meta_keywords.length > 0)"
+
+                                                data-testid="meta-open_modal"
+                                        />
+                                    </td>
+                                </tr>
+
+                                <VhViewRow label="Is Active"
+                                           :value="value"
+                                           type="yes-no"
+                                />
+
+                                <VhViewRow label="Status"
+                                           :value="store.item.status"
+                                           type="status"
+                                />
+                            </template>
+
+                            <template v-else-if="column === 'is_default'">
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                           type="yes-no"
+                                />
+                            </template>
+
+                            <template v-else>
+                                <VhViewRow :label="column"
+                                           :value="value"
+                                />
+                            </template>
+
                         </template>
+                        </tbody>
 
-                        <template v-else-if="column === 'taxonomy_id_brand_status'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Status</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.status.name}}
-                                </td>
-                            </tr>
-                        </template>
-
-                        <template v-else-if="column === 'registered_by'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Registered by</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.registered_by_user.username}}
-                                </td>
-                            </tr>
-                        </template>
-
-                        <template v-else-if="column === 'approved_by'">
-                            <tr>
-                                <td :style="{width: label_width}">
-                                    <b>Store</b>
-                                </td>
-                                <td colspan="2" >
-                                    {{store.item.approved_by_user.username}}
-                                </td>
-                            </tr>
-                        </template>
-
-                        <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else-if="column === 'is_default'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
-                        </template>
-
-                        <template v-else>
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       />
-                        </template>
-
-
-                    </template>
-                    </tbody>
-
-                </table>
+                    </table>
 
                 </div>
             </div>
         </Panel>
 
     </div>
+
+    <Dialog header="Meta Fields"
+            v-model:visible="store.display_meta_modal"
+            :breakpoints="{'960px': '75vw', '640px': '90vw'}"
+            :style="{width: '50vw'}" :modal="true"
+    >
+        <div class="mb-4 flex"><span class="font-bold mr-2">Meta Title: </span><p>{{store.item.meta_title}}</p></div>
+        <div class="mb-4 flex">
+            <span class="font-bold mr-2" style="margin-top: 0.8rem;">Meta Description:</span>
+            <pre style="font-family: Inter,ui-sans-serif">{{store.item.meta_description}}</pre>
+        </div>
+        <div class="flex"><span class="font-bold mr-2">Meta Keyword: </span> <p>{{store.item.meta_keywords}}</p></div>
+    </Dialog>
 
 </template>

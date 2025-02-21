@@ -4,18 +4,18 @@ import { useProductVendorStore } from '../../stores/store-productvendors'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
+import {vaah} from "../../vaahvue/pinia/vaah";
 
 
 const store = useProductVendorStore();
 const route = useRoute();
 
 onMounted(async () => {
-    if(route.params && route.params.id)
-    {
+    if (route.params?.id && store.product_variation_list.length <= 0) {
         await store.getItem(route.params.id);
+        await store.searchVariationOfProduct();
     }
 
-    await store.watchItem();
 });
 
 //--------form_menu
@@ -28,9 +28,13 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-5" >
 
-        <Panel >
+        <Panel :pt="{
+            content: {
+                class: 'pt-1'
+            }
+        }" >
 
             <template class="p-1" #header>
 
@@ -46,7 +50,6 @@ const toggleFormMenu = (event) => {
 
 
             </template>
-
             <template #icons>
 
 
@@ -54,6 +57,7 @@ const toggleFormMenu = (event) => {
                     <Button label="Save"
                             v-if="store.item && store.item.id"
                             data-testid="productvendors-save"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             class="p-button-sm"
                             @click="store.itemAction('save-productprice')"
                             icon="pi pi-save"/>
@@ -71,20 +75,6 @@ const toggleFormMenu = (event) => {
                             v-tooltip.top="'Documentation'"
                             onclick=" window.open('https://vaah.dev/store','_blank')"/>
 
-                    <!--form_menu-->
-<!--                    <Button-->
-<!--                        type="button"-->
-<!--                        class="p-button-sm"-->
-<!--                        @click="toggleFormMenu"-->
-<!--                        data-testid="productvendors-form-menu"-->
-<!--                        icon="pi pi-angle-down"-->
-<!--                        aria-haspopup="true"/>-->
-
-<!--                    <Menu ref="form_menu"-->
-<!--                          :model="store.form_menu_list"-->
-<!--                          :popup="true" />-->
-                    <!--/form_menu-->
-
 
                     <Button class="p-button-primary p-button-sm"
                             icon="pi pi-times"
@@ -97,48 +87,66 @@ const toggleFormMenu = (event) => {
 
             </template>
 
+            <div v-if="store.product_variation_list.length > 0 " class="grid align-items-center ">
+                <div class="col-5">
+                    <div class="flex w-full mb-1">
+                        <InputNumber v-model="store.item.all_price" inputId="integeronly" class="p-inputtext-sm w-full"
+                                     placeholder="Enter Price"
+                        />
+                        <Button class="min-w-max" @click="store.fillAllPrices">Fill All </Button>
+                    </div>
 
-            <div v-if="store.item">
+                </div>
 
-                <VhField label="Product Variation">
 
-                    <AutoComplete
-                        value="id"
-                        v-model="store.item.product_variation"
-                        class="w-full"
-                        :suggestions="store.product_variation_suggestion"
-                        @complete="store.searchProductVariation($event)"
-                        placeholder="Select Product Variation"
-                        data-testid="productprices-product_variation"
-                        name="productprices-product_variation"
-                        :dropdown="true" optionLabel="name" forceSelection>
-                    </AutoComplete>
-
-                </VhField>
-
-                <VhField label="Amount">
-
-                    <InputNumber
-                        placeholder="Enter a Amount"
-                        inputId="minmax-buttons"
-                        name="productprices-amount"
-                        v-model="store.item.amount"
-                        :min="0"
-                        :max="150000000000000"
-                        mode="decimal" showButtons
-                        data-testid="productprices-amount"/>
-
-                </VhField>
-
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 name="productprices-active"
-                                 data-testid="productprices-active"
-                                 v-model="store.item.is_active_product_price"/>
-                </VhField>
 
             </div>
+                <div v-if="store.item"
+                     class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm overflow-auto">
+
+                    <div v-if="store.product_variation_list && store.product_variation_list.length > 0">
+                    <DataTable :value="store.product_variation_list"
+                               dataKey="id"
+                               paginator
+                               :rows="20"
+                               :rowsPerPageOptions="[5, 10, 20, 50]"
+                               class="p-datatable-sm p-datatable-hoverable-rows"
+                               stripedRows
+                               responsiveLayout="scroll">
+
+                        <Column field="variations_name" header="Variations Name">
+                            <template #body="props">
+                                {{props.data.name}}
+                            </template>
+                        </Column>
+
+                        <Column field="price" header="Price">
+                            <template #body="props">
+                                <InputNumber
+                                    :placeholder="'Enter Price '"
+                                    :inputId="'minmax-buttons-' + props.index"
+                                    :name="'productprices-amount-' + props.index"
+                                    v-model="props.data.amount"
+                                    mode="decimal"
+                                    class="p-inputtext-sm h-2rem m-1"
+                                    :data-testid="'productprices-amount-' + props.index"
+                                />
+                            </template>
+                        </Column>
+
+                    </DataTable>
+                    </div>
+                    <div v-else  style="text-align: center;font-size: 15px; color: #888;">
+                        Click to Create New Product Variation.
+                            <Button label="Create Variation" severity="info" raised
+                                    v-tooltip.top="'Create Variation'"
+                                    style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                    @click="store.toProductVariationCreate(store.item.product)"
+                            />
+                    </div>
+                </div>
+
+
         </Panel>
 
     </div>

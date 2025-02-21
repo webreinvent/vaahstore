@@ -13,6 +13,7 @@ use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use VaahCms\Modules\Store\Models\User as StoreUser;
 
 class Order extends VaahModel
 {
@@ -31,19 +32,15 @@ class Order extends VaahModel
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'vh_user_id',
-        'taxonomy_id_order_status',
-        'amount',
-        'delivery_fee',
-        'taxes',
-        'discount',
-        'payable',
-        'paid',
-        'is_paid',
-        'vh_st_payment_method_id',
-        'meta',
+        'order_shipment_status',
+        'vh_user_id','order_status',
+        'vh_st_payment_method_id','taxonomy_id_payment_status',
+        'delivery_fee','taxes','discount',
+        'paid','is_paid',
+        'order_status',
         'status_notes',
         'is_active',
+        'created_at',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -75,6 +72,7 @@ class Order extends VaahModel
             'deleted_by',
         ];
     }
+
     //-------------------------------------------------
 
     public static function getFillableColumns()
@@ -94,8 +92,7 @@ class Order extends VaahModel
         $model = new self();
         $fillable = $model->getFillable();
         $empty_item = [];
-        foreach ($fillable as $column)
-        {
+        foreach ($fillable as $column) {
             $empty_item[$column] = null;
         }
         $empty_item['is_active'] = null;
@@ -151,28 +148,45 @@ class Order extends VaahModel
 
     public function paymentMethod()
     {
-        return $this->hasOne(PaymentMethod::class,'id','vh_st_payment_method_id')->select('id','name','slug');
+        return $this->hasOne(PaymentMethod::class, 'id', 'vh_st_payment_method_id')->select('id', 'name', 'slug');
     }
+
     //-------------------------------------------------
     public function items()
     {
-        return $this->hasMany(OrderItem::class,'vh_st_order_id','id');
+        return $this->hasMany(OrderItem::class, 'vh_st_order_id', 'id');
     }
 
     //-------------------------------------------------
 
     public function status()
     {
-        return $this->hasOne(Taxonomy::class,'id','taxonomy_id_order_status')->select('id','name','slug');
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_order_status')->select('id', 'name', 'slug');
+    }
+
+    public function orderPaymentStatus()
+    {
+        return $this->hasOne(Taxonomy::class, 'id', 'taxonomy_id_payment_status')->select('id', 'name', 'slug');
     }
 
     //-------------------------------------------------
     public function user()
     {
-        return $this->hasOne(User::class,'id','vh_user_id')->select('id','first_name', 'email');
+        return $this->hasOne(User::class, 'id', 'vh_user_id')->select('id', 'first_name', 'email', 'phone', 'display_name');
     }
 
     //-------------------------------------------------
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class, 'vh_st_order_payments', 'vh_st_order_id', 'vh_st_payment_id')
+            ->withPivot('payment_amount', 'payable_amount', 'remaining_payable_amount', 'created_at');
+    }
+
+    //-------------------------------------------------
+    public function orderPayments()
+    {
+        return $this->hasMany(OrderPayment::class, 'vh_st_order_id');
+    }
 
     public function deletedByUser()
     {
@@ -214,194 +228,9 @@ class Order extends VaahModel
     }
 
     //-------------------------------------------------
-
-    public static function createItem($request)
+    public function scopeFindByIdOrUuid($query, $value)
     {
-
-        $inputs = $request->all();
-        $validation = self::validation($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
-
-        $item = new self();
-        $item->fill($inputs);
-        $item->is_paid = $inputs['paid'] > 0 ? 1 : 0;
-        $item->save();
-
-        $response = self::getItem($item->id);
-        $response['messages'][] = 'Saved successfully.';
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
-    public static function createOrderItem($request){
-
-        $inputs = $request->all();
-        $validation = self::validationOrderItem($inputs);
-        if (!$validation['success']) {
-            return $validation;
-        }
-
-        $order_item = new OrderItem;
-        $order_item->fill($inputs);
-        $order_item->vh_st_order_id = $inputs['id'];
-        $order_item->is_active = $inputs['is_active_order_item'];
-        $order_item->status_notes = $inputs['status_notes_order_item'];
-        $order_item->save();
-        $response['data'] = true;
-        $response['messages'][] = 'order placed successfully.';
-        return $response;
-    }
-
-    //-------------------------------------------------
-
-    public static function searchProduct($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $products = Product::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $products = Product::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $products;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
-    public static function searchUser($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $users = User::where('is_active',1)
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $users = User::where('is_active',1)
-                ->where('first_name','like', "%$query%")
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $users;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-    public static function searchProductVariation($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $product_variations = ProductVariation::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $product_variations = ProductVariation::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $product_variations;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
-    public static function searchCustomerGroup($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $customer_groups = CustomerGroup::select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $customer_groups = CustomerGroup::where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $customer_groups;
-        return $response;
-
-    }
-
-    //-------------------------------------------------
-
-
-    public static function searchVendor($request)
-    {
-
-        $query = $request['filter']['q']['query'];
-
-        if($query === null)
-        {
-            $vendors = Vendor::where('is_active',1)->select('id','name')
-                ->inRandomOrder()
-                ->take(10)
-                ->get();
-
-        }
-
-        else{
-
-            $vendors = Vendor::where('is_active',1)
-                ->where('name', 'like', "%$query%")
-                ->select('id','name')
-                ->get();
-        }
-
-        $response['success'] = true;
-        $response['data'] = $vendors;
-        return $response;
-
+        return $query->where('id', $value)->orWhere('uuid', $value);
     }
 
     //-------------------------------------------------
@@ -409,8 +238,7 @@ class Order extends VaahModel
     public function scopeGetSorted($query, $filter)
     {
 
-        if(!isset($filter['sort']))
-        {
+        if (!isset($filter['sort'])) {
             return $query->orderBy('id', 'desc');
         }
 
@@ -419,8 +247,7 @@ class Order extends VaahModel
 
         $direction = Str::contains($sort, ':');
 
-        if(!$direction)
-        {
+        if (!$direction) {
             return $query->orderBy($sort, 'asc');
         }
 
@@ -428,77 +255,95 @@ class Order extends VaahModel
 
         return $query->orderBy($sort[0], $sort[1]);
     }
+
     //-------------------------------------------------
     public function scopeIsActiveFilter($query, $filter)
     {
 
-        if(!isset($filter['is_active'])
+        if (!isset($filter['is_active'])
             || is_null($filter['is_active'])
             || $filter['is_active'] === 'null'
-        )
-        {
+        ) {
             return $query;
         }
         $is_active = $filter['is_active'];
 
-        if($is_active === 'true' || $is_active === true)
-        {
+        if ($is_active === 'true' || $is_active === true) {
             return $query->where('is_active', 1);
-        } else{
-            return $query->where(function ($q){
+        } else {
+            return $query->where(function ($q) {
                 $q->whereNull('is_active')
                     ->orWhere('is_active', 0);
             });
         }
 
     }
+
     //-------------------------------------------------
     public function scopeTrashedFilter($query, $filter)
     {
 
-        if(!isset($filter['trashed']))
-        {
+        if (!isset($filter['trashed'])) {
             return $query;
         }
         $trashed = $filter['trashed'];
 
-        if($trashed === 'include')
-        {
+        if ($trashed === 'include') {
             return $query->withTrashed();
-        } else if($trashed === 'only'){
+        } else if ($trashed === 'only') {
             return $query->onlyTrashed();
         }
 
     }
+
     //-------------------------------------------------
     public function scopeSearchFilter($query, $filter)
     {
 
-        if(!isset($filter['q']))
-        {
+        if (!isset($filter['q'])) {
             return $query;
         }
         $search = $filter['q'];
         $query->where(function ($q) use ($search) {
             $q->where('id', 'LIKE', '%' . $search . '%')
                 ->orwhereHas('user', function ($query) use ($search) {
-                    $query->where('first_name','LIKE', '%'.$search.'%');
+                    $query->where('first_name', 'LIKE', '%' . $search . '%');
                 });
         });
 
     }
+
+    //-------------------------------------------------
+    public function scopePaymentStatusFilter($query, $filter)
+    {
+
+        if (!isset($filter['payment_status'])
+            || is_null($filter['payment_status'])
+            || $filter['payment_status'] === 'null'
+        ) {
+            return $query;
+        }
+
+        $status = $filter['payment_status'];
+
+        $query->whereHas('orderPaymentStatus', function ($query) use ($status) {
+            $query->whereIn('slug', $status);
+        });
+
+    }
+
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status','paymentMethod','user','items');
+        $list = self::getSorted($request->filter)->with('status', 'paymentMethod', 'user', 'orderPaymentStatus')->withCount('items');
         $list->isActiveFilter($request->filter);
+        $list->paymentStatusFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
 
         $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
 
@@ -535,8 +380,7 @@ class Order extends VaahModel
             return $response;
         }
 
-        if(isset($inputs['items']))
-        {
+        if (isset($inputs['items'])) {
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
@@ -596,6 +440,9 @@ class Order extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
+        self::with('items')->whereIn('id', $items_id)->each(function ($item) {
+            $item->items()->forceDelete();
+        });
         self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
@@ -604,13 +451,13 @@ class Order extends VaahModel
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
         $inputs = $request->all();
 
-        if(isset($inputs['items']))
-        {
+        if (isset($inputs['items'])) {
             $items_id = collect($inputs['items'])
                 ->pluck('id')
                 ->toArray();
@@ -621,7 +468,7 @@ class Order extends VaahModel
 
         $list = self::query();
 
-        if($request->has('filter')){
+        if ($request->has('filter')) {
             $list->getSorted($request->filter);
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);
@@ -630,30 +477,30 @@ class Order extends VaahModel
 
         switch ($type) {
             case 'deactivate':
-                if($items->count() > 0) {
+                if ($items->count() > 0) {
                     $items->update(['is_active' => null]);
                 }
                 break;
             case 'activate':
-                if($items->count() > 0) {
+                if ($items->count() > 0) {
                     $items->update(['is_active' => 1]);
                 }
                 break;
             case 'trash':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->delete();
                     $items->update(['deleted_by' => auth()->user()->id]);
                 }
 
                 break;
             case 'restore':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->restore();
                     $items->update(['deleted_by' => null]);
                 }
                 break;
             case 'delete':
-                if(isset($items_id) && count($items_id) > 0) {
+                if (isset($items_id) && count($items_id) > 0) {
                     self::whereIn('id', $items_id)->forceDelete();
                     OrderItem::deleteOrder($items_id);
                 }
@@ -670,33 +517,38 @@ class Order extends VaahModel
                 $list->delete();
                 break;
             case 'restore-all':
-                $list->update(['deleted_by' => null]);
-                $list->restore();
-                OrderItem::deleteOrder($items_id);
+                $list->onlyTrashed()->get()
+                    ->each->restore();
                 break;
             case 'delete-all':
+                $items = self::withTrashed()->get();
+                foreach ($items as $item) {
+                    $item->items()->forceDelete();
+                }
                 $list->forceDelete();
                 break;
+
+            case 'create-10-records':
             case 'create-100-records':
             case 'create-1000-records':
             case 'create-5000-records':
             case 'create-10000-records':
 
-            if(!config('store.is_dev')){
-                $response['success'] = false;
-                $response['errors'][] = 'User is not in the development environment.';
+                if (!config('store.is_dev')) {
+                    $response['success'] = false;
+                    $response['errors'][] = 'User is not in the development environment.';
 
-                return $response;
-            }
+                    return $response;
+                }
 
-            preg_match('/-(.*?)-/', $type, $matches);
+                preg_match('/-(.*?)-/', $type, $matches);
 
-            if(count($matches) !== 2){
+                if (count($matches) !== 2) {
+                    break;
+                }
+
+                self::seedSampleItems($matches[1]);
                 break;
-            }
-
-            self::seedSampleItems($matches[1]);
-            break;
         }
 
         $response['success'] = true;
@@ -705,40 +557,26 @@ class Order extends VaahModel
 
         return $response;
     }
+
     //-------------------------------------------------
     public static function getItem($id)
     {
 
-        $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','status','paymentMethod','user','items'])
+        $item = self::with(['createdByUser', 'updatedByUser', 'deletedByUser', 'user', 'status', 'paymentMethod', 'orderPaymentStatus',
+            'payments.createdByUser'
+        ])
+            ->withCount('items')
             ->withTrashed()
+            ->findByIdOrUuid($id)
             ->first();
 
-        if(!$item)
-        {
+
+        if (!$item) {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = 'Record not found with ID: ' . $id;
             return $response;
         }
-        //To get data for dropdown of order items
-        $array_item = $item->toArray();
-//        if($item['items']!=null){
-//            $item['types'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_types'])->get()->toArray()[0];
-//            $item['product'] = Product::where('id',$array_item['items']['vh_st_product_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-//            $item['product_variation'] = ProductVariation::where('id',$array_item['items']['vh_st_product_variation_id'])->get(['id','name','slug','is_default'])->toArray()[0];
-//            $item['vendor'] = Vendor::where('id',$array_item['items']['vh_st_vendor_id'])->get(['id','name','slug'])->toArray()[0];
-//            $item['customer_group'] = CustomerGroup::where('id',$array_item['items']['vh_st_customer_group_id'])->get(['id','name','slug'])->toArray()[0];
-//            $item['status_order_items'] = Taxonomy::where('id',$array_item['items']['taxonomy_id_order_items_status'])->get()->toArray()[0];
-//            $item['status_notes_order_item'] = $array_item['items']['status_notes'];
-//            $item['is_active_order_item'] = $array_item['items']['is_active'];
-//            $item['is_invoice_available'] = $array_item['items']['is_invoice_available'];
-//            $item['invoice_url'] = $array_item['items']['invoice_url'];
-//            $item['tracking'] = $array_item['items']['tracking'];
-//        }
-//        else{
-//            $item['is_invoice_available'] = 1;
-//            $item['is_active_order_item'] = 1;
-//        }
+
 
         $response['success'] = true;
         $response['data'] = $item;
@@ -758,7 +596,7 @@ class Order extends VaahModel
             return $validation;
         }
 
-        $item = self::where('id', $id)->withTrashed()->first();
+        $item = self::withTrashed()->findByIdOrUuid($id)->first();
         $item->fill($inputs);
         $item->is_paid = $inputs['paid'] > 0 ? 1 : 0;
         $item->save();
@@ -773,52 +611,47 @@ class Order extends VaahModel
 
     public static function deleteItem($request, $id)
     {
-        $item = self::where('id', $id)->withTrashed()->first();
+        $item = self::withTrashed()->findByIdOrUuid($id)->first();
         if (!$item) {
             $response['success'] = false;
             $response['messages'][] = 'Record does not exist.';
             return $response;
         }
+        $item->items()->forceDelete();
         $item->forceDelete();
-        OrderItem::deleteOrder($item->id);
 
-    $response['success'] = true;
-    $response['data'] = [];
-    $response['messages'][] = 'Record has been deleted';
 
-    return $response;
+        $response['success'] = true;
+        $response['data'] = [];
+        $response['messages'][] = 'Record has been deleted';
+
+        return $response;
     }
 
     //-------------------------------------------------
 
     public static function itemAction($request, $id, $type): array
     {
-
-        switch($type)
-        {
+        $item = self::withTrashed()->findByIdOrUuid($id)->first();
+        if (!$item) {
+            $response['success'] = false;
+            $response['messages'][] = 'Record does not exist.';
+            return $response;
+        }
+        switch ($type) {
             case 'activate':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->update(['is_active' => 1]);
+                $item->update(['is_active' => 1]);
                 break;
             case 'deactivate':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->update(['is_active' => null]);
+                $item->update(['is_active' => null]);
                 break;
             case 'trash':
-                self::where('id', $id)
-                ->withTrashed()
-                ->delete();
-                $item = self::where('id',$id)->withTrashed()->first();
+                $item->delete();
                 $item->deleted_by = auth()->user()->id;
                 $item->save();
                 break;
             case 'restore':
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->restore();
-                $item = self::where('id',$id)->withTrashed()->first();
+                $item->restore();
                 $item->deleted_by = null;
                 $item->save();
                 break;
@@ -826,64 +659,25 @@ class Order extends VaahModel
 
         return self::getItem($id);
     }
+
     //-------------------------------------------------
 
     public static function validation($inputs)
     {
 
         $rules = validator($inputs, [
-            'vh_user_id' => 'required',
-            'amount' => 'required|numeric|min:1|regex:/^\d{1,10}(\.\d{1,2})?$/',
-            'delivery_fee' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
-            'taxes' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
-            'discount' => 'required|regex:/^\d{0,10}(\.\d{1,2})?$/',
-            'payable' => 'required|numeric|gt:0|regex:/^[+-]?\d{0,10}(\.\d{1,2})?$/',
-            'paid' => [
-                'required',
-                'numeric',
-                'min:1',
-                'regex:/^\d{1,10}(\.\d{1,2})?$/',
-                function ($attribute, $value, $fail) use ($inputs) {
-                    if ($value > $inputs['payable']) {
-                        $fail('The '.$attribute.' amount must not exceed the payable amount.');
-                    }
 
-                },
-            ],
-            'vh_st_payment_method_id' => 'required',
-            'taxonomy_id_order_status' => 'required',
             'status_notes' => [
-                'required_if:status.slug,==,rejected',
-                'max:250'
+                'required',
+                'max:100'
             ],
         ],
             [
-                'vh_user_id.required' => 'The User field is required',
-                'amount.min' => 'The Amount field is required',
-                'amount.required' => 'The Amount field is required',
-                'payable.min' => 'The Payable field is required',
-                'payable.required' => 'The Payable field is required',
-                'taxes.required' => 'The Taxes field is required',
-                'discount.required' => 'The Discount field is required',
-                'paid.min' => 'The Paid field is required',
-                'paid.required' => 'The Paid field is required',
-                'delivery_fee.required' => 'The Delivery Fee field is required',
-                'taxonomy_id_order_status.required' => 'The Status field is required',
-                'status_notes.required_if' => 'The Status notes field is required for "Rejected" Status',
-                'amount.regex' => 'amount must be between 1 to 10 digits',
-                'delivery_fee.regex' => 'The Delivery charges must be between 1 to 10 digits',
-                'taxes.regex' => 'The Tax amount must be between 1 to 10 digits',
-                'discount.regex' => 'The Discount value must be between 1 to 10 digits',
-                'payable.regex' => 'The Payable amount must be between 1 to 10 digits',
-                'payable.gt' => 'The Payable amount must be greater than 0',
-                'paid.regex' => 'The Paid amount must be between 1 to 10 digits',
-                'paid.max' => 'The Paid amount must be less than payable amount',
-                'vh_st_payment_method_id.required' => 'The Payment Method field is required',
-
+                'status_notes.required' => 'The order  note field is required',
             ]
         );
 
-        if($rules->fails()){
+        if ($rules->fails()) {
             return [
                 'success' => false,
                 'errors' => $rules->errors()->all()
@@ -909,18 +703,23 @@ class Order extends VaahModel
 
     //-------------------------------------------------
 
-    public static function seedSampleItems($records=100)
+    public static function seedSampleItems($records = 100)
     {
 
         $i = 0;
 
-        while($i < $records)
-        {
+        while ($i < $records) {
             $inputs = self::fillItem(false);
 
-            $item =  new self();
+            $item = new self();
+
             $item->fill($inputs);
+
             $item->save();
+
+            ///////////////////////////////// order items
+
+            self::createOrderItem($item);
 
             $i++;
 
@@ -937,7 +736,7 @@ class Order extends VaahModel
             'except' => self::getUnFillableColumns()
         ]);
         $fillable = VaahSeeder::fill($request);
-        if(!$fillable['success']){
+        if (!$fillable['success']) {
             return $fillable;
         }
         $inputs = $fillable['data']['fill'];
@@ -950,96 +749,38 @@ class Order extends VaahModel
 
 
         // fill the user field with any random user here
-        $users = User::where(['is_active'=>1,'deleted_at'=>null]);
-        $user_ids = $users->pluck('id')->toArray();
-        $user_id = $user_ids[array_rand($user_ids)];
-        $user = $users->where('id',$user_id)->first();
-        $inputs['vh_user_id']=$user_id;
-        $inputs['user']=$user;
 
-        $inputs['amount'] = rand(1,10000000);
-        $inputs['delivery_fee'] = rand(1,1000);
-        $inputs['taxes'] = rand(1,1000);
-        $inputs['discount'] = rand(1,1000);
-        $payable_amount = $inputs['amount'] + $inputs['delivery_fee'] + $inputs['taxes'] - $inputs['discount'];
-        $inputs['payable'] = $payable_amount;
-        $inputs['paid'] = rand(1,$payable_amount);
-        $inputs['status_notes']=$faker->text(rand(5,250));
+        $inputs['vh_user_id'] = StoreUser::whereHas('addresses', function ($query) {
+            $query->whereHas('addressType', function ($query) {
+                $query->where('slug', 'shipping')
+                    ->orWhere('slug', 'billing');
+            });
+        })->inRandomOrder()->value('id');
 
-        // fill the payment method column here
-        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null]);
-        $payment_method_ids = $payment_methods->pluck('id')->toArray();
-        $payment_method_id = $payment_method_ids[array_rand($payment_method_ids)];
-        $payment_method = $payment_methods->where('id',$payment_method_id)->first();
-        $inputs['vh_st_payment_method_id']=$payment_method_id;
-        $inputs['payment_method']=$payment_method;
 
-        // fill the taxonomy status field here
-        $taxonomy_status = Taxonomy::getTaxonomyByType('order-status');
-        $status_ids = $taxonomy_status->pluck('id')->toArray();
-        $status_id = $status_ids[array_rand($status_ids)];
-        $inputs['taxonomy_id_order_status'] = $status_id;
-        $status = $taxonomy_status->where('id',$status_id)->first();
-        $inputs['status']=$status;
+        $inputs['order_status'] = 'Placed';
+        $inputs['vh_st_payment_method_id'] = PaymentMethod::inRandomOrder()->value('id');
+
+        $order_payment_status= Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'order-payment-status');
+            })
+            ->first();
+        if (!empty($order_payment_status)) {
+            $inputs['taxonomy_id_payment_status'] = $order_payment_status->id;
+        }
+
+        $inputs['order_shipment_status'] = 'Pending';
+        $inputs['delivery_fee'] = 0;
+        $inputs['taxes'] = 0;
+        $inputs['discount'] = 0;
+        $inputs['paid'] = '';
+        $inputs['is_paid'] = 0;
         $inputs['is_active'] = 1;
-
-        // fill the taxonomy status while placing order
-        $taxonomy_order_item_status = Taxonomy::getTaxonomyByType('order-items-status');
-        $status_order_item_ids = $taxonomy_order_item_status->pluck('id')->toArray();
-        $status_order_item_id = $status_order_item_ids[array_rand($status_order_item_ids)];
-        $inputs['taxonomy_id_order_items_status'] = $status_order_item_id;
-        $status_order_item = $taxonomy_order_item_status->where('id',$status_order_item_id)->first();
-        $inputs['status_order_items']=$status_order_item;
-        $inputs['is_active_order_item'] = 1;
-
-        $number_of_characters = rand(5,250);
-        $inputs['status_notes_order_item']=$faker->text($number_of_characters);
-
-        // fill the types field here
-        $types = Taxonomy::getTaxonomyByType('order-items-types');
-        $type_ids = $types->pluck('id')->toArray();
-        $type_id = $type_ids[array_rand($type_ids)];
-        $type = $types->where('id',$type_id)->first();
-        $inputs['types'] = $type;
-        $inputs['taxonomy_id_order_items_types'] = $type_id ;
-
-        // fill the product field here
-        $products = Product::where('is_active',1);
-        $product_ids = $products->pluck('id')->toArray();
-        $product_id = $product_ids[array_rand($product_ids)];
-        $product = $products->where('id',$product_id)->first();
-        $inputs['product'] = $product;
-        $inputs['vh_st_product_id'] = $product_id ;
-
-        // fill the product variation field here
-        $product_variations = ProductVariation::where('is_active',1);
-        $product_variation_ids = $product_variations->pluck('id')->toArray();
-        $product_variation_id = $product_variation_ids[array_rand($product_variation_ids)];
-        $product_variation = $product_variations->where('id',$product_variation_id)->first();
-        $inputs['product_variation'] = $product_variation;
-        $inputs['vh_st_product_variation_id'] = $product_variation_id;
-
-        // fill the vendor field here
-        $vendors = Vendor::where('is_active',1);
-        $vendor_ids = $vendors->pluck('id')->toArray();
-        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
-        $vendor = $vendors->where('id',$vendor_id)->first();
-        $inputs['vendor'] = $vendor;
-        $inputs['vh_st_vendor_id'] = $vendor_id;
-
-        // fill the Customer Group field here
-        $customer_groups = CustomerGroup::all();
-        $customer_group_ids = $customer_groups->pluck('id')->toArray();
-        $customer_group_id = $customer_group_ids[array_rand($customer_group_ids)];
-        $customer_group = $customer_groups->where('id',$customer_group_id)->first();
-        $inputs['customer_group'] = $customer_group;
-        $inputs['vh_st_customer_group_id'] = $customer_group_id;
-        $inputs['invoice_url'] = $faker->url;
-        $inputs['tracking'] = $faker->url;
-        $inputs['is_invoice_available'] = 1;
+        $inputs['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
 
 
-        if(!$is_response_return){
+        if (!$is_response_return) {
             return $inputs;
         }
 
@@ -1050,52 +791,407 @@ class Order extends VaahModel
 
     //-----------------validation for product price--------------------------------
 
-    public static function validationOrderItem($inputs)
+
+
+    //-------------------------------------------------
+
+    public static function getShippedOrderItems($uuid)
     {
-        $rules = validator($inputs,
-            [
-                'types' => 'required',
-                'product' => 'required',
-                'product_variation' => 'required',
-                'vendor' => 'required',
-                'customer_group' => 'required',
-                'invoice_url' => 'required',
-                'tracking' => 'required',
-                'status_order_items' => 'required',
-                'status_notes_order_item' => [
-                    'required_if:status_order_items.slug,==,rejected',
-                    'max:250'
-                ],
-            ],
-            [
-                'types.required' => 'The Payment Type field is required',
-                'product.required' => 'The Product field is required',
-                'product_variation.required' => 'The Product Variation field is required',
-                'vendor.required' => 'The Vendor field is required',
-                'customer_group.required' => 'The Customer Groups field is required',
-                'invoice_url.required' => 'The Invoice URL field is required',
-                'status_order_items.required' => 'The Status field is required',
-                'tracking.required' => 'The Tracking field is required',
-                'status_notes_order_item.required_if' => 'The Status Notes is required for rejected status',
-                'status_notes_order_item.max' => 'The Status notes field may not be greater than :max characters.',
-            ]);
+        $order = Order::findByIdOrUuid($uuid)->first();
 
-        if($rules->fails()){
-            return [
-                'success' => false,
-                'errors' => $rules->errors()->all()
-            ];
+        if (!$order) {
+            $response['success'] = false;
+            $response['messages'][] = 'Record does not exist.';
+            return $response;
         }
-        $rules = $rules->validated();
+        $order_items = OrderItem::where('vh_st_order_id', $order->id)
+            ->with('ProductVariation','product','vendor')
+            ->get();
 
+        $total_quantities = [];
+
+        $shipment_items = ShipmentItem::where('vh_st_order_id', $order->id)
+            ->get()
+            ->groupBy('vh_st_order_item_id');
+
+        foreach ($shipment_items as $item_id => $items) {
+            $total_quantities[$item_id] = $items->sum('quantity');
+        }
+
+        foreach ($order_items as $order_item) {
+            $order_item->shipped_quantity = $total_quantities[$order_item->id] ?? 0;
+        }
         return [
             'success' => true,
-            'data' => $rules
+            'data' => $order_items
         ];
-
     }
 
     //-------------------------------------------------
 
+
+    public static function fetchOrdersChartData(Request $request)
+    {
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : null;
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : null;
+
+        $orders_statuses_count = self::select('order_status')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('order_status');
+
+        if ($start_date && $end_date) {
+            $orders_statuses_count = $orders_statuses_count->whereBetween('updated_at', [$start_date, $end_date]);
+        }
+
+        $order_status_counts_pie_chart_data = $orders_statuses_count->pluck('count', 'order_status')->toArray();
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'orders_statuses_pie_chart' => array_values($order_status_counts_pie_chart_data),
+                ],
+                'chart_options' => [
+                    'labels' => array_keys($order_status_counts_pie_chart_data),
+                ],
+            ],
+        ];
+    }
+
+
+
+
+
+
+    //-------------------------------------------------
+
+
+
+
+
+
+    public static function fetchSalesChartData($request)
+    {
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
+        $labels = [];
+
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+
+        $query = OrderItem::query();
+
+        $sales_data = $query
+            ->selectRaw('DATE(created_at) as date')
+            ->selectRaw('SUM(quantity * price) as total_sales');
+
+
+        if ($inputs['start_date'] && $inputs['end_date']) {
+            $sales_data = $sales_data->whereBetween('created_at', [$start_date, $end_date]);
+        }
+        $sales_data = $sales_data->groupBy('date')
+            ->orderBy('date')
+            ->get();
+        $total_sales_chart_data = [];
+        foreach ($sales_data as $item) {
+            $date = Carbon::parse($item->date);
+
+            $total_sales_chart_data[] = ['x' => $item->date, 'y' => (int)$item->total_sales];
+        }
+
+        $overall_total_sales = $sales_data->sum('total_sales');
+        $first_sale =  reset($total_sales_chart_data)['y'] ?? 0;
+        $last_sale = end($total_sales_chart_data)['y'] ?? 0;
+
+
+        $growth_rate = 0;
+
+        if ($first_sale > 0) {
+            $growth_rate = (($last_sale - $first_sale) / $first_sale) * 100;
+        } elseif ($first_sale === 0 && $last_sale > 0) {
+            $growth_rate = 100;
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'orders_sales_chart_data' => [
+                        [
+                            'name' => 'Total Sale',
+                            'data' => $total_sales_chart_data,
+                        ]
+                    ],
+                    'overall_total_sales' => $overall_total_sales,
+                    'growth_rate' => $growth_rate,
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels
+                    ],
+
+                ],
+            ],
+        ];
+    }
+
+
+    //-------------------------------------------------
+
+
+
+    public static function fetchOrdersCountChartData($request)
+    {
+        $inputs = $request->all();
+
+        $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
+        $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
+
+        // Generate labels for x-axis (each day in the range)
+        $labels = [];
+        foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+
+        // Get filtered orders
+        $list = Order::query();
+        $filtered_data = self::appliedFilters($list, $request); // Applying filters
+
+        // Query for daily breakdown (Chart Data)
+        $order_data_query = (clone $filtered_data)
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->selectRaw("DATE(created_at) as order_date, COUNT(id) as total_count")
+            ->groupBy('order_date')
+            ->orderBy('order_date')
+            ->get();
+
+        $completed_data_query = (clone $filtered_data)
+            ->where('order_status', 'Completed') // Only count completed orders
+            ->whereBetween('updated_at', [$start_date, $end_date]) // Use updated_at for completion date
+            ->selectRaw("DATE(updated_at) as completed_date, COUNT(id) as completed_count")
+            ->groupBy('completed_date')
+            ->orderBy('completed_date')
+            ->get();
+
+        $total_orders = [];
+        $completed_orders = [];
+
+        // Process created orders
+        foreach ($order_data_query as $item) {
+            $total_orders[] = ['x' => $item->order_date, 'y' => (int)$item->total_count];
+        }
+
+        // Process completed orders
+        foreach ($completed_data_query as $item) {
+            $completed_orders[] = ['x' => $item->completed_date, 'y' => (int)$item->completed_count];
+        }
+
+        // Ensure totals are limited to the selected date range
+        $totals = (clone $filtered_data)
+            ->whereBetween('created_at', [$start_date, $end_date]) // Ensure correct filtering
+            ->selectRaw("COUNT(id) as total_orders")
+            ->selectRaw("SUM(CASE WHEN order_status = 'Completed' AND updated_at BETWEEN ? AND ? THEN 1 ELSE 0 END) as completed_orders", [$start_date, $end_date])
+            ->first();
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'orders_count_bar_chart' => [
+                        [
+                            'name' => 'Created',
+                            'data' => $total_orders,
+                        ],
+                        [
+                            'name' => 'Completed',
+                            'data' => $completed_orders,
+                        ],
+                    ],
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels,
+                    ],
+                ],
+                'totals' => [
+                    'total_orders' => (int) ($totals->total_orders ?? 0),  // Fixed: Only orders in date range
+                    'completed_orders' => (int) ($totals->completed_orders ?? 0),  // Fixed: Only completed orders in date range
+                ],
+            ],
+        ];
+    }
+
+
+
+    //-------------------------------------------------
+
+    public static function fetchOrderPaymentsData($request) {
+        $inputs = $request->all();
+        $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+
+        $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
+        $labels = [];
+
+        foreach ($period as $date) {
+            $labels[] = $date->format('Y-m-d');
+        }
+        $query = OrderPayment::query();
+
+        $orders_income = $query
+            ->selectRaw('DATE(created_at) as created_date')
+            ->selectRaw('SUM(payment_amount) as total_income');
+        if ($inputs['start_date'] && $inputs['end_date']) {
+            $orders_income = $orders_income->whereBetween('created_at', [$start_date, $end_date]);
+        }
+        $orders_income = $orders_income->groupBy('created_date')
+            ->orderBy('created_date')
+            ->get();
+
+        $time_series_data_income = [];
+        foreach ($orders_income as $item) {
+            $created_date = Carbon::parse($item->created_date);
+
+            $time_series_data_income[] = ['x' => $item->created_date, 'y' => $item->total_income];
+        }
+
+
+        $overall_income = round($orders_income->sum('total_income'), 2);
+
+
+        $first_income = reset($time_series_data_income)['y'] ?? 0;
+        $last_income = end($time_series_data_income)['y'] ?? 0;
+
+        $growth_rate = 0;
+
+        if ($first_income > 0) {
+            $growth_rate = (($last_income - $first_income) / $first_income) * 100;
+        } elseif ($first_income === 0 && $last_income > 0) {
+            $growth_rate = 100;
+        }
+
+        return [
+            'data' => [
+                'order_payments_chart_series' => [
+                    'orders_payment_income_chart_data' => [
+                        [
+                            'name' => 'Payment',
+                            'data' => $time_series_data_income,
+                        ]
+                    ],
+                    'overall_income' => $overall_income,
+                    'income_growth_rate' => round($growth_rate, 2),
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'type' => 'datetime',
+                        'categories' => $labels
+                    ],
+                ],
+            ],
+        ];
+    }
+    //-------------------------------------------------
+
+    private static function appliedFilters($list, $request)
+    {
+        if (isset($request->filter)) {
+            $list = $list->paymentStatusFilter($request->filter);
+        }
+        return $list;
+    }
+
+    //-------------------------------------------------
+
+    public static function createOrderItem($item = null){
+
+
+
+
+        $order_items_types = Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'order-items-types');
+            })
+            ->first();
+
+
+        $order_items_status = Taxonomy::inRandomOrder()
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'order-items-status');
+            })
+            ->first();
+
+
+        $valid_products = Product::whereHas('productVendors')
+            ->with('productVariations', 'productVendors')
+            ->take(rand(1, 10))
+            ->get();
+
+
+        $user_addresses = StoreUser::where('id', $item->vh_user_id)
+            ->with('addresses')
+            ->whereHas('addresses', function ($query) {
+                $query->whereHas('addressType', function ($query) {
+                    $query->where('slug', 'shipping')
+                        ->orWhere('slug', 'billing');
+                });
+            })
+            ->first();
+
+        foreach ($valid_products as $product) {
+
+            $product_id = $product['id'];
+            $vendor_id = $product->productVendors->random()->vh_st_vendor_id;
+
+            $random_variation_id = $product->productVariations->pluck('id')->random();
+            $price = $product->productVariations->where('id', $random_variation_id)->first()->price;
+
+            $order_item = new OrderItem();
+            $order_item['vh_st_order_id'] = $item->id;
+            $order_item['vh_user_id'] = $item->vh_user_id;
+            $order_item['vh_st_customer_group_id'] = null;
+
+            if (!empty($order_items_types)) {
+                $order_item['taxonomy_id_order_items_types'] = $order_items_types->id;
+            }
+
+            if (!empty($order_items_status)) {
+                $order_item['taxonomy_id_order_items_status'] = $order_items_status->id;
+            }
+
+            $order_item['vh_st_product_id'] = $product_id;
+            $order_item['vh_st_vendor_id'] = $vendor_id;
+
+            $order_item['vh_st_product_variation_id'] = $random_variation_id;
+            $order_item['vh_shipping_address_id'] = $user_addresses->addresses->random()->id;
+            $order_item['vh_billing_address_id'] = $order_item['vh_shipping_address_id'];
+
+            $order_item['quantity'] = rand(1,17);
+            $order_item['price'] = $price;
+            $order_item['is_invoice_available'] = '';
+            $order_item['invoice_url'] = '';
+            $order_item['tracking'] = '';
+            $order_item['is_active'] = 1;
+            $order_item['created_at'] = Carbon::now()->subYear()->addDays(rand(0, 365))->format('Y-m-d H:i:s');
+            $order_item['status_notes'] = '';
+
+            $order_item->save();
+
+            $total_price = OrderItem::where('vh_st_order_id', $item->id)
+                ->get()
+                ->sum(function ($order_item) {
+                    return $order_item->price * $order_item->quantity;
+                });
+            $item->amount = $total_price;
+            $item->payable = $total_price;
+            $item->save();
+
+        }
+    }
 
 }

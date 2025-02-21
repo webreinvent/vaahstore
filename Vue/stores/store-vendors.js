@@ -2,6 +2,8 @@ import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
+import moment from "moment";
+import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Vendor';
 
@@ -11,8 +13,8 @@ let ajax_url = base_url + "/store/vendors";
 
 let empty_states = {
     query: {
-        page: null,
-        rows: null,
+        page: 1,
+        rows: 20,
         filter: {
             q: null,
             is_active: null,
@@ -20,6 +22,7 @@ let empty_states = {
             sort: null,
             store:null,
             vendor_status:null,
+            product:null,
         },
     },
     action: {
@@ -50,6 +53,7 @@ export const useVendorStore = defineStore({
         user_error_message: [],
         selected_product: null,
         product_vendor_status: null,
+        product_status:null,
         active_products: null,
         select_all_product: false,
         product_selected_menu: [],
@@ -81,7 +85,28 @@ export const useVendorStore = defineStore({
         list_create_menu: [],
         item_menu_list: [],
         item_menu_state: null,
-        form_menu_list: []
+        form_menu_list: [],
+        selected_dates : null,
+        business_types_list : null,
+        search_products: null,
+        first_element:null,
+        selected_user_vendor:null,
+        user_data:null,
+        user_details:null,
+        select_all_user:false,
+        vendor_roles:null,
+        selected_user:null,
+        sel_product:null,
+        selected_vendor_role:null,
+        default_vendor_message:null,
+        total_product_count:0,
+        top_selling_vendors:[],
+        quick_filter_menu:[],
+        vendor_sales_area_chart_options: {},
+        vendor_sales_area_chart_series: [],
+        filter_all: null,
+
+
     }),
     getters: {
 
@@ -98,12 +123,21 @@ export const useVendorStore = defineStore({
             /**
              * Update with view and list css column number
              */
+            await this.getProductCount();
             this.setViewAndWidth(route.name);
+            this.first_element = ((this.query.page - 1) * this.query.rows);
+
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
 
             /**
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -116,7 +150,7 @@ export const useVendorStore = defineStore({
                     break;
                 case 'vendors.product':
                     this.view = 'small';
-                    this.list_view_width = 4;
+                    this.list_view_width = 6;
                     break;
                 default:
                     this.view = 'small';
@@ -166,6 +200,7 @@ export const useVendorStore = defineStore({
             )
         },
         //---------------------------------------------------------------------
+
         watchStates()
         {
             watch(this.query.filter, (newVal,oldVal) =>
@@ -186,31 +221,34 @@ export const useVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        addProduct(){
-            if (this.selected_product != null){
-                let exist = 0;
-                this.item.products.forEach((item)=>{
-                    if (item['product']['id'] == this.selected_product['id']){
-                        exist = 1;
-                    }
-                })
-                if (exist == 0){
-                    let approved_status = this.product_vendor_status.find((item) => item.name === "Approved");
-                    this.item.status =approved_status;
-                    this.item.taxonomy_id_vendor_status = approved_status.id;
-                    let new_product = {
-                        product: this.selected_product,
-                        is_selected : false,
-                        can_update : false,
-                        status : approved_status,
-                        status_notes : null,
-                    };
-                    this.item.products.push(new_product);
-                }else{
-                    this.showUserErrorMessage(['This product is already present'], 4000);
-                }
 
+        addProduct(){
+
+            if(!this.selected_product)
+            {
+                vaah().toastErrors(['Please choose a product']);
+                return false;
             }
+
+            if (!this.item.products) {
+                this.item.products = [];
+            }
+            const exists = this.item.products.some(product => product.id === this.selected_product.id);
+
+
+            if (!exists) {
+
+                this.item.products.push({
+                    ...this.selected_product,
+                    is_selected: false,
+                    can_update: false,
+                });
+
+                this.selected_product = null;
+            } else {
+                this.showUserErrorMessage(['This Product is already present'], 4000);
+            }
+
         },
 
         //---------------------------------------------------------------------
@@ -221,82 +259,67 @@ export const useVendorStore = defineStore({
             },time);
         },
         //---------------------------------------------------------------------
-       async removeProduct(attribute){
-            console.log(attribute.id);
-            if(attribute.id){
-                const options = {
-                    method: 'get',
-                };
-                const id = attribute.id
-                await vaah().ajax(
-                    this.ajax_url+'/single/product/remove/'+id,
-                    this.removeProductAfter,
-                    options
-                );
-            }else{
-                 this.item.products = this.item.products.filter(function(item){ return item['product']['id'] != attribute['product']['id'] })
-            }
-
-        },
         //---------------------------------------------------------------------
-        selectAllProduct(){
-            this.item.products.forEach((i)=>{
-                return  i['is_selected'] = !this.select_all_product;
-            })
+        async removeProduct(product) {
+            this.item.products = this.item.products.filter(function (item) {
+                return item['id'] !== product['id']
+            });
+            this.select_all_product = false;
+
         },
 
         //---------------------------------------------------------------------
-       async bulkRemoveProduct(id,all = null){
-            if (all){
-                const options = {
-                    method: 'get',
-                };
-
-                await vaah().ajax(
-                    this.ajax_url+'/bulk/product/remove/'+id,
-                     this.bulkRemoveProductAfter,
-                     options
-                );
-
-            }else{
-
-                let temp_select = null;
-                temp_select = this.item.products.filter((item) => {
-                    return item['is_selected'] == true;
+        selectAllProduct() {
+            if (this.select_all_product) {
+                this.item.products.forEach((item) => {
+                    item.is_selected = false;
                 });
-
-                if(temp_select.length  === this.item.products.length){
-                    let temp_select = null;
-                    temp_select = this.item.products.filter((item) => {
-                        return item['is_selected'] == true;
-                    });
-                    this.item.products = temp_select;
-                    this.select_all_product = false;
-                    let id = this.route.params.id;
-                    const options = {
-                        method: 'get',
-                    };
-
-                    await vaah().ajax(
-                        this.ajax_url+'/bulk/product/remove/'+id,
-                        this.bulkRemoveProductAfter,
-                        options
-                    );
-                }else{
-                    let temp = null;
-                    temp = this.item.products.filter((item) => {
-                        return item['is_selected'] != true;
-                    });
-                    this.item.products = temp;
-                    this.select_all_product = false;
-                    await this.itemAction('save-product');
-                }
+            } else {
+                this.item.products.forEach((item) => {
+                    item.is_selected = true;
+                });
             }
         },
+
+        //---------------------------------------------------------------------
+        async removeAllProduct()
+        {
+            this.item.products = [];
+            this.select_all_product = false;
+        },
+
+        //---------------------------------------------------------------------
+        async bulkRemoveProduct() {
+
+            let selected_products = this.item.products.filter(product => product.is_selected);
+            let temp = null;
+            this.select_all_product = false;
+            temp = this.item.products.filter((item) => {
+                return item['is_selected'] === false;
+            });
+
+            if (selected_products.length === 0) {
+                vaah().toastErrors(['Select a product']);
+                return false;
+            }
+
+            else if (temp.length === this.item.products.length) {
+                this.item.products = [];
+            }
+            else {
+
+                this.item.products = temp;
+            }
+
+        },
+
+        //---------------------------------------------------------------------
+
         //---------------------------------------------------------------------
        async bulkRemoveProductAfter(){
              await this.getList();
              this.item.products = [];
+             this.select_all_product=false;
         },
         //---------------------------------------------------------------------
         async removeProductAfter(data,res){
@@ -331,28 +354,41 @@ export const useVendorStore = defineStore({
         setStatus(event){
             let status = toRaw(event.value);
             this.item.taxonomy_id_vendor_status = status.id;
-            if(status.name == 'Approved')
-            {
-                this.item.is_active = 1;
-            }else{
-                this.item.is_active = 0;
-            }
-
-
         },
+
         //---------------------------------------------------------------------
-        setVendorStatus(){
-            if(this.item.is_active == '1'){
-                let approved_status = this.vendor_status.find((item) => item.name === "Approved");
-                this.item.status =approved_status;
-                this.item.taxonomy_id_vendor_status = approved_status.id;
-            }else {
-                let pending_status = this.vendor_status.find((item) => item.name === "Rejected");
-                this.item.status =pending_status;
-                this.item.taxonomy_id_vendor_status = pending_status.id;
+
+        setDateRange(){
+
+            if(!this.selected_dates){
+                return false;
+            }
+
+            const dates =[];
+
+            for (const selected_date of this.selected_dates) {
+
+                if(!selected_date){
+                    continue ;
+                }
+
+                let search_date = moment(selected_date)
+                var UTC_date = search_date.format('YYYY-MM-DD');
+
+                if(UTC_date){
+                    dates.push(UTC_date);
+                }
+
+                if(dates[0] != null && dates[1] !=null)
+                {
+                    this.query.filter.date = dates;
+                }
+
+
             }
 
         },
+
         //---------------------------------------------------------------------
         async getAssets() {
 
@@ -370,17 +406,24 @@ export const useVendorStore = defineStore({
         {
             if(data)
             {
+
                 this.assets = data;
                 this.active_stores = data.active_stores;
                 this.active_users = data.active_users;
+                this.business_types_list = data.business_type;
                 this.vendor_status = data.taxonomy.vendor_status;
                 this.active_products = data.active_products;
                 this.selected_product = data.default_product;
+                this.business_types_list = data.taxonomy.business_type;
                 this.product_vendor_status = data.taxonomy.product_vendor_status;
+                this.product_status = data.taxonomy.product_status;
+                this.vendor_roles = data.vendor_roles.roles;
+
                 this.disable_approved_by = this.route.params && this.route.params.id && this.route.params.id.length == 0;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+
+                    data.rows = this.query.rows
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -454,6 +497,14 @@ export const useVendorStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+
+        setBusinessType(event){
+            let business_type = toRaw(event.value);
+            this.item.taxonomy_id_vendor_business_type = business_type.id;
+        },
+
+        //---------------------------------------------------------------------
+
         async searchOwnedBy(event) {
             const query = event;
             const options = {
@@ -487,9 +538,15 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_vendor_message = (res && res.data && res.data.message)
+                ? res.data.message
+                : null;
             if(data)
             {
                 this.list = data;
+                this.topSellingVendorsData();
+                this.vendorSalesByRange();
+                this.first_element = this.query.rows * (this.query.page - 1);
             }
         },
         //---------------------------------------------------------------------
@@ -514,6 +571,8 @@ export const useVendorStore = defineStore({
             await this.getItemMenu();
             await this.getFormMenu();
         },
+
+
         //---------------------------------------------------------------------
         isListActionValid()
         {
@@ -658,6 +717,7 @@ export const useVendorStore = defineStore({
                 case 'save':
                 case 'save-and-close':
                 case 'save-and-clone':
+                case 'save-and-new':
                     options.method = 'PUT';
                     options.params = item;
                     ajax_url += '/'+item.id
@@ -694,10 +754,28 @@ export const useVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
+                this.prev_list =this.list.data;
+                this.select_all_product = false;
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
                 this.getFormMenu();
+            }
+            this.current_list=this.list.data
+            this.compareList(this.prev_list,this.current_list)
+        },
+
+        //----------------------------------------------------------------------------
+
+        compareList(prev_list, current_list) {
+
+            const removed_Items = prev_list.filter(previous_item => !current_list.some(current_item => current_item.id === previous_item.id));
+
+            const removed_item_present_in_current_list = removed_Items.some(removed_item =>
+                current_list.some(current_item => current_item.id === removed_item.id)
+            );
+            if (!removed_item_present_in_current_list) {
+                this.action.items = this.action.items.filter(item => !removed_Items.some(removed_item => removed_item.id === item.id));
             }
         },
         //---------------------------------------------------------------------
@@ -706,7 +784,6 @@ export const useVendorStore = defineStore({
             switch (this.form.action)
             {
                 case 'create-and-new':
-                case 'save-and-new':
                     this.setActiveItemAsEmpty();
                     break;
                 case 'create-and-close':
@@ -714,13 +791,23 @@ export const useVendorStore = defineStore({
                     this.setActiveItemAsEmpty();
                     this.$router.push({name: 'vendors.index'});
                     break;
+                case 'save-and-new':
+                    this.setActiveItemAsEmpty();
+                    vaah().toastSuccess(['Action Was Successful']);
+                    this.$router.push({name: 'vendors.form'});
+                    break;
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'vendors.form'});
                     await this.getFormMenu();
                     break;
                 case 'trash':
                 case 'restore':
+                    this.item = data;
+                    vaah().toastSuccess(['Action was successful']);
+                    break;
                 case 'save':
                     this.item = data;
                     break;
@@ -743,6 +830,8 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         async paginate(event) {
             this.query.page = event.page+1;
+            this.query.rows = event.rows;
+            this.first_element = this.query.rows * (this.query.page - 1);
             await this.getList();
             await this.updateUrlQueryString(this.query);
         },
@@ -754,6 +843,7 @@ export const useVendorStore = defineStore({
         },
         //---------------------------------------------------------------------
         async getFormInputs () {
+
             let params = {
                 model_namespace: this.model,
                 except: this.assets.fillable.except,
@@ -804,9 +894,38 @@ export const useVendorStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDelete(this.listAction);
+            vaah().confirmDialogDeleteAll(this.listAction);
         },
         //---------------------------------------------------------------------
+
+        confirmTrashAll()
+        {
+            this.action.type = 'trash-all';
+            vaah().confirmDialogTrashAll(this.listAction);
+        },
+
+        confirmRestoreAll()
+        {
+            this.action.type = 'restore-all';
+            vaah().confirmDialogRestoreAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmActivateAll()
+        {
+            this.action.type = 'activate-all';
+            vaah().confirmDialogActivateAll(this.listAction);
+        },
+        //---------------------------------------------------------------------
+
+        confirmDeactivateAll()
+        {
+            this.action.type = 'deactivate-all';
+            vaah().confirmDialogDeactivateAll(this.listAction);
+        },
+
+        //---------------------------------------------------------------------
+
         async delayedSearch()
         {
             let self = this;
@@ -866,7 +985,11 @@ export const useVendorStore = defineStore({
         {
             //reset query strings
             await this.resetQueryString();
+            this.sel_product = null;
+            this.selected_dates=[];
 
+            this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
+            vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
         },
@@ -877,6 +1000,7 @@ export const useVendorStore = defineStore({
             {
                 this.query.filter[key] = null;
             }
+            this.filter_selected_products = null;
             await this.updateUrlQueryString(this.query);
         },
         //---------------------------------------------------------------------
@@ -895,21 +1019,54 @@ export const useVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
+            this.getDefaultStore();
             this.$router.push({name: 'vendors.form'})
         },
         //---------------------------------------------------------------------
         toProduct(item)
         {
+            this.select_all_product = false;
             this.item = vaah().clone(item);
+            this.selected_product = null;
             this.$router.push({name: 'vendors.product', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+        async getDefaultStore()
+        {
+            const options = {
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/default/store',
+                this.getDefaultStoreAfter,
+                options
+            );
+        },
+
+        //-----------------------------------------------------------------------
+
+        getDefaultStoreAfter(data,res) {
+            this.item.store = data ? data : [];
+        },
+
+        //--------------------------------------------------------------------------
+
         toView(item)
         {
             this.item = vaah().clone(item);
             this.$router.push({name: 'vendors.view', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
+
+        async reloadPage()
+        {
+            await this.getList();
+            vaah().toastSuccess(["Page Reloaded"]);
+        },
+
+        //---------------------------------------------------------------------
+
         toEdit(item)
         {
             this.item = item;
@@ -1005,6 +1162,32 @@ export const useVendorStore = defineStore({
                         this.bulkRemoveProduct()
                     }
                 },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.removeAllProduct()
+                    }
+                },
+
+            ]
+
+            this.user_selected_menu = [
+                {
+                    label: 'Remove',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.bulkRemoveUser()
+                    }
+                },
+                {
+                    label: 'Remove All',
+                    icon: 'pi pi-trash',
+                    command: () => {
+                        this.removeAllUser()
+                    }
+                },
+
             ]
 
         },
@@ -1015,13 +1198,13 @@ export const useVendorStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        await this.listAction('activate-all')
+                        this.confirmActivateAll();
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        await this.listAction('deactivate-all')
+                        this.confirmDeactivateAll();
                     }
                 },
                 {
@@ -1031,14 +1214,14 @@ export const useVendorStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        await this.listAction('trash-all')
+                        this.confirmTrashAll();
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        await this.listAction('restore-all')
+                        this.confirmRestoreAll();
                     }
                 },
                 {
@@ -1051,6 +1234,7 @@ export const useVendorStore = defineStore({
             ];
         },
         //---------------------------------------------------------------------
+
         getItemMenu()
         {
             let item_menu = [];
@@ -1135,6 +1319,12 @@ export const useVendorStore = defineStore({
             this.form.type = 'delete';
             vaah().confirmDialogDelete(this.confirmDeleteItemAfter);
         },
+
+        //---------------------------------------------------------------------
+
+
+
+
         toVendor(item)
         {
             this.$router.push({name: 'vendors.product'})
@@ -1170,6 +1360,16 @@ export const useVendorStore = defineStore({
 
                         }
                     },
+
+                    {
+                        label: 'Save & New',
+                        icon: 'pi pi-check',
+                        command: () => {
+
+                            this.itemAction('save-and-new');
+                        }
+                    },
+
                     {
                         label: is_deleted ? 'Restore': 'Trash',
                         icon: is_deleted ? 'pi pi-refresh': 'pi pi-times',
@@ -1225,11 +1425,541 @@ export const useVendorStore = defineStore({
             this.form_menu_list = form_menu;
 
         },
+
         //---------------------------------------------------------------------
+
+        removeImage()
+        {
+            this.item.business_document_file = null;
+        },
+
+
+        //---------------------------------------------------------------------
+
+        shortProductName(products) {
+            if (!products || !Array.isArray(products)) {
+                return [];
+            }
+            return products.map(product => {
+                if (product.name && product.name.length > 20) {
+                    return {
+                        ...product,
+                        name: product.name.substring(0, 20) + '...'
+                    };
+                } else {
+                    return product;
+                }
+            });
+        },
+
+        //-------------------------------------------------------------------------
+
+        getFullName(option) {
+
+            if (option) {
+                const matching_product = this.active_products.find(product => product.id === option.id);
+                if (matching_product) {
+                    return matching_product.name;
+                } else {
+                    return option.slug; // show the slug value of the option if product not match .
+                }
+            }
+
+            return '';
+        },
+
+        //---------------------------------------------------------------------
+        async searchProduct(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/product',
+                this.searchProductAfter,
+                options
+            );
+
+        },
+        //-----------------------------------------------------------------------
+
+        searchProductAfter(data,res) {
+            if(data)
+            {
+                this.search_products = data;
+            }
+        },
+
+        //-----------------------------------------------------------------------
+
+        async attachProducts(item)
+        {
+            const query = {
+
+                products : this.item.products,
+            };
+
+
+            let ajax_url = this.ajax_url;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+            ajax_url += '/'+ item.id+'/products';
+            await vaah().ajax(
+                ajax_url,
+                this.attachProductsAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        async attachProductsAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+                this.toList();
+
+            }
+        },
+
+        //---------------------------------------------------------------------
+        toViewProducts(vendor)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                filter: {
+                    vendors: [vendor.slug],trashed: 'include'
+                }
+            };
+            const route = {
+                name: 'products.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+        toViewAllProduct()
+        {
+            this.$router.push({name: 'products.index'});
+        },
+
+
+        //-----------------------------------------------------------------------
+
+        async attachUsersRoles(item)
+        {
+
+            let ajax_url = this.ajax_url;
+            let options = {
+                method: 'post',
+                params: {
+                    users: this.item.users,
+                }
+            };
+            ajax_url += '/'+ item.id+'/users/roles';
+            await vaah().ajax(
+                ajax_url,
+                this.saveUserAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        async saveUserAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+
+            }
+        },
+
+        //-----------------------------------------------------------------------
+
+        //-----------------------------------------------------------------------
+
+        async removeUser(remove_item)
+        {
+
+
+            this.item.users = this.item.users.filter(function (item) {
+                return item.id !== remove_item.id || item.pivot.vh_role_id !== remove_item.pivot.vh_role_id;
+            });
+
+
+            this.select_all_user = false;
+        },
+
+        //---------------------------------------------------------------------
+
+        async removeUserAfter(data, res)
+        {
+            if(data)
+            {
+                await this.getList();
+            }
+        },
+
+        //-----------------------------------------------------------------------
+
+
+        toVendorRole(item)
+        {
+            this.item = item;
+            this.select_all_user = false;
+            this.$router.push({name: 'vendors.role', params:{id:item.id}})
+        },
+
+        //---------------------------------------------------------------------
+        async searchUser(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/vendor/user',
+                this.searchUserAfter,
+                options
+            );
+
+        },
+        //-----------------------------------------------------------------------
+
+        searchUserAfter(data,res) {
+            if(data)
+            {
+                this.user_data = data;
+            }
+        },
+
+        //--------------------------------------------------------------------------
+
+        addUser() {
+            if (!this.item.users) {
+                this.item.users = [];
+            }
+
+            if (this.selected_user && this.selected_vendor_role) {
+                const exists = this.item.users.some(item =>
+                    item.id === this.selected_user.id &&
+                    item.pivot.vh_role_id === this.selected_vendor_role.id
+                );
+
+                if (!exists) {
+                    this.item.users.push({
+                        id: this.selected_user.id,
+                        name: this.selected_user.first_name,
+                        pivot: {
+                            vh_user_id: this.selected_user.id,
+                            vh_role_id: this.selected_vendor_role.id
+                        }
+                    });
+
+                } else {
+                    this.showUserErrorMessage(['This Record already present in the list.'], 4000);
+                }
+
+                this.selected_user = null;
+                this.selected_vendor_role = null;
+            } else {
+                this.showUserErrorMessage(['No user or role selected.'], 4000);
+            }
+        },
+
+
+
+
+
+        //---------------------------------------------------------------------
+
+        selectAllUser() {
+
+            this.select_all_user = !this.select_all_user;
+
+            this.item.users.forEach((i) => {
+                i['is_selected'] = this.select_all_user;
+            });
+
+        },
+
+
+        //----------------------------------------------------------------------------
+        async removeAllUser()
+        {
+            this.item.users = [];
+            this.select_all_user = false;
+        },
+
+        //---------------------------------------------------------------------
+        async bulkRemoveUser() {
+
+            const selectedItems = this.item.users.filter(item => item.is_selected);
+
+            if(selectedItems < 1)
+            {
+                vaah().toastErrors(['Select records']);
+                return false;
+            }
+
+            this.item.users = this.item.users.filter(item => !item.is_selected);
+        },
+
+
+        addSelectedProduct () {
+
+            const unique_products = [];
+            const check_names = new Set();
+
+            for (const products of this.sel_product) {
+                if (!check_names.has(products.name)) {
+                    unique_products.push(products);
+                    check_names.add(products.name);
+                }
+            }
+            const products_slug = unique_products.map(product => product.slug);
+            this.sel_product = unique_products;
+            this.query.filter.products = products_slug;
+        },
+
+        async setProductInFilter()
+        {
+            let query = {
+                filter: {
+                    product: this.query.filter.products,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/route-query-products',
+                this.setProductInFilterAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setProductInFilterAfter(data, res) {
+
+            if (data) {
+                this.sel_product = data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+        watchProducts()
+        {
+
+            watch(this.item, (newVal,oldVal) =>
+                {
+                    const deselected = newVal.products.some(item => !item.is_selected);
+                    this.select_all_product = !deselected;
+                },{deep: true}
+            )
+
+        },
+        //---------------------------------------------------------------------
+
+        async getProductCount()
+        {
+            const options = {
+                method: 'get',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/get/product/count',
+                this.getProductCountAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        getProductCountAfter(data,res) {
+            if (data  ) {
+                this.total_product_count = data.all_product_count;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async topSellingVendorsData() {
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+
+            await vaah().ajax(
+                this.ajax_url + '/charts/vendors-by-sales',
+                this.topSellingVendorsDataAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        topSellingVendorsDataAfter(data,res){
+            if (data){
+                this.top_selling_vendors=data;
+            }
+        },
+
+        //---------------------------------------------------------------------
+
+        async vendorSalesByRange() {
+
+
+            let params = {
+
+                start_date: useRootStore().filter_start_date ?? null,
+                end_date: useRootStore().filter_end_date ?? null,
+                filter_all: this.filter_all ?? null,
+            }
+            let options = {
+                params: params,
+                method: 'POST'
+            }
+            await vaah().ajax(
+                this.ajax_url + '/charts/sales-by-range',
+                this.vendorSalesByRangeAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        vendorSalesByRangeAfter(data,res){
+
+            const series_data = data.chart_series.map(series => ({
+                name: series.name,
+                data: Array.isArray(series.data) ? series.data : [],
+            }));
+
+            this.updateChartSeries(series_data);
+
+            const updated_area_chart_options = {
+                ...data.chart_options,
+                stroke: {
+                    curve: 'smooth',
+                    width: 3,
+                },
+                title: {
+                    text: 'Vendor Sales Over Selected Date Range',
+                    align: 'left',
+                    offsetY: 12,
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#263238'
+                    }
+                },
+                chart: {
+
+                    toolbar: {
+                        show: false,
+                    },
+                    background: '#ffffff',
+
+                },
+
+                legend: {
+                    show: series_data.length<=5,
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    floating: false,
+                    fontSize: '14px',
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                grid: {
+                    show: false,
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                    axisTicks: {
+                        show: false,
+                    }
+                },
+                tooltip: {
+                    shared: false,
+
+                }
+            };
+
+            this.updateChartOptions(updated_area_chart_options);
+        },
+        updateChartOptions(newOptions) {
+            this.vendor_sales_area_chart_options = newOptions;
+        },
+
+        //---------------------------------------------------
+        updateChartSeries(newSeries) {
+            this.vendor_sales_area_chart_series = [...newSeries];
+        },
+
+
+
+
+
+        getQuickFilterMenu() {
+
+            this.quick_filter_menu = [
+
+                {
+                    label: 'All',
+                    command: () => {
+                        this.updateQuickFilter('all');
+                    }
+                },
+
+            ];
+
+        },
+        updateQuickFilter(time)
+        {
+            this.filter_all = time;
+            this.topSellingVendorsData();
+            this.vendorSalesByRange();
+        },
+        loadSalesData(){
+            this.filter_all=null;
+            this.topSellingVendorsData();
+            this.vendorSalesByRange();
+        }
+
+
     }
+        //---------------------------------------------------------------------
+
+
+
 });
-
-
 
 // Pinia hot reload
 if (import.meta.hot) {

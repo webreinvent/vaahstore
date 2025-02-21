@@ -108,7 +108,7 @@ class Warehouse extends VaahModel
 
     public function vendor()
     {
-        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->select(['id', 'name']);
+        return $this->hasOne(Vendor::class, 'id', 'vh_st_vendor_id')->withTrashed()->select(['id', 'name','deleted_at']);
     }
 
     //-------------------------------------------------
@@ -209,8 +209,8 @@ class Warehouse extends VaahModel
             ->withTrashed()
             ->first();
         if ($item) {
-            $response['success'] = false;
-            $response['messages'][] = "This Warehouse is already exist with this Vendor.";
+            $error_message = "This Warehouse is already exist with this Vendor".($item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -342,20 +342,12 @@ class Warehouse extends VaahModel
     public function scopeStatusFilter($query, $filter)
     {
 
-        $status = null;
-
-        if (!isset($filter['status'])
-            || is_null($filter['status'])
-            || $filter['status'] === 'null'
-        ) {
+        if (!isset($filter['status'])) {
             return $query;
         }
-
         $status = $filter['status'];
-
-        $query->whereHas('status', function ($query) use ($status) {
-            $query->where('slug', $status);
-
+        $query->whereHas('status', function ($q) use ($status) {
+            $q->whereIn('slug', $status);
         });
 
     }
@@ -621,8 +613,8 @@ class Warehouse extends VaahModel
             ->first();
 
         if ($existing_item) {
-            $response['success'] = false;
-            $response['errors'][] = "This Warehouse is already exist with this Vendor.";
+            $error_message = "This Warehouse is already exist with this Vendor".($existing_item->deleted_at?' in trash.':'.');
+            $response['errors'][] = $error_message;
             return $response;
         }
 
@@ -702,9 +694,9 @@ class Warehouse extends VaahModel
             'slug' => 'required|max:100',
             'vendor' => 'required',
             'country' => 'required',
-            'state' => 'required|max:100',
-            'city' => 'required|max:100',
-            'address_1' => 'nullable|max:150',
+            'state' => 'nullable|max:100',
+            'city' => 'nullable|max:100',
+            'address_1' => 'required|max:150',
             'address_2' => 'nullable|max:150',
             'postal_code' => 'nullable|max:10',
             'status' => 'required',
@@ -720,9 +712,8 @@ class Warehouse extends VaahModel
             'slug.max' => 'The slug field may not be greater than :max characters.',
             'vendor.required' => 'The Vendor field is required.',
             'country.required' => 'The Country field is required.',
-            'state.required' => 'The State field is required.',
             'state.max' => 'The State field may not be greater than :max characters.',
-            'city.required' => 'The City field is required.',
+            'address_1.required' => 'The Address 1 field is required.',
             'address_1.max' => 'The Address 1 field may not be greater than :max characters.',
             'city.max' => 'The City field may not be greater than :max characters.',
             'postal_code.max' => 'The Postal Code field may not be greater than :max digits.',
@@ -786,12 +777,17 @@ class Warehouse extends VaahModel
         $fillable = VaahSeeder::fill($request);
         if(!$fillable['success']){
             return $fillable;
-        }
+        }$faker = Factory::create();
         $countries = array_column(VaahCountry::getList(), 'name');
         $inputs = $fillable['data']['fill'];
-
+        $inputs['name'] = $faker->country;
         $inputs['country'] = $countries[array_rand($countries)];
-        $inputs['is_active'] = rand(0,1);
+        $inputs['is_active'] = 1;
+
+        $inputs['slug'] = $faker->slug;
+        $inputs['postal_code'] = $faker->randomNumber(6);
+        $inputs['address_1'] = $faker->address;
+        $inputs['address_2'] = $faker->secondaryAddress;
         $taxonomy_status = Taxonomy::getTaxonomyByType('warehouse-status');
 
         $status_ids = $taxonomy_status->pluck('id')->toArray();
@@ -803,19 +799,23 @@ class Warehouse extends VaahModel
         $inputs['taxonomy_id_warehouse_status'] = $status_id;
         $inputs['status']=$status;
 
-        $vendor_data = Vendor::where('is_active',1)->get();
         $vendor_ids = Vendor::where('is_active',1)->pluck('id')->toArray();
-        $vendor_id = $vendor_ids[array_rand($vendor_ids)];
-        $vendor_data = Vendor::where('is_active',1)->where('id',$vendor_id)->first();
-        $inputs['vh_st_vendor_id'] =$vendor_id;
-        $inputs['vendor'] = $vendor_data;
-        $faker = Factory::create();
+        $inputs['vh_st_vendor_id'] = null;
+        $inputs['vendor'] = null;
+
+        if (!empty($vendor_ids)) {
+            $vendor_id = $vendor_ids[array_rand($vendor_ids)];
+            $vendor_data = Vendor::where('is_active', 1)->where('id', $vendor_id)->first();
+            $inputs['vh_st_vendor_id'] = $vendor_id;
+            $inputs['vendor'] = $vendor_data;
+        }
+
 
         /*
          * You can override the filled variables below this line.
          * You should also return relationship from here
          */
-        $inputs['postal_code'] = $faker->randomNumber(6);
+//        $inputs['postal_code'] = $faker->randomNumber(6);
         if(!$is_response_return){
             return $inputs;
         }
@@ -839,7 +839,69 @@ class Warehouse extends VaahModel
 
     }
     //-------------------------------------------------
-    //-------------------------------------------------
+    public static function defaultVendor($request)
+    {
+        $default_vendor = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->get()->first();
+
+
+        if($default_vendor)
+        {
+            $response['success'] = true;
+            $response['data'] = $default_vendor;
+        }
+        else {
+            $response['success'] = false;
+            $response['data'] = null;
+        }
+        return $response;
+    }
+
+    //----------------------------------------------------------
+
+    public static function warehouseStockInBarChart($request)
+    {
+        $inputs = $request->all();
+
+        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+
+        $stock_data = ProductStock::select('vh_st_warehouse_id')
+            ->selectRaw('SUM(quantity) as total_quantity')
+            ->groupBy('vh_st_warehouse_id')
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->orderBy('total_quantity', 'desc') // Sort in descending order to get the top
+            ->take(10)
+            ->get();
+
+        $chart_series = [];
+        $chart_categories = [];
+
+        foreach ($stock_data as $stock) {
+            $warehouse = self::find($stock->vh_st_warehouse_id);
+
+            if ($warehouse) {
+                $chart_series[] = [
+                    'name' => $warehouse->name,
+                    'data' => [(int)$stock->total_quantity]
+                ];
+                $chart_categories[] = $warehouse->name;
+            }
+        }
+
+        return [
+            'data' => [
+                'chart_series' => [
+                    'quantity_data' => $stock_data->pluck('total_quantity'),
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'categories' => $chart_categories
+                    ],
+                ]
+            ]
+        ];
+    }
 
 
 }

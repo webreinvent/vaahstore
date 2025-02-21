@@ -198,7 +198,7 @@ const toggleFormMenu = (event) => {
                                   :complete-on-focus = "true"
                                   :suggestions="store.currency_suggestion_list"
                                   @change = "store.addCurrencies()"
-                                  @complete="store.searchCurrencies"
+                                  @complete="store.searchCurrencies($event)"
                                   class="w-full"
                     />
 
@@ -251,7 +251,7 @@ const toggleFormMenu = (event) => {
                                   :complete-on-focus = "true"
                                   :suggestions="store.language_suggestion_list"
                                   @change = "store.addLanguages()"
-                                  @complete="store.searchLanguages"
+                                  @complete="store.searchLanguages($event)"
                                   class="w-full"
                     />
 
@@ -274,10 +274,10 @@ const toggleFormMenu = (event) => {
                 <VhField label="Allowed IPs">
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
-                           placeholder="e.g. 192.168.1.1 , 203.23.15.68"
+                           placeholder="e.g. 192.168.1.1"
                            data-testid="store-allowed-ips"
-                           @keydown.enter = "store.handleNewIP($event)"
-                           type="number" />
+                           type="number"
+                           separator=","/>
 
                 </VhField>
 
@@ -316,7 +316,6 @@ const toggleFormMenu = (event) => {
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="stores-active"
-                                 @change="store.selectStatus()"
                                  data-testid="stores-active"
                                  v-model="store.item.is_active"/>
                 </VhField>

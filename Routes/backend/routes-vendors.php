@@ -32,10 +32,10 @@ Route::group(
 
 
         /**
-         * Create Product
+         * Attach Products To A Vendor
          */
-        Route::post('/product', 'VendorsController@createProduct')
-            ->name('vh.backend.store.vendors.createProduct');
+        Route::post('/{id}/products', 'VendorsController@attachProducts')
+            ->name('vh.backend.store.vendors.attach.Product');
 
         /**
          * Remove All Product
@@ -96,6 +96,11 @@ Route::group(
             ->name('vh.backend.store.vendors.search.store');
 
         /**
+         * Search product
+         */
+        Route::any('/search/product', 'VendorsController@searchProduct')
+            ->name('vh.backend.store.vendors.search.product');
+        /**
          * Search approved by
          */
         Route::any('/search/approved/by', 'VendorsController@searchApprovedBy')
@@ -113,4 +118,39 @@ Route::group(
         Route::any('/search/status', 'VendorsController@searchStatus')
             ->name('vh.backend.store.vendors.search.status');
 
+        Route::any('/search/vendor/user', 'VendorsController@searchUser')
+            ->name('vh.backend.store.vendors.search.role.user');
+        /**
+         * Attach Users With Roles To A Vendor
+         */
+        Route::post('/{id}/users/roles', 'VendorsController@attachUsersRoles')
+            ->name('vh.backend.store.vendors.createVendorUser');
+
+        Route::post('/remove/user', 'VendorsController@removeVendorUser')
+            ->name('vh.backend.store.vendors.remove.vendor.user');
+
+
+        Route::post('/search/route-query-products', 'VendorsController@setProductInFilter')
+            ->name('vh.backend.store.vendors.search.products-using-url-slug');
+
+        Route::any('/get/default/store', 'VendorsController@defaultStore')
+            ->name('vh.backend.store.vendors.search.default.store');
+
+        /**
+         * Get product count for default vendor
+         */
+        Route::get('/get/product/count', 'VendorsController@getProductCount')
+            ->name('vh.backend.store.vendors.get.product_count');
+
+        /**
+         * Get Top Vendors By Sales on Selected Date range
+         */
+        Route::post('/charts/vendors-by-sales', 'VendorsController@topSellingVendorsData')
+            ->name('vh.backend.store.vendors.top_selling_vendors');
+
+        /**
+         * Get All Vendors Sales On Selected date range
+         */
+        Route::post('/charts/sales-by-range', 'VendorsController@vendorSalesByRange')
+            ->name('vh.backend.store.vendors.charts.vendor_sales');
     });

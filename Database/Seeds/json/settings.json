@@ -1,0 +1,15 @@
+[
+    {
+
+        "key": "store_version",
+        "type":"json",
+        "value": "0.0.1"
+    },
+    {
+
+        "type":"json", "key": "charts_filter",
+        "value": {
+            "today": true
+        }
+    }
+]

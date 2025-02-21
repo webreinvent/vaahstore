@@ -1,11 +1,12 @@
 <?php
 
 /*
- * API url will be: <base-url>/public/api/store/warehouses
+ * API url will be: <base-url>/api/store/warehouses
  */
 Route::group(
     [
         'prefix' => 'store/warehouses',
+        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -65,6 +66,11 @@ function () {
     Route::any('/{id}/action/{action}', 'WarehousesController@itemAction')
         ->name('vh.backend.store.api.warehouses.item.action');
 
+    /**
+     * warehouses stocks stats by date range
+     */
 
+    Route::post('/charts/warehouse-stocks-bar-chart-data', 'WarehousesController@warehouseStockInBarChart')
+        ->name('vh.backend.store.warehouses.chart.stocks');
 
 });

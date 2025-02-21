@@ -151,7 +151,11 @@ export const vaah = defineStore({
                 location.reload();
                 return;
             }
-
+            if(error.response && error.response.status !== 200 && error.response.data.errors)
+            {
+                this.toastErrors(error.response.data.errors);
+                return;
+            }
             if(debug === 1)
             {
                 this.toastErrors([error]);
@@ -306,7 +310,12 @@ export const vaah = defineStore({
         {
             this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
         },
+        //----------------------------------------------------------
 
+        confirmDialogApprovedAll(callbackOnAccept)
+        {
+            this.confirmDialog('Approve Status Confirmation', 'Do you want to Approve all record(s)?', callbackOnAccept);
+        },
         //----------------------------------------------------------
 
         confirmDialogRestoreAll(callbackOnAccept)

@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import { onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import { useOrderStore } from '../../stores/store-orders'
@@ -23,7 +23,7 @@ onMounted(async () => {
     /**
      * Fetch the record from the database
      */
-    if(!store.item || Object.keys(store.item).length < 1)
+    if(route.params && route.params.id)
     {
         await store.getItem(route.params.id);
     }
@@ -56,7 +56,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div class="col-7" >
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -111,14 +111,7 @@ const toggleItemMenu = (event) => {
 
             <div class="mt-2" v-if="store.item">
 
-                <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                    <tr>
-                        <td  colspan="2" >
-                            <div  style="width:300px;word-break: break-word;">
-                                {{store.item.status_notes}}</div>
-                        </td>
-                    </tr>
-                </Message>
+
 
                 <Message severity="error"
                          class="p-container-message"
@@ -143,21 +136,30 @@ const toggleItemMenu = (event) => {
                     </div>
 
                 </Message>
-
+                <TabView>
+                    <TabPanel header="Order Details">
+                        <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                            <tr>
+                                <td  colspan="2" >
+                                    <div  style="width:300px;word-break: break-word;">
+                                        {{store.item.status_notes}}</div>
+                                </td>
+                            </tr>
+                        </Message>
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                 <table class="p-datatable-table">
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by' || column === 'vh_st_product_id'||
-                            column === 'taxonomy_id_order_items_status' || column === 'updated_by'||
-                            column === 'vh_st_product_variation_id'|| column === 'vh_st_vendor_id' ||
-                            column === 'order_item'|| column === 'taxonomy_id_order_items_types'||
-                            column === 'vh_st_customer_group_id' || column === 'user'|| column === 'payment_method'||
-                            column === 'status'|| column === 'status_order'|| column === 'items'||
+                        <template v-if="column === 'created_by' || column === 'delivery_fee'||
+                            column === 'taxes' || column === 'updated_by'||
+                            column === 'order_payment_status'|| column === 'paid' ||
+                            column === 'discount'|| column === 'taxonomy_id_payment_status'||
+                            column === 'payable' || column === 'user'|| column === 'payment_method'||
+                            column === 'status'|| column === 'status_order'|| column === 'amount'||column === 'items_count'||
                             column === 'is_active_order_item' || column == 'is_invoice_available'
                             || column == 'meta' || column == 'deleted_by' || column == 'status_notes'
-                             || column == 'slug' || column == 'status_notes_order_item'">
+                             || column === 'order_shipment_status' || column === 'payments'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -175,101 +177,44 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
 
-                        <template v-else-if="column === 'types'">
-                            <tr>
-                                <td><b>Types</b></td>
-                                <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.types.name}}</div>
-                                </td>
-                            </tr>
-                        </template>
-                        <template v-else-if="column === 'product'">
-                            <tr>
-                                <td><b>Product</b></td>
-                                <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.product.name}}</div>
-                                </td>
-                            </tr>
-                        </template>
 
-                        <template v-else-if="column === 'product_variation'">
-                            <tr>
-                                <td><b>Product Variation</b></td>
-                                <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.product_variation.name}}</div>
-                                </td>
-                            </tr>
 
-                        </template>
-
-                        <template v-else-if="column === 'vendor'">
-                            <tr>
-                                <td><b>Vendor</b></td>
-                                <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.vendor.name}}</div>
-                                </td>
-                            </tr>
-
-                        </template>
-
-                        <template v-else-if="column === 'customer_group'">
-                            <tr>
-                                <td><b>Customer Group</b></td>
-                                <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.customer_group.name}}</div>
-                                </td>
-                            </tr>
-
-                        </template>
-
-                        <template v-else-if="column === 'customer_group'">
-                            <tr>
-                                <td><b>Customer Group</b></td>
-                                <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.customer_group.name}}</div>
-                                </td>
-                            </tr>
-
-                        </template>
-
-                        <template v-else-if="column === 'status_order_items'">
+                        <template v-else-if="column === 'order_status'">
                             <tr>
                                 <td><b>Order Status</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.status_order_items.name}}</div>
+                                    <Badge class="word-overflow" :severity="store.item.order_status === 'Completed' ? 'success' : ''">
+                                        {{store.item.order_status}}</Badge>
                                 </td>
                             </tr>
-
-                        </template>
-
-                        <template v-else-if="column === 'status_notes_order_item'">
                             <tr>
-                                <td><b>Order Status</b></td>
+                                <td><b>Payment Status</b></td>
                                 <td  colspan="2" >
-                                    <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        {{store.item.status_order_items.name}}</div>
+                                    <Badge v-if="store.item.order_payment_status?.slug === 'paid'" severity="success">
+                                        {{store.item.order_payment_status?.name}}
+                                    </Badge>
+                                    <Badge v-else-if="store.item.order_payment_status?.slug === 'partially-paid'" severity="info">
+                                        {{store.item.order_payment_status?.name}}
+                                    </Badge>
+                                    <Badge v-else severity="danger">
+                                        {{store.item.order_payment_status?.name}}
+                                    </Badge>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Shipping Status</b></td>
+                                <td  colspan="2" >
+                                    <Badge class="word-overflow" :severity="store.item.order_shipment_status === 'Delivered' ? 'success' : 'warning'">
+                                        {{store.item.order_shipment_status}}</Badge>
                                 </td>
                             </tr>
 
-                        </template>
 
-                        <template v-else-if="column === 'taxonomy_id_order_status'">
-                            <VhViewRow label="Status"
-                                       :value="store.item.status"
-                                       type="status"
-                            />
                         </template>
 
                         <template v-else-if="column === 'vh_st_payment_method_id'">
                             <VhViewRow label="Payment Method"
-                                       :value="store.item.payment_method.name"
+                                       :value="store.item.payment_method?.name"
                             />
                         </template>
 
@@ -281,16 +226,92 @@ const toggleItemMenu = (event) => {
                         </template>
 
                         <template v-else-if="column === 'vh_user_id'">
-                            <VhViewRow label="User"
-                                       :value="store.item.user.first_name"
+                            <VhViewRow label="Order Name"
+                                       :value="store.item.user?.display_name"
                             />
+
+                            <tr >
+                                <td><b>Amount</b></td>
+                                <td colspan="2">
+                                <span class="word-overflow">
+                                   &#8377; {{store.item && store.item.amount !== null
+                                    ? (store.item.amount).toFixed(2)
+                                    : '' }}
+                                </span>
+                                </td>
+                            </tr>
+
+
+
+                            <tr >
+                                <td><b>Delivery Fee</b></td>
+                                <td colspan="2">
+                                    <span class="word-overflow">
+                                      &#8377; {{store.item && store.item.delivery_fee !== null
+                                        ? (store.item.delivery_fee).toFixed(2)
+                                        : '' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Taxes</b></td>
+                                <td colspan="2">
+                                    <span class="word-overflow">
+                                       &#8377; {{store.item && store.item.taxes !== null
+                                        ? (store.item.taxes).toFixed(2)
+                                        : '' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr >
+                                <td><b>Discount</b></td>
+                                <td colspan="2">
+                                    <span class="word-overflow">
+                                       &#8377; {{store.item && store.item.discount !== null
+                                        ? (store.item.discount).toFixed(2)
+                                        : '' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Paid</b></td>
+                                <td colspan="2">
+                                    <span class="word-overflow">
+                                      &#8377;  {{ store.item && store.item.paid !== null
+                                        ? (store.item.paid).toFixed(2)
+                                        : '' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Payable</b></td>
+                                <td colspan="2">
+                                    <span class="word-overflow">
+                                       &#8377; {{ store.item && store.item.amount !== null && store.item.paid !== null
+                                        ? (store.item.amount - store.item.paid).toFixed(2)
+                                        : '' }}
+                                    </span>
+                                </td>
+                            </tr>
+
+
+
+                            <tr >
+                                <td><b>Order Items</b></td>
+                                <td colspan="2">
+                                <Badge  class=" cursor-pointer" v-tooltip.top="'View Order Details'" @click="store.toOrderDetails(store.item)">
+                             <b>
+                                {{store.item.items_count}}
+                            </b>
+                         </Badge>
+                                </td>
+                            </tr>
+
+
                         </template>
 
                         <template v-else-if="column === 'is_active'">
-                            <VhViewRow :label="column"
-                                       :value="value"
-                                       type="yes-no"
-                            />
+
                         </template>
 
                         <template v-else>
@@ -306,6 +327,92 @@ const toggleItemMenu = (event) => {
                 </table>
 
                 </div>
+                    </TabPanel>
+                    <TabPanel :header="`Transaction History (${store.item?.payments?.length})`">
+                        <div class=" justify-content-end flex" v-if="(store.item.paid !== store.item.payable)
+                        && (store.item && store.item.payments && store.item.payments.length>0)">
+                            <Button label="Create Payment" class="p-button-sm" severity="info" raised
+                                    v-tooltip.top="'Create Payment'"
+                                    style="border-width : 0; background: #4f46e5;"
+                                    @click="store.toOrderPayment(store.item.id)"
+                            />
+                        </div>
+                        <div class="mt-4" v-if="store.item && store.item.payments">
+                            <DataTable :value="store.item.payments"
+                                       dataKey="id"
+                                       :rows="10"
+                                       :paginator="true"
+                                       class="p-datatable-sm p-datatable-hoverable-rows"
+                                       :nullSortOrder="-1"
+                                       showGridlines
+                                       v-model:selection="store.action.items"
+                                       responsiveLayout="scroll">
+
+
+
+                                <Column field="transaction_id" header="Transaction ID"  >
+                                    <template #body="prop">
+                                        <span  class="underline text-primary hover:text-primary-700 cursor-pointer" @click="store.toPaymentHistory(prop.data,store.item.user)">{{prop.data.transaction_id}}</span>
+
+                                    </template>
+                                </Column>
+
+                                <Column  header="Transaction Date">
+                                    <template #body="prop">
+                                        {{store.formatDateTime(prop.data.date)}}
+                                    </template>
+                                </Column>
+                                <Column  header="Created By">
+                                    <template #body="prop">
+                                        {{prop.data.created_by_user.name}}
+                                    </template>
+                                </Column>
+                                <Column header="Payable" >
+                                    <template #body="prop">
+                                        <div class="justify-content-end flex min-w-max">
+                                            &#8377; {{prop.data.pivot.payable_amount}}
+                                        </div>
+                                    </template>
+                                </Column>
+                                <Column  header="Paid"
+
+                                >
+                                    <template #body="prop" >
+                                        <div class="justify-content-end flex min-w-max">
+                                            &#8377; {{prop.data.pivot.payment_amount}}
+                                        </div>
+                                    </template>
+
+
+                                </Column>
+                                <Column  header="Remaining"
+
+                                >
+                                    <template #body="prop">
+                                        <div class="justify-content-end flex min-w-max">
+                                            &#8377; {{prop.data.pivot.remaining_payable_amount}}
+                                        </div>
+                                    </template>
+
+
+                                </Column>
+
+                                <template #empty>
+                                    <div class="text-center py-3">
+<!--                                        No records found.-->
+                                        Click to make payment.
+                                        <Button label="Create Payment" severity="info" raised
+                                                v-tooltip.top="'Create Payment'"
+                                                style="border-width : 0; background: #4f46e5;cursor: pointer;"
+                                                @click="store.toOrderPayment(store.item.id)"
+                                        />
+                                    </div>
+                                </template>
+
+                            </DataTable>
+                        </div>
+                    </TabPanel>
+                </TabView>
             </div>
         </Panel>
 

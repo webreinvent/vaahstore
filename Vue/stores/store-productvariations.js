@@ -20,9 +20,13 @@ let empty_states = {
             trashed: null,
             sort: null,
             date: null,
-            in_stock: null,
             default: null,
-            product:null
+            product:null,
+            quantity:null,
+            product_variation_status:null,
+            stock_status:null,
+            min_quantity:null,
+            max_quantity:null,
         },
     },
     action: {
@@ -81,11 +85,49 @@ export const useProductVariationStore = defineStore({
         current_list: [],
         filtered_products:null,
         selected_product : null,
+        meta_dialog:false,
+        quantity:[],
+        min_quantity : 0,
+        max_quantity : 0,
+        product_variation_status:null,
+        first_element: null,
+        products_suggestion:null,
+        products:null,
+        fetched_product_id: null,
+        default_variation_message:null,
+        stock_options :[
+
+            {
+                label: 'In Stock',
+                value: 'in_stock'
+            },
+            {
+                label: 'Out of Stock',
+                value: 'out_of_stock'
+            },
+            {
+                label: 'Low Stock',
+                value: 'low_stock'
+            },
+        ],
+        product_detail:null,
+
+
+
     }),
     getters: {
 
     },
     actions: {
+        async fetchDataBasedOnProductId(selected_product_id) {
+                this.fetched_product_id=selected_product_id;
+                if (selected_product_id && selected_product_id.id) {
+                this.item.product=this.fetched_product_id;
+                this.item.vh_st_product_id = selected_product_id.id;
+
+            }
+
+        },
         //---------------------------------------------------------------------
         async onLoad(route)
         {
@@ -98,11 +140,21 @@ export const useProductVariationStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            this.first_element = ((this.query.page - 1) * this.query.rows);
 
             /**
              * Update query state with the query parameters of url
              */
             this.updateQueryFromUrl(route);
+            await this.updateUrlQueryString(this.query);
+
+
+            if (route.query && route.query.filter && route.query.filter.date) {
+                this.selected_dates = route.query.filter.date;
+                this.selected_dates = this.selected_dates.join(' - ');
+            }
+
+
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
@@ -129,9 +181,7 @@ export const useProductVariationStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-
         async searchProduct(event) {
-
             const query = event;
             const options = {
                 params: query,
@@ -144,18 +194,11 @@ export const useProductVariationStore = defineStore({
                 options
             );
         },
-
         //---------------------------------------------------------------------
-
         searchProductAfter(data,res){
-
-            if (data) {
-                this.filtered_products= data.map(products => ({
-                    ...products,
-                    name: this.shortCharacter(products.name),
-                }));
+            if(data){
+                this.products_suggestion = data;
             }
-
         },
 
         //---------------------------------------------------------------------
@@ -277,10 +320,13 @@ export const useProductVariationStore = defineStore({
             {
                 this.assets = data;
                 this.status = data.taxonomy.status;
-                this.active_products = data.active_products
+                this.product_variation_status = data.taxonomy.vendor_status;
+                this.active_products = data.active_products;
+                this.products = data.products;
                 if(data.rows)
                 {
-                    this.query.rows = data.rows;
+
+                    data.rows = this.query.rows;
                 }
 
                 if(this.route.params && !this.route.params.id){
@@ -304,9 +350,27 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
+            this.default_variation_message = (res && res.data && res.data.message)
+                ? 'There is no default product variation. Mark a product variation as default.'
+                : null;
+
+
+            if (res?.data?.active_cart_user) {
+                const { active_cart_user: { cart_records, display_name, vh_st_cart_id } } = res.data;
+                this.add_to_cart = false;
+                this.show_cart_msg = true;
+                this.active_user = res.data.active_cart_user;
+                this.total_cart_product = cart_records;
+                this.active_cart_user_name = display_name;
+                this.cart_id = vh_st_cart_id;
+            } else {
+                this.show_cart_msg = false;
+            }
             if(data)
             {
                 this.list = data;
+                this.first_element = this.query.rows * (this.query.page - 1);
+                this.query.rows=data.per_page;
             }
         },
         //---------------------------------------------------------------------
@@ -545,6 +609,8 @@ export const useProductVariationStore = defineStore({
                 case 'save-and-clone':
                 case 'create-and-clone':
                     this.item.id = null;
+                    this.route.params.id = null;
+                    this.$router.push({name: 'productvariations.form'});
                     await this.getFormMenu();
                     break;
                 case 'save-and-new':
@@ -579,6 +645,8 @@ export const useProductVariationStore = defineStore({
         //---------------------------------------------------------------------
         async paginate(event) {
             this.query.page = event.page+1;
+            this.query.rows = event.rows;
+            this.first_element = this.query.rows * (this.query.page - 1);
             await this.getList();
             await this.updateUrlQueryString(this.query);
         },
@@ -634,29 +702,6 @@ export const useProductVariationStore = defineStore({
             vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
-        confirmTrash()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'trash';
-            vaah().confirmDialogTrash(this.listAction);
-
-        },
-        //---------------------------------------------------------------------
-        confirmRestore()
-        {
-            if(this.action.items.length < 1)
-            {
-                vaah().toastErrors(['Select a record']);
-                return false;
-            }
-            this.action.type = 'restore';
-            vaah().confirmDialogRestore(this.listAction);
-        },
-        //---------------------------------------------------------------------
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
@@ -673,7 +718,7 @@ export const useProductVariationStore = defineStore({
         confirmDeActivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeActivateAll(this.listAction);
+            vaah().confirmDialogDeactivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         confirmTrashAll()
@@ -747,8 +792,12 @@ export const useProductVariationStore = defineStore({
         {
             await this.resetQueryString();
             this.selected_dates=[];
-            this.selected_product = null;
+            this.selected_products = null;
             this.date_null= this.route.query && this.route.query.filter ? this.route.query.filter : 0;
+
+            this.quantity =[];
+
+
             vaah().toastSuccess(['Action was successful']);
             await this.getList();
         },
@@ -771,6 +820,8 @@ export const useProductVariationStore = defineStore({
         toList()
         {
             this.item = vaah().clone(this.assets.empty_item);
+            this.fetched_product_id=null
+            console.log(this.fetched_product_id);
             this.$router.push({name: 'productvariations.index'})
         },
         //---------------------------------------------------------------------
@@ -869,14 +920,15 @@ export const useProductVariationStore = defineStore({
                     label: 'Trash',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrash()
+                        await this.updateList('trash')
                     }
                 },
                 {
                     label: 'Restore',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestore()
+
+                        await this.updateList('restore');
                     }
                 },
                 {
@@ -1024,28 +1076,9 @@ export const useProductVariationStore = defineStore({
             this.itemAction('delete', this.item);
         },
         //---------------------------------------------------------------------
-        checkQuantity(event) {
-            this.item.quantity = event.value;
-
-            if (this.item.quantity > 0) {
-                this.item.in_stock = 1;
-            } else {
-                this.item.in_stock = 0;
-                this.item.price = 0;
-            }
-        },
-        //---------------------------------------------------------------------
         checkPrice(event)
         {
             this.item.price = event.value;
-        },
-        //---------------------------------------------------------------------
-        checkInStock(event)
-        {
-            if(this.item.in_stock == 0)
-            {
-                this.item.quantity = 0;
-            }
         },
         //---------------------------------------------------------------------
         async getFormMenu()
@@ -1193,8 +1226,205 @@ export const useProductVariationStore = defineStore({
                 return name.substring(0, 20) + '...';
             }
             return name;
+        },
+
+        //---------------------------------------------------------------------
+        openMetaModal  ()  {
+
+            this.meta_dialog=true;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        quantityFilterMin(event){
+
+            this.query.filter.min_quantity = event.value;
+
+            },
+
+        //---------------------------------------------------------------------
+
+        quantityFilterMax(event){
+
+            this.query.filter.max_quantity = event.value;
+
+        },
+
+        //---------------------------------------------------------------------
+
+        addSelectedProduct () {
+
+            const unique_products = [];
+            const check_names = new Set();
+
+            for (const products of this.selected_products) {
+                if (!check_names.has(products.name)) {
+                    unique_products.push(products);
+                    check_names.add(products.name);
+                }
+            }
+            const products_slug = unique_products.map(product => product.slug);
+            this.selected_products = unique_products;
+            this.query.filter.products = products_slug;
+        },
+        //-----------------------------------------------------
+
+        async setProductInFilter()
+        {
+            let query = {
+                filter: {
+                    product: this.query.filter.products,
+                },
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/route-query-products',
+                this.setProductInFilterAfter,
+                options
+            );
+
+
+        },
+
+        //---------------------------------------------------------------------
+
+        setProductInFilterAfter(data, res) {
+
+            if (data) {
+                this.selected_products = data;
+            }
+        },
+        //---------------------------------------------------------------------
+
+        async disableActiveCart(){
+            const query = {
+                user_info: this.active_user
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/disable/active-cart',
+                this.disableUserCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        disableUserCartAfter(){
+            this.show_cart_msg=false;this.active_user=null;
+        },
+        //---------------------------------------------------------------------
+
+        async addToCart(item){
+            this.product_detail=item;
+            if (!this.show_cart_msg){
+                this.add_to_cart=true;
+            }
+            if (this.show_cart_msg && this.active_user !== null) {
+                await this.addVariationToCart(item);
+            }
+
+        },
+        //---------------------------------------------------------------------
+
+        showMsg(){
+            this.add_to_cart = false;
+            this.show_cart_msg=true;
+        },
+        //---------------------------------------------------------------------
+
+        async addVariationToCart(product_variation){
+
+            const user_info = this.item.user ? this.item.user : this.active_user;
+
+            const query = {
+                user: user_info,
+                product_variation: product_variation
+            };
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/cart/generate',
+                this.addVariationToCartAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        addVariationToCartAfter(data,res){
+            if (data){
+
+                this.getList();
+            }
+            this.add_to_cart = false;
+            this.item.user=null;
+            this.product_detail=null;
+        },
+        //---------------------------------------------------------------------
+
+        async searchUser(event) {
+            const query = event;
+            const options = {
+                params: query,
+                method: 'post',
+            };
+
+            await vaah().ajax(
+                this.ajax_url+'/search/user',
+                this.searchUsersAfter,
+                options
+            );
+        },
+
+        //---------------------------------------------------------------------
+
+        searchUsersAfter(data,res) {
+            if(data)
+            {
+                this.user_suggestions = data;
+
+
+            }
+        },
+        //---------------------------------------------------------------------
+
+        setUser(event) {
+            let user = toRaw(event.value);
+            if (user && user.id) {
+                this.item.vh_user_id = user.id;
+            }
+
+        },
+        //---------------------------------------------------------------------
+
+        viewCart(id){
+            this.$router.push({name: 'carts.details',params:{id:id},query:this.query})
+        },
+        //---------------------------------------------------------------------
+        onHideCartDialog(){
+            this.product_detail=null;
         }
+
     },
+
+    //---------------------------------------------------------------------
+
+    //---------------------------------------------------------------------
+
+    //---------------------------------------------------------------------
+
+
 
 });
 

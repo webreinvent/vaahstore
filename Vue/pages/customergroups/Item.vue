@@ -59,10 +59,6 @@ const toggleItemMenu = (event) => {
     <div class="col-6" >
 
         <Panel class="is-small" v-if="store && store.item">
-            <Message severity="info" :closable="false" v-if="store.item.status_notes">
-                <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
-                    {{store.item.status_notes}}</div>
-            </Message>
             <template class="p-1" #header>
 
                 <div class="flex flex-row">
@@ -82,6 +78,7 @@ const toggleItemMenu = (event) => {
                     <Button label="Edit"
                             class="p-button-sm"
                             @click="store.toEdit(store.item)"
+                            :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="customergroups-item-to-edit"
                             icon="pi pi-save"/>
 
@@ -90,6 +87,7 @@ const toggleItemMenu = (event) => {
                         type="button"
                         class="p-button-sm"
                         @click="toggleItemMenu"
+                        :disabled="!store.assets.permissions.includes('can-update-module')"
                         data-testid="customergroups-item-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -137,6 +135,12 @@ const toggleItemMenu = (event) => {
 
                 </Message>
 
+                <Message severity="info" :closable="false" v-if="store.item.status_notes">
+                    <div>
+                        <pre style="font-family: Inter, ui-sans-serif, system-ui; width:350px;overflow-wrap: break-word;word-wrap:break-word;" v-html="store.item.status_notes"></pre>
+                    </div>
+                </Message>
+
                 <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                     <table class="p-datatable-table">
                         <tbody class="p-datatable-tbody">
@@ -144,7 +148,7 @@ const toggleItemMenu = (event) => {
 
                             <template v-if="column === 'created_by' || column === 'updated_by' ||
                              column === 'deleted_by' ||  column === 'status'||column === 'customer_count'
-                             || column === 'order_count' ||  column === 'status_notes' || column === 'meta'">
+                             || column === 'order_count' ||  column === 'taxonomy_id_customer_groups_status'||   column === 'status_notes' || column === 'meta' || column === 'customers'|| column === 'order_items'">
                             </template>
 
                             <template v-else-if="column === 'id' || column === 'uuid'">
@@ -160,7 +164,7 @@ const toggleItemMenu = (event) => {
                                         <b>Name</b>
                                     </td>
                                     <td colspan="2" >
-                                        <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        <div style="overflow-wrap: break-word;word-wrap:break-word;">
                                             {{store.item.name}}</div>
                                     </td>
                                 </tr>
@@ -172,7 +176,7 @@ const toggleItemMenu = (event) => {
                                         <b>Slug</b>
                                     </td>
                                     <td colspan="2" >
-                                        <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
+                                        <div style="overflow-wrap: break-word;word-wrap:break-word;">
                                             {{store.item.slug}}</div>
                                     </td>
                                 </tr>
@@ -181,7 +185,7 @@ const toggleItemMenu = (event) => {
                                         <b>Customer Count</b>
                                     </td>
                                     <td  colspan="2" >
-                                        <Badge severity="info" v-if="store.item.customer_count">{{store.item.customer_count}}</Badge>
+                                        <Badge severity="primary" v-if="store.item.customers">{{store.item.customers.length}}</Badge>
                                     </td>
                                 </tr>
 
@@ -190,7 +194,18 @@ const toggleItemMenu = (event) => {
                                         <b>Order Count</b>
                                     </td>
                                     <td  colspan="2" >
-                                        <Badge severity="info" v-if="store.item.order_count">{{store.item.order_count}}</Badge>
+                                        <Badge severity="primary" v-if="store.item.order_items">{{store.item.order_items.length}}</Badge>
+                                    </td>
+                                </tr>
+
+                                <tr >
+                                    <td>
+                                        <b>Status</b>
+                                    </td>
+                                    <td colspan="2">
+                                        <span v-if="store.item.status?.name === 'Approved'" class="p-badge p-component p-badge-success" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                        <span v-else-if="store.item.status?.name === 'Pending'" class="p-badge p-component p-badge-warning" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
+                                        <span v-else class="p-badge p-component p-badge-danger" data-pc-name="badge" data-pc-section="root">{{store.item.status?.name}}</span>
                                     </td>
                                 </tr>
 
@@ -212,18 +227,7 @@ const toggleItemMenu = (event) => {
 
 
 
-                            <template v-else-if="column === 'taxonomy_id_customer_groups_status'">
-                                <tr>
-                                    <td :style="{width: label_width}">
-                                        <b>Status</b>
-                                    </td>
-                                    <td  colspan="2" >
-                                        <Badge severity="danger" v-if="store.item.status.name == 'Rejected'">{{store.item.status.name}}</Badge>
-                                        <Badge severity="success" v-if="store.item.status.name == 'Approved'">{{store.item.status.name}}</Badge>
-                                        <Badge severity="warning" v-if="store.item.status.name == 'Pending'">{{store.item.status.name}}</Badge>
-                                    </td>
-                                </tr>
-                            </template>
+
 
                             <template v-else>
                                 <VhViewRow :label="column"

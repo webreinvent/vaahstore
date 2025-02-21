@@ -1,0 +1,18 @@
+[
+    {
+        "name": "Vendor Admin",
+        "details": "Somebody who has access to manage all the details of Vendor"
+    },
+    {
+        "name": "Vendor Manager",
+        "details": "Somebody who oversees vendor relationships"
+    },
+    {
+        "name": "Vendor Staff",
+        "details": "Somebody who executes vendor-related tasks"
+    },
+    {
+        "name": "Customer",
+        "details": "Some who has executes order purchase  related tasks"
+    }
+]

@@ -37,17 +37,12 @@ class OrdersController extends Controller
             $data['fillable']['except'] = Order::getUnFillableColumns();
             $data['empty_item'] = Order::getEmptyItem();
             $data['taxonomy'] = [
-                'status_orders' => Taxonomy::getTaxonomyByType('order-status'),
-                'status_order_items' => Taxonomy::getTaxonomyByType('order-items-status'),
-                'types' =>  Taxonomy::getTaxonomyByType('order-items-types')
+                "order_payment_status" => Taxonomy::getTaxonomyByType('order-payment-status'),
             ];
             $data['actions'] = [];
-            $data['customer_groups'] = self::getCustomerGroups();
+
             $data['payment_methods'] = self::getPaymentMethods();
-            $data['active_users'] = self::getUsers();
-            $data['products'] = self::getProducts();
-            $data['product_variations'] = self::getProductVariations();
-            $data['vendors'] = self::getVendors();
+
 
             $response['success'] = true;
             $response['data'] = $data;
@@ -59,11 +54,15 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
         }
 
         return $response;
+    }
+    public static function getPaymentMethods(){
+        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
+        return $payment_methods ?? null;
     }
 
     //----------------------------------------------------------
@@ -78,7 +77,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -95,7 +94,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
             }
             return $response;
@@ -104,41 +103,13 @@ class OrdersController extends Controller
 
     //----------------------------------------------------------
 
-    public static function getCustomerGroups(){
-        $customer_groups = CustomerGroup::get();
-        return $customer_groups ?? null;
-    }
+
 
     //----------------------------------------------------------
 
-    public static function getPaymentMethods(){
-        $payment_methods = PaymentMethod::where(['is_active'=>1,'deleted_at'=>null])->get();
-        return $payment_methods ?? null;
-    }
+
 
     //----------------------------------------------------------
-    public static function getUsers(){
-        $users = User::where(['is_active'=>1,'deleted_at'=>null])->get();
-        return $users ?? null;
-    }
-
-    //----------------------------------------------------------
-    public static function getProducts(){
-        $products = Product::where('is_active',1)->get();
-        return $products ?? null;
-    }
-
-    //----------------------------------------------------------
-    public static function getProductVariations(){
-        $product_variations = ProductVariation::where('is_active',1)->get();
-        return $product_variations ?? null;
-    }
-
-    //----------------------------------------------------------
-    public static function getVendors(){
-        $vendors = Vendor::where('is_active',1)->get();
-        return $vendors ?? null;
-    }
 
     //----------------------------------------------------------
 
@@ -439,6 +410,93 @@ class OrdersController extends Controller
         }
     }
     //----------------------------------------------------------
+    public function getShippedOrderItems(Request $request, $id)
+    {
+        try{
+            return Order::getShippedOrderItems($id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
 
+    public function fetchOrdersChartData(Request $request)
+    {
+        try{
+            return Order::fetchOrdersChartData($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
 
+    public function fetchSalesChartData(Request $request)
+    {
+        try{
+            return Order::fetchSalesChartData($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function fetchOrderPaymentsData(Request $request)
+    {
+        try{
+            return Order::fetchOrderPaymentsData($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+
+    //----------------------------------------------------------
+
+    public function fetchOrdersCountChartData(Request $request)
+    {
+        try{
+            return Order::fetchOrdersCountChartData($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 }

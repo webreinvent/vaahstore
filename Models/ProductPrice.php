@@ -29,6 +29,7 @@ class ProductPrice extends VaahModel
         'uuid',
         'vh_st_vendor_id',
         'vh_st_product_id',
+        'vh_st_vendor_product_id',
         'vh_st_product_variation_id',
         'amount',
         'meta',
@@ -61,6 +62,10 @@ class ProductPrice extends VaahModel
     public function vendor()
     {
         return $this->hasOne(Vendor::class,'id','vh_st_vendor_id')->select('id','name','slug');
+    }
+    public function productVendor()
+    {
+        return $this->hasMany(ProductVendor::class,'vh_st_vendor_product_id','id');
     }
     //-------------------------------------------------
     public function product()
@@ -557,14 +562,14 @@ class ProductPrice extends VaahModel
 
     //-------------------------------------------------
     public static function deleteProducts($items_id){
+        $response=[];
         if($items_id){
             self::whereIn('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
-            $response['data'] = true;
         }else{
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['success'] = false;
         }
+        return $response;
 
     }
 
@@ -572,14 +577,14 @@ class ProductPrice extends VaahModel
 
     public static function deleteProduct($items_id){
 
+        $response=[];
         if($items_id){
             self::where('vh_st_product_id',$items_id)->forcedelete();
             $response['success'] = true;
-            $response['data'] = true;
         }else{
-            $response['error'] = true;
-            $response['data'] = false;
+            $response['success'] = false;
         }
+        return $response;
 
     }
 

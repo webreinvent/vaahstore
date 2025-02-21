@@ -1,17 +1,22 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { useProductVariationStore } from '../../../stores/store-productvariations'
+import {onMounted} from "vue";
+import {useRoute} from "vue-router";
+
 
 const store = useProductVariationStore();
 const useVaah = vaah();
-
-const permissions=store.assets.permissions;
+const route = useRoute();
 
 </script>
 
 <template>
 
     <div v-if="store.list">
+        <Message v-if="!store.list.data || store.default_variation_message" severity="warn" class="mt-1" :closable="false">
+            There is no default variation. Mark a variation as <strong>default</strong>.
+        </Message>
         <!--table-->
         <DataTable
             :value="store.list.data"
@@ -38,7 +43,7 @@ const permissions=store.assets.permissions;
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-if="prop.data.is_default">
-                        <Badge severity="info">Default</Badge>
+
                         <div style="word-break: break-word;">{{ prop.data.name }}</div>
                          </span>
                     <span v-else>
@@ -48,14 +53,20 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-             <Column field="product.name" header="Product"
-                     :sortable="true">
+            <Column field="product.name" header="Product"
+                    :sortable="true">
 
-                 <template #body="prop">
-                     {{store.shortCharacter(prop.data.product.name)}}
-                 </template>
 
-             </Column>
+                <template #body="prop" >
+                    <Badge v-if="prop.data.product && prop.data.product.deleted_at"
+                           value="Trashed"
+                           severity="danger"></Badge>
+                    <div style="word-break: break-word;" v-if="prop.data.product && prop.data.product.name">
+                        {{ prop.data.product.name }}
+                    </div>
+                </template>
+
+            </Column>
 
              <Column field="quantity" header="Quantity"
                      :sortable="true">
@@ -70,38 +81,49 @@ const permissions=store.assets.permissions;
                  </template>
 
              </Column>
+            <Column field="price" header="Price"
+                    :sortable="true">
+
+                <template #body="prop">
+                    {{prop.data.price}}
+                </template>
+
+            </Column>
+            <Column field="stock_status" header="Stock Status"
+                    :sortable="true">
+
+                <template #body="prop">
+                    <Badge v-if="prop.data.quantity === 0"
+                           severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
+                    <Badge v-else-if="prop.data.quantity > 0 && prop.data.quantity < 10"
+                           severity="warning">Low Stock</Badge>
+                    <Badge v-else-if="prop.data.quantity >= 10"
+                           severity="success">In Stock</Badge>
+                </template>
+
+            </Column>
 
              <Column field="status.name" header="Status">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.status.slug == 'approved'"
+                     <Badge v-if="prop.data.status?.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
 
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                     <Badge v-else-if="prop.data.status?.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
 
                      <Badge v-else
-                            severity="warning"> {{prop.data.status.name}} </Badge>
+                            severity="warning"> {{prop.data.status?.name}} </Badge>
                  </template>
 
              </Column>
 
 
-                <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
-                        style="width:150px;"
-                        :sortable="true">
 
-                    <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
-                    </template>
-
-                </Column>
 
             <Column
                 field="is_active"
                 v-if="store.isViewLarge()"
-                :sortable="true"
                 style="width:100px;"
                 header="Is Active"
             >
@@ -132,25 +154,30 @@ const permissions=store.assets.permissions;
                     <div class="p-inputgroup ">
 
                         <Button class="p-button-tiny p-button-text"
+                                data-testid="products-table-to-view"
+                                v-tooltip.top="'Add To Cart'"
+                                @click="store.addToCart(prop.data)"
+                                icon="pi pi-shopping-cart" />
+                        <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-view"
+                                :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
-                                :disabled="$route.path.includes('view') && prop.data.id===store.item && store.item.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-edit"
+                                :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
-                                :disabled="$route.path.includes('form') && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button
-                                class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvariations-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isViewLarge() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 
@@ -170,22 +197,11 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-             <template #empty>
-                 <tr>
-                     <td>
+            <template #empty="prop">
 
+                <div class="no-record-message" style="text-align: center;font-size: 12px; color: #888;">No records found.</div>
 
-                         <h1 style="font-family: Inter,ui-sans-serif,system-ui,
-                         -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,
-                         Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,
-                         Noto Color Emoji;
-                         font-size: .8rem;
-                         margin-left: 19rem;
-                         font-weight: 400;">No Record found.</h1>
-
-                     </td>
-                 </tr>
-             </template>
+            </template>
 
         </DataTable>
         <!--/table-->
@@ -201,5 +217,44 @@ const permissions=store.assets.permissions;
         <!--/paginator-->
 
     </div>
+    <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }"
+    @hide="store.onHideCartDialog()"
+    >
+        <div class="p-inputgroup py-3">
+            <AutoComplete
+                v-model="store.item.user"
+                @change="store.setUser($event)"
+                class="w-full"
+                :suggestions="store.user_suggestions"
+                @complete="store.searchUser($event)"
+                placeholder="Enter Email or Phone"
+                data-testid="products-cart"
+                name="products-cart"
+                optionLabel="email"
+                forceSelection
+                :pt="{
+                                              token: {
+                        class: 'max-w-full'
+                    },
+                    removeTokenIcon: {
+                    class: 'min-w-max'
+                    },
+                    item: { style: {
+                    textWrap: 'wrap'
+                    }  },
+                    panel: { class: 'w-16rem ' }
+                                                }">
+            </AutoComplete>
+            <Button type="button" label="Add To Cart" @click="store.addVariationToCart(store.product_detail)">
 
+            </Button>
+        </div>
+    </Dialog>
 </template>
+
+<style scoped>
+.v-badge--low-stock {
+    background-color: #FFCCCB;
+    color: #FFFFFF; /* Text color */
+}
+</style>
