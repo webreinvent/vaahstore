@@ -1234,8 +1234,6 @@ export const useWarehouseStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },fill: {
-                    colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
                 },
 
                     colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
