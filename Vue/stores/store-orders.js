@@ -1106,6 +1106,8 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false,
                     },
+                },fill: {
+                    type: 'gradient',
                 },
                 noData: {
                     text: 'Oops! No Data Available',

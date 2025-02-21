@@ -1166,8 +1166,8 @@ export const usePaymentStore = defineStore({
             const updated_pie_chart_options = {
                 ...data.chart_options,
                 title: {
-                    text: 'Payment Methods Used',
-                    align: 'center',
+                    text: 'Payment Methods',
+                    align: 'left',
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
@@ -1179,6 +1179,8 @@ export const usePaymentStore = defineStore({
                     toolbar: {
                         show: false,
                     },
+                },fill: {
+                    type: 'gradient',
                 },
                 legend: {
                     position: 'right',
