@@ -1574,15 +1574,17 @@ export const useOrderStore = defineStore({
 
                         const isCreatedVisible = !w.globals.collapsedSeriesIndices.includes(0);
                         const isCompletedVisible = !w.globals.collapsedSeriesIndices.includes(1);
+                        const createdColor = w.globals.seriesColors?.[0] || "#008FFB";
+                        const completedColor = w.globals.seriesColors?.[1] || "#00E396";
 
                         return `<div style="
                             background: #fff; padding: 12px; border-radius: 50%;
                             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
                             min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
                             <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
-                            <div style="font-size: 14px;">
-                                ${isCreatedVisible ? `<div>Created: <strong>${createdCount}</strong></div>` : ''}
-                                ${isCompletedVisible ? `<div>Completed: <strong>${completedCount}</strong></div>` : ''}
+                             <div style="font-size: 14px;">
+                                ${isCreatedVisible ? `<div style="color: ${createdColor};">Created: <strong>${createdCount}</strong></div>` : ''}
+                                ${isCompletedVisible ? `<div style="color: ${completedColor};">Completed: <strong>${completedCount}</strong></div>` : ''}
                             </div>
                         </div>`;
                     }
