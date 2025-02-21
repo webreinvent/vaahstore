@@ -1605,12 +1605,12 @@ export const useShipmentStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },
+                },colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
                 dataLabels: {
                                     enabled: true,
                                     textAnchor: 'start',
                                     style: {
-                                        colors: ['#000'],
+                                        colors: ['#ffffff'],
                                     },
                                     formatter: function (val, opt) {
                                         const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';
@@ -1664,7 +1664,7 @@ export const useShipmentStore = defineStore({
                     theme: 'dark',
                 },
                 legend: {
-                    show: false,
+                    show: true,
 
                 },
 
