@@ -1358,19 +1358,29 @@ export const useShipmentStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        ordersShipmentByDateRangeAfter(data,res){
-            const series_data = data.chart_series.map(series => ({
+        ordersShipmentByDateRangeAfter(data, res) {
+            if (!data || !Array.isArray(data.chart_series)) {
+                return;
+            }
+
+            const seriesData = data.chart_series.map(series => ({
                 name: series.name,
+                type: series.name === "Orders In Shipment" ? "line" : "area",
                 data: Array.isArray(series.data) ? series.data : [],
             }));
 
-            this.updateChartSeries(series_data);
+            this.updateChartSeries(seriesData);
 
-            const updated_area_chart_options = {
-                ...data.chart_options,
+
+            const updatedChartOptions = {
+                chart: {
+                    type: "line",
+                    background: "#fff",
+                    toolbar: { show: false }
+                },
                 stroke: {
-                    curve: 'smooth',
-                    width: 3,
+                    curve: "smooth",
+                    width: [3, 2] // Thicker line for Orders In Shipment, thinner for area chart
                 },
                 noData: {
                     text: 'Oops! No Data Available',
@@ -1383,8 +1393,7 @@ export const useShipmentStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },
-                title: {
+                }, title: {
                     text: 'Order Shipments Trends',
                     align: 'left',
                     offsetY: 12,
@@ -1394,55 +1403,40 @@ export const useShipmentStore = defineStore({
                         color: '#263238'
                     }
                 },
-                chart: {
-
-                    toolbar: {
-                        show: false,
-                    },
-                    background: '#ffffff',
-
+                fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shade: "light",
+                        type: "vertical",
+                        shadeIntensity: 0.4,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [100, 100, 100]
+                    }
+                },
+                colors: ["#008FFB", "#00E396"], // Blue for Orders In Shipment, Green for Quantities Shipped
+                xaxis: {
+                    type: "datetime",
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
                 },
                 yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                },
-                colors: ['#d4526e',  '#13d8aa',
-                ],
-                xaxis: {
-                    labels: {
-                        show: false,
-                    },
-                    axisTicks: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                },
-                legend: {
-                    show: true,
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    floating: false,
-                    fontSize: '11px',
-
-                },
-                dataLabels: {
-                    enabled: false,
+                    title: { text: "Shipments Data" }
                 },
                 tooltip: {
                     enabled: true,
                     shared: true,
                     style: { fontSize: '14px' },
                 },
-                grid: {
-                    show: false,
+                legend: {
+                    position: "bottom"
                 }
             };
 
-            this.updateChartOptions(updated_area_chart_options);
-        },
+            this.updateChartOptions(updatedChartOptions);
+        }
+        ,
         updateChartOptions(newOptions) {
             this.shipment_by_order_chart_options = newOptions;
         },

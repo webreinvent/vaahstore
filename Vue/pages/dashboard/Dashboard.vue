@@ -844,7 +844,7 @@ const metrics = ref([]);
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="line"
+
                             :chartOptions="shipment_store.shipment_by_order_chart_options"
                             :chartSeries="shipment_store.shipment_by_order_chart_series"
                             title=""
