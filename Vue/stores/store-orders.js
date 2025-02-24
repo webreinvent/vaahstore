@@ -1223,7 +1223,7 @@ export const useOrderStore = defineStore({
                         stops: [0, 80, 100]
                     }
                 },
-                colors: [chartColor],
+                colors: ['#008FFB'],
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1391,14 +1391,14 @@ export const useOrderStore = defineStore({
                         fontFamily: undefined
                     }
                 },
-                colors: ["#4e78e1"],
+                colors: ["#008FFB"],
                 fill: {
                     type: ["gradient"],
                     gradient: {
                         shadeIntensity: 0,
                         opacityFrom: 0.5,
                         opacityTo: 0.05,
-                        stops: [0, 80, 100]
+                        stops: [50 , 80, 100]
                     }
                 },
                 xaxis: {
@@ -1440,7 +1440,7 @@ export const useOrderStore = defineStore({
                 },
 
                 chart: {
-                    background: '#fff',
+                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
@@ -1564,7 +1564,7 @@ export const useOrderStore = defineStore({
                 ...data.chart_options,
                 chart: {
                     type: "line",
-                    background: "#fff",
+                    background: '#f6f7f9',
                     toolbar: { show: false },
                 },
                 stroke: {
@@ -1577,10 +1577,13 @@ export const useOrderStore = defineStore({
                 fill: {
                     type: ["solid", "gradient"],
                     gradient: {
-                        shadeIntensity: 0,
-                        opacityFrom: 0.5,
-                        opacityTo: 0.05,
-                        stops: [0, 80, 100]
+                        shade: "light",
+                        shadeIntensity: 0.4,
+                        inverseColors: false,
+                        opacityFrom: 0.5,  // Increased for more visibility
+                        opacityTo: 0.15,   // Adjusted to ensure shadow persists at the end
+                        stops: [20, 100, 100],
+                        type: "vertical"
                     }
                 },
                 colors: ["#008FFB", "#00E396"], // Created (Blue - Line), Completed (Green - Area)
