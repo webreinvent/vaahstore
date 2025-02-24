@@ -1330,7 +1330,7 @@ export const useUserStore = defineStore({
             }
 
             this.total_customers =data.summary.total_customers;
-           this.total_orders =data.summary.total_orders;
+            this.total_orders =data.summary.total_orders;
             this.avg_orders_per_customer =data.summary.avg_orders_per_customer;
             this.average_order_value  =data.summary.average_order_value;
             console.log(this.total_customers)
@@ -1367,15 +1367,8 @@ export const useUserStore = defineStore({
                 },
 
                 stroke: {
-                    curve: 'monotoneCubic',
-                    width: 2, // Set the stroke width for all series
-                    dropShadow: {
-                        enabled: true,  // Enable shadow
-                        top: 2,         // Shadow offset top
-                        left: 2,        // Shadow offset left
-                        blur: 4,        // Shadow blur effect
-                        opacity: 1    // Shadow opacity
-                    }
+                    curve: "smooth",
+                    width: [2, 3],
                 },colors: [ '#CED4DC','#008FFB', '#00E396',],
                 chart: {
                     toolbar: {
@@ -1444,6 +1437,14 @@ export const useUserStore = defineStore({
                         fontSize: '20px',
                         fontWeight: 'bold',
                         color: '#263238'
+                    }
+                },fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [0, 80, 100]
                     }
                 },
                 noData: {
