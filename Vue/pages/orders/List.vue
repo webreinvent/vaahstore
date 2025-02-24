@@ -130,7 +130,7 @@ const toggleCreateMenu = (event) => {
                                             </div>
                                             <div >
                                                 <Charts
-                                                    type="area"
+
                                                     :chartOptions="store.count_chart_options"
                                                     :chartSeries="store.count_chart_series"
                                                     height=130 width=300

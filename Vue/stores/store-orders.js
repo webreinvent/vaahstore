@@ -1518,117 +1518,91 @@ export const useOrderStore = defineStore({
                 return;
             }
 
-            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
-                name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
-            }));
+            const series_data = [
+                {
+                    name: "Created",
+                    type: "line",
+                    data: data.chart_series.orders_count_bar_chart.find(s => s.name === "Created")?.data || []
+                },
+                {
+                    name: "Completed",
+                    type: "area",
+                    data: data.chart_series.orders_count_bar_chart.find(s => s.name === "Completed")?.data || []
+                }
+            ];
             const totals = {
                 total_orders: series_data.find(series => series.name === "Created")?.data.reduce((sum, item) => sum + item.y, 0) || 0,
                 completed_orders: series_data.find(series => series.name === "Completed")?.data.reduce((sum, item) => sum + item.y, 0) || 0
             };
             this.updateChartSeries(series_data);
 
-
             const updated_area_chart_options = {
-                ...data.chart_options, // Merge existing options
-                stroke: {
-                    curve: 'smooth',
-                    width: 2,
+                ...data.chart_options,
+                chart: {
+                    type: "line",
+                    background: "#fff",
+                    toolbar: { show: false },
                 },
-
-                noData: {
-                    text: 'Oops! No Data Available',
-                    align: 'center',
-                    verticalAlign: 'middle',
-                    offsetX: 0,
-                    offsetY: 0,
-                    style: {
-                        color: '#FF0000',
-                        fontSize: '14px',
-                        fontFamily: undefined
+                stroke: {
+                    curve: "smooth",
+                    width: [2, 3],
+                },
+                grid: {
+                    show: false,
+                },
+                fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [0, 80, 100]
                     }
                 },
+                colors: ["#008FFB", "#00E396"], // Created (Blue - Line), Completed (Green - Area)
                 xaxis: {
-                    type: 'datetime',
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
+                    type: "datetime",
+                    labels: { show: false },
+                    axisBorder: { show: false },
                 },
                 yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
+                    labels: { show: false },
+                    axisBorder: { show: false },
                 },
-
                 tooltip: {
                     custom: function({ series, seriesIndex, dataPointIndex, w }) {
                         const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
                         const createdCount = series[0][dataPointIndex] ?? 0;
                         const completedCount = series[1][dataPointIndex] ?? 0;
-
-                        const isCreatedVisible = !w.globals.collapsedSeriesIndices.includes(0);
-                        const isCompletedVisible = !w.globals.collapsedSeriesIndices.includes(1);
-                        const createdColor = w.globals.seriesColors?.[0] || "#008FFB";
-                        const completedColor = w.globals.seriesColors?.[1] || "#00E396";
-
-                        return `<div style="
-                            background: #fff; padding: 12px; border-radius: 50%;
-                            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
-                            min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
-                            <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
-                             <div style="font-size: 14px;">
-                                ${isCreatedVisible ? `<div style="color: ${createdColor};">Created: <strong>${createdCount}</strong></div>` : ''}
-                                ${isCompletedVisible ? `<div style="color: ${completedColor};">Completed: <strong>${completedCount}</strong></div>` : ''}
-                            </div>
-                        </div>`;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Created: <strong>${createdCount}</strong></div>
+                    <div style="color: #00E396;">Completed: <strong>${completedCount}</strong></div>
+                </div>
+            </div>`;
                     }
                 },
-
-
-                chart: {
-                    background: '#fff',
-                    toolbar: {
-                        show: false,
-                    },
-                },
-
-
-                dataLabels: {
-                    enabled: false,
-                },
-                grid: {
-                    show: false,
-                },
-
                 legend: {
                     show: true,
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    fontSize: '14px',
-                    labels: {
-                        colors: '#000',
-                    },
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 5
-                    },
-                    formatter: function (seriesName) {
-                        if (seriesName === 'Created') {
+                    position: "bottom",
+                    horizontalAlign: "left",
+                    fontSize: "14px",
+                    labels: { colors: "#000" },
+                    itemMargin: { horizontal: 10, vertical: 5 },
+                    formatter: function(seriesName) {
+                        if (seriesName === "Created") {
                             return `${seriesName}: ${totals.total_orders}`;
-                        } else if (seriesName === 'Completed') {
+                        } else if (seriesName === "Completed") {
                             return `${seriesName}: ${totals.completed_orders}`;
                         }
                         return seriesName;
                     }
                 }
             };
-
+            
             this.updateChartOptions(updated_area_chart_options);
 
         },

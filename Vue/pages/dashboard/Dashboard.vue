@@ -178,7 +178,7 @@ const metrics = ref([]);
                             </div>
                             <div>
                                 <Charts
-                                    type="area"
+
                                     :chartOptions="orders_store.count_chart_options"
                                     :chartSeries="orders_store.count_chart_series"
                                     height=300
