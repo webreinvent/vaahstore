@@ -1413,6 +1413,12 @@ export const useShipmentStore = defineStore({
                     labels: {
                         show: false,
                     },
+                    axisTicks: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
                 },
                 legend: {
                     show: true,

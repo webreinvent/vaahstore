@@ -1202,7 +1202,7 @@ export const useOrderStore = defineStore({
             }));
             this.updateSalesChartSeries(series_data);
             const isNegativeGrowth = this.growth_rate < 0;
-            const chartColor = isNegativeGrowth ? '#4e78e1' : '#00FF00';
+            const chartColor = isNegativeGrowth ? '#4e78e1' : '#4e78e1';
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
@@ -1214,6 +1214,14 @@ export const useOrderStore = defineStore({
                 title: {
                     text: '',
 
+                },fill: {
+                    type: ["gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [0, 80, 100]
+                    }
                 },
                 colors: [chartColor],
                 noData: {
@@ -1237,6 +1245,9 @@ export const useOrderStore = defineStore({
                     axisBorder: {
                         show: false,
                     },
+                    axisTicks: {
+                        show: false,
+                    }
                 },
                 yaxis: {
                     labels: {
@@ -1380,6 +1391,16 @@ export const useOrderStore = defineStore({
                         fontFamily: undefined
                     }
                 },
+                colors: ["#4e78e1"],
+                fill: {
+                    type: ["gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [0, 80, 100]
+                    }
+                },
                 xaxis: {
                     type: 'datetime',
                     labels: {
@@ -1388,6 +1409,9 @@ export const useOrderStore = defineStore({
                     axisBorder: {
                         show: false,
                     },
+                    axisTicks: {
+                        show: false,
+                    }
                 },
                 yaxis: {
                     labels: {
@@ -1564,6 +1588,9 @@ export const useOrderStore = defineStore({
                     type: "datetime",
                     labels: { show: false },
                     axisBorder: { show: false },
+                    axisTicks: {
+                        show: false,
+                    }
                 },
                 yaxis: {
                     labels: { show: false },
@@ -1602,7 +1629,7 @@ export const useOrderStore = defineStore({
                     }
                 }
             };
-            
+
             this.updateChartOptions(updated_area_chart_options);
 
         },

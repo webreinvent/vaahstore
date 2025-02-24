@@ -1392,7 +1392,13 @@ export const useUserStore = defineStore({
                     xaxis: {
                         lines: {
                             show: false,
-                        }
+                        },
+                        axisTicks: {
+                            show: false,
+                        },
+                        axisBorder: {
+                            show: false,
+                        },
                     },
                     yaxis: {
                         lines: {
