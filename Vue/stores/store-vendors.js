@@ -1877,7 +1877,7 @@ export const useVendorStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#ffffff',
+                    background: '#f6f7f9',
 
                 },
 
@@ -1907,7 +1907,7 @@ export const useVendorStore = defineStore({
                     }
                 },
                 tooltip: {
-                    shared: false,
+                    shared: true,
 
                 }
             };

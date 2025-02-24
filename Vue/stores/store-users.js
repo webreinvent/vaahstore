@@ -1369,7 +1369,7 @@ export const useUserStore = defineStore({
                 stroke: {
                     curve: "smooth",
                     width: [2, 3],
-                },colors: [ '#CED4DC','#008FFB', '#00E396',],
+                },colors: ["#008FFB", "#00E396"],
                 chart: {
                     toolbar: {
                         show: false
