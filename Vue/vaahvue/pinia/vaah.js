@@ -1,7 +1,10 @@
 import {defineStore, acceptHMRUpdate} from 'pinia'
 import axios from 'axios'
 import qs from "qs";
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 
 export const vaah = defineStore({
     id: 'vaah',
@@ -30,7 +33,7 @@ export const vaah = defineStore({
                 method: 'get',
                 query: null,
                 headers: null,
-                show_toast: true,
+                show_success: true,
             }
 
             if(options)
@@ -45,14 +48,20 @@ export const vaah = defineStore({
             let method = default_option.method.toLowerCase();
             let query = default_option.query;
             let headers = default_option.headers;
-            let show_toast = default_option.show_toast;
+            let show_success = default_option.show_success;
 
 
 
             //To make axios request as ajax request
-            axios.defaults.headers.common = {
-                'X-Requested-With': 'XMLHttpRequest',
-            };
+            if(headers && headers["Authorization"]){
+                axios.defaults.headers.common = {
+                    "Authorization": headers["Authorization"],
+                };
+            } else{
+                axios.defaults.headers.common = {
+                    'X-Requested-With': 'XMLHttpRequest',
+                };
+            }
 
             let q = {};
 
@@ -90,18 +99,11 @@ export const vaah = defineStore({
                     data: params
                 };
             }
-
             this.show_progress_bar = true;
-
             let ajax = await axios[method](url, params, q)
                 .then(function (response) {
                     self.show_progress_bar = false;
-                    if(show_toast){
-                        if(self.toast){
-                            self.toast.removeAllGroups();
-                        }
-                        self.processResponse(response);
-                    }
+                    self.processResponse(response, show_success);
                     if(callback)
                     {
                         if(response.data && response.data.data)
@@ -113,7 +115,6 @@ export const vaah = defineStore({
                     }
                     return response;
                 }).catch(function (error) {
-
                     self.show_progress_bar = false;
                     self.processError(error);
                     if(callback)
@@ -125,24 +126,40 @@ export const vaah = defineStore({
 
             return ajax;
         },
-
         //----------------------------------------------------------
-        processResponse: function(response)
-        {
-            if(response.data.errors)
+        hasPermission: function (permissions, slug) {
+            if(!permissions)
             {
-                this.toastErrors(response.data.errors);
+                return false;
+            }
+            if(permissions.length < 1)
+            {
+                return false;
             }
 
-            if(response.data.messages)
-            {
-                this.toastSuccess(response.data.messages);
+            return permissions.indexOf(slug) > -1 ? true : false;
+        },
+        //----------------------------------------------------------
+        processResponse: function(response, show_success)
+        {
+            if(response && response.data){
+                if(response.data.errors)
+                {
+                    this.toastErrors(response.data.errors);
+                }
+                if(response.data.messages)
+                {
+                    this.toastSuccess(response.data.messages);
+                }
             }
+
+
         },
 
         //----------------------------------------------------------
         processError: function(error)
         {
+
             if(error.response
                 && error.response.status
                 && error.response.status === 419)
@@ -151,17 +168,14 @@ export const vaah = defineStore({
                 location.reload();
                 return;
             }
-            if(error.response && error.response.status !== 200 && error.response.data.errors)
-            {
-                this.toastErrors(error.response.data.errors);
-                return;
-            }
+
             if(debug === 1)
             {
+                alert(error)
                 this.toastErrors([error]);
             } else
             {
-                this.toastErrors(['Something went wrong']);
+                // this.toastErrors(['Something went wrong']);
             }
         },
         //----------------------------------------------------------
@@ -187,7 +201,7 @@ export const vaah = defineStore({
             }
 
             let chars = list_html.length
-            let readable = 55; // readable character per second.
+            let readable = 10; // readable character per second.
 
             duration = duration*(chars/readable);
 
@@ -224,7 +238,6 @@ export const vaah = defineStore({
             let data = this.getMessageAndDuration(messages);
             if(data && data.html !== "")
             {
-                console.log('data.duration',data);
                 this.toast.add({
                     severity: 'error',
                     detail: data.html,
@@ -254,98 +267,9 @@ export const vaah = defineStore({
         //----------------------------------------------------------
         confirmDialogDelete(callbackOnAccept)
         {
-            this.confirmDialog('Delete Confirmation', 'Do you want to Delete record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-        confirmDialogDeleteAll(callbackOnAccept)
-        {
-            this.confirmDialog('Delete Confirmation', 'Do you want to Delete all record(s)?', callbackOnAccept);
+            this.confirmDialog('Delete Confirmation', 'Do you want to delete record(s)?', callbackOnAccept);
         },
         //----------------------------------------------------------
-
-        confirmDialogActivate(callbackOnAccept)
-        {
-            this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogActivateAll(callbackOnAccept)
-        {
-            this.confirmDialog('Activate Confirmation', 'Do you want to Activate all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogDeactivate(callbackOnAccept)
-        {
-            this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogDeactivateAll(callbackOnAccept)
-        {
-            this.confirmDialog('Deactivate Confirmation', 'Do you want to Deactivate all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogTrash(callbackOnAccept)
-        {
-            this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogTrashAll(callbackOnAccept)
-        {
-            this.confirmDialog('Trash Confirmation', 'Do you want to Trash all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogRestore(callbackOnAccept)
-        {
-            this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-
-        confirmDialogApprovedAll(callbackOnAccept)
-        {
-            this.confirmDialog('Approve Status Confirmation', 'Do you want to Approve all record(s)?', callbackOnAccept);
-        },
-        //----------------------------------------------------------
-
-        confirmDialogRestoreAll(callbackOnAccept)
-        {
-            this.confirmDialog('Restore Confirmation', 'Do you want to Restore all record(s)?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogPendingAll(callbackOnAccept)
-        {
-            this.confirmDialog('Pending Confirmation', 'Do you want to mark status of all records as Pending?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogRejectAll(callbackOnAccept)
-        {
-            this.confirmDialog('Reject Confirmation', 'Do you want to mark status of all records as Rejected?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
-        confirmDialogApproveAll(callbackOnAccept)
-        {
-            this.confirmDialog('Approve Confirmation', 'Do you want to mark status of all records as Approved?', callbackOnAccept);
-        },
-
-        //----------------------------------------------------------
-
         clone: function (source)
         {
             return JSON.parse(JSON.stringify(source));
@@ -356,7 +280,7 @@ export const vaah = defineStore({
             {
                 return null;
             }
-            let time = moment(value);
+            let time = dayjs(value);
             return time.from();
         },
         //----------------------------------------------------------
@@ -370,7 +294,9 @@ export const vaah = defineStore({
 
             return obj;
         },
+
         //----------------------------------------------------------
+
         copy: function (string)
         {
             if (!navigator.clipboard) {
@@ -420,10 +346,10 @@ export const vaah = defineStore({
             if(typeof str === 'string' )
             {
                 str = str.replace(/_/g, " ");
-                str = str.replace(/-/g, " ");
                 str = this.toUpperCaseWords(str);
                 return str;
             }
+
         },
         //----------------------------------------------------------
         toUpperCaseWords: function(str)
@@ -475,55 +401,28 @@ export const vaah = defineStore({
             return element;
         },
         //----------------------------------------------------------
-        updateArray: function(array, updatedElement) {
-            const index = array.indexOf(updatedElement);
-            array[index] = updatedElement;
-            return array;
+        strToSlug: function (title,delimiter = '-') {
+            let slug = "";
+            // Change to lower case
+            let titleLower = title.toLowerCase();
+            // Letter "e"
+            slug = titleLower.replace(/e|é|è|ẽ|ẻ|ẹ|ê|ế|ề|ễ|ể|ệ/gi, 'e');
+            // Letter "a"
+            slug = slug.replace(/a|á|à|ã|ả|ạ|ă|ắ|ằ|ẵ|ẳ|ặ|â|ấ|ầ|ẫ|ẩ|ậ/gi, 'a');
+            // Letter "o"
+            slug = slug.replace(/o|ó|ò|õ|ỏ|ọ|ô|ố|ồ|ỗ|ổ|ộ|ơ|ớ|ờ|ỡ|ở|ợ/gi, 'o');
+            // Letter "u"
+            slug = slug.replace(/u|ú|ù|ũ|ủ|ụ|ư|ứ|ừ|ữ|ử|ự/gi, 'u');
+            // Letter "d"
+            slug = slug.replace(/đ/gi, 'd');
+            // Trim the last whitespace
+            slug = slug.replace(/\s*$/g, '');
+            // Change whitespace to "-"
+            slug = slug.replace(/\s+/g, delimiter);
+
+            return slug;
         },
         //----------------------------------------------------------
-        hasPermission: function (permissions, slug) {
-
-            if(!permissions)
-            {
-                return false;
-            }
-
-            if(permissions.length < 1)
-            {
-                return false;
-            }
-
-            return permissions.indexOf(slug) > -1 ? true : false;
-        },
-        //----------------------------------------------------------
-        strToSlug(string) {
-            return string.toString().toLowerCase()
-                .replace(/\s+/g, '-') // Replace spaces with -
-                .replace(/&/g, '-and-') // Replace & with 'and'
-                .replace(/--+/g, '-') // Replace multiple - with single -
-                .replace(/a|á|à|ã|ả|ạ|ă|ắ|ằ|ẵ|ẳ|ặ|â|ấ|ầ|ẫ|ẩ|ậ/gi, 'a')  // Letter "a"
-                .replace(/đ/gi, 'd') // Letter "d"
-                .replace(/e|é|è|ẽ|ẻ|ẹ|ê|ế|ề|ễ|ể|ệ/gi, 'e') // Letter "e"
-                .replace(/o|ó|ò|õ|ỏ|ọ|ô|ố|ồ|ỗ|ổ|ộ|ơ|ớ|ờ|ỡ|ở|ợ/gi, 'o') // Letter "o"
-                .replace(/u|ú|ù|ũ|ủ|ụ|ư|ứ|ừ|ữ|ử|ự/gi, 'u') // Letter "u"
-                .replace(/\s*$/g, '') // Trim the last whitespace
-        },
-        //----------------------------------------------------------
-        existInArray: function(array, element) {
-            const index = array.indexOf(element);
-
-            if(index == -1)
-            {
-                return false;
-            } else
-            {
-                return true;
-            }
-        },
-        //----------------------------------------------------------
-        validateEmail(value) {
-            return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value);
-        },
         capitalising: function (str) {
             let capitalized = []
             str.split(' ').forEach(word => {
@@ -534,15 +433,35 @@ export const vaah = defineStore({
             })
             return capitalized.join(' ')
         },
+        //---------------------------------------------------------------------
+        localTimeShortFormat: function (value) {
+
+            const utcTime = dayjs.utc(value);
+
+            const date = utcTime.format('DD');
+
+            const current = dayjs();
+
+            const currentDate = current.format('DD');
+
+            if(date === currentDate){
+                return utcTime.local().format('hh:mm A');
+            } else{
+
+                return utcTime.local().format('MMM DD');
+            }
+
+
+        },
         //----------------------------------------------------------
         toLocalTimeShortFormat: function (value) {
 
-            const utcTime = moment.utc(value)
+            const utcTime = dayjs.utc(value)
 
             const date = utcTime.format('DD')
             const dateYear = utcTime.format('YYYY')
 
-            const current = moment()
+            const current = dayjs()
 
             const currentDate = current.format('DD')
             const currentYear = current.format('YYYY')
@@ -557,6 +476,9 @@ export const vaah = defineStore({
             }
 
         },
+        //----------------------------------------------------------
+        //----------------------------------------------------------
+        //----------------------------------------------------------
     }
 })
 

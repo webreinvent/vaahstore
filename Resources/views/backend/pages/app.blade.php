@@ -12,7 +12,7 @@
 @section('vaahcms_extend_backend_js')
 
     @if(env('MODULE_STORE_ENV') == 'develop')
-        <script type="module" src="http://localhost:8464/Vue/main.js"></script>
+        <script type="module" src="http://localhost:8464/main.js"></script>
     @else
         <script type="module" src="{{vh_module_assets_url("Store", "build/index.js")}}"></script>
     @endif
