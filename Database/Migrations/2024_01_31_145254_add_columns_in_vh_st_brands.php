@@ -18,7 +18,7 @@ class AddColumnsInVhStBrands extends Migration
             $table->string('image')->nullable()->index()->after('slug');
             $table->string('meta_title')->nullable()->index()->after('image');
             $table->text('meta_description')->nullable()->after('meta_title');
-            $table->text('meta_keywords')->nullable()->index()->after('meta_description');
+            $table->text('meta_keywords')->nullable()->after('meta_description');
         });
 
 

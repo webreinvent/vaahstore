@@ -16,8 +16,8 @@ class AddSeoColumnsInVhStProducts extends Migration
         Schema::table('vh_st_products', function (Blueprint $table) {
             $table->after('meta', function ($table) {
                 $table->string('seo_title')->nullable()->index();
-                $table->text('seo_meta_description')->nullable();
-                $table->text('seo_meta_keyword')->nullable()->index();
+                $table->string('seo_meta_description')->nullable();
+                $table->string('seo_meta_keyword')->nullable();
             });
         });
     }

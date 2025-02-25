@@ -20,8 +20,8 @@ class AddColumnsInVhStProductVariation extends Migration
 
             $table->after('meta',function ($table){
                 $table->string('meta_title')->nullable()->index();
-                $table->text('meta_description')->nullable();
-                $table->text('meta_keywords')->nullable()->index();
+                $table->string('meta_description')->nullable();
+                $table->string('meta_keywords')->nullable();
 
             });
 
