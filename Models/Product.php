@@ -147,7 +147,7 @@ class Product extends VaahModel
     }
 
     //-------------------------------------------------
-    public  function image()
+    public  function productMedias()
     {
         return $this->hasMany(ProductMedia::class, 'vh_st_product_id', 'id');
     }
@@ -835,7 +835,7 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type', 'medias','image.images','status', 'productVendors', 'productCategories'];
+        $relationships = ['brand', 'store', 'type','productMedias.images:id,vh_st_product_media_id,url','status', 'productVendors', 'productCategories'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
