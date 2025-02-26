@@ -6,6 +6,7 @@ import List from '../pages/carts/List.vue'
 import CartDetails from '../pages/carts/components/CartDetails.vue'
 import CheckOut from '../pages/carts/components/CheckOut.vue'
 import OrderDetails from '../pages/carts/components/OrderDetails.vue'
+import Filters from '../pages/carts/Filters.vue'
 
 routes_list = {
 
@@ -14,6 +15,12 @@ routes_list = {
     component: List,
     props: true,
     children:[
+        {
+            path: 'filters',
+            name: 'carts.filters',
+            component: Filters,
+            props: true,
+        },
 
     ]
 };
