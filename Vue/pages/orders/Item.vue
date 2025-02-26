@@ -56,7 +56,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-7" >
+    <div>
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -136,7 +136,7 @@ const toggleItemMenu = (event) => {
                     </div>
 
                 </Message>
-                <TabView>
+                <Tabs>
                     <TabPanel header="Order Details">
                         <Message severity="info" :closable="false" v-if="store.item.status_notes">
                             <tr>
@@ -412,7 +412,7 @@ const toggleItemMenu = (event) => {
                             </DataTable>
                         </div>
                     </TabPanel>
-                </TabView>
+                </Tabs>
             </div>
         </Panel>
 

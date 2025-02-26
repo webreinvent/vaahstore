@@ -1,7 +1,7 @@
 <script  setup>
 
-import { useOrderStore } from '../../../stores/store-orders'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useOrderStore } from '../../stores/store-orders'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = useOrderStore();
 
@@ -9,9 +9,29 @@ const store = useOrderStore();
 
 <template>
     <div>
+        <Panel >
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="campaigns-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
+<!--        <Sidebar v-model:visible="store.show_filters"-->
+<!--                 position="right">-->
             <VhFieldVertical >
                 <template #label>
                     <b>Order Payment Status:</b>
@@ -132,7 +152,8 @@ const store = useOrderStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
+<!--        </Sidebar>-->
+        </Panel>
 
     </div>
 </template>
