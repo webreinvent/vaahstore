@@ -376,23 +376,16 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
 
-            switch (route_name) {
-                case 'products.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'products.variation':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                case 'products.vendor':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+            this.view = 'list';
+
+            if(route_name.includes('products.view')
+                || route_name.includes('products.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('products.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------

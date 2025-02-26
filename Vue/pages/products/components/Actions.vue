@@ -37,7 +37,7 @@ const toggleExportMenuState = (event) => {
         <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
