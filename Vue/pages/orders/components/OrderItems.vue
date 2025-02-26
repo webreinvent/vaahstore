@@ -11,7 +11,7 @@ const useVaah = vaah()
 
 
 <template>
-    <Sidebar v-model:visible="store.show_orders_panel"  header="Order Name:" position="right" style="width:700px;">
+    <Drawer v-model:visible="store.show_orders_panel"  header="Order Name:" position="right" style="width:700px;">
         <template #header>
             <h2 style="font-weight: bold;" v-if="store.item"  >{{ store.order_name }}
             </h2>
@@ -84,7 +84,7 @@ const useVaah = vaah()
         </DataTable>
 
 
-    </Sidebar>
+    </Drawer>
 </template>
 
 

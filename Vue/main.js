@@ -36,6 +36,12 @@ import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 
+import Tabs from 'primevue/tabs';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
+import TabPanel from 'primevue/tabpanel';
+
 //-------------/PrimeVue Imports
 
 //-------------CRUD PrimeVue Imports
@@ -138,6 +144,12 @@ app.component('AccordionHeader', AccordionHeader);
 app.component('AccordionContent', AccordionContent);
 app.component('AccordionPanel', AccordionPanel);
 app.component('Chart', Chart);
+
+app.component('Tabs', Tabs);
+app.component('Tab', Tab);
+app.component('TabPanels', TabPanels);
+app.component('TabPanel', TabPanel);
+app.component('TabList', TabList);
 
 //-------------/CRUD PrimeVue Use
 
