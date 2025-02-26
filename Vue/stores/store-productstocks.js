@@ -954,9 +954,9 @@ export const useProductStockStore = defineStore({
             this.$router.push({name: 'productstocks.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -976,7 +976,7 @@ export const useProductStockStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -986,7 +986,7 @@ export const useProductStockStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }

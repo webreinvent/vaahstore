@@ -1,17 +1,33 @@
 <script  setup>
 
-import { useProductStockStore } from '../../../stores/store-productstocks'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductStockStore } from '@/stores/store-productstocks'
+import { useRootStore } from '@/stores/root'
+import VhFieldVertical from '@/vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = useProductStockStore();
-
+const root = useRootStore();
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt" >
+        <template class="p-1" #header>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <b class="mr-1">Filters</b>
+
+        </template>
+        <template #icons>
+
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/productstocks`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+
+        </template>
 
             <VhFieldVertical >
                 <template #label>
@@ -305,7 +321,5 @@ const store = useProductStockStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
