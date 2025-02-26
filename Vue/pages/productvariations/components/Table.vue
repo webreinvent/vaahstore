@@ -29,7 +29,7 @@ const route = useRoute();
         >
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -96,7 +96,7 @@ const route = useRoute();
                     <Badge v-if="prop.data.quantity === 0"
                            severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
                     <Badge v-else-if="prop.data.quantity > 0 && prop.data.quantity < 10"
-                           severity="warning">Low Stock</Badge>
+                           severity="warn">Low Stock</Badge>
                     <Badge v-else-if="prop.data.quantity >= 10"
                            severity="success">In Stock</Badge>
                 </template>
@@ -113,7 +113,7 @@ const route = useRoute();
                             severity="danger"> {{prop.data.status.name}} </Badge>
 
                      <Badge v-else
-                            severity="warning"> {{prop.data.status?.name}} </Badge>
+                            severity="warn"> {{prop.data.status?.name}} </Badge>
                  </template>
 
              </Column>
@@ -123,12 +123,12 @@ const route = useRoute();
 
             <Column
                 field="is_active"
-                v-if="store.isViewLarge()"
+                v-if="store.isListView()"
                 style="width:100px;"
                 header="Is Active"
             >
                 <template #body="prop">
-                    <InputSwitch
+                    <ToggleSwitch
                         v-model.bool="prop.data.is_active"
                         data-testid="productvariations-table-is-active"
                         v-bind:false-value="0"
@@ -141,7 +141,7 @@ const route = useRoute();
         }),
       }"
                         :disabled="!store.assets.permissions.includes('can-update-module')"
-                    ></InputSwitch>
+                    ></ToggleSwitch>
                 </template>
             </Column>
 
@@ -175,7 +175,7 @@ const route = useRoute();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvariations-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isListView() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                 v-tooltip.top="'Trash'"
@@ -184,7 +184,7 @@ const route = useRoute();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productvariations-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isListView() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
