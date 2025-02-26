@@ -1,12 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductStore } from '../../stores/store-products'
+import { useRootStore } from '@/stores/root'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useProductStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -32,11 +34,11 @@ const toggleSelectedMenuState = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
 
-        <Panel >
+    <Panel :pt="root.panel_pt">
 
-            <template class="p-1" #header>
+
+    <template class="p-1" #header>
 
 
                 <div class="flex flex-row">
@@ -190,7 +192,6 @@ const toggleSelectedMenuState = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>
 

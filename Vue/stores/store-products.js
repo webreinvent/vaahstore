@@ -380,6 +380,8 @@ export const useProductStore = defineStore({
 
             if(route_name.includes('products.view')
                 || route_name.includes('products.form')
+                || route_name.includes('products.variation')
+                || route_name.includes('products.vendor')
             ){
                 this.view = 'list-and-item';
             }

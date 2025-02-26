@@ -158,6 +158,10 @@ import Editor from 'primevue/editor';
 app.component('Editor', Editor);
 
 
+import Drawer from 'primevue/drawer';
+app.component('Drawer', Drawer);
+
+
 app.component('apexchart', VueApexCharts);
 
 app.mount('#appStore')
