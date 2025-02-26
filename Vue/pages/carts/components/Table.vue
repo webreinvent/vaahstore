@@ -23,7 +23,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -77,7 +77,7 @@ const useVaah = vaah();
              <Column field="products_count" header="Products Inside"
                      class="overflow-wrap-anywhere"
                      :sortable="true"></Column>
-             
+
             <Column field="Actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     header="Actions">
@@ -102,7 +102,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="products-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isListView() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
