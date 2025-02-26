@@ -95,10 +95,10 @@ const toggleCreateMenu = (event) => {
                         </div>
 
                         <div class="flex w-full  mb-4 mt-4" v-if="store.isViewLarge()">
-                            <div class="w-26rem h-13rem">
+                            <div class="w-26rem h-18rem">
                                 <Card
                                     v-if="store.isViewLarge()"
-                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
+                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px; background-color: #f6f7f9"
                                     :pt="{
                                         content: {
                                             class: 'py-0'
@@ -133,7 +133,7 @@ const toggleCreateMenu = (event) => {
 
                                                     :chartOptions="store.count_chart_options"
                                                     :chartSeries="store.count_chart_series"
-                                                    height=130 width=300
+                                                    height=200 width=350
                                                     titleAlign="center"
                                                     title=""
 
@@ -145,10 +145,10 @@ const toggleCreateMenu = (event) => {
                                     </template>
                                 </Card>
                             </div>
-                            <div class="w-26rem h-13rem">
+                            <div class="w-26rem h-18rem">
                                 <Card
                                     v-if="store.isViewLarge()"
-                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
+                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;background-color: #f6f7f9"
                                     :pt="{
                                         content: {
                                             class: 'py-0'
@@ -206,7 +206,7 @@ const toggleCreateMenu = (event) => {
                                                     type="area"
                                                     :chartOptions="store.sales_chart_options"
                                                     :chartSeries="store.sales_chart_series"
-                                                    height=130 width=300
+                                                    height=200 width=300
                                                     titleAlign="center"
 
 
@@ -221,10 +221,10 @@ const toggleCreateMenu = (event) => {
                             </div>
 
 
-                            <div class="w-26rem h-13rem">
+                            <div class="w-26rem h-18rem">
                                 <Card
                                     v-if="store.isViewLarge()"
-                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
+                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;background-color: #f6f7f9"
                                     :pt="{
                                         content: {
                                             class: 'py-0'
@@ -283,7 +283,7 @@ const toggleCreateMenu = (event) => {
                                                     type="area"
                                                     :chartOptions="store.order_payments_income_chart_options"
                                                     :chartSeries="store.order_payments_income_chart_series"
-                                                    height=130 width=300
+                                                    height=200 width=300
                                                     titleAlign="center"
 
 
