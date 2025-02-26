@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\ProductAttribute;
-use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductPrice;
 use VaahCms\Modules\Store\Models\ProductStock;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -146,6 +146,11 @@ class Product extends VaahModel
         )->select('id', 'uuid', 'first_name', 'last_name', 'email');
     }
 
+    //-------------------------------------------------
+    public  function productMedias()
+    {
+        return $this->hasMany(ProductMedia::class, 'vh_st_product_id', 'id');
+    }
     //-------------------------------------------------
 
     public function brand()
@@ -830,7 +835,7 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type', 'status', 'productVendors', 'productCategories'];
+        $relationships = ['brand', 'store', 'type','productMedias.images:id,vh_st_product_media_id,url','status', 'productVendors', 'productCategories'];
         foreach ($include as $key => $value) {
             if ($value === 'true') {
                 $keys = explode(',', $key); // Split comma-separated values
