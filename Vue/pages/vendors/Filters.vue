@@ -28,7 +28,7 @@ onMounted(async () => {
 
             <template #icons>
 
-                <Button data-testid="campaigns-hide-filter"
+                <Button data-testid="vendors-hide-filter"
                         @click="store.toList()"
                         icon="pi pi-times"
                         rounded

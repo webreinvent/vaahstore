@@ -1,14 +1,14 @@
 <script  setup>
 
-import { usePaymentStore } from '../../../stores/store-payments'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { usePaymentStore } from '../../stores/store-payments'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = usePaymentStore();
 
 </script>
 
 <template>
-    <div class="col-3" v-if="store.show_filters">
+    <div>
 
             <Panel class="is-small">
 
@@ -28,9 +28,12 @@ const store = usePaymentStore();
                     <div class="p-inputgroup">
 
                         <Button data-testid="payments-hide-filter"
-                                class="p-button-sm"
-                                @click="store.show_filters = false">
-                            <i class="pi pi-times"></i>
+                                @click="store.toList()"
+                                icon="pi pi-times"
+                                rounded
+                                variant="text"
+                                severity="contrast"
+                                size="small">
                         </Button>
 
                     </div>
@@ -49,6 +52,7 @@ const store = usePaymentStore();
                                       option-label = "user_name"
                                       option-value = "user_name"
                                       multiple
+                                      :dropdown="true"
                                       :complete-on-focus = "true"
                                       :suggestions="store.filter_order_suggestion"
                                       @complete="store.getOrdersForFilter($event)"
