@@ -128,7 +128,7 @@ const toggleCreateMenu = (event) => {
                                         <Column field="" header="" class="overflow-wrap-anywhere"
                                                 style="width:120px;">
                                             <template #body="prop">
-                                                <div class="flex mt-4">
+                                                <div class="">
                                                     <div class="product_img">
                                                         <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                             <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
@@ -215,7 +215,7 @@ const toggleCreateMenu = (event) => {
                                         <Column field="" header="" class="overflow-wrap-anywhere"
                                                 style="width:120px;">
                                             <template #body="prop">
-                                                <div class="flex mt-4">
+                                                <div class="">
                                                     <div class="product_img">
                                                         <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                             <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
