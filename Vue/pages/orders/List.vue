@@ -1,7 +1,7 @@
 <script setup>
 import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
-
+import {usePaymentStore} from "../../stores/store-payments";
 import {useOrderStore} from '../../stores/store-orders'
 import {useRootStore} from '../../stores/root'
 
@@ -14,10 +14,6 @@ const payment_store = usePaymentStore();
 const root = useRootStore();
 const route = useRoute();
 
-import {useConfirm} from "primevue/useconfirm";
-import {usePaymentStore} from "../../stores/store-payments";
-
-const confirm = useConfirm();
 
 
 onMounted(async () => {
