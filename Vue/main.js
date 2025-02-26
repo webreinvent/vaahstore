@@ -133,6 +133,17 @@ app.component("Card", Card);
 import Image from "primevue/Image";
 app.component("Image", Image);
 
+import TreeSelect from 'primevue/treeselect';
+app.component('TreeSelect', TreeSelect);
+
+
+import MultiSelect from 'primevue/multiselect';
+app.component('MultiSelect', MultiSelect);
+
+
+import AutoComplete from 'primevue/autocomplete';
+app.component('AutoComplete', AutoComplete);
+
 
 app.component('apexchart', VueApexCharts);
 

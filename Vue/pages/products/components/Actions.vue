@@ -1,7 +1,7 @@
 <script  setup>
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductStore } from '../../../stores/store-products'
-import Filters from './Filters.vue'
+import Filters from '../Filters.vue'
 import Export from "../../import/components/Export.vue"
 const store = useProductStore();
 

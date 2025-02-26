@@ -1,11 +1,13 @@
 <script  setup>
 
-import { useProductStore } from '../../../stores/store-products'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductStore } from '../../stores/store-products'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 import {computed, onMounted} from "vue";
+import { useRootStore } from '@/stores/root'
 
 
 const store = useProductStore();
+const root = useRootStore();
 
 onMounted(async () => {
 
@@ -17,10 +19,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div>
-
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+    <Panel :pt="root.panel_pt" >
 
             <VhFieldVertical>
                 <template #label>
@@ -371,7 +370,5 @@ onMounted(async () => {
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
