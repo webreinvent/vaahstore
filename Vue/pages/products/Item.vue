@@ -3,11 +3,13 @@ import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import { useProductStore } from '../../stores/store-products'
+import { useRootStore } from '@/stores/root'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 import {useDialog} from "primevue/usedialog";
 import ProductCategories from "./components/ProductCategories.vue";
 const store = useProductStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -65,9 +67,8 @@ const openProductCategories = (categories,product) => {
 </script>
 <template>
 
-    <div class="col-6" >
 
-        <Panel class="is-small" v-if="store && store.item">
+        <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
                 <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.status_notes}}</pre>
@@ -440,7 +441,6 @@ const openProductCategories = (categories,product) => {
             </div>
         </Panel>
 
-    </div>
 
     <Dialog header="Meta Fields"
             v-model:visible="store.display_seo_modal"
