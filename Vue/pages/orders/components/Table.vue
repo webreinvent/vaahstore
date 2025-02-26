@@ -20,7 +20,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll"
                    stripedRows>
 
-            <Column v-if="store.isViewLarge()"
+            <Column v-if="store.isListView()"
                     headerStyle="width: 3em"
                     selectionMode="multiple">
             </Column>
@@ -48,7 +48,7 @@ const useVaah = vaah();
                     {{ prop.data.name }}
                 </template>
             </Column>
-            <Column v-if="store.isViewLarge()" :sortable="true" field="user.phone"
+            <Column v-if="store.isListView()" :sortable="true" field="user.phone"
                     header="Mobile No.">
                 <template #body="prop">
                     {{ prop.data.user?.phone }}
@@ -77,7 +77,7 @@ const useVaah = vaah();
             </Column>
 
 
-            <Column v-if="store.isViewLarge()" :sortable="true"
+            <Column v-if="store.isListView()" :sortable="true"
                     field="payable"
                     header="Payable">
                 <template #body="prop">
@@ -85,7 +85,7 @@ const useVaah = vaah();
                 </template>
             </Column>
 
-            <Column v-if="store.isViewLarge()" :sortable="true"
+            <Column v-if="store.isListView()" :sortable="true"
                     field="paid"
                     header="Paid">
                 <template #body="prop">
@@ -98,7 +98,7 @@ const useVaah = vaah();
                 </template>
             </Column>
 
-            <Column v-if="store.isViewLarge()" :sortable="true"
+            <Column v-if="store.isListView()" :sortable="true"
                     header="Order Status">
                 <template #body="prop">
                     <Badge :severity="prop.data.order_status === 'Completed' ? 'success' : ''" class="min-w-max">
@@ -108,7 +108,7 @@ const useVaah = vaah();
             </Column>
 
 
-            <Column v-if="store.isViewLarge()" :sortable="true"
+            <Column v-if="store.isListView()" :sortable="true"
                     header="Payment Status">
                 <template #body="prop">
                     <template v-if="prop.data.order_payment_status">
@@ -130,7 +130,7 @@ const useVaah = vaah();
                 </template>
             </Column>
 
-            <Column v-if="store.isViewLarge()"
+            <Column v-if="store.isListView()"
                     :sortable="true" header="Shipping Status">
                 <template #body="prop">
                     <Badge
@@ -164,7 +164,7 @@ const useVaah = vaah();
                                 icon="pi pi-pencil"
                                 @click="store.toEdit(prop.data)"/>
 
-                        <Button v-if="store.isViewLarge() && !prop.data.deleted_at"
+                        <Button v-if="store.isListView() && !prop.data.deleted_at"
                                 v-tooltip.top="'Trash'"
                                 class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="orders-table-action-trash"
@@ -172,7 +172,7 @@ const useVaah = vaah();
                                 @click="store.itemAction('trash', prop.data)"/>
 
 
-                        <Button v-if="store.isViewLarge() && prop.data.deleted_at"
+                        <Button v-if="store.isListView() && prop.data.deleted_at"
                                 v-tooltip.top="'Restore'"
                                 class="p-button-tiny p-button-success p-button-text"
                                 data-testid="orders-table-action-restore"
