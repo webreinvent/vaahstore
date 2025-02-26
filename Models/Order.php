@@ -843,7 +843,6 @@ class Order extends VaahModel
         if ($start_date && $end_date) {
             $orders_statuses_count = $orders_statuses_count->whereBetween('created_at', [$start_date, $end_date]);
         }
-//dd($start_date, $end_date);
         $order_status_counts_pie_chart_data = $orders_statuses_count->pluck('count', 'order_status')->toArray();
 
         return [

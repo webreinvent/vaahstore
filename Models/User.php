@@ -617,7 +617,6 @@ class User extends UserBase
             $labels[] = $date->format('Y-m-d');
 
             $cumulative_count += $item->joined;
-            // $data[0]['data'][] = $cumulative_count; // Commented out cumulative count
 
             $data[0]['data'][] = $item->joined;
             $data[1]['data'][] = $item->customer_order_activity;
