@@ -25,7 +25,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
 
 
 <template>
-    <Sidebar v-model:visible="store.show_vendor_panel"  header="Product Price With Vendors" position="right" style="width:800px;">
+    <Drawer v-model:visible="store.show_vendor_panel"  header="Product Price With Vendors" position="right" style="width:800px;">
         <template #header>
             <h2 style="font-weight: bold;" v-if="store.item" >{{store.product_name}}</h2>
         </template>
@@ -95,7 +95,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
 
             </template>
         </DataTable>
-    </Sidebar>
+    </Drawer>
 </template>
 
 
