@@ -1,11 +1,13 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
+import { useRootStore } from '@/stores/root'
 
 import { useProductVariationStore } from '../../stores/store-productvariations'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useProductVariationStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -49,9 +51,7 @@ const permissions=store.assets.permissions;
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small" v-if="store && store.item">
+    <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -303,8 +303,6 @@ const permissions=store.assets.permissions;
                 </div>
             </div>
         </Panel>
-
-    </div>
 
     <Dialog header="Meta Fields"
             v-model:visible="store.meta_dialog"
