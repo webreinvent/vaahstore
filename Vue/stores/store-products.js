@@ -1838,13 +1838,13 @@ export const useProductStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        this.confirmActivateAll();
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        this.confirmDeactivateAll();
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -1854,14 +1854,14 @@ export const useProductStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrashAll();
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestoreAll();
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -1870,7 +1870,7 @@ export const useProductStore = defineStore({
                     command: async () => {
                         this.confirmDeleteAll();
                     }
-                },
+                }
             ];
         },
         //---------------------------------------------------------------------
@@ -3049,6 +3049,13 @@ export const useProductStore = defineStore({
             {
                 this.screen_size = 'large';
             }
+        },
+        //---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
         },
 
     }

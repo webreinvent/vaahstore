@@ -2,7 +2,7 @@
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useVendorStore } from '../../../stores/store-vendors'
 
-import Filters from './Filters.vue'
+import Filters from '../Filters.vue'
 
 const store = useVendorStore();
 
@@ -32,10 +32,10 @@ const permissions=store.assets.permissions;
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -95,11 +95,13 @@ const permissions=store.assets.permissions;
                                     data-testid="vendors-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
-                                type="button"
-                                class="p-button-sm"
-                                data-testid="vendors-actions-show-filters"
-                                @click="store.show_filters = true">
-                                Filters
+                                    as="router-link"
+                                    :to="`/vendors/filters`"
+                                    type="button"
+                                    size="small"
+                                    data-testid="vendors-actions-show-filters"
+                            >
+                                <span style="font-weight: var(--p-button-label-font-weight);" >Filters</span>
                                 <Badge v-if="store.count_filters > 0" :value="store.count_filters"></Badge>
                             </Button>
 
@@ -115,7 +117,6 @@ const permissions=store.assets.permissions;
                     </div>
 
 
-                    <Filters/>
 
                 </div>
 

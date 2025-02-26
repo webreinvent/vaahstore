@@ -1,7 +1,8 @@
 <script  setup>
 
-import { useVendorStore } from '../../../stores/store-vendors'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useVendorStore } from '../../stores/store-vendors'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 import {onMounted} from "vue";
 
 const store = useVendorStore();
@@ -17,9 +18,29 @@ onMounted(async () => {
 
 <template>
     <div>
+        <Panel >
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right" class="relative">
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="campaigns-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
+<!--        <Sidebar v-model:visible="store.show_filters"-->
+<!--                 position="right" class="relative">-->
 
             <VhFieldVertical >
                 <template #label>
@@ -61,19 +82,17 @@ onMounted(async () => {
                 <template #label>
                     <b>Store By:</b>
                 </template>
-                <VhField label="Store Status">
-                    <MultiSelect
-                        v-model="store.query.filter.store"
-                        :options="store.assets.active_stores"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Store"
-                        display="chip"
-                        class="w-full relative"
-                        appendTo="self"
-                    />
-                </VhField>
+                <MultiSelect
+                    v-model="store.query.filter.store"
+                    :options="store.assets.active_stores"
+                    filter
+                    optionValue="name"
+                    optionLabel="name"
+                    placeholder="Select Store"
+                    display="chip"
+                    class="w-full relative"
+                    appendTo="self"
+                />
 
 
             </VhFieldVertical>
@@ -83,19 +102,17 @@ onMounted(async () => {
                 <template #label>
                     <b>Status By:</b>
                 </template>
-                <VhField label="Status">
-                    <MultiSelect
-                        v-model="store.query.filter.vendor_status"
-                        :options="store.assets.taxonomy.status"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        placeholder="Select Status"
-                        display="chip"
-                        class="w-full relative"
-                        appendTo="self"
-                    />
-                </VhField>
+                <MultiSelect
+                    v-model="store.query.filter.vendor_status"
+                    :options="store.assets.taxonomy.status"
+                    filter
+                    optionValue="name"
+                    optionLabel="name"
+                    placeholder="Select Status"
+                    display="chip"
+                    class="w-full relative"
+                    appendTo="self"
+                />
 
 
             </VhFieldVertical>
@@ -105,7 +122,7 @@ onMounted(async () => {
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           placeholder="Choose date range"
@@ -213,7 +230,9 @@ onMounted(async () => {
             </VhFieldVertical>
 
 
-        </Sidebar>
+<!--        </Sidebar>-->
+
+        </Panel>
 
     </div>
 </template>

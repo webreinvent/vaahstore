@@ -25,6 +25,17 @@ import Menubar from "primevue/menubar";
 import Select from "primevue/select";
 import InputNumber from "primevue/inputnumber";
 
+import Chip from 'primevue/chip';
+
+
+import FileUpload from 'primevue/fileupload';
+
+import Accordion from 'primevue/accordion';
+import AccordionTab from 'primevue/accordiontab';
+import AccordionPanel from 'primevue/accordionpanel';
+import AccordionHeader from 'primevue/accordionheader';
+import AccordionContent from 'primevue/accordioncontent';
+
 //-------------/PrimeVue Imports
 
 //-------------CRUD PrimeVue Imports
@@ -45,6 +56,7 @@ import Dialog from "primevue/dialog";
 import Checkbox from "primevue/checkbox";
 import ConfirmPopup from "primevue/confirmpopup";
 import ToggleButton from "primevue/togglebutton";
+import Chart from 'primevue/chart';
 
 //-------------/CRUD PrimeVue Imports
 
@@ -92,6 +104,7 @@ app.component('ConfirmDialog', ConfirmDialog);
 app.component('Menu', Menu);
 app.component('ProgressBar', ProgressBar);
 app.component('Toast', Toast);
+app.component('Chip', Chip);
 //-------------/PrimeVue Use
 
 // -------------CRUD PrimeVue Use
@@ -114,6 +127,17 @@ app.component('ToggleButton', ToggleButton);
 app.component('Menubar', Menubar);
 app.component('Select', Select);
 app.component('InputNumber', InputNumber);
+
+
+
+app.component('FileUpload', FileUpload);
+
+app.component('Accordion', Accordion);
+app.component('AccordionTab', AccordionTab);
+app.component('AccordionHeader', AccordionHeader);
+app.component('AccordionContent', AccordionContent);
+app.component('AccordionPanel', AccordionPanel);
+app.component('Chart', Chart);
 
 //-------------/CRUD PrimeVue Use
 
