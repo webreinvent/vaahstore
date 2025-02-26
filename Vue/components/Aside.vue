@@ -161,7 +161,7 @@ const items = ref([
 <template>
 
 
-    <div v-if="height" class="border-round-2xl overflow-hidden shadow-1 sticky" style="top: 54px">
+    <div v-if="height" class="bg-red-500 border-round-2xl overflow-hidden shadow-1 sticky" style="top: 54px">
         <Menu :model="items" :pt="selected_page"  class="w-full overflow-y-auto py-0" style="max-height: calc(100vh - 54px);" >
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>

@@ -2,7 +2,10 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from 'moment';
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductAttribute';
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
@@ -302,7 +305,7 @@ export const useProductAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        
+
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -1131,7 +1134,7 @@ export const useProductAttributeStore = defineStore({
                     continue ;
                 }
 
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if(UTC_date){

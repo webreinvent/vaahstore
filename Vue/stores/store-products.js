@@ -2,8 +2,10 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment";
 import {useRootStore} from "./root";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+dayjs.extend(dayjsPluginUTC)
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
 
@@ -2035,8 +2037,8 @@ export const useProductStore = defineStore({
                     continue ;
                 }
 
-                let search_date = moment(selected_date)
-                var UTC_date = search_date.format('YYYY-MM-DD');
+                let search_date = dayjs(selected_date)
+                let UTC_date = search_date.format('YYYY-MM-DD');
 
                 if(UTC_date){
                     dates.push(UTC_date);
@@ -2406,10 +2408,10 @@ export const useProductStore = defineStore({
 
         checkDate()
         {
-            if (moment(this.item.available_at).isBefore(this.item.launch_date))
+            if (dayjs(this.item.available_at).isBefore(this.item.launch_date))
             {
                 this.item.available_at = null;
-                vaah().toastErrors(['Avaialble date should be after launch date']);
+                vaah().toastErrors(['Available date should be after launch date']);
 
             }
         },
