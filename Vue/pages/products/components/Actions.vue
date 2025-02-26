@@ -96,14 +96,8 @@ const toggleExportMenuState = (event) => {
             <!--/left-->
 
             <!--right-->
-            <div >
-
-
-                <div class="grid p-fluid">
-
-
-                    <div class="col-12">
-                        <div class="p-inputgroup ">
+            <div>
+                <InputGroup>
 
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
@@ -133,19 +127,14 @@ const toggleExportMenuState = (event) => {
                                 label="Reset"
                                 @click="store.resetQuery()" />
 
-                        </div>
+                </InputGroup>
                     </div>
-
-
-                    <Filters/>
 
                 </div>
 
             </div>
             <!--/right-->
 
-        </div>
         <!--/actions-->
 
-    </div>
 </template>
