@@ -146,12 +146,71 @@ export const useProductStore = defineStore({
             columns: [],
         },
         is_custom_meta_export:false,
+        window_width: 0,
+        screen_size: null,
+        float_label_variants: 'on',
 
     }),
     getters: {
+        isMobile: (state) => {
+            return state.screen_size === 'small';
+        },
 
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
     },
     actions: {
+
 
         //---------------------------------------------------------------------
         searchTaxonomyProduct(event) {
@@ -270,6 +329,7 @@ export const useProductStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            await this.setScreenSize();
 
             /**
              * Update query state with the query parameters of url
@@ -315,23 +375,19 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
-            switch (route_name) {
-                case 'products.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'products.variation':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                case 'products.vendor':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+
+            this.view = 'list';
+
+            if(route_name.includes('products.view')
+                || route_name.includes('products.form')
+                || route_name.includes('products.variation')
+                || route_name.includes('products.vendor')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('products.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -1639,9 +1695,9 @@ export const useProductStore = defineStore({
             this.getCategories();
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -1661,7 +1717,7 @@ export const useProductStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -1671,7 +1727,7 @@ export const useProductStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1782,13 +1838,13 @@ export const useProductStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        this.confirmActivateAll();
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        this.confirmDeactivateAll();
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -1798,14 +1854,14 @@ export const useProductStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrashAll();
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestoreAll();
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -1814,7 +1870,7 @@ export const useProductStore = defineStore({
                     command: async () => {
                         this.confirmDeleteAll();
                     }
-                },
+                }
             ];
         },
         //---------------------------------------------------------------------
@@ -2969,6 +3025,37 @@ export const useProductStore = defineStore({
                 this.action.items=[];
             }
 
+        },
+
+        setScreenSize()
+        {
+            if(!window)
+            {
+                return null;
+            }
+            this.window_width = window.innerWidth;
+
+            if(this.window_width < 1024)
+            {
+                this.screen_size = 'small';
+            }
+
+            if(this.window_width >= 1024 && this.window_width <= 1280)
+            {
+                this.screen_size = 'medium';
+            }
+
+            if(this.window_width > 1280)
+            {
+                this.screen_size = 'large';
+            }
+        },
+        //---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
         },
 
     }

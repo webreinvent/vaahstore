@@ -4,8 +4,10 @@ import {useProductStore} from '../../stores/store-products'
 import Editor from 'primevue/editor';
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
+import { useRootStore } from '@/stores/root.js'
 
 const store = useProductStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -27,9 +29,8 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6">
+    <Panel :pt="root.panel_pt">
 
-        <Panel class="is-small">
 
             <template class="p-1" #header>
 
@@ -242,9 +243,9 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Launch Date">
-                    <Calendar tabindex="0"
+                    <DatePicker tabindex="0"
                               :showIcon="true"
-                              class="w-full"
+                            size="small"
                               name="brands-registered_at"
                               id="registered_at"
                               value="registered_at"
@@ -252,13 +253,13 @@ const toggleFormMenu = (event) => {
                               dateFormat="yy-mm-dd"
                               placeholder="Select date"
                               v-model="store.item.launch_at"
-                    ></Calendar>
+                    ></DatePicker>
                 </VhField>
 
                 <VhField label="Availablity Date">
-                    <Calendar tabindex="0"
+                    <DatePicker tabindex="0"
                               :showIcon="true"
-                              class="w-full"
+                            size="small"
                               name="brands-registered_at"
                               id="registered_at"
                               value="registered_at"
@@ -267,12 +268,12 @@ const toggleFormMenu = (event) => {
                               placeholder="Select date"
                               v-model="store.item.available_at"
                               @date-select="store.checkDate()"
-                    ></Calendar>
+                    ></DatePicker>
                 </VhField>
 
 
                 <VhField label="Featured on Home page">
-                    <InputSwitch
+                    <ToggleSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
                         name="products-is-home-featured"
@@ -281,7 +282,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Featured on Category page">
-                    <InputSwitch
+                    <ToggleSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
                         name="products-is-category-featured"
@@ -394,7 +395,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="products-active"
@@ -406,6 +407,5 @@ const toggleFormMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>

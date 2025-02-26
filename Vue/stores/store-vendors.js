@@ -113,6 +113,61 @@ export const useVendorStore = defineStore({
     }),
     getters: {
 
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-full';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+
+        },
+
     },
     actions: {
         //---------------------------------------------------------------------
@@ -122,12 +177,11 @@ export const useVendorStore = defineStore({
              * Set initial routes
              */
             this.route = route;
-
             /**
              * Update with view and list css column number
              */
             await this.getProductCount();
-            this.setViewAndWidth(route.name);
+            await this.setViewAndWidth(route.name);
             this.first_element = ((this.query.page - 1) * this.query.rows);
 
             if (route.query && route.query.filter && route.query.filter.date) {
@@ -145,20 +199,35 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'vendors.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'vendors.product':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'vendors.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     case 'vendors.product':
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('vendors.view')
+                || route_name.includes('vendors.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('vendors.filters') || route_name.includes('vendors.product') || route_name.includes('vendors.role')){
+                this.view = 'list-and-filters';
+            }
+
+            if(route_name.includes('vendors.reports')){
+                this.view = 'list-and-reports';
             }
         },
         //---------------------------------------------------------------------
@@ -897,20 +966,20 @@ export const useVendorStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDeleteAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
 
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
-            vaah().confirmDialogTrashAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
 
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestoreAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
 
@@ -924,7 +993,7 @@ export const useVendorStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeactivateAll(this.listAction);
+            vaah().confirmDialog(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -1076,9 +1145,9 @@ export const useVendorStore = defineStore({
             this.$router.push({name: 'vendors.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -1098,7 +1167,7 @@ export const useVendorStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -1108,7 +1177,7 @@ export const useVendorStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1201,13 +1270,13 @@ export const useVendorStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        this.confirmActivateAll();
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        this.confirmDeactivateAll();
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -1217,14 +1286,14 @@ export const useVendorStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrashAll();
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestoreAll();
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -1954,11 +2023,18 @@ export const useVendorStore = defineStore({
             this.filter_all=null;
             this.topSellingVendorsData();
             this.vendorSalesByRange();
-        }
-
+        },
+//---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
+        },
 
     }
         //---------------------------------------------------------------------
+
 
 
 
