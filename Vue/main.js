@@ -186,6 +186,10 @@ import Drawer from 'primevue/drawer';
 app.component('Drawer', Drawer);
 
 
+import DynamicDialog from 'primevue/dynamicdialog';
+app.component('DynamicDialog', DynamicDialog);
+
+
 app.component('apexchart', VueApexCharts);
 
 app.mount('#appStore')
