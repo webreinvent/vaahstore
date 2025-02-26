@@ -46,7 +46,7 @@ import Checkbox from "primevue/checkbox";
 import ConfirmPopup from "primevue/confirmpopup";
 import ToggleButton from "primevue/togglebutton";
 import AutoComplete from "primevue/autocomplete";
-import Calendar from "primevue/datepicker";
+import DatePicker from "primevue/datepicker";
 
 //-------------/CRUD PrimeVue Imports
 
@@ -117,7 +117,7 @@ app.component('Menubar', Menubar);
 app.component('Select', Select);
 app.component('InputNumber', InputNumber);
 app.component('AutoComplete', AutoComplete);
-app.component('Calendar', Calendar);
+app.component('DatePicker', DatePicker);
 
 //-------------/CRUD PrimeVue Use
 
@@ -139,6 +139,14 @@ app.component("Image", Image);
 
 import MultiSelect from 'primevue/multiselect';
 app.component('MultiSelect', MultiSelect);
+
+import Textarea from 'primevue/textarea';
+app.component('Textarea', Textarea);
+
+
+
+import Editor from 'primevue/editor';
+app.component('Editor', Editor);
 
 app.component('apexchart', VueApexCharts);
 

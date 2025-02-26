@@ -10,6 +10,25 @@ const root = useRootStore();
 
 <template>
     <Panel :pt="root.panel_pt" >
+        <template class="p-1" #header>
+
+            <b class="mr-1">Filters</b>
+
+        </template>
+
+        <template #icons>
+
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/vendorproducts`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+
+        </template>
             <VhFieldVertical >
                 <template #label>
                     <b>Product By:</b>
@@ -52,7 +71,7 @@ const root = useRootStore();
                     <b>Created Between:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"

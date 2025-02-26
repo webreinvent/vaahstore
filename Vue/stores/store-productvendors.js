@@ -278,7 +278,7 @@ export const useProductVendorStore = defineStore({
         {
             this.view = 'list';
             if(route_name.includes('productvendors.view')
-                || route_name.includes('productvendors.form')
+                || route_name.includes('productvendors.form')|| route_name.includes('productvendors.productprice')
             ){
                 this.view = 'list-and-item';
             }
@@ -286,22 +286,7 @@ export const useProductVendorStore = defineStore({
             if(route_name.includes('productvendors.filters')){
                 this.view = 'list-and-filters';
             }
-            // switch(route_name)
-            // {
-            //
-            //    /* case 'productvendors.index':
-            //         this.view = 'list';
-            //         this.list_view_width = 12;
-            //         break;
-            //         case 'productvendors.productprice':
-            //         this.view = 'small';
-            //         this.list_view_width = 7;
-            //         break;
-            //     default:
-            //         this.view = 'small';
-            //         this.list_view_width = 6;
-            //         break*/
-            // }
+
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
