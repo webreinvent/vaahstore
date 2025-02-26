@@ -31,10 +31,10 @@ const toggleBulkMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -77,12 +77,13 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="payments-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
+                                as="router-link"
+                                :to="`/payments/filters`"
                                 type="button"
-                                class="p-button-sm"
-                                :disabled="Object.keys(route.params).length"
+                                size="small"
                                 data-testid="payments-actions-show-filters"
-                                @click="store.show_filters = !store.show_filters">
-                                Filters
+                            >
+                                <span style="font-weight: var(--p-button-label-font-weight);" >Filters</span>
                                 <Badge v-if="store.count_filters > 0" :value="store.count_filters"></Badge>
                             </Button>
 

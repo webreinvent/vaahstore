@@ -41,6 +41,7 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
+import InputGroupAddon from 'primevue/inputgroupaddon';
 
 //-------------/PrimeVue Imports
 
@@ -133,7 +134,7 @@ app.component('ToggleButton', ToggleButton);
 app.component('Menubar', Menubar);
 app.component('Select', Select);
 app.component('InputNumber', InputNumber);
-
+app.component('InputGroupAddon', InputGroupAddon);
 
 
 app.component('FileUpload', FileUpload);
