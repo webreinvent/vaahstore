@@ -35,7 +35,7 @@ const permissions=store.assets.permissions;
         <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -94,14 +94,6 @@ const permissions=store.assets.permissions;
                                     class="p-button-sm"
                                     data-testid="vendors-actions-search-button"
                                     icon="pi pi-search"/>
-<!--                            <Button-->
-<!--                                type="button"-->
-<!--                                class="p-button-sm"-->
-<!--                                data-testid="vendors-actions-show-filters"-->
-<!--                                @click="store.show_filters = true">-->
-<!--                                Filters-->
-<!--                                <Badge v-if="store.count_filters > 0" :value="store.count_filters"></Badge>-->
-<!--                            </Button>-->
                             <Button
                                     as="router-link"
                                     :to="`/vendors/filters`"
@@ -125,7 +117,6 @@ const permissions=store.assets.permissions;
                     </div>
 
 
-<!--                    <Filters/>-->
 
                 </div>
 
