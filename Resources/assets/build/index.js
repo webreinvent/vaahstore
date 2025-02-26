@@ -1240,8 +1240,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function oO(i,t){if(i){if(typeof i=="string")return Yp(i,t);var n={}.toString.call(i).slice(8,-1);return n==="Object"&&i.constructor&&(n=i.constructor.name),n==="Map"||n==="Set"?Array.from(i):n==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)?Yp(i,t):void 0}}function rO(i){if(typeof Symbol<"u"&&i[Symbol.iterator]!=null||i["@@iterator"]!=null)return Array.from(i)}function aO(i){if(Array.isArray(i))return Yp(i)}function Yp(i,t){(t==null||t>i.length)&&(t=i.length);for(var n=0,s=Array(t);n<t;n++)s[n]=i[n];return s}function Fg(i,t,n){return(t=lO(t))in i?Object.defineProperty(i,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):i[t]=n,i}function lO(i){var t=dO(i,"string");return ga(t)=="symbol"?t:t+""}function dO(i,t){if(ga(i)!="object"||!i)return i;var n=i[Symbol.toPrimitive];if(n!==void 0){var s=n.call(i,t);if(ga(s)!="object")return s;throw new TypeError("@@toPrimitive must return a primitive value.")}return(t==="string"?String:Number)(i)}var Kt=iO.extend("ripple",{watch:{"config.ripple":function(t){t?(this.createRipple(this.$host),this.bindEvents(this.$host),this.$host.setAttribute("data-pd-ripple",!0),this.$host.style.overflow="hidden",this.$host.style.position="relative"):(this.remove(this.$host),this.$host.removeAttribute("data-pd-ripple"))}},unmounted:function(t){this.remove(t)},timeout:void 0,methods:{bindEvents:function(t){t.addEventListener("mousedown",this.onMouseDown.bind(this))},unbindEvents:function(t){t.removeEventListener("mousedown",this.onMouseDown.bind(this))},createRipple:function(t){var n=this.getInk(t);n||(n=Do("span",Fg(Fg({role:"presentation","aria-hidden":!0,"data-p-ink":!0,"data-p-ink-active":!1,class:!this.isUnstyled()&&this.cx("root"),onAnimationEnd:this.onAnimationEnd.bind(this)},this.$attrSelector,""),"p-bind",this.ptm("root"))),t.appendChild(n),this.$el=n)},remove:function(t){var n=this.getInk(t);n&&(this.$host.style.overflow="",this.$host.style.position="",this.unbindEvents(t),n.removeEventListener("animationend",this.onAnimationEnd),n.remove())},onMouseDown:function(t){var n=this,s=t.currentTarget,o=this.getInk(s);if(!(!o||getComputedStyle(o,null).display==="none")){if(!this.isUnstyled()&&Ut(o,"p-ink-active"),o.setAttribute("data-p-ink-active","false"),!qs(o)&&!Bs(o)){var r=Math.max(gt(s),Ui(s));o.style.height=r+"px",o.style.width=r+"px"}var a=rs(s),d=t.pageX-a.left+document.body.scrollTop-Bs(o)/2,u=t.pageY-a.top+document.body.scrollLeft-qs(o)/2;o.style.top=u+"px",o.style.left=d+"px",!this.isUnstyled()&&Tt(o,"p-ink-active"),o.setAttribute("data-p-ink-active","true"),this.timeout=setTimeout(function(){o&&(!n.isUnstyled()&&Ut(o,"p-ink-active"),o.setAttribute("data-p-ink-active","false"))},401)}},onAnimationEnd:function(t){this.timeout&&clearTimeout(this.timeout),!this.isUnstyled()&&Ut(t.currentTarget,"p-ink-active"),t.currentTarget.setAttribute("data-p-ink-active","false")},getInk:function(t){return t&&t.children?nO(t.children).find(function(n){return wt(n,"data-pc-name")==="ripple"}):void 0}}}),uO=({dt:i})=>`
 .p-button {
     display: inline-flex;
-    cursor: pointer;
-    user-select: none;
+    border-radius: ${i("badge.border.radius")};
     align-items: center;
     justify-content: center;
     overflow: hidden;
@@ -1264,8 +1263,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     cursor: default;
 }
 
-.p-button-icon-right {
-    order: 1;
+.p-badge-circle {
+    padding: 0;
+    border-radius: 50%;
 }
 
 .p-button-icon-right:dir(rtl) {
@@ -1357,6 +1357,15 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     background: ${i("button.primary.active.background")};
     border: 1px solid ${i("button.primary.active.border.color")};
     color: ${i("button.primary.active.color")};
+}
+`,pT={root:function(t){var n=t.props,s=t.instance;return["p-badge p-component",{"p-badge-circle":ze(n.value)&&String(n.value).length===1,"p-badge-dot":Ht(n.value)&&!s.$slots.default,"p-badge-sm":n.size==="small","p-badge-lg":n.size==="large","p-badge-xl":n.size==="xlarge","p-badge-info":n.severity==="info","p-badge-success":n.severity==="success","p-badge-warn":n.severity==="warn","p-badge-danger":n.severity==="danger","p-badge-secondary":n.severity==="secondary","p-badge-contrast":n.severity==="contrast"}]}},hT=Ue.extend({name:"badge",style:cT,classes:pT}),fT={name:"BaseBadge",extends:Ye,props:{value:{type:[String,Number],default:null},severity:{type:String,default:null},size:{type:String,default:null}},style:hT,provide:function(){return{$pcBadge:this,$parentInstance:this}}},Bu={name:"Badge",extends:fT,inheritAttrs:!1};function mT(i,t,n,s,o,r){return y(),k("span",R({class:i.cx("root")},i.ptmi("root")),[ne(i.$slots,"default",{},function(){return[U(D(i.value),1)]})],16)}Bu.render=mT;var gT=({dt:i})=>`
+.p-ink {
+    display: block;
+    position: absolute;
+    background: ${i("ripple.background")};
+    border-radius: 100%;
+    transform: scale(0);
+    pointer-events: none;
 }
 
 .p-button:focus-visible {

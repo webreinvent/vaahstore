@@ -24,12 +24,12 @@ import Tooltip from 'primevue/tooltip';
 import Menubar from "primevue/menubar";
 import Select from "primevue/select";
 import InputNumber from "primevue/inputnumber";
-import DatePicker from 'primevue/datepicker';
+
 import Chip from 'primevue/chip';
-import AutoComplete from 'primevue/autocomplete';
-import MultiSelect from 'primevue/multiselect';
+
+
 import FileUpload from 'primevue/fileupload';
-import Textarea from 'primevue/textarea';
+
 import Accordion from 'primevue/accordion';
 import AccordionTab from 'primevue/accordiontab';
 import AccordionPanel from 'primevue/accordionpanel';
@@ -127,11 +127,11 @@ app.component('ToggleButton', ToggleButton);
 app.component('Menubar', Menubar);
 app.component('Select', Select);
 app.component('InputNumber', InputNumber);
-app.component('DatePicker', DatePicker);
-app.component('AutoComplete', AutoComplete);
-app.component('MultiSelect', MultiSelect);
+
+
+
 app.component('FileUpload', FileUpload);
-app.component('Textarea', Textarea);
+
 app.component('Accordion', Accordion);
 app.component('AccordionTab', AccordionTab);
 app.component('AccordionHeader', AccordionHeader);
@@ -156,6 +156,34 @@ app.component("Card", Card);
 
 import Image from "primevue/Image";
 app.component("Image", Image);
+
+import TreeSelect from 'primevue/treeselect';
+app.component('TreeSelect', TreeSelect);
+
+
+import MultiSelect from 'primevue/multiselect';
+app.component('MultiSelect', MultiSelect);
+
+
+import AutoComplete from 'primevue/autocomplete';
+app.component('AutoComplete', AutoComplete);
+
+import DatePicker from 'primevue/datepicker';
+app.component('DatePicker', DatePicker);
+
+import Textarea from 'primevue/textarea';
+app.component('Textarea', Textarea);
+
+import Chips from 'primevue/chips';
+app.component('Chips', Chips);
+
+
+import Editor from 'primevue/editor';
+app.component('Editor', Editor);
+
+
+import Drawer from 'primevue/drawer';
+app.component('Drawer', Drawer);
 
 
 app.component('apexchart', VueApexCharts);

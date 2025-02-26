@@ -18,7 +18,7 @@
         "pinia": "^2.2.4",
         "primevue": "^4.3.1",
         "qs": "^6.11.2",
-        "quill": "^2.0.2",
+        "quill": "^2.0.3",
         "tailwindcss-primeui": "^0.3.4",
         "vite-plugin-compression": "^0.5.1",
         "vue": "^3.5.12",

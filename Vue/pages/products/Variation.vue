@@ -1,12 +1,15 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductStore } from '../../stores/store-products'
+import { useRootStore } from '@/stores/root'
+
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useProductStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -40,11 +43,9 @@ const toggleSelectedAttributeMenuState = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <Panel :pt="root.panel_pt">
 
-        <Panel >
-
-            <template class="p-1" #header>
+    <template class="p-1" #header>
 
 
                 <div class="flex flex-row">
@@ -105,7 +106,7 @@ const toggleSelectedAttributeMenuState = (event) => {
 <!--                Dropdown for attribute selection-->
                 <div class="flex flex-wrap gap-3 pb-2 p-1">
                     <div class="col-10">
-                        <Dropdown v-model="store.variation_item.selected_attribute"
+                        <Select v-model="store.variation_item.selected_attribute"
                                   :options="store.variation_item.attribute_options"
                                   optionLabel="name"
                                   filter
@@ -118,7 +119,7 @@ const toggleSelectedAttributeMenuState = (event) => {
                                               panel: { class: 'w-16rem ' }
                                   }"
                                     style="height:35px;">
-                        </Dropdown>
+                        </Select>
                     </div>
 
                     <div class="p-2">
@@ -268,8 +269,6 @@ const toggleSelectedAttributeMenuState = (event) => {
 
             </div>
         </Panel>
-
-    </div>
 
 </template>
 
