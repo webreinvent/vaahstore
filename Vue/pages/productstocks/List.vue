@@ -92,7 +92,7 @@ const toggleCreateMenu = (event) => {
                                                 </div>
 
                                             </template>
-                    <div class="flex flex-wrap justify-content-center  gap-6 mt-1 mb-4">
+                    <div v-if="store.isListView()" class="flex flex-wrap justify-content-center  gap-6 mt-1 mb-4">
                         <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
                             <template #title>
                                 <div class="flex align-items-center justify-content-between">
