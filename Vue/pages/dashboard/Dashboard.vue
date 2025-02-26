@@ -120,7 +120,7 @@ const metrics = ref([]);
 
 </script>
 <template>
-    <div  class="flex-grow-1 shadow-1  border-round-xl has-background-white mb-2 p-3">
+    <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 surface-ground ">
     <h4 class="text-lg">
         Selected Date Range:{{ formattedDateRange }}
     </h4>
