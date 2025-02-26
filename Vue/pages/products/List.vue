@@ -102,9 +102,7 @@ const toggleQuickFilterState = (event) => {
 
     <div class="w-full" v-if="store.assets">
 
-        <div :class="'col-'+store.list_view_width">
-
-
+        <div class="lg:flex lg:space-x-4 items-start">
 
             <div v-if="store.getLeftColumnClasses"
                  :class="store.getLeftColumnClasses"

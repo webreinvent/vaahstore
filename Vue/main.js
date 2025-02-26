@@ -147,6 +147,16 @@ app.component('AutoComplete', AutoComplete);
 import DatePicker from 'primevue/datepicker';
 app.component('DatePicker', DatePicker);
 
+import Textarea from 'primevue/textarea';
+app.component('Textarea', Textarea);
+
+import Chips from 'primevue/chips';
+app.component('Chips', Chips);
+
+
+import Editor from 'primevue/editor';
+app.component('Editor', Editor);
+
 
 app.component('apexchart', VueApexCharts);
 

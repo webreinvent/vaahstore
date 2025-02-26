@@ -13,16 +13,16 @@
         "axios": "^1.7.7",
         "dayjs": "^1.11.13",
         "dayjs-plugin-utc": "^0.1.2",
+        "dom-csv.js": "^1.0.0",
         "pinia": "^2.2.4",
         "primevue": "^4.3.1",
         "qs": "^6.11.2",
-        "quill": "^2.0.2",
+        "quill": "^2.0.3",
         "tailwindcss-primeui": "^0.3.4",
         "vite-plugin-compression": "^0.5.1",
         "vue": "^3.5.12",
         "vue-router": "^4.4.5",
-        "vue3-apexcharts": "^1.8.0",
-        "dom-csv.js": "^1.0.0"
+        "vue3-apexcharts": "^1.8.0"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^5.1.4",
