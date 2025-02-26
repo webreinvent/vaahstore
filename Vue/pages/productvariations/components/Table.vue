@@ -113,7 +113,7 @@ const route = useRoute();
                             severity="danger"> {{prop.data.status.name}} </Badge>
 
                      <Badge v-else
-                            severity="warning"> {{prop.data.status?.name}} </Badge>
+                            severity="warn"> {{prop.data.status?.name}} </Badge>
                  </template>
 
              </Column>

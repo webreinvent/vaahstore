@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductVariationStore } from '../../stores/store-productvariations'
+import { useRootStore } from '@/stores/root.js'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
@@ -8,6 +9,7 @@ import {useProductVendorStore} from "../../stores/store-productvendors";
 
 const store1 = useProductVendorStore();
 const store = useProductVariationStore();
+const root = useRootStore();
 const route = useRoute();
 const selected_product_id = ref(store1.selected_product_id);
 
@@ -56,9 +58,7 @@ const permissions=store.assets.permissions;
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -260,7 +260,7 @@ const permissions=store.assets.permissions;
                 </VhField>
 
                 <VhField label="Is Default">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="vendors-default"
                                  data-testid="vendors-default"
@@ -268,7 +268,7 @@ const permissions=store.assets.permissions;
                 </VhField>
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="productvariations-active"
                                  data-testid="productvariations-active"
@@ -283,7 +283,6 @@ const permissions=store.assets.permissions;
             </div>
         </Panel>
 
-    </div>
 
 </template>
 
