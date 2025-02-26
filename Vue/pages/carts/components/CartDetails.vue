@@ -72,7 +72,7 @@ const allProductsOutOfStock = computed(() => {
                        responsiveLayout="scroll">
 
                 <Column selectionMode="multiple"
-                        v-if="store.isViewLarge()"
+                        v-if="store.isListView()"
                         headerStyle="width: 3em">
                 </Column>
 
