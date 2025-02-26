@@ -1,17 +1,15 @@
 <script  setup>
 
-import { useProductVendorStore } from '../../../stores/store-productvendors'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductVendorStore } from '../../stores/store-productvendors'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useProductVendorStore();
-
+const root = useRootStore();
 </script>
 
 <template>
-    <div>
-
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+    <Panel :pt="root.panel_pt" >
             <VhFieldVertical >
                 <template #label>
                     <b>Product By:</b>
@@ -189,7 +187,5 @@ const store = useProductVendorStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>

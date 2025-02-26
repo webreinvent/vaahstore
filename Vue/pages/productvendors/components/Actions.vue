@@ -2,7 +2,7 @@
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductVendorStore } from '../../../stores/store-productvendors'
 
-import Filters from './Filters.vue'
+import Filters from '../Filters.vue'
 
 const store = useProductVendorStore();
 
