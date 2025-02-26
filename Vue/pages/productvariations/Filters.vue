@@ -1,12 +1,15 @@
 <script  setup>
 
-import { useProductVariationStore } from '../../../stores/store-productvariations'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductVariationStore } from '../../stores/store-productvariations'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root'
 import {onMounted} from "vue";
 import {useRoute} from "vue-router";
 const route = useRoute();
 
 const store = useProductVariationStore();
+const root = useRootStore();
 
 onMounted(async () => {
 
@@ -18,15 +21,22 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Product:</b>
-                </template>
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/productvariations`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
 
                 <AutoComplete name="product-variations-product-filter"
                               data-testid="product-variations-product-filter"
@@ -54,7 +64,7 @@ onMounted(async () => {
                           panel: { class: 'w-16rem ' }
                             }"/>
 
-            </VhFieldVertical>
+       <Divider/>
 
             <VhFieldVertical >
                 <template #label>
@@ -228,7 +238,7 @@ onMounted(async () => {
 
                 <div class="field-radiobutton">
 
-                    <Calendar v-model="store.selected_dates"
+                    <DatePicker v-model="store.selected_dates"
                               name="range-date"
                               inputId="range-date"
                               placeholder="Choose Date Range"
@@ -280,8 +290,6 @@ onMounted(async () => {
 
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
 

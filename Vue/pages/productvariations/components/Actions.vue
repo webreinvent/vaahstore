@@ -2,7 +2,7 @@
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductVariationStore } from '../../../stores/store-productvariations'
 
-import Filters from './Filters.vue'
+import Filters from '../Filters.vue'
 
 const store = useProductVariationStore();
 
@@ -32,7 +32,7 @@ const permissions=store.assets.permissions;
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
             <div v-if="store.view === 'large'">
