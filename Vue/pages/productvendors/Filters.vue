@@ -1,17 +1,34 @@
 <script  setup>
 
-import { useProductVendorStore } from '../../../stores/store-productvendors'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductVendorStore } from '../../stores/store-productvendors'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useProductVendorStore();
-
+const root = useRootStore();
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt" >
+        <template class="p-1" #header>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <b class="mr-1">Filters</b>
+
+        </template>
+
+        <template #icons>
+
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/vendorproducts`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+
+        </template>
             <VhFieldVertical >
                 <template #label>
                     <b>Product By:</b>
@@ -54,7 +71,7 @@ const store = useProductVendorStore();
                     <b>Created Between:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
@@ -189,7 +206,5 @@ const store = useProductVendorStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
