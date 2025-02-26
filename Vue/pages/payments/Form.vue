@@ -42,7 +42,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div>
 
         <Panel class="is-small">
 

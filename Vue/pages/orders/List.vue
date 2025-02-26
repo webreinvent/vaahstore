@@ -1,7 +1,7 @@
 <script setup>
 import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
-
+import {usePaymentStore} from "../../stores/store-payments";
 import {useOrderStore} from '../../stores/store-orders'
 import {useRootStore} from '../../stores/root'
 
@@ -14,10 +14,6 @@ const payment_store = usePaymentStore();
 const root = useRootStore();
 const route = useRoute();
 
-import {useConfirm} from "primevue/useconfirm";
-import {usePaymentStore} from "../../stores/store-payments";
-
-const confirm = useConfirm();
 
 
 onMounted(async () => {
@@ -68,11 +64,12 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full m-1" v-if="store.assets">
 
-        <div :class="'col-'+store.list_view_width">
-
-            <Panel class="is-small">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses">
+                <Panel class="is-small">
 
                 <template class="p-1" #header>
 
@@ -90,14 +87,10 @@ const toggleCreateMenu = (event) => {
                 <div class="flex bg-white gap-2 mb-1">
                     <div class="w-full    border-gray-200 rounded-sm mb-2">
 
-                        <div class="flex justify-content-between" v-if="store.isViewLarge()">
-
-                        </div>
-
-                        <div class="flex w-full  mb-4 mt-4" v-if="store.isViewLarge()">
+                        <div class="flex w-full  mb-4 mt-4" v-if="store.isListView()">
                             <div class="w-26rem h-18rem">
                                 <Card
-                                    v-if="store.isViewLarge()"
+                                    v-if="store.isListView()"
                                     class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px; background-color: #f6f7f9"
                                     :pt="{
                                         content: {
@@ -147,7 +140,7 @@ const toggleCreateMenu = (event) => {
                             </div>
                             <div class="w-26rem h-18rem">
                                 <Card
-                                    v-if="store.isViewLarge()"
+                                    v-if="store.isListView()"
                                     class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;background-color: #f6f7f9"
                                     :pt="{
                                         content: {
@@ -223,7 +216,7 @@ const toggleCreateMenu = (event) => {
 
                             <div class="w-26rem h-18rem">
                                 <Card
-                                    v-if="store.isViewLarge()"
+                                    v-if="store.isListView()"
                                     class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;background-color: #f6f7f9"
                                     :pt="{
                                         content: {
@@ -298,7 +291,7 @@ const toggleCreateMenu = (event) => {
 
                         </div >
 
-                        <div class="flex justify-content-center gap-4" v-if="store.isViewLarge()">
+                        <div class="flex justify-content-center gap-4" v-if="store.isListView()">
 
 
                             <Charts
@@ -330,7 +323,7 @@ const toggleCreateMenu = (event) => {
 
                     <div class="p-inputgroup">
 
-                        <div class="flex justify-content-end " v-if=" store.isViewLarge()">
+                        <div class="flex justify-content-end " v-if=" store.isListView()">
 
 
 
@@ -366,9 +359,15 @@ const toggleCreateMenu = (event) => {
                 <Table/>
 
             </Panel>
-        </div>
+            </div>
 
-        <RouterView/>
+            <div v-if="store.getRightColumnClasses"
+                 :class="store.getRightColumnClasses">
+
+                <RouterView/>
+
+            </div>
+        </div>
 
     </div>
 

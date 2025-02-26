@@ -21,7 +21,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -72,7 +72,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column  header="Payment Status"  v-if="store.isViewLarge()"  class="overflow-wrap-anywhere "
+             <Column  header="Payment Status"  v-if="store.isListView()"  class="overflow-wrap-anywhere "
                       :sortable="true">
                  <template #body="prop">
 
@@ -90,7 +90,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="created_at" header="Created At"
-                     v-if="store.isViewLarge()"
+                     v-if="store.isListView()"
                      style="width:150px;"
                      :sortable="true">
 
@@ -120,7 +120,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="payments-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isListView() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -128,7 +128,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="payments-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isListView() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />

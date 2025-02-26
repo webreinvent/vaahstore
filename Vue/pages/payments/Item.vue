@@ -47,7 +47,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 </script>
 <template>
 
-    <div class="col-7" >
+    <div>
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -125,7 +125,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                     </div>
 
                 </Message>
-                <TabView :activeIndex="selectedTabIndex">
+                <Tabs :activeIndex="selectedTabIndex">
                     <TabPanel header="Payment Details">
 
                         <Message severity="info" :closable="false" v-if="store.item.notes">
@@ -369,7 +369,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                 </DataTable>
                 </div>
                     </TabPanel>
-                </TabView>
+                </Tabs>
             </div>
         </Panel>
 
