@@ -68,7 +68,7 @@ const permissions=store.assets.permissions;
 </script>
 <template>
 
-    <div class="col-6" >
+    <div>
 
         <Panel class="is-small">
 
@@ -217,7 +217,7 @@ const permissions=store.assets.permissions;
 
                 <VhField label="Business Type">
 
-                    <Dropdown v-model="store.item.business_type"
+                    <Select v-model="store.item.business_type"
                               @change="store.setBusinessType($event)"
                               :options="store.business_types_list"
                               data-testid="vendors-business-types"
@@ -432,7 +432,7 @@ const permissions=store.assets.permissions;
                 </VhField>
 
                 <VhField label="Is Default">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="vendors-default"
                                  data-testid="vendors-default"
@@ -440,7 +440,7 @@ const permissions=store.assets.permissions;
                 </VhField>
 
                 <VhField label="Auto Approve Products">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="vendors-auto-approve-products"
                                  data-testid="vendors-auto_approve_products"
@@ -448,7 +448,7 @@ const permissions=store.assets.permissions;
                 </VhField>
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="vendors-is_active"
                                  data-testid="vendors-is_active"

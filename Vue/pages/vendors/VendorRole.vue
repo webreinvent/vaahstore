@@ -39,7 +39,7 @@ const getDisplayName = (item) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div>
 
         <Panel >
 
@@ -136,7 +136,7 @@ const getDisplayName = (item) => {
 
                         <VhField label="Select Role" class="mb-0">
 
-                            <Dropdown v-model="store.selected_vendor_role"
+                            <Select v-model="store.selected_vendor_role"
                                       :options="store.vendor_roles"
                                       data-testid="vendors-role"
                                       optionLabel="name"

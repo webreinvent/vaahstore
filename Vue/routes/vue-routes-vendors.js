@@ -5,6 +5,7 @@ import List from '../pages/vendors/List.vue'
 import Form from '../pages/vendors/Form.vue'
 import Item from '../pages/vendors/Item.vue'
 import Product from '../pages/vendors/Product.vue'
+import Filters from '../pages/vendors/Filters.vue'
 import VendorRole from '../pages/vendors/VendorRole.vue'
 
 routes_list = {
@@ -14,6 +15,12 @@ routes_list = {
     component: List,
     props: true,
     children:[
+        {
+            path: 'filters',
+            name: 'vendors.filters',
+            component: Filters,
+            props: true,
+        },
         {
             path: 'form/:id?',
             name: 'vendors.form',

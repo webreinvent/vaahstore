@@ -16,13 +16,10 @@ onMounted(async () => {
 
 
 <template>
-    <div v-if="rootStore.assets">
 
-        <div class="flex gap-1">
-            <div><Aside/></div>
-            <div class="w-full"><RouterView/></div>
-        </div>
-
+    <div class="flex gap-1">
+        <div><Aside/></div>
+        <div class="w-full"><RouterView /></div>
     </div>
 
 </template>
