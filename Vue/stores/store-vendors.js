@@ -113,6 +113,61 @@ export const useVendorStore = defineStore({
     }),
     getters: {
 
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-full';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+
+        },
+
     },
     actions: {
         //---------------------------------------------------------------------
@@ -122,12 +177,11 @@ export const useVendorStore = defineStore({
              * Set initial routes
              */
             this.route = route;
-
             /**
              * Update with view and list css column number
              */
             await this.getProductCount();
-            this.setViewAndWidth(route.name);
+            await this.setViewAndWidth(route.name);
             this.first_element = ((this.query.page - 1) * this.query.rows);
 
             if (route.query && route.query.filter && route.query.filter.date) {
@@ -145,20 +199,35 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'vendors.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'vendors.product':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'vendors.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     case 'vendors.product':
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('vendors.view')
+                || route_name.includes('vendors.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('vendors.filters') || route_name.includes('vendors.product') || route_name.includes('vendors.role')){
+                this.view = 'list-and-filters';
+            }
+
+            if(route_name.includes('vendors.reports')){
+                this.view = 'list-and-reports';
             }
         },
         //---------------------------------------------------------------------
@@ -1076,9 +1145,9 @@ export const useVendorStore = defineStore({
             this.$router.push({name: 'vendors.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -1098,7 +1167,7 @@ export const useVendorStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -1108,7 +1177,7 @@ export const useVendorStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
