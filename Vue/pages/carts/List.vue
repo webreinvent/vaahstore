@@ -7,7 +7,7 @@ import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-import Filters from './components/Filters.vue'
+import Filters from './Filters.vue'
 
 const store = useCartStore();
 const root = useRootStore();
@@ -16,10 +16,17 @@ const route = useRoute();
 import { useConfirm } from "primevue/useconfirm";
 const confirm = useConfirm();
 
+function handleScreenResize() {
+    store.setScreenSize();
+}
+
+
 
 onMounted(async () => {
     document.title = 'Carts - Store';
     store.item = null;
+
+    window.addEventListener('resize', handleScreenResize);
     /**
      * call onLoad action when List view loads
      */
@@ -63,35 +70,48 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full" v-if="store.assets">
 
-        <div :class="route.params && route.params.id ? 'col-6' : 'col'">
-            <Panel class="is-small">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses"
 
-                <template class="p-1" #header>
+                 class="mb-4 lg:mb-0">
 
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Carts</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
+                <Panel :pt="root.panel_pt">
+                    <template #header>
+
+                        <div class="flex flex-row">
+                            <div>
+                                <b class="mr-1">Carts</b>
+                                <Badge v-if="store.list && store.list.total > 0"
+                                       :value="store.list.total">
+                                </Badge>
+                            </div>
+
                         </div>
 
-                    </div>
-
-                </template>
+                    </template>
                 <Actions/>
                 <Table/>
 
             </Panel>
         </div>
 
-         <Filters/>
 
-        <RouterView/>
+        <div v-if="store.getRightColumnClasses"
+             :class="store.getRightColumnClasses">
+
+            <RouterView/>
+
+        </div>
+        <!--/right-->
+
+
 
     </div>
+    </div>
+
 
 
 </template>
