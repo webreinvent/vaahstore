@@ -10,10 +10,12 @@ import Table from "./components/Table.vue";
 import Charts from "../../components/Charts.vue";
 
 const store = useOrderStore();
+const payment_store = usePaymentStore();
 const root = useRootStore();
 const route = useRoute();
 
 import {useConfirm} from "primevue/useconfirm";
+import {usePaymentStore} from "../../stores/store-payments";
 
 const confirm = useConfirm();
 
@@ -27,6 +29,7 @@ onMounted(async () => {
 
     await store.fetchOrdersChartData();
     await store.fetchSalesChartData();
+    await payment_store.paymentMethodsPieChartData();
 
     /**
      * watch routes to update view, column width
@@ -92,10 +95,10 @@ const toggleCreateMenu = (event) => {
                         </div>
 
                         <div class="flex w-full  mb-4 mt-4" v-if="store.isViewLarge()">
-                            <div class="w-26rem h-13rem">
+                            <div class="w-26rem h-18rem">
                                 <Card
                                     v-if="store.isViewLarge()"
-                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
+                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px; background-color: #f6f7f9"
                                     :pt="{
                                         content: {
                                             class: 'py-0'
@@ -127,10 +130,10 @@ const toggleCreateMenu = (event) => {
                                             </div>
                                             <div >
                                                 <Charts
-                                                    type="area"
+
                                                     :chartOptions="store.count_chart_options"
                                                     :chartSeries="store.count_chart_series"
-                                                    height=130 width=300
+                                                    height=200 width=350
                                                     titleAlign="center"
                                                     title=""
 
@@ -142,10 +145,10 @@ const toggleCreateMenu = (event) => {
                                     </template>
                                 </Card>
                             </div>
-                            <div class="w-26rem h-13rem">
+                            <div class="w-26rem h-18rem">
                                 <Card
                                     v-if="store.isViewLarge()"
-                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
+                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;background-color: #f6f7f9"
                                     :pt="{
                                         content: {
                                             class: 'py-0'
@@ -203,7 +206,7 @@ const toggleCreateMenu = (event) => {
                                                     type="area"
                                                     :chartOptions="store.sales_chart_options"
                                                     :chartSeries="store.sales_chart_series"
-                                                    height=130 width=300
+                                                    height=200 width=300
                                                     titleAlign="center"
 
 
@@ -218,10 +221,10 @@ const toggleCreateMenu = (event) => {
                             </div>
 
 
-                            <div class="w-26rem h-13rem">
+                            <div class="w-26rem h-18rem">
                                 <Card
                                     v-if="store.isViewLarge()"
-                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;"
+                                    class="flex-grow-1 shadow-1 h-full border-round-xl" style="margin-right:20px;background-color: #f6f7f9"
                                     :pt="{
                                         content: {
                                             class: 'py-0'
@@ -280,7 +283,7 @@ const toggleCreateMenu = (event) => {
                                                     type="area"
                                                     :chartOptions="store.order_payments_income_chart_options"
                                                     :chartSeries="store.order_payments_income_chart_series"
-                                                    height=130 width=300
+                                                    height=200 width=300
                                                     titleAlign="center"
 
 
@@ -308,7 +311,14 @@ const toggleCreateMenu = (event) => {
 
                             />
 
-
+                            <Charts
+                                class="border-round-3xl mb-2 border"
+                                type="pie"
+                                :chartOptions="payment_store.payment_methods_chart_options"
+                                :chartSeries="payment_store.payment_methods_chart_series"
+                                height=250 width=400
+                                titleAlign="center"
+                            />
 
 
 

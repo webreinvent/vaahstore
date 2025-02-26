@@ -1,7 +1,7 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductVendorStore } from '../../stores/store-productvendors'
-
+import { useRootStore } from '@/stores/root'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 import {vaah} from "../../vaahvue/pinia/vaah";
@@ -9,7 +9,7 @@ import {vaah} from "../../vaahvue/pinia/vaah";
 
 const store = useProductVendorStore();
 const route = useRoute();
-
+const root = useRootStore()
 onMounted(async () => {
     if (route.params?.id && store.product_variation_list.length <= 0) {
         await store.getItem(route.params.id);
@@ -28,13 +28,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-5" >
-
-        <Panel :pt="{
-            content: {
-                class: 'pt-1'
-            }
-        }" >
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -149,6 +143,6 @@ const toggleFormMenu = (event) => {
 
         </Panel>
 
-    </div>
+
 
 </template>

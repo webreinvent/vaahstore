@@ -120,7 +120,7 @@ const metrics = ref([]);
 
 </script>
 <template>
-    <div  class="flex-grow-1 shadow-1  border-round-xl has-background-white mb-2 p-3">
+    <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 surface-ground ">
     <h4 class="text-lg">
         Selected Date Range:{{ formattedDateRange }}
     </h4>
@@ -128,8 +128,8 @@ const metrics = ref([]);
     </div>
     <div class="container mb-3 mt-1">
 
-        <div class="grid">
-            <div class="col-12 md:col-6 lg:col-3" v-for="metric in metrics" :key="metric.label">
+        <div class="!grid grid-cols-4 gap-4">
+            <div  v-for="metric in metrics" :key="metric.label">
                 <Card class="surface-ground h-full">
                     <template #content>
                         <div class="text-500 mb-2 text-sm"><p v-html="metric.label"></p></div>
@@ -139,9 +139,9 @@ const metrics = ref([]);
             </div>
         </div>
     </div>
-    <div>
-        <div class="grid">
-            <div class="col-4">
+    <div class="!mt-3">
+        <div class="!grid grid-cols-3 !gap-4">
+            <div>
                 <Card
 
                     class="flex-grow-1 shadow-1 h-full border-round-xl"
@@ -178,7 +178,7 @@ const metrics = ref([]);
                             </div>
                             <div>
                                 <Charts
-                                    type="area"
+
                                     :chartOptions="orders_store.count_chart_options"
                                     :chartSeries="orders_store.count_chart_series"
                                     height=300
@@ -194,7 +194,7 @@ const metrics = ref([]);
                 </Card>
             </div>
 
-            <div class="col-4">
+            <div>
                 <Card
 
                     class=" flex-grow-1 shadow-1 h-full border-round-xl"
@@ -272,7 +272,7 @@ const metrics = ref([]);
 
             </div>
 
-            <div class="col-4">
+            <div>
                 <Card
                     v-if="orders_store.isViewLarge()"
                     class="flex-grow-1 shadow-1 h-full border-round-xl"
@@ -351,13 +351,13 @@ const metrics = ref([]);
             </div>
 
         </div>
-        <div class="grid mt-2">
+        <div class="!grid grid-cols-3 mt-2 !gap-4">
             <!--          Top Products-->
 
 
 <!--asas-->
 
-            <div class="col-4">
+            <div>
                 <Card class="border-round-xl shadow-md h-full">
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
@@ -414,7 +414,7 @@ const metrics = ref([]);
                 </Card>
             </div>
             <!--          Vendors By Sale-->
-            <div class="col-4">
+            <div>
                 <Card class="min-w-max border-round-xl shadow-md h-full">
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
@@ -464,7 +464,7 @@ const metrics = ref([]);
                 </Card>
             </div>
             <!--          Top Brands-->
-            <div class="col-4">
+            <div>
                 <Card class="min-w-max border-round-xl shadow-md h-full">
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
@@ -522,7 +522,7 @@ const metrics = ref([]);
 
 
 
-            <div class="col-3">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden mb-2 " :pt="{content: {
                                             class: 'py-0',
                                         },
@@ -685,7 +685,7 @@ const metrics = ref([]);
 
 
 
-            <div class="col-3">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
@@ -739,7 +739,7 @@ const metrics = ref([]);
                     </template>
                 </Card>
             </div>
-            <div class="col-6">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full w-full "
                       :pt="{content: {
                                             class: 'py-0',
@@ -758,7 +758,7 @@ const metrics = ref([]);
                     </template>
                 </Card>
             </div>
-            <div class="col-6">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden">
                     <template #content>
                         <Charts
@@ -774,11 +774,11 @@ const metrics = ref([]);
                 </Card>
             </div>
 
-            <div class="col-6">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="pie"
+                            type="donut"
                             :chartOptions="payment_store.payment_methods_chart_options"
                             :chartSeries="payment_store.payment_methods_chart_series"
                             height=250
@@ -788,7 +788,7 @@ const metrics = ref([]);
                 </Card>
             </div>
 
-            <div class="col-6">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
@@ -796,14 +796,14 @@ const metrics = ref([]);
                             :chartOptions="shipment_store.shipment_items_by_status_chart_options"
                             :chartSeries="shipment_store.shipment_items_by_status_chart_series"
 
-                            titleAlign="center"
+
                         />
                     </template>
 
                 </Card>
             </div>
 
-            <div class="col-6">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
@@ -824,7 +824,7 @@ const metrics = ref([]);
 
 
 
-            <div class="col-6">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
@@ -840,11 +840,11 @@ const metrics = ref([]);
                 </Card>
             </div>
 
-            <div class="col-6">
+            <div>
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="line"
+
                             :chartOptions="shipment_store.shipment_by_order_chart_options"
                             :chartSeries="shipment_store.shipment_by_order_chart_series"
                             title=""

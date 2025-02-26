@@ -18,6 +18,7 @@ const selected_page = ref({
     menuitem: ({ props }) => ({
         class: route.path === props.item.route ? 'p-focus' : ''
     }),
+     list: {class: 'p-0'},
     submenuheader: {class: 'sticky top-0 bg-white z-1 border-bottom-1 border-gray-200'}
 });
 
@@ -158,19 +159,21 @@ const items = ref([
 ]);
 
 </script>
+
 <template>
-
-
-    <div v-if="height" class="border-round-2xl overflow-hidden shadow-1 sticky" style="top: 54px">
-        <Menu :model="items" :pt="selected_page"  class="w-full overflow-y-auto py-0" style="max-height: calc(100vh - 54px);" >
+    <div v-if="height" class="overflow-hidden rounded-lg sticky bg-transparent" style="top: 54px">
+        <Menu :model="items" :pt="selected_page" class="w-full py-0 overflow-y-auto !bg-transparent shadow-none border-0" style="max-height: calc(100vh - 53px);">
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-                    <a v-ripple :href="href" v-bind="props.action" @click="navigate">
-                        <span :class="item.icon" />
+                    <a v-ripple :href="href" v-bind="props.action" @click="navigate"
+                    class="rounded-lg"
+                       :class="[route.path === item.route ? 'bg-blue-500 text-white font-semibold' : 'hover:bg-blue-500/10']">
+                        <span :class="item.icon" class="p-2 bg-white rounded-lg text-black shadow-card" />
                         <span class="ml-2">{{ item.label }}</span>
                     </a>
                 </router-link>
-                <a v-else v-ripple :href="item.url" :target="item.target" :class="props.class">
+                <a v-else v-ripple :href="item.url" :target="item.target" 
+                   :class="[props.class, 'hover:bg-gray-50']">
                     <span :class="item.icon" />
                     <span class="ml-2">{{ item.label }}</span>
                 </a>

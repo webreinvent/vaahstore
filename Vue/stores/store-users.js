@@ -3,7 +3,10 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { vaah } from '../vaahvue/pinia/vaah'
 import { useRootStore } from "./root";
 import qs from 'qs'
-import moment from 'moment';
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\User';
 
@@ -1253,7 +1256,7 @@ export const useUserStore = defineStore({
                 if (!selected_date) {
                     continue;
                 }
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if (UTC_date) {
@@ -1330,7 +1333,7 @@ export const useUserStore = defineStore({
             }
 
             this.total_customers =data.summary.total_customers;
-           this.total_orders =data.summary.total_orders;
+            this.total_orders =data.summary.total_orders;
             this.avg_orders_per_customer =data.summary.avg_orders_per_customer;
             this.average_order_value  =data.summary.average_order_value;
             console.log(this.total_customers)
@@ -1367,16 +1370,9 @@ export const useUserStore = defineStore({
                 },
 
                 stroke: {
-                    curve: 'monotoneCubic',
-                    width: 2, // Set the stroke width for all series
-                    dropShadow: {
-                        enabled: true,  // Enable shadow
-                        top: 2,         // Shadow offset top
-                        left: 2,        // Shadow offset left
-                        blur: 4,        // Shadow blur effect
-                        opacity: 1    // Shadow opacity
-                    }
-                },colors: [ '#CED4DC','#008FFB', '#00E396',],
+                    curve: "smooth",
+                    width: [2, 3],
+                },colors: ["#008FFB", "#00E396"],
                 chart: {
                     toolbar: {
                         show: false
@@ -1392,7 +1388,13 @@ export const useUserStore = defineStore({
                     xaxis: {
                         lines: {
                             show: false,
-                        }
+                        },
+                        axisTicks: {
+                            show: false,
+                        },
+                        axisBorder: {
+                            show: false,
+                        },
                     },
                     yaxis: {
                         lines: {
@@ -1408,10 +1410,22 @@ export const useUserStore = defineStore({
                 },
 
                 tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    shared: false,
+                    enabled: true,
+                    shared: true,
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const joined = series[0][dataPointIndex] ?? 0;
+                        const orderActivity = series[1][dataPointIndex] ?? 0;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Joined: <strong>${joined}</strong></div>
+                    <div style="color: #00E396;">Order Activity: <strong>${orderActivity}</strong></div>
+                </div>
+            </div>`;
+                    }
                 },
                 dataLabels: {
                     enabled: false,
@@ -1438,6 +1452,14 @@ export const useUserStore = defineStore({
                         fontSize: '20px',
                         fontWeight: 'bold',
                         color: '#263238'
+                    }
+                },fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [0, 80, 100]
                     }
                 },
                 noData: {

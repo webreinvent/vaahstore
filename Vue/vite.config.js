@@ -4,24 +4,33 @@ import {fileURLToPath, URL} from 'url'
 
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
-const pathSrc = path.resolve(__dirname, 'Vue')
+const pathSrc = path.resolve(__dirname, './')
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
         vue(),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: '../Resources/assets/',
+                    dest: '../../../../../../public/vaahcms/modules/vaahstore/',
+                }
+            ]
+        })
     ],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./Vue', import.meta.url))
+            '@': fileURLToPath(new URL('./', import.meta.url))
         }
     },
 
     build: {
         chunkSizeWarningLimit: 3000,
         target: "esnext",
-        outDir: 'Resources/assets/build/',
+        outDir: '../Resources/assets/build/',
         rollupOptions: {
             output: {
                 entryFileNames: `[name].js`,
@@ -36,7 +45,6 @@ export default defineConfig({
         hmr:{
             protocol: 'ws',
             host: 'localhost',
-
         }
     }
 })

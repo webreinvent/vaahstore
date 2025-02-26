@@ -2,7 +2,10 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment-timezone/moment-timezone-utils";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductMedia';
 
@@ -1172,7 +1175,7 @@ export const useProductMediaStore = defineStore({
 
             const dates = this.selected_dates
                 .filter(selected_date => selected_date)
-                .map(selected_date => moment(selected_date).format('YYYY-MM-DD'));
+                .map(selected_date => dayjs(selected_date).format('YYYY-MM-DD'));
 
             if (dates.length === 2) {
                 this.query.filter.date = dates;

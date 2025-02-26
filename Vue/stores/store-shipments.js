@@ -2,7 +2,9 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment-timezone/moment-timezone-utils";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+dayjs.extend(dayjsPluginUTC)
 import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Shipment';
@@ -1314,7 +1316,7 @@ export const useShipmentStore = defineStore({
                 if (!selected_date) {
                     continue;
                 }
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 const UTC_date = search_date.format('YYYY-MM-DD');
 
                 if (UTC_date) {
@@ -1358,19 +1360,29 @@ export const useShipmentStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        ordersShipmentByDateRangeAfter(data,res){
-            const series_data = data.chart_series.map(series => ({
+        ordersShipmentByDateRangeAfter(data, res) {
+            if (!data || !Array.isArray(data.chart_series)) {
+                return;
+            }
+
+            const seriesData = data.chart_series.map(series => ({
                 name: series.name,
+                type: series.name === "Orders In Shipment" ? "line" : "area",
                 data: Array.isArray(series.data) ? series.data : [],
             }));
 
-            this.updateChartSeries(series_data);
+            this.updateChartSeries(seriesData);
 
-            const updated_area_chart_options = {
-                ...data.chart_options,
+
+            const updatedChartOptions = {
+                chart: {
+                    type: "line",
+                    background: "#fff",
+                    toolbar: { show: false }
+                },
                 stroke: {
-                    curve: 'smooth',
-                    width: 3,
+                    curve: "smooth",
+                    width: [3, 2] // Thicker line for Orders In Shipment, thinner for area chart
                 },
                 noData: {
                     text: 'Oops! No Data Available',
@@ -1383,8 +1395,7 @@ export const useShipmentStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },
-                title: {
+                }, title: {
                     text: 'Order Shipments Trends',
                     align: 'left',
                     offsetY: 12,
@@ -1394,49 +1405,53 @@ export const useShipmentStore = defineStore({
                         color: '#263238'
                     }
                 },
-                chart: {
-
-                    toolbar: {
-                        show: false,
-                    },
-                    background: '#ffffff',
-
+                fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shade: "light",
+                        type: "vertical",
+                        shadeIntensity: 0.4,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [100, 100, 100]
+                    }
+                },
+                colors: ["#008FFB", "#00E396"], // Blue for Orders In Shipment, Green for Quantities Shipped
+                xaxis: {
+                    type: "datetime",
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
                 },
                 yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                },
-                colors: ['#d4526e',  '#13d8aa',
-                ],
-                xaxis: {
-                    labels: {
-                        show: false,
-                    },
-                },
-                legend: {
-                    show: true,
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    floating: false,
-                    fontSize: '11px',
-
-                },
-                dataLabels: {
-                    enabled: false,
+                    title: { text: "Shipments Data" }
                 },
                 tooltip: {
                     enabled: true,
                     shared: true,
-                    style: { fontSize: '14px' },
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const ordersInShipment = series[0][dataPointIndex] ?? 0;
+                        const QuantitiesInShipment = series[1][dataPointIndex] ?? 0;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Orders In Shipment: <strong>${ordersInShipment}</strong></div>
+                    <div style="color: #00E396;">Quantities Shipped: <strong>${QuantitiesInShipment}</strong></div>
+                </div>
+            </div>`;
+                    }
                 },
-                grid: {
-                    show: false,
+                legend: {
+                    position: "bottom"
                 }
             };
 
-            this.updateChartOptions(updated_area_chart_options);
-        },
+            this.updateChartOptions(updatedChartOptions);
+        }
+        ,
         updateChartOptions(newOptions) {
             this.shipment_by_order_chart_options = newOptions;
         },
@@ -1606,11 +1621,12 @@ export const useShipmentStore = defineStore({
                         fontFamily: undefined
                     }
                 },
+                colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
                 dataLabels: {
                                     enabled: true,
                                     textAnchor: 'start',
                                     style: {
-                                        colors: ['#000'],
+                                        colors: ['#ffffff'],
                                     },
                                     formatter: function (val, opt) {
                                         const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';
@@ -1618,7 +1634,7 @@ export const useShipmentStore = defineStore({
                                     },
                                     offsetX: 0,
                                     dropShadow: {
-                                        enabled: false,
+                                        enabled: true,
                                     },
                                 },
                 plotOptions: {
@@ -1626,6 +1642,8 @@ export const useShipmentStore = defineStore({
                         barHeight: '80%',
                         distributed: true,
                         horizontal: true,
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
                         dataLabels: {
                             position: 'bottom',
                         },
@@ -1638,7 +1656,7 @@ export const useShipmentStore = defineStore({
                 },
                 title: {
                     text: 'Shipped Quantities Status',
-                    align: 'center',
+                    align: 'left',
                     offsetY: 12,
                     style: {
                         fontSize: '16px',
@@ -1649,7 +1667,7 @@ export const useShipmentStore = defineStore({
 
                 subtitle: {
                     text: 'Status as DataLabels inside bars',
-                    align: 'center',
+                    align: 'left',
                 },
 
                 markers: {
@@ -1661,10 +1679,10 @@ export const useShipmentStore = defineStore({
                     },
                 },
                 tooltip: {
-                    theme: 'dark',
+                    theme: 'light',
                 },
                 legend: {
-                    show: false,
+                    show: true,
 
                 },
 

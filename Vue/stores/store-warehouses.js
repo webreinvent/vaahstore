@@ -2,7 +2,10 @@ import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Warehouse';
@@ -1084,7 +1087,7 @@ export const useWarehouseStore = defineStore({
                     continue ;
                 }
 
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if(UTC_date){
@@ -1176,7 +1179,12 @@ export const useWarehouseStore = defineStore({
             const updated_bar_chart_options = {
                 ...data.chart_options,
 
-
+                chart: {
+                    background: '#ffffff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
                 title: {
                     text: 'Stocks Available In Warehouse',
                     align: 'left',
@@ -1186,43 +1194,38 @@ export const useWarehouseStore = defineStore({
                         fontWeight: 'bold',
                         color: '#263238',
                     },
+                }, tooltip: {
+                    theme: 'light',
                 },
                 plotOptions: {
                     bar: {
                         barHeight: '80%',
                         distributed: true,
                         horizontal: true,
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
                         dataLabels: {
                             position: 'bottom',
                         },
                     },
                 },
                 legend: {
-                    show: false,
+                    show: true,
+                },
+                markers: {
+                    size: 5,
+                    strokeColor: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    },
                 },
                 yaxis: {
                     labels: {
                         show: false,
                     },
-                },responsive: [
-                    {
-                        breakpoint: 1000,
-                        options: {
-                            plotOptions: {
-                                bar: {
-                                    horizontal: false
-                                }
-                            },
-                            legend: {
-                                position: "bottom"
-                            }
-                            ,
-                            dataLabels:{
-                                enabled: false,
-                            }
-                        }
-                    }
-                ],
+                },
+
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1234,12 +1237,13 @@ export const useWarehouseStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },fill: {
-                    colors: ['#0000FF',  '#5996f1']
                 },
+
+                    colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
+
                 dataLabels: {
-                    enabled: false,
-                    textAnchor: 'center',
+                    enabled: true,
+                    textAnchor: 'start',
                     style: {
                         colors: ['#ffffff'],
                     },
@@ -1249,7 +1253,7 @@ export const useWarehouseStore = defineStore({
                     },
                     offsetX: 0,
                     dropShadow: {
-                        enabled: false,
+                        enabled: true,
                     },
                 },
 
