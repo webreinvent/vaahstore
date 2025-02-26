@@ -153,6 +153,38 @@ app.component('TabList', TabList);
 
 //-------------/CRUD PrimeVue Use
 
+import TreeSelect from 'primevue/treeselect';
+app.component('TreeSelect', TreeSelect);
+
+
+import MultiSelect from 'primevue/multiselect';
+app.component('MultiSelect', MultiSelect);
+
+
+import AutoComplete from 'primevue/autocomplete';
+app.component('AutoComplete', AutoComplete);
+
+import DatePicker from 'primevue/datepicker';
+app.component('DatePicker', DatePicker);
+
+import Textarea from 'primevue/textarea';
+app.component('Textarea', Textarea);
+
+import Chips from 'primevue/chips';
+app.component('Chips', Chips);
+
+
+import Editor from 'primevue/editor';
+app.component('Editor', Editor);
+
+
+import Drawer from 'primevue/drawer';
+app.component('Drawer', Drawer);
+
+
+import DynamicDialog from 'primevue/dynamicdialog';
+app.component('DynamicDialog', DynamicDialog);
+
 import InputGroup from "primevue/inputgroup";
 app.component("InputGroup", InputGroup);
 
