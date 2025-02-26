@@ -1192,7 +1192,7 @@ export const useWarehouseStore = defineStore({
                         color: '#263238',
                     },
                 }, tooltip: {
-                    theme: 'dark',
+                    theme: 'light',
                 },
                 plotOptions: {
                     bar: {

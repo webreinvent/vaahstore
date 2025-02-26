@@ -1407,10 +1407,22 @@ export const useUserStore = defineStore({
                 },
 
                 tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    shared: false,
+                    enabled: true,
+                    shared: true,
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const joined = series[0][dataPointIndex] ?? 0;
+                        const orderActivity = series[1][dataPointIndex] ?? 0;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Joined: <strong>${joined}</strong></div>
+                    <div style="color: #00E396;">Order Activity: <strong>${orderActivity}</strong></div>
+                </div>
+            </div>`;
+                    }
                 },
                 dataLabels: {
                     enabled: false,

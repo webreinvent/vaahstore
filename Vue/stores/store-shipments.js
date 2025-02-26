@@ -1427,7 +1427,20 @@ export const useShipmentStore = defineStore({
                 tooltip: {
                     enabled: true,
                     shared: true,
-                    style: { fontSize: '14px' },
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const ordersInShipment = series[0][dataPointIndex] ?? 0;
+                        const QuantitiesInShipment = series[1][dataPointIndex] ?? 0;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Orders In Shipment: <strong>${ordersInShipment}</strong></div>
+                    <div style="color: #00E396;">Quantities Shipped: <strong>${QuantitiesInShipment}</strong></div>
+                </div>
+            </div>`;
+                    }
                 },
                 legend: {
                     position: "bottom"
@@ -1664,7 +1677,7 @@ export const useShipmentStore = defineStore({
                     },
                 },
                 tooltip: {
-                    theme: 'dark',
+                    theme: 'light',
                 },
                 legend: {
                     show: true,
