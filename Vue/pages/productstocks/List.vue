@@ -78,180 +78,7 @@ const toggleCreateMenu = (event) => {
                     <template #header>
 
 
-<!--                <div class="flex flex-wrap justify-content-center  gap-6 mt-1 mb-4">
-                    <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
-                    <template #title>
-                        <div class="flex align-items-center justify-content-between">
-                            <h2 class="text-lg">Highest Stock</h2>
 
-                            <Button
-                                data-testid="productstocks_chart-quick_filter"
-                                type="button"
-                                @click="store.QuickHighFilter()"
-                                aria-haspopup="true"
-                                aria-controls="quick_filter_menu_state"
-                                class="ml-1 p-button-sm px-1"
-                                label="All"
-                                icon="pi pi-filter"
-                            >
-                            </Button>
-
-                        </div>
-                    </template>
-
-                    <template #content>
-                        <div class="max-h-14rem overflow-y-auto">
-
-
-                            <DataTable :value="store.highest_stock"
-                                       dataKey="id"
-
-                                       class="p-datatable-sm p-datatable-hoverable-rows"
-                                       :nullSortOrder="-1"
-                                       v-model:selection="store.action.items"
-                                       stripedRows
-                                       responsiveLayout="scroll">
-                                <Column field="" header="" class="overflow-wrap-anywhere"
-                                        style="width:120px;">
-                                    <template #body="prop">
-                                        <div class="flex mt-4">
-                                            <div class="product_img">
-                                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
-                                                    <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
-                                                        <Image preview
-                                                               :src="base_url + '/' + imageUrl"
-                                                               alt="Error" class="shadow-4" width="64"/>
-                                                    </div>
-                                                </div>
-                                                <div v-else>
-                                                    <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                                         alt="Error" class="shadow-4" width="64"/>
-                                                </div>
-                                            </div>
-                                            <div class=" ml-3">
-                                                <h3>
-                                                    {{
-                                                    prop.data.product && prop.data.productVariation
-                                                    ? prop.data.product.name + '-' + prop.data.productVariation.name
-                                                    : prop.data.name
-                                                    }}
-                                                </h3>
-                                                <p class="mb-1" v-if="prop.data.stock"><b>Stock Qty:</b>
-
-                                                        {{ prop.data.stock }}
-
-                                                </p>
-&lt;!&ndash;                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">&ndash;&gt;
-&lt;!&ndash;                                                    ₹{{ prop.data.pivot.price }}</p>&ndash;&gt;
-                                                <ProgressBar
-                                                    style="width: 15rem; height:12px"
-                                                    :value=prop.data.stock_percentage
-
-                                                >
-
-                                                </ProgressBar>
-                                            </div>
-
-                                        </div>
-                                    </template>
-                                </Column>
-                                <template #empty>
-                                    <div class="text-center py-3">
-                                        No records found.
-                                    </div>
-                                </template>
-
-                            </DataTable>
-
-                                                    </div>
-                                                </template>
-                                            </Card>
-                    <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
-
-                                                <template #title>
-                                                    <div class="flex align-items-center justify-content-between">
-                                                        <h2 class="text-lg">Lowest Stock</h2>
-
-                                                        <Button
-                                                            data-testid="productstocks_chart-quick_filter"
-                                                            type="button"
-                                                            @click="store.QuickLowFilter()"
-                                                            aria-haspopup="true"
-                                                            aria-controls="quick_filter_menu_state"
-                                                            class="ml-1 p-button-sm px-1"
-                                                            label="All"
-                                                            icon="pi pi-filter"
-                                                        >
-                                                        </Button>
-
-                                                    </div>
-                                                </template>
-
-                                                <template #content>
-                                                    <div class="max-h-10rem overflow-y-auto">
-
-                                                        <DataTable :value="store.lowest_stock"
-                                                                   dataKey="id"
-
-                                                                   class="p-datatable-sm p-datatable-hoverable-rows"
-                                                                   :nullSortOrder="-1"
-                                                                   v-model:selection="store.action.items"
-                                                                   stripedRows
-                                                                   responsiveLayout="scroll">
-                                                            <Column field="" header="" class="overflow-wrap-anywhere"
-                                                                    style="width:120px;">
-                                                                <template #body="prop">
-                                                                    <div class="flex mt-4">
-                                                                        <div class="product_img">
-                                                                            <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
-                                                                                <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
-                                                                                    <Image preview
-                                                                                           :src="base_url + '/' + imageUrl"
-                                                                                           alt="Error" class="shadow-4" width="64"/>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div v-else>
-                                                                                <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                                                                     alt="Error" class="shadow-4" width="64"/>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class=" ml-3">
-                                                                            <h3>
-                                                                                {{
-                                                                                prop.data.product && prop.data.productVariation
-                                                                                ? prop.data.product.name + '-' + prop.data.productVariation.name
-                                                                                : prop.data.name
-                                                                                }}
-                                                                            </h3>
-                                                                            <p class="mb-1" v-if="prop.data.stock"><b>Stock Qty:</b>
-
-                                                                                {{ prop.data.stock }}
-
-                                                                            </p>
-                                                                            &lt;!&ndash;                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">&ndash;&gt;
-                                                                            &lt;!&ndash;                                                    ₹{{ prop.data.pivot.price }}</p>&ndash;&gt;
-                                                                            <ProgressBar
-                                                                                style="width: 15rem; height:10px"
-                                                                                :value=prop.data.stock_percentage
-                                                                            >
-
-                                                                            </ProgressBar>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </template>
-                                                            </Column>
-                                                            <template #empty>
-                                                                <div class="text-center py-3">
-                                                                    No records found.
-                                                                </div>
-                                                            </template>
-
-                                                        </DataTable>
-                                                    </div>
-                                                </template>
-                                            </Card>
-                </div>-->
 
 
                                                 <div class="flex flex-row">
@@ -265,7 +92,180 @@ const toggleCreateMenu = (event) => {
                                                 </div>
 
                                             </template>
+                    <div class="flex flex-wrap justify-content-center  gap-6 mt-1 mb-4">
+                        <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
+                            <template #title>
+                                <div class="flex align-items-center justify-content-between">
+                                    <h2 class="text-lg">Highest Stock</h2>
 
+                                    <Button
+                                        data-testid="productstocks_chart-quick_filter"
+                                        type="button"
+                                        @click="store.QuickHighFilter()"
+                                        aria-haspopup="true"
+                                        aria-controls="quick_filter_menu_state"
+                                        size="small"
+                                        label="All"
+                                        icon="pi pi-filter"
+                                    >
+                                    </Button>
+
+                                </div>
+                            </template>
+
+                            <template #content>
+                                <div class="max-h-14rem overflow-y-auto">
+
+
+                                    <DataTable :value="store.highest_stock"
+                                               dataKey="id"
+
+                                               class="p-datatable-sm p-datatable-hoverable-rows"
+                                               :nullSortOrder="-1"
+                                               v-model:selection="store.action.items"
+                                               stripedRows
+                                               responsiveLayout="scroll">
+                                        <Column field="" header="" class="overflow-wrap-anywhere"
+                                                style="width:120px;">
+                                            <template #body="prop">
+                                                <div class="flex mt-4">
+                                                    <div class="product_img">
+                                                        <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
+                                                            <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
+                                                                <Image preview
+                                                                       :src="base_url + '/' + imageUrl"
+                                                                       alt="Error" class="shadow-4" width="64"/>
+                                                            </div>
+                                                        </div>
+                                                        <div v-else>
+                                                            <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
+                                                                 alt="Error" class="shadow-4" width="64"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" ml-3">
+                                                        <h3>
+                                                            {{
+                                                            prop.data.product && prop.data.productVariation
+                                                            ? prop.data.product.name + '-' + prop.data.productVariation.name
+                                                            : prop.data.name
+                                                            }}
+                                                        </h3>
+                                                        <p class="mb-1" v-if="prop.data.stock"><b>Stock Qty:</b>
+
+                                                            {{ prop.data.stock }}
+
+                                                        </p>
+                                                        <!--                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">-->
+                                                        <!--                                                    ₹{{ prop.data.pivot.price }}</p>-->
+                                                        <ProgressBar
+                                                            style="width: 15rem; height:12px"
+                                                            :value=prop.data.stock_percentage
+
+                                                        >
+
+                                                        </ProgressBar>
+                                                    </div>
+
+                                                </div>
+                                            </template>
+                                        </Column>
+                                        <template #empty>
+                                            <div class="text-center py-3">
+                                                No records found.
+                                            </div>
+                                        </template>
+
+                                    </DataTable>
+
+                                </div>
+                            </template>
+                        </Card>
+                        <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
+
+                            <template #title>
+                                <div class="flex align-items-center justify-content-between">
+                                    <h2 class="text-lg">Lowest Stock</h2>
+
+                                    <Button
+                                        data-testid="productstocks_chart-quick_filter"
+                                        type="button"
+                                        @click="store.QuickLowFilter()"
+                                        aria-haspopup="true"
+                                        aria-controls="quick_filter_menu_state"
+                                        class="ml-1 p-button-sm px-1"
+                                        label="All"
+                                        icon="pi pi-filter"
+                                    >
+                                    </Button>
+
+                                </div>
+                            </template>
+
+                            <template #content>
+                                <div class="max-h-10rem overflow-y-auto">
+
+                                    <DataTable :value="store.lowest_stock"
+                                               dataKey="id"
+
+                                               class="p-datatable-sm p-datatable-hoverable-rows"
+                                               :nullSortOrder="-1"
+                                               v-model:selection="store.action.items"
+                                               stripedRows
+                                               responsiveLayout="scroll">
+                                        <Column field="" header="" class="overflow-wrap-anywhere"
+                                                style="width:120px;">
+                                            <template #body="prop">
+                                                <div class="flex mt-4">
+                                                    <div class="product_img">
+                                                        <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
+                                                            <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
+                                                                <Image preview
+                                                                       :src="base_url + '/' + imageUrl"
+                                                                       alt="Error" class="shadow-4" width="64"/>
+                                                            </div>
+                                                        </div>
+                                                        <div v-else>
+                                                            <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
+                                                                 alt="Error" class="shadow-4" width="64"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" ml-3">
+                                                        <h3>
+                                                            {{
+                                                            prop.data.product && prop.data.productVariation
+                                                            ? prop.data.product.name + '-' + prop.data.productVariation.name
+                                                            : prop.data.name
+                                                            }}
+                                                        </h3>
+                                                        <p class="mb-1" v-if="prop.data.stock"><b>Stock Qty:</b>
+
+                                                            {{ prop.data.stock }}
+
+                                                        </p>
+                                                        <!--                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">-->
+                                                        <!--                                                    ₹{{ prop.data.pivot.price }}</p>-->
+                                                        <ProgressBar
+                                                            style="width: 15rem; height:10px"
+                                                            :value=prop.data.stock_percentage
+                                                        >
+
+                                                        </ProgressBar>
+                                                    </div>
+
+                                                </div>
+                                            </template>
+                                        </Column>
+                                        <template #empty>
+                                            <div class="text-center py-3">
+                                                No records found.
+                                            </div>
+                                        </template>
+
+                                    </DataTable>
+                                </div>
+                            </template>
+                        </Card>
+                    </div>
                                             <template #icons>
 
                                                 <InputGroup>
