@@ -1,5 +1,5 @@
-import {createApp, markRaw} from 'vue';
-import { createPinia, PiniaVuePlugin  } from 'pinia'
+import { createApp, markRaw } from 'vue';
+import { createPinia, PiniaVuePlugin } from 'pinia'
 import PrimeVue from "primevue/config";
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
@@ -63,7 +63,6 @@ import Dialog from "primevue/dialog";
 import Checkbox from "primevue/checkbox";
 import ConfirmPopup from "primevue/confirmpopup";
 import ToggleButton from "primevue/togglebutton";
-import Chart from 'primevue/chart';
 
 //-------------/CRUD PrimeVue Imports
 
@@ -85,16 +84,17 @@ app.use(router);
 //-------------/APP
 
 const vaahstore = definePreset(Aura, {
-    semantic: {
-        primary: {
-        }
-    }
+    semantic: {}
 });
 //-------------PrimeVue Use
 app.use(PrimeVue, {
     theme: {
         preset: vaahstore,
         darkMode: false,
+        options: {
+            darkModeSelector: false,
+            darkModeInject: false
+        },
     }
 });
 app.use(ConfirmationService);
@@ -111,7 +111,6 @@ app.component('ConfirmDialog', ConfirmDialog);
 app.component('Menu', Menu);
 app.component('ProgressBar', ProgressBar);
 app.component('Toast', Toast);
-app.component('Chip', Chip);
 //-------------/PrimeVue Use
 
 // -------------CRUD PrimeVue Use
@@ -168,14 +167,13 @@ import Card from "primevue/card";
 app.component("Card", Card);
 
 import Image from "primevue/Image";
+import { semantic } from '@primeuix/themes/aura/base';
+import { Warning } from 'postcss';
 app.component("Image", Image);
 
-import TreeSelect from 'primevue/treeselect';
-app.component('TreeSelect', TreeSelect);
 
+app.component('apexchart', VueApexCharts);
 
-import MultiSelect from 'primevue/multiselect';
-app.component('MultiSelect', MultiSelect);
 
 
 import AutoComplete from 'primevue/autocomplete';
