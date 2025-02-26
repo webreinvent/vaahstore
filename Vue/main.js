@@ -184,7 +184,8 @@ app.component('Editor', Editor);
 
 import Drawer from 'primevue/drawer';
 app.component('Drawer', Drawer);
-
+import Slider from 'primevue/slider';
+app.component('Slider', Slider);
 
 app.component('apexchart', VueApexCharts);
 

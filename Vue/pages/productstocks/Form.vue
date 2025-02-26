@@ -1,14 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductStockStore } from '../../stores/store-productstocks'
-
+import { useRootStore } from '@/stores/root.js'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useProductStockStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
     if(route.params && route.params.id)
     {
@@ -28,9 +28,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -55,6 +53,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button class="p-button-sm"
+                            v-tooltip.left="'View'"
                             v-if="store.item && store.item.id"
                             data-testid="productstocks-view_item"
                             @click="store.toView(store.item)"
@@ -277,7 +276,7 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="productstocks-active"
@@ -288,6 +287,5 @@ const toggleFormMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>
