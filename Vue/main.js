@@ -144,6 +144,9 @@ app.component('MultiSelect', MultiSelect);
 import AutoComplete from 'primevue/autocomplete';
 app.component('AutoComplete', AutoComplete);
 
+import DatePicker from 'primevue/datepicker';
+app.component('DatePicker', DatePicker);
+
 
 app.component('apexchart', VueApexCharts);
 

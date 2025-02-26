@@ -45,7 +45,7 @@ const openProductCategories = (categories,product) => {
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -83,7 +83,7 @@ const openProductCategories = (categories,product) => {
 
              </Column>
 
-             <Column field="quantity" header="Quantity" v-if="store.isViewLarge()" :sortable="true">
+             <Column field="quantity" header="Quantity" v-if="store.isListView()" :sortable="true">
                  <template #body="prop">
                      <template v-if="prop.data && prop.data.product_price_range">
                          <Badge v-if="prop.data.product_price_range.quantity"
@@ -118,7 +118,7 @@ const openProductCategories = (categories,product) => {
 
 
              <Column  header="Selected Vendor"
-                      v-if="store.isViewLarge()">
+                      v-if="store.isListView()">
 
                  <template #body="prop">
                      <Badge v-if="prop.data && prop.data.product_price_range && prop.data.product_price_range.deleted_at"
@@ -201,7 +201,7 @@ const openProductCategories = (categories,product) => {
 
              <Column field="status.name" header="Status"
                      :sortable="true"
-                     v-if="store.isViewLarge()">
+                     v-if="store.isListView()">
 
                  <template #body="prop">
 
@@ -215,7 +215,7 @@ const openProductCategories = (categories,product) => {
 
              </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+            <Column field="is_active" v-if="store.isListView()"
                     style="width:80px;"
                     header="Is Active">
 
@@ -261,7 +261,7 @@ const openProductCategories = (categories,product) => {
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="products-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at &&
+                                v-if="store.isListView() && !prop.data.deleted_at &&
                                 store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
@@ -270,7 +270,7 @@ const openProductCategories = (categories,product) => {
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="products-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at &&
+                                v-if="store.isListView() && prop.data.deleted_at &&
                                  store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
