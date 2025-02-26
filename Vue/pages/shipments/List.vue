@@ -91,10 +91,10 @@ const toggleCreateMenu = (event) => {
 
                             <Charts
                                 class="border-1 border-gray-200 border-round-sm overflow-hidden"
-                                type="area"
+
                                 :chartOptions="store.shipment_by_order_chart_options"
                                 :chartSeries="store.shipment_by_order_chart_series"
-                                height=200 width=350
+                                height=300 width=350
                                 titleAlign="center"
                             />
                             <Charts
@@ -102,7 +102,7 @@ const toggleCreateMenu = (event) => {
 
                                 :chartOptions="store.shipment_by_items_chart_options"
                                 :chartSeries="store.shipment_by_items_chart_series"
-                                height=200 width=350
+                                height=300 width=350
                                 titleAlign="center"
                             />
                             <Charts
@@ -110,7 +110,7 @@ const toggleCreateMenu = (event) => {
                                 type="bar"
                                 :chartOptions="store.shipment_items_by_status_chart_options"
                                 :chartSeries="store.shipment_items_by_status_chart_series"
-                                height=200 width=350
+                                height=300 width=350
                                 titleAlign="center"
                             />
 

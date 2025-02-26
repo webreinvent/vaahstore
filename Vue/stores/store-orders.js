@@ -1109,6 +1109,8 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false,
                     },
+                },fill: {
+                    type: 'gradient',
                 },
                 noData: {
                     text: 'Oops! No Data Available',
@@ -1203,7 +1205,7 @@ export const useOrderStore = defineStore({
             }));
             this.updateSalesChartSeries(series_data);
             const isNegativeGrowth = this.growth_rate < 0;
-            const chartColor = isNegativeGrowth ? '#4e78e1' : '#00FF00';
+            const chartColor = isNegativeGrowth ? '#4e78e1' : '#4e78e1';
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
@@ -1215,8 +1217,16 @@ export const useOrderStore = defineStore({
                 title: {
                     text: '',
 
+                },fill: {
+                    type: ["gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [0, 80, 100]
+                    }
                 },
-                colors: [chartColor],
+                colors: ['#008FFB'],
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1238,6 +1248,9 @@ export const useOrderStore = defineStore({
                     axisBorder: {
                         show: false,
                     },
+                    axisTicks: {
+                        show: false,
+                    }
                 },
                 yaxis: {
                     labels: {
@@ -1248,18 +1261,21 @@ export const useOrderStore = defineStore({
                     },
                 },
                 tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    y: {
-                        formatter: function (value) {
-                            if (value >= 1000) {
-                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
-                            }
-                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
-                        }
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const value = series[seriesIndex][dataPointIndex] ?? 0;
+                        const formattedValue = value >= 1000 ? (value / 1000).toFixed(2) + 'k' : value;
+
+                        return `<div style="
+                                background: #fff; padding: 10px; border-radius: 50%;
+                                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05);">
+                                <strong style="color: #333; font-size: 14px;">${date}</strong>
+                                <div style="font-size: 14px; color: ${chartColor};">Sale: <strong>&#8377;${formattedValue}</strong></div>
+                            </div>`;
                     }
                 },
+
 
                 chart: {
                     background: '#f6f7f9',
@@ -1378,6 +1394,16 @@ export const useOrderStore = defineStore({
                         fontFamily: undefined
                     }
                 },
+                colors: ["#008FFB"],
+                fill: {
+                    type: ["gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [50 , 80, 100]
+                    }
+                },
                 xaxis: {
                     type: 'datetime',
                     labels: {
@@ -1386,6 +1412,9 @@ export const useOrderStore = defineStore({
                     axisBorder: {
                         show: false,
                     },
+                    axisTicks: {
+                        show: false,
+                    }
                 },
                 yaxis: {
                     labels: {
@@ -1396,20 +1425,25 @@ export const useOrderStore = defineStore({
                     },
                 },
                 tooltip: {
-                    x: {
-                        format: 'MMM dd, yyyy'
-                    },
-                    y: {
-                        formatter: function (value) {
-                            if (value >= 1000) {
-                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
-                            }
-                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
-                        }
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const value = series[seriesIndex][dataPointIndex] ?? 0;
+                        const formattedValue = value >= 1000 ? (value / 1000).toFixed(2) + 'k' : value;
+
+                        return `<div style="
+            background: #fff; padding: 12px; border-radius: 50%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+            min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+            <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+            <div style="font-size: 14px; color: #008FFB;">
+                Amount: <strong>&#8377;${formattedValue}</strong>
+            </div>
+        </div>`;
                     }
                 },
+
                 chart: {
-                    background: '#fff',
+                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
@@ -1511,95 +1545,90 @@ export const useOrderStore = defineStore({
                 return;
             }
 
-            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
-                name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
-            }));
+            const series_data = [
+                {
+                    name: "Created",
+                    type: "line",
+                    data: data.chart_series.orders_count_bar_chart.find(s => s.name === "Created")?.data || []
+                },
+                {
+                    name: "Completed",
+                    type: "area",
+                    data: data.chart_series.orders_count_bar_chart.find(s => s.name === "Completed")?.data || []
+                }
+            ];
             const totals = {
                 total_orders: series_data.find(series => series.name === "Created")?.data.reduce((sum, item) => sum + item.y, 0) || 0,
                 completed_orders: series_data.find(series => series.name === "Completed")?.data.reduce((sum, item) => sum + item.y, 0) || 0
             };
             this.updateChartSeries(series_data);
 
-
             const updated_area_chart_options = {
-                ...data.chart_options, // Merge existing options
-                stroke: {
-                    curve: 'smooth',
-                    width: 2,
-                },
-
-                noData: {
-                    text: 'Oops! No Data Available',
-                    align: 'center',
-                    verticalAlign: 'middle',
-                    offsetX: 0,
-                    offsetY: 0,
-                    style: {
-                        color: '#FF0000',
-                        fontSize: '14px',
-                        fontFamily: undefined
-                    }
-                },
-                xaxis: {
-                    type: 'datetime',
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                },
-                yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                },
-                tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    shared: true,
-                },
-
+                ...data.chart_options,
                 chart: {
-                    background: '#fff',
-                    toolbar: {
-                        show: false,
-                    },
+                    type: "line",
+                    background: '#f6f7f9',
+                    toolbar: { show: false },
                 },
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-
-                dataLabels: {
-                    enabled: false,
+                stroke: {
+                    curve: "smooth",
+                    width: [2, 3],
                 },
                 grid: {
                     show: false,
                 },
-
+                fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shade: "light",
+                        shadeIntensity: 0.4,
+                        inverseColors: false,
+                        opacityFrom: 0.5,  // Increased for more visibility
+                        opacityTo: 0.15,   // Adjusted to ensure shadow persists at the end
+                        stops: [20, 100, 100],
+                        type: "vertical"
+                    }
+                },
+                colors: ["#008FFB", "#00E396"], // Created (Blue - Line), Completed (Green - Area)
+                xaxis: {
+                    type: "datetime",
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                    axisTicks: {
+                        show: false,
+                    }
+                },
+                yaxis: {
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                },
+                tooltip: {
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const createdCount = series[0][dataPointIndex] ?? 0;
+                        const completedCount = series[1][dataPointIndex] ?? 0;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Created: <strong>${createdCount}</strong></div>
+                    <div style="color: #00E396;">Completed: <strong>${completedCount}</strong></div>
+                </div>
+            </div>`;
+                    }
+                },
                 legend: {
                     show: true,
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    fontSize: '14px',
-                    labels: {
-                        colors: '#000',
-                    },
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 5
-                    },
-                    formatter: function (seriesName) {
-                        if (seriesName === 'Created') {
+                    position: "bottom",
+                    horizontalAlign: "left",
+                    fontSize: "14px",
+                    labels: { colors: "#000" },
+                    itemMargin: { horizontal: 10, vertical: 5 },
+                    formatter: function(seriesName) {
+                        if (seriesName === "Created") {
                             return `${seriesName}: ${totals.total_orders}`;
-                        } else if (seriesName === 'Completed') {
+                        } else if (seriesName === "Completed") {
                             return `${seriesName}: ${totals.completed_orders}`;
                         }
                         return seriesName;

@@ -178,7 +178,7 @@ const metrics = ref([]);
                             </div>
                             <div>
                                 <Charts
-                                    type="area"
+
                                     :chartOptions="orders_store.count_chart_options"
                                     :chartSeries="orders_store.count_chart_series"
                                     height=300
@@ -778,7 +778,7 @@ const metrics = ref([]);
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="pie"
+                            type="donut"
                             :chartOptions="payment_store.payment_methods_chart_options"
                             :chartSeries="payment_store.payment_methods_chart_series"
                             height=250
@@ -796,7 +796,7 @@ const metrics = ref([]);
                             :chartOptions="shipment_store.shipment_items_by_status_chart_options"
                             :chartSeries="shipment_store.shipment_items_by_status_chart_series"
 
-                            titleAlign="center"
+
                         />
                     </template>
 
@@ -844,7 +844,7 @@ const metrics = ref([]);
                 <Card class="border-1 border-gray-200 border-round-xl overflow-hidden h-full">
                     <template #content>
                         <Charts
-                            type="line"
+
                             :chartOptions="shipment_store.shipment_by_order_chart_options"
                             :chartSeries="shipment_store.shipment_by_order_chart_series"
                             title=""

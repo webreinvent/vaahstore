@@ -364,7 +364,7 @@ class SampleDataTableSeeder extends Seeder
         $users = [];
         $roles = Role::where('slug', 'customer')->first();
 
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $random_country = $countries[array_rand($countries)];
             $selected_country = collect($country_list)->where('name', $random_country)->first();
             $random_title = collect($name_titles)->random()['name'];

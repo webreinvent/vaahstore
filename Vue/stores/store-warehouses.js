@@ -1179,7 +1179,12 @@ export const useWarehouseStore = defineStore({
             const updated_bar_chart_options = {
                 ...data.chart_options,
 
-
+                chart: {
+                    background: '#ffffff',
+                    toolbar: {
+                        show: false,
+                    },
+                },
                 title: {
                     text: 'Stocks Available In Warehouse',
                     align: 'left',
@@ -1189,43 +1194,38 @@ export const useWarehouseStore = defineStore({
                         fontWeight: 'bold',
                         color: '#263238',
                     },
+                }, tooltip: {
+                    theme: 'light',
                 },
                 plotOptions: {
                     bar: {
                         barHeight: '80%',
                         distributed: true,
                         horizontal: true,
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
                         dataLabels: {
                             position: 'bottom',
                         },
                     },
                 },
                 legend: {
-                    show: false,
+                    show: true,
+                },
+                markers: {
+                    size: 5,
+                    strokeColor: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    },
                 },
                 yaxis: {
                     labels: {
                         show: false,
                     },
-                },responsive: [
-                    {
-                        breakpoint: 1000,
-                        options: {
-                            plotOptions: {
-                                bar: {
-                                    horizontal: false
-                                }
-                            },
-                            legend: {
-                                position: "bottom"
-                            }
-                            ,
-                            dataLabels:{
-                                enabled: false,
-                            }
-                        }
-                    }
-                ],
+                },
+
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1237,12 +1237,13 @@ export const useWarehouseStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },fill: {
-                    colors: ['#0000FF',  '#5996f1']
                 },
+
+                    colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
+
                 dataLabels: {
-                    enabled: false,
-                    textAnchor: 'center',
+                    enabled: true,
+                    textAnchor: 'start',
                     style: {
                         colors: ['#ffffff'],
                     },
@@ -1252,7 +1253,7 @@ export const useWarehouseStore = defineStore({
                     },
                     offsetX: 0,
                     dropShadow: {
-                        enabled: false,
+                        enabled: true,
                     },
                 },
 
