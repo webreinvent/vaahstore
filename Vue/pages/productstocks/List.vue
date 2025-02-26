@@ -3,7 +3,7 @@ import {onMounted, reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
 
 import {useProductStockStore} from '../../stores/store-productstocks'
-import {useRootStore} from '../../stores/root'
+import {useRootStore} from '@/stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
@@ -14,10 +14,13 @@ const route = useRoute();
 
 import { useConfirm } from "primevue/useconfirm";
 const confirm = useConfirm();
-
+function handleScreenResize() {
+    store.setScreenSize();
+}
 const base_url = ref('');
 onMounted(async () => {
     document.title = 'Product Stocks - Store';
+    window.addEventListener('resize', handleScreenResize);
     base_url.value = root.ajax_url.replace('backend/store', '/');
     /**
      * call onLoad action when List view loads
@@ -63,13 +66,19 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full" v-if="store.assets">
 
-        <div :class="'col-'+store.list_view_width">
-            <Panel class="is-small">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <!--left-->
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses"
+
+                 class="mb-4 lg:mb-0">
+                <Panel :pt="root.panel_pt">
+                    <template #header>
 
 
-                <div class="flex flex-wrap justify-content-center  gap-6 mt-1 mb-4">
+<!--                <div class="flex flex-wrap justify-content-center  gap-6 mt-1 mb-4">
                     <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
                     <template #title>
                         <div class="flex align-items-center justify-content-between">
@@ -132,8 +141,8 @@ const toggleCreateMenu = (event) => {
                                                         {{ prop.data.stock }}
 
                                                 </p>
-<!--                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">-->
-<!--                                                    ₹{{ prop.data.pivot.price }}</p>-->
+&lt;!&ndash;                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">&ndash;&gt;
+&lt;!&ndash;                                                    ₹{{ prop.data.pivot.price }}</p>&ndash;&gt;
                                                 <ProgressBar
                                                     style="width: 15rem; height:12px"
                                                     :value=prop.data.stock_percentage
@@ -219,8 +228,8 @@ const toggleCreateMenu = (event) => {
                                                                                 {{ prop.data.stock }}
 
                                                                             </p>
-                                                                            <!--                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">-->
-                                                                            <!--                                                    ₹{{ prop.data.pivot.price }}</p>-->
+                                                                            &lt;!&ndash;                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">&ndash;&gt;
+                                                                            &lt;!&ndash;                                                    ₹{{ prop.data.pivot.price }}</p>&ndash;&gt;
                                                                             <ProgressBar
                                                                                 style="width: 15rem; height:10px"
                                                                                 :value=prop.data.stock_percentage
@@ -242,8 +251,8 @@ const toggleCreateMenu = (event) => {
                                                     </div>
                                                 </template>
                                             </Card>
-                </div>
-                                            <template class="p-1" #header>
+                </div>-->
+
 
                                                 <div class="flex flex-row">
                                                     <div >
@@ -259,18 +268,18 @@ const toggleCreateMenu = (event) => {
 
                                             <template #icons>
 
-                                                <div class="p-inputgroup">
+                                                <InputGroup>
 
                                                 <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                                                         data-testid="productstocks-list-create"
-                                                        class="p-button-sm"
+                                                        size="small"
                                                         @click="store.toForm()">
                                                     <i class="pi pi-plus mr-1"></i>
                                                     Create
                                                 </Button>
 
                                                 <Button data-testid="productstocks-list-reload"
-                                                        class="p-button-sm"
+                                                        size="small"
                                                         @click="store.toReload()">
                                                     <i class="pi pi-refresh mr-1"></i>
                                                 </Button>
@@ -282,7 +291,7 @@ const toggleCreateMenu = (event) => {
                                                 && root.assets.module.is_dev"
                         type="button"
                         @click="toggleCreateMenu"
-                        class="p-button-sm"
+                            size="small"
                         data-testid="productstocks-create-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -294,7 +303,7 @@ const toggleCreateMenu = (event) => {
 
                     <!--/form_menu-->
 
-                    </div>
+                                                </InputGroup>
 
                 </template>
 
@@ -305,8 +314,14 @@ const toggleCreateMenu = (event) => {
             </Panel>
         </div>
 
-        <RouterView/>
+            <div v-if="store.getRightColumnClasses"
+                 :class="store.getRightColumnClasses">
 
+                <RouterView/>
+
+            </div>
+
+        </div>
     </div>
 
 

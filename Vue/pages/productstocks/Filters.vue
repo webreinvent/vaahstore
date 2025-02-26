@@ -187,7 +187,7 @@ const root = useRootStore();
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
