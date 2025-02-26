@@ -111,8 +111,11 @@ const toggleExportMenuState = (event) => {
                                     data-testid="products-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
+                                v-if="!store.isMobile"
+                                as="router-link"
+                                :to="`/products/filters`"
                                 type="button"
-                                class="p-button-sm"
+                                size="small"
                                 data-testid="products-actions-show-filters"
                                 @click="store.show_filters = true">
                                 Filters
