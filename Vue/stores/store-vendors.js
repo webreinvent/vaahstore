@@ -966,20 +966,20 @@ export const useVendorStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDeleteAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
 
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
-            vaah().confirmDialogTrashAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
 
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestoreAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
 
@@ -993,7 +993,7 @@ export const useVendorStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeactivateAll(this.listAction);
+            vaah().confirmDialog(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -1270,13 +1270,13 @@ export const useVendorStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        this.confirmActivateAll();
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        this.confirmDeactivateAll();
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -1286,14 +1286,14 @@ export const useVendorStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrashAll();
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestoreAll();
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -2023,11 +2023,18 @@ export const useVendorStore = defineStore({
             this.filter_all=null;
             this.topSellingVendorsData();
             this.vendorSalesByRange();
-        }
-
+        },
+//---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
+        },
 
     }
         //---------------------------------------------------------------------
+
 
 
 
