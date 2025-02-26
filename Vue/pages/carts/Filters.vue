@@ -1,41 +1,32 @@
 <script  setup>
 
-import { useCartStore } from '../../../stores/store-carts'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useCartStore } from '../../stores/store-carts'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useCartStore();
+const root = useRootStore();
+
 
 </script>
 
 <template>
-    <div class="col-3" v-if="store.show_filters">
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-            <Panel class="is-small">
-
-                <template class="p-1" #header>
-
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Filters</b>
-                        </div>
-
-                    </div>
-
-                </template>
-
-                <template #icons>
-
-                    <div class="p-inputgroup">
-
-                        <Button data-testid="carts-hide-filter"
-                                class="p-button-sm"
-                                @click="store.show_filters = false">
-                            <i class="pi pi-times"></i>
-                        </Button>
-
-                    </div>
-
-                </template>
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/carts`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
 
             <VhFieldVertical >
                 <template #label>
@@ -172,5 +163,4 @@ const store = useCartStore();
                 </VhFieldVertical>
         </Panel>
 
-    </div>
 </template>
