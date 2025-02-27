@@ -276,8 +276,8 @@ const toggleFormMenu = (event) => {
                 </FloatLabel>
 
 
-                <FloatLabel class="my-3 flex items-center gap-2" :variant="store.float_label_variants">
-                    <div>Is Active</div>
+
+                <div class="flex items-center gap-2 my-3" >
                     <ToggleSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
@@ -286,8 +286,8 @@ const toggleFormMenu = (event) => {
                         data-testid="productstocks-active"
                         v-model="store.item.is_active"
                     />
-                </FloatLabel>
-
+                    <label for="articles-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
