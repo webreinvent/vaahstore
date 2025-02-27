@@ -223,8 +223,10 @@ const openProductCategories = (categories,product) => {
                     <ToggleSwitch v-model.bool="prop.data.is_active"
                                  :disabled="!store.assets.permissions.includes('can-update-module')"
                                  data-testid="products-table-is-active"
-                                 v-bind:false-value="0"  v-bind:true-value="1"
+                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
+                                  size="small"
+                                  variant="success"
                                  @input="store.toggleIsActive(prop.data)">
                     </ToggleSwitch>
                 </template>

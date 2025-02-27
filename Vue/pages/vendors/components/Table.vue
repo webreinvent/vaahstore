@@ -182,8 +182,10 @@ const permissions=store.assets.permissions;
                 <template #body="prop">
                     <ToggleSwitch v-model.bool="prop.data.is_active"
                                  data-testid="vendors-table-is-active"
-                                 v-bind:false-value="0"  v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
+                                  v-bind:false-value="0"  v-bind:true-value="1"
+                                  class="p-inputswitch-sm"
+                                  size="small"
+                                  variant="success"
                                  :disabled="!store.assets.permissions.includes('can-update-module')"
                                  @input="store.toggleIsActive(prop.data)"/>
 
