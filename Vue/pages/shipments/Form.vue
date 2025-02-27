@@ -67,7 +67,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
 </script>
 <template>
 
-    <div class="col-7" >
+    <div>
 
         <Panel class="is-small">
 
@@ -347,7 +347,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                   optionLabel="name"
                                   optionValue="value"
                                   readonly
-                                  aria-labelledby="basic" allowEmpty :invalid="value === null"  />
+                                  aria-labelledby="basic" allowEmpty />
                 </VhField>
 
 
