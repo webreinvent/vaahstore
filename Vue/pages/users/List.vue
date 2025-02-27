@@ -59,23 +59,26 @@ const toggleCreateMenu = (event) => {
 
 </script>
 <template>
-    <div class="grid">
-        <div :class="'col-'+store.list_view_width">
-            <Panel class="is-small">
-                <template class="p-1" #header>
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Customers</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total"
-                            />
-                        </div>
-                    </div>
-                </template>
-                <div class="flex gap-2 mb-1">
-                    <div class="w-full bg-white   border-gray-200 rounded-sm mb-2">
+    <div class="w-full m-1">
 
-                        <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3 " v-if=" store.isViewLarge()">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses">
+                <Panel class="is-small">
+                    <template class="p-1" #header>
+                        <div class="flex flex-row">
+                            <div >
+                                <b class="mr-1">Customers</b>
+                                <Badge v-if="store.list && store.list.total > 0"
+                                       :value="store.list.total"
+                                />
+                            </div>
+                        </div>
+                    </template>
+                    <div class="flex gap-2 mb-1">
+                        <div class="w-full bg-white   border-gray-200 rounded-sm mb-2">
+
+                            <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3 " v-if=" store.isListView()">
 
 
 
@@ -92,51 +95,58 @@ const toggleCreateMenu = (event) => {
                                 />
 
 
+                            </div>
                         </div>
                     </div>
-                </div>
-                <template #icons>
-                    <div class="p-inputgroup">
-                        <Button class="p-button-sm"
-                                label="Create"
-                                @click="store.toForm()"
-                                :disabled="!store.assets || !store.assets.permissions.includes('can-update-module')"
-                                data-testid="users-create"
-                                >
-                            <i class="pi pi-plus mr-1"></i>
-                            Create
-                        </Button>
+                    <template #icons>
+                        <div class="p-inputgroup">
+                            <Button class="p-button-sm"
+                                    label="Create"
+                                    @click="store.toForm()"
+                                    :disabled="!store.assets || !store.assets.permissions.includes('can-update-module')"
+                                    data-testid="users-create"
+                            >
+                                <i class="pi pi-plus mr-1"></i>
+                                Create
+                            </Button>
 
-                        <Button class="p-button-sm"
-                                :loading="store.is_btn_loading"
-                                data-testid="users-list_refresh"
-                                @click="store.sync()"
-                        >
-                            <i class="pi pi-refresh mr-1"></i>
-                        </Button>
+                            <Button class="p-button-sm"
+                                    :loading="store.is_btn_loading"
+                                    data-testid="users-list_refresh"
+                                    @click="store.sync()"
+                            >
+                                <i class="pi pi-refresh mr-1"></i>
+                            </Button>
 
-                        <Button v-if="root.assets && root.assets.module
+                            <Button v-if="root.assets && root.assets.module
                                                 && root.assets.module.is_dev"
-                                type="button"
-                                @click="toggleCreateMenu"
-                                class="p-button-sm"  data-testid="customers-create-menu"
-                                icon="pi pi-angle-down"
-                                aria-haspopup="true"/>
+                                    type="button"
+                                    @click="toggleCreateMenu"
+                                    class="p-button-sm"  data-testid="customers-create-menu"
+                                    icon="pi pi-angle-down"
+                                    aria-haspopup="true"/>
 
-                        <Menu ref="create_menu"
-                              :model="store.list_create_menu"
-                              :popup="true" />
-                    </div>
-                </template>
+                            <Menu ref="create_menu"
+                                  :model="store.list_create_menu"
+                                  :popup="true" />
+                        </div>
+                    </template>
 
-                <Actions/>
+                    <Actions/>
 
 
-                <Table/>
-            </Panel>
+                    <Table/>
+                </Panel>
+            </div>
+
+            <div v-if="store.getRightColumnClasses"
+                 :class="store.getRightColumnClasses">
+
+                <RouterView/>
+
+            </div>
         </div>
 
-        <RouterView/>
     </div>
 </template>
 
