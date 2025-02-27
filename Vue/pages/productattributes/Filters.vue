@@ -1,17 +1,34 @@
 <script  setup>
 
-import { useProductAttributeStore } from '../../../stores/store-productattributes'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductAttributeStore } from '../../stores/store-productattributes'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useProductAttributeStore();
+const root = useRootStore();
+
+
 
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/storepaymentmethods`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
 
             <VhFieldVertical >
                 <div class="field-checkbox">
@@ -88,14 +105,14 @@ const store = useProductAttributeStore();
 
                 <div class="field-radiobutton">
 
-                    <Calendar v-model="store.selected_dates"
+                    <DatePicker v-model="store.selected_dates"
                               name="range-date"
                               inputId="range-date"
                               data-testid="productattributes-filters-range-date"
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               append-to="self"
-                              class="w-full"
+                                size="small"
                               placeholder="Choose date range"
                               :manualInput="false" />
 
@@ -103,6 +120,8 @@ const store = useProductAttributeStore();
                 </div>
 
             </VhFieldVertical>
+
+        <Divider/>
 
             <VhFieldVertical >
                 <template #label>
@@ -136,8 +155,5 @@ const store = useProductAttributeStore();
 
             </VhFieldVertical>
 
-
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
