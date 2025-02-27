@@ -1,8 +1,8 @@
 <script  setup>
 
-import { useBrandStore } from '../../../stores/store-brands'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
-import VhField from './../../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useBrandStore } from '../../stores/store-brands'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useBrandStore();
 </script>
@@ -10,8 +10,29 @@ const store = useBrandStore();
 <template>
     <div>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+        <Panel >
+
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="vendors-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
+<!--        <Sidebar v-model:visible="store.show_filters"-->
+<!--                 position="right">-->
 
             <VhFieldVertical >
                 <template #label>
@@ -38,7 +59,7 @@ const store = useBrandStore();
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           data-testid="brands-filters-created_date"
@@ -152,7 +173,8 @@ const store = useBrandStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
+<!--        </Sidebar>-->
+        </Panel>
 
     </div>
 </template>
