@@ -61,14 +61,14 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     {{useVaah.ago(prop.data.updated_at)}}
+                     {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
                  </template>
 
              </Column>
 
-            <Column field="actions"
-                    :style="{width: store.getActionWidth() }"
-                    :header="store.getActionLabel()">
+             <Column field="actions" style="width:150px;"
+                     :style="{width: store.getActionWidth() }"
+                     :header="store.getActionLabel()">
 
                 <template #body="prop">
                     <div class="p-inputgroup ">
