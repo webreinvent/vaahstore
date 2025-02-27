@@ -15,9 +15,13 @@ const route = useRoute();
 import { useConfirm } from "primevue/useconfirm";
 const confirm = useConfirm();
 
-
+function handleScreenResize() {
+    store.setScreenSize();
+}
 onMounted(async () => {
     document.title = 'Warehouses - Store';
+
+    window.addEventListener('resize', handleScreenResize);
     /**
      * call onLoad action when List view loads
      */
@@ -62,47 +66,53 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full" v-if="store.assets">
 
-        <div :class="'col-'+store.list_view_width">
+        <div class="lg:flex lg:space-x-4 items-start">
 
-            <div class="flex gap-2 mb-1">
-                <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
-                    <div class="flex justify-content-between " v-if=" store.isViewLarge()">
-                        <p><b>Warehouses Dashboard</b></p>
-                        
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses"
 
-                    </div>
-                    <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
+                 class="mb-4 lg:mb-0">
+
+                <div class="flex gap-2 mb-1">
+                    <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
+                        <div class="flex justify-content-between " v-if=" store.isListView()">
+                            <p><b>Warehouses Dashboard</b></p>
 
 
-                        <Charts
-                            class="border-1 border-gray-200 border-round-sm overflow-hidden"
-                            type="bar"
-                            :chartOptions="store.warehouse_stock_bar_chart_options"
-                            :chartSeries="store.warehouse_stock_bar_chart_series"
-                            height=300 width=600
-                            titleAlign="center"
-                        />
+                        </div>
+                        <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3" v-if=" store.isListView()">
+
+
+                            <Charts
+                                class="border-1 border-gray-200 border-round-sm overflow-hidden"
+                                type="bar"
+                                :chartOptions="store.warehouse_stock_bar_chart_options"
+                                :chartSeries="store.warehouse_stock_bar_chart_series"
+                                height=300 width=600
+                                titleAlign="center"
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <Panel class="is-small">
+                <Panel :pt="root.panel_pt">
+                    <template #header>
 
-                <template class="p-1" #header>
+                        <div class="flex flex-row">
+                            <div>
+                                <b class="mr-1">Warehouses</b>
+                                <Badge v-if="store.list && store.list.total > 0"
+                                       :value="store.list.total">
+                                </Badge>
+                            </div>
 
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Warehouses</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
                         </div>
 
-                    </div>
+                    </template>
 
-                </template>
+
 
                 <template #icons>
 
@@ -152,9 +162,16 @@ const toggleCreateMenu = (event) => {
             </Panel>
         </div>
 
-        <RouterView/>
+        <div v-if="store.getRightColumnClasses"
+             :class="store.getRightColumnClasses">
 
+            <RouterView/>
+
+        </div>
+        <!--/right-->
     </div>
+    </div>
+
 
 
 </template>

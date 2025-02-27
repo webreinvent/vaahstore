@@ -1,24 +1,38 @@
 <script  setup>
 
-import { useWarehouseStore } from '../../../stores/store-warehouses'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useWarehouseStore } from '../../stores/store-warehouses'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useWarehouseStore();
+const root = useRootStore();
 
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/warehouses`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
 
             <VhFieldVertical >
                 <template #label>
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
@@ -27,6 +41,7 @@ const store = useWarehouseStore();
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >
+        <Divider/>
 
 
             <VhFieldVertical >
@@ -47,6 +62,7 @@ const store = useWarehouseStore();
                               forceSelection />
 
             </VhFieldVertical >
+        <Divider/>
 
             <VhFieldVertical >
                 <template #label>
@@ -62,6 +78,7 @@ const store = useWarehouseStore();
                            placeholder="Search State/City/Postal Code"/>
 
             </VhFieldVertical >
+        <Divider/>
 
             <VhFieldVertical >
                 <template #label>
@@ -83,11 +100,6 @@ const store = useWarehouseStore();
 
 
             </VhFieldVertical>
-
-            <Divider/>
-
-
-
 
 
 
@@ -159,6 +171,8 @@ const store = useWarehouseStore();
 
             </VhFieldVertical>
 
+        <Divider/>
+
             <VhFieldVertical >
                 <template #label>
                     <b>Trashed:</b>
@@ -192,7 +206,5 @@ const store = useWarehouseStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
