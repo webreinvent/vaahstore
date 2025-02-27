@@ -27,13 +27,8 @@ import InputNumber from "primevue/inputnumber";
 
 import Chip from 'primevue/chip';
 import SelectButton from 'primevue/selectbutton';
-<<<<<<< HEAD
 
 import Chart from 'primevue/chart';
-
-
-=======
->>>>>>> shipments-upgrade
 
 import FileUpload from 'primevue/fileupload';
 
