@@ -20,7 +20,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -56,7 +56,7 @@ const useVaah = vaah();
              </Column>
 
              <Column field="updated_at" header="Updated"
-                     v-if="store.isViewLarge()"
+                     v-if="store.isListView()"
                      style="width:150px;"
                      :sortable="true">
 
@@ -88,7 +88,7 @@ const useVaah = vaah();
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button v-if="store.isViewLarge() && !prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
+                        <Button v-if="store.isListView() && !prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module')"
                                 class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productattributes-table-action-trash"
                                 @click="store.itemAction('trash', prop.data)"
@@ -96,7 +96,7 @@ const useVaah = vaah();
                                 icon="pi pi-trash" />
 
 
-                        <Button v-if="store.isViewLarge() && prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module') "
+                        <Button v-if="store.isListView() && prop.data.deleted_at &&  store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productattributes-table-action-restore"
                                 @click="store.itemAction('restore', prop.data)"
