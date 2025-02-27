@@ -165,7 +165,8 @@ const openProductCategories = (categories,product) => {
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
                             || column === 'vh_st_store_id'|| column === 'product_variations' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
-                            || column === 'quantity' || column === `seo_title` || column === `seo_meta_description` || column === `seo_meta_keyword`">
+                            || column === 'quantity' || column === `seo_title` || column === `seo_meta_description` || column === `seo_meta_keyword`
+                            || column === 'variations'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -243,7 +244,7 @@ const openProductCategories = (categories,product) => {
                                     <Badge v-if="store.item.status.slug == 'approved'" severity="success">
                                         {{store.item.status.name}}
                                     </Badge>
-                                    <Badge v-else-if="store.item.status.slug == 'pending'"  severity="warning">
+                                    <Badge v-else-if="store.item.status.slug == 'pending'"  severity="warn">
                                         {{store.item.status.name}}
                                     </Badge>
                                     <Badge v-else-if="store.item.status.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
