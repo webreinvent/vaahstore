@@ -98,7 +98,7 @@ const toggleBulkMenuState = (event) => {
 
                             <Button
                                 as="router-link"
-                                :to="`/users/filters`"
+                                :to="`/customers/filters`"
                                 type="button"
                                 size="small"
                                 data-testid="users-actions-show-filters"
