@@ -809,9 +809,7 @@ export const useCategoryStore = defineStore({
         //---------------------------------------------------------------------
         toEdit(item)
         {
-            if(!this.item || !this.item.id || this.item.id !== item.id){
-                this.item = vaah().clone(item);
-            }
+            
             this.$router.push({name: 'categories.form', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
