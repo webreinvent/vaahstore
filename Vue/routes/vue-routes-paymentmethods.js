@@ -4,6 +4,7 @@ let routes_list= [];
 import List from '../pages/paymentmethods/List.vue'
 import Form from '../pages/paymentmethods/Form.vue'
 import Item from '../pages/paymentmethods/Item.vue'
+import Filters from '../pages/paymentmethods/Filters.vue'
 
 routes_list = {
 
@@ -23,7 +24,13 @@ routes_list = {
             name: 'paymentmethods.view',
             component: Item,
             props: true,
-        }
+        },
+        {
+            path: 'filters',
+            name: 'paymentmethods.filters',
+            component: Filters,
+            props: true,
+        },
     ]
 };
 
