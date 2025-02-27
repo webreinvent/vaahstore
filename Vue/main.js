@@ -184,7 +184,7 @@ app.component("FloatLabel", FloatLabel);
 import Card from "primevue/card";
 app.component("Card", Card);
 
-import Image from "primevue/Image";
+import Image from "primevue/image";
 import { semantic } from '@primeuix/themes/aura/base';
 import { Warning } from 'postcss';
 app.component("Image", Image);

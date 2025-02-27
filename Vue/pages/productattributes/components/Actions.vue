@@ -2,7 +2,6 @@
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductAttributeStore } from '../../../stores/store-productattributes'
 
-import Filters from './Filters.vue'
 
 const store = useProductAttributeStore();
 
@@ -32,10 +31,10 @@ const toggleBulkMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -75,14 +74,8 @@ const toggleBulkMenuState = (event) => {
             <!--/left-->
 
             <!--right-->
-            <div >
-
-
-                <div class="grid p-fluid">
-
-
-                    <div class="col-12">
-                        <div class="p-inputgroup ">
+            <div>
+                <InputGroup>
 
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
@@ -96,8 +89,11 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="productattributes-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
+                                v-if="!store.isMobile"
+                                as="router-link"
+                                :to="`/productattributes/filters`"
                                 type="button"
-                                class="p-button-sm"
+                                size="small"
                                 data-testid="productattributes-actions-show-filters"
                                 @click="store.show_filters = true">
                                 Filters
@@ -112,16 +108,8 @@ const toggleBulkMenuState = (event) => {
                                 label="Reset"
                                 @click="store.resetQuery()" />
 
-                        </div>
-                    </div>
-
-
-                    <Filters/>
-
-                </div>
-
+                </InputGroup>
             </div>
-            <!--/right-->
 
         </div>
         <!--/actions-->
