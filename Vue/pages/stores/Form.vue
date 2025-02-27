@@ -1,14 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useStoreStore } from '../../stores/store-stores'
-
+import { useStoreStore } from '@/stores/store-stores'
+import { useRootStore } from '@/stores/root.js'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useStoreStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
     if(route.params && route.params.id)
     {
@@ -27,9 +27,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -54,7 +52,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
 
-                    <Button class="p-button-sm"
+                    <Button v-tooltip.left="'View'"
                             v-if="store.item && store.item.id"
                             data-testid="stores-view_item"
                             @click="store.toView(store.item)"
@@ -129,29 +127,30 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name*">
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
-                               placeholder="Enter Name"
                                name="stores-name"
                                data-testid="stores-name"
                                @update:modelValue="store.watchItem"
-                               v-model="store.item.name"/>
-                </VhField>
+                               v-model="store.item.name" required/>
+                    <label for="articles-name">Enter the name<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Slug*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
-                               placeholder="Enter Slug"
                                name="stores-slug"
                                data-testid="stores-slug"
-                               v-model="store.item.slug"/>
-                </VhField>
+                               v-model="store.item.slug" required/>
+                    <label for="articles-name">Enter the Slug<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
 
                 <VhField label="Is Multi Currency">
 
                     <div class="flex flex-row">
                         <div class="col-3">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
@@ -161,7 +160,7 @@ const toggleFormMenu = (event) => {
                         </div>
 
                         <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-9 flex flex-row">
-                            <Dropdown v-model="store.item.default_currency"
+                            <Select v-model="store.item.default_currency"
                                       :options="store.item.currencies"
                                       data-testid="store-default_currency"
                                       filter
@@ -174,7 +173,7 @@ const toggleFormMenu = (event) => {
                                         <span>&nbsp;&nbsp&nbsp;{{slotProps.option.name}}</span>
                                     </div>
                                 </template>
-                            </Dropdown>
+                            </Select>
                             <Button
                                     v-if="store.item && store.item.default_currency"
                                     @click="store.item.default_currency = null"
@@ -187,28 +186,25 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Currencies*" v-show="store.item.is_multi_currency == 1">
-
+                <FloatLabel class="my-3" :variant="store.float_label_variants" v-show="store.item.is_multi_currency == 1">
                     <AutoComplete name="store-currencies"
                                   data-testid="store-currencies"
                                   v-model="store.item.currencies"
                                   option-label ="name"
                                   multiple
-                                  placeholder="Select Currencies"
                                   :complete-on-focus = "true"
                                   :suggestions="store.currency_suggestion_list"
                                   @change = "store.addCurrencies()"
                                   @complete="store.searchCurrencies($event)"
                                   class="w-full"
                     />
-
-
-                </VhField>
+                    <label for="articles-name">Select Currencies<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
                 <VhField label="Is Multi Lingual">
                     <div class="flex flex-row">
                         <div class="col-3">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
@@ -218,7 +214,7 @@ const toggleFormMenu = (event) => {
                         </div>
 
                         <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-9 flex flex-row">
-                            <Dropdown v-model="store.item.default_language"
+                            <Select v-model="store.item.default_language"
                                       :options="store.item.languages"
                                       data-testid="store-language_default"
                                       filter
@@ -230,7 +226,7 @@ const toggleFormMenu = (event) => {
                                         <span>{{slotProps.option.name}}</span>
                                     </div>
                                 </template>
-                            </Dropdown>
+                            </Select>
                             <Button
                                 v-if="store.item && store.item.default_language"
                                 @click="store.item.default_language = null"
@@ -240,27 +236,26 @@ const toggleFormMenu = (event) => {
                         </div>
                     </div>
                 </VhField>
-
-                <VhField label="Languages*" v-show="store.item.is_multi_lingual == 1">
+                <FloatLabel class="my-3" :variant="store.float_label_variants" v-show="store.item.is_multi_lingual == 1">
                     <AutoComplete name="store-languages"
                                   data-testid="store-languages"
                                   v-model="store.item.languages"
                                   option-label = "name"
                                   multiple
-                                  placeholder="Select Languages"
                                   :complete-on-focus = "true"
                                   :suggestions="store.language_suggestion_list"
                                   @change = "store.addLanguages()"
                                   @complete="store.searchLanguages($event)"
                                   class="w-full"
-                    />
+                                  />
 
-                </VhField>
+                    <label for="currencies-name">Select Languages<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
                 <VhField label="Is Multi Vendor">
                     <div class="flex flex-row">
                         <div class="col-4">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-vendor"
@@ -270,18 +265,16 @@ const toggleFormMenu = (event) => {
 
                     </div>
                 </VhField>
-
-                <VhField label="Allowed IPs">
+                    <FloatLabel class="my-3" :variant="store.float_label_variants" >
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
-                           placeholder="e.g. 192.168.1.1"
                            data-testid="store-allowed-ips"
                            type="number"
                            separator=","/>
 
-                </VhField>
-
-                <VhField label="Status*">
+                    <label for="allowed-ips">Allowed IPs<span class="text-red-500">*</span>-e.g. 192.168.1.1</label>
+                </FloatLabel>
+                <FloatLabel class="my-3" :variant="store.float_label_variants" >
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
@@ -290,39 +283,43 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.status_suggestion_list"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
-                                  placeholder="Select Status"
                                   optionLabel="name"
                                   forceSelection />
-                </VhField>
-                <VhField label="Status Notes">
-                    <Textarea placeholder="Enter Status Note"
+                    <label for="stauts">Select Status<span class="text-red-500">*</span></label>
+                </FloatLabel>
+                <FloatLabel class="my-3" :variant="store.float_label_variants" >
+                    <Textarea
                               v-model="store.item.status_notes"
                               data-testid="store-taxonomy_status_notes"
                               :autoResize="true" rows="3" class="w-full" />
-                </VhField>
-                <VhField label="Is Default">
-                    <InputSwitch    v-bind:false-value="0"
-                                    v-bind:true-value="1"
-                                    class="p-inputswitch"
-                                    name="stores-is_default"
-                                    data-testid="store-is_default"
-                                    v-model="store.item.is_default" />
+                    <label for="stauts-notes">Enter Status Note</label>
+                </FloatLabel>
 
-                </VhField>
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch    v-bind:false-value="0"
+                                     v-bind:true-value="1"
+                                     class="p-inputswitch"
+                                     name="stores-is_default"
+                                     data-testid="store-is_default"
+                                     v-model="store.item.is_default" />
+                    <label for="stores-default">Is Default</label>
+                </div>
 
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 class="p-inputswitch"
-                                 name="stores-active"
-                                 data-testid="stores-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        class="p-inputswitch"
+                        name="stores-active"
+                        data-testid="stores-active"
+                        v-model="store.item.is_active"
+                    />
+                    <label for="stores-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
 
-    </div>
 
 </template>

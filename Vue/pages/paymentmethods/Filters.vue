@@ -1,18 +1,32 @@
 <script  setup>
 
-import { usePaymentMethodStore } from '../../../stores/store-paymentmethods'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { usePaymentMethodStore } from '../../stores/store-paymentmethods'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = usePaymentMethodStore();
+const root = useRootStore();
 
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
-
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/paymentmethods`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
             <VhFieldVertical >
                 <template #label>
                     <b>Sort By:</b>
@@ -112,7 +126,5 @@ const store = usePaymentMethodStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>

@@ -1,16 +1,32 @@
 <script  setup>
 
-import { useStoreStore } from '../../../stores/store-stores'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useStoreStore } from '@/stores/store-stores'
+import VhFieldVertical from '@/vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useRootStore } from '@/stores/root'
 const store = useStoreStore();
-
+const root = useRootStore();
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt" >
+        <template class="p-1" #header>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <b class="mr-1">Filters</b>
+
+        </template>
+        <template #icons>
+
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/stores`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+
+        </template>
 
             <VhFieldVertical >
 
@@ -76,7 +92,7 @@ const store = useStoreStore();
                     <b>Date Range Filter:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           class="w-full"
@@ -185,7 +201,5 @@ const store = useStoreStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
