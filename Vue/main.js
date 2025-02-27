@@ -27,6 +27,9 @@ import InputNumber from "primevue/inputnumber";
 
 import Chip from 'primevue/chip';
 
+import Chart from 'primevue/chart';
+
+
 
 import FileUpload from 'primevue/fileupload';
 
@@ -164,26 +167,6 @@ app.component('MultiSelect', MultiSelect);
 import AutoComplete from 'primevue/autocomplete';
 app.component('AutoComplete', AutoComplete);
 
-import DatePicker from 'primevue/datepicker';
-app.component('DatePicker', DatePicker);
-
-import Textarea from 'primevue/textarea';
-app.component('Textarea', Textarea);
-
-import Chips from 'primevue/chips';
-app.component('Chips', Chips);
-
-
-import Editor from 'primevue/editor';
-app.component('Editor', Editor);
-
-
-import Drawer from 'primevue/drawer';
-app.component('Drawer', Drawer);
-
-
-import DynamicDialog from 'primevue/dynamicdialog';
-app.component('DynamicDialog', DynamicDialog);
 
 import InputGroup from "primevue/inputgroup";
 app.component("InputGroup", InputGroup);
@@ -208,8 +191,6 @@ app.component('apexchart', VueApexCharts);
 
 
 
-import AutoComplete from 'primevue/autocomplete';
-app.component('AutoComplete', AutoComplete);
 
 import DatePicker from 'primevue/datepicker';
 app.component('DatePicker', DatePicker);
@@ -232,8 +213,6 @@ app.component('Drawer', Drawer);
 import DynamicDialog from 'primevue/dynamicdialog';
 app.component('DynamicDialog', DynamicDialog);
 
-
-app.component('apexchart', VueApexCharts);
 
 
 
