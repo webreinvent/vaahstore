@@ -3,10 +3,12 @@ import {onMounted, ref, watch} from "vue";
 import { usePaymentMethodStore } from '../../stores/store-paymentmethods'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root.js'
 import {useRoute} from 'vue-router';
 
 
 const store = usePaymentMethodStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -28,9 +30,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -103,33 +103,37 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="Name">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="paymentmethods-name"
                                data-testid="paymentmethods-name"
                                @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
-                </VhField>
+                    <label for="paymentmethods-name">Name <span class="text-red-500">*</span></label>
 
-                <VhField label="Slug">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="paymentmethods-slug"
                                data-testid="paymentmethods-slug"
                                v-model="store.item.slug"/>
-                </VhField>
+                    <label for="paymentmethods-slug">Slug</label>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                </FloatLabel>
+
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="paymentmethods-active"
                                  data-testid="paymentmethods-active"
                                  v-model="store.item.is_active"/>
-                </VhField>
+                    <label for="paymentmethods-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
 
-    </div>
 
 </template>

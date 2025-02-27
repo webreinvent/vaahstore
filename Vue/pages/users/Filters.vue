@@ -1,7 +1,8 @@
 <script  setup>
 
-import { useUserStore } from '../../../stores/store-users'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useUserStore } from '../../stores/store-users'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useUserStore();
 
@@ -9,11 +10,31 @@ const store = useUserStore();
 
 <template>
     <div>
+        <Panel >
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right"
-                 style="z-index: 1101"
-        >
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="vendors-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
+<!--        <Sidebar v-model:visible="store.show_filters"-->
+<!--                 position="right"-->
+<!--                 style="z-index: 1101"-->
+<!--        >-->
 
 
             <VhFieldVertical>
@@ -30,6 +51,7 @@ const store = useUserStore();
                                   option-label = "name"
                                   option-value = "name"
                                   multiple
+                                  :dropdown="true"
                                   :complete-on-focus = "true"
                                   append-to="self"
                                   :pt="{
@@ -54,7 +76,7 @@ const store = useUserStore();
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
@@ -161,7 +183,8 @@ const store = useUserStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
+<!--        </Sidebar>-->
+        </Panel>
 
     </div>
 </template>

@@ -73,10 +73,69 @@ export const useStorePaymentMethodStore = defineStore({
         store_suggestion:null,
         status_suggestion:null,
         payment_method_suggestion:null,
-        form_menu_list: []
+        form_menu_list: [],
+        window_width: 0,
+        screen_size: null,
+        float_label_variants: 'on',
     }),
     getters: {
 
+        isMobile: (state) => {
+            return state.screen_size === 'small';
+        },
+
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
     },
     actions: {
         //---------------------------------------------------------------------
@@ -156,6 +215,7 @@ export const useStorePaymentMethodStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            await this.setScreenSize();
 
             /**
              * Update query state with the query parameters of url
@@ -165,16 +225,17 @@ export const useStorePaymentMethodStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'storepaymentmethods.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+
+            this.view = 'list';
+
+            if(route_name.includes('storepaymentmethods.view')
+                || route_name.includes('storepaymentmethods.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('storepaymentmethods.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -537,9 +598,9 @@ export const useStorePaymentMethodStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -712,9 +773,9 @@ export const useStorePaymentMethodStore = defineStore({
             this.$router.push({name: 'storepaymentmethods.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -734,7 +795,7 @@ export const useStorePaymentMethodStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -744,7 +805,7 @@ export const useStorePaymentMethodStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1029,6 +1090,32 @@ export const useStorePaymentMethodStore = defineStore({
 
             this.form_menu_list = form_menu;
 
+        },
+
+
+        //---------------------------------------------------------------------
+        setScreenSize()
+        {
+            if(!window)
+            {
+                return null;
+            }
+            this.window_width = window.innerWidth;
+
+            if(this.window_width < 1024)
+            {
+                this.screen_size = 'small';
+            }
+
+            if(this.window_width >= 1024 && this.window_width <= 1280)
+            {
+                this.screen_size = 'medium';
+            }
+
+            if(this.window_width > 1280)
+            {
+                this.screen_size = 'large';
+            }
         },
         //---------------------------------------------------------------------
     }
