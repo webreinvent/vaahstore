@@ -22,7 +22,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -95,12 +95,12 @@ const useVaah = vaah();
              </Column>
 
                 <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
+                        v-if="store.isListView()"
                         style="width:150px;"
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
+                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
                     </template>
 
                 </Column>
@@ -128,7 +128,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="wishlists-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isListView() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -136,7 +136,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="wishlists-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module') "
+                                v-if="store.isListView() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module') "
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />

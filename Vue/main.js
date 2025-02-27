@@ -65,6 +65,7 @@ import Dialog from "primevue/dialog";
 import Checkbox from "primevue/checkbox";
 import ConfirmPopup from "primevue/confirmpopup";
 import ToggleButton from "primevue/togglebutton";
+import Password from 'primevue/password';
 
 //-------------/CRUD PrimeVue Imports
 
@@ -115,6 +116,7 @@ app.component('ProgressBar', ProgressBar);
 app.component('Toast', Toast);
 app.component('Chip', Chip);
 app.component('SelectButton', SelectButton);
+app.component('Password', Password);
 //-------------/PrimeVue Use
 
 // -------------CRUD PrimeVue Use
@@ -182,7 +184,7 @@ app.component("FloatLabel", FloatLabel);
 import Card from "primevue/card";
 app.component("Card", Card);
 
-import Image from "primevue/Image";
+import Image from "primevue/image";
 import { semantic } from '@primeuix/themes/aura/base';
 import { Warning } from 'postcss';
 app.component("Image", Image);
@@ -209,7 +211,8 @@ app.component('Editor', Editor);
 
 import Drawer from 'primevue/drawer';
 app.component('Drawer', Drawer);
-
+import Slider from 'primevue/slider';
+app.component('Slider', Slider);
 
 import DynamicDialog from 'primevue/dynamicdialog';
 app.component('DynamicDialog', DynamicDialog);
