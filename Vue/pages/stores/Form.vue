@@ -127,22 +127,23 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name*">
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
-                               placeholder="Enter Name"
                                name="stores-name"
                                data-testid="stores-name"
                                @update:modelValue="store.watchItem"
-                               v-model="store.item.name"/>
-                </VhField>
+                               v-model="store.item.name" required/>
+                    <label for="articles-name">Enter the name<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Slug*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
-                               placeholder="Enter Slug"
                                name="stores-slug"
                                data-testid="stores-slug"
-                               v-model="store.item.slug"/>
-                </VhField>
+                               v-model="store.item.slug" required/>
+                    <label for="articles-name">Enter the Slug<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
 
                 <VhField label="Is Multi Currency">
@@ -185,23 +186,20 @@ const toggleFormMenu = (event) => {
                     </div>
                 </VhField>
 
-                <VhField label="Currencies*" v-show="store.item.is_multi_currency == 1">
-
+                <FloatLabel class="my-3" :variant="store.float_label_variants" v-show="store.item.is_multi_currency == 1">
                     <AutoComplete name="store-currencies"
                                   data-testid="store-currencies"
                                   v-model="store.item.currencies"
                                   option-label ="name"
                                   multiple
-                                  placeholder="Select Currencies"
                                   :complete-on-focus = "true"
                                   :suggestions="store.currency_suggestion_list"
                                   @change = "store.addCurrencies()"
                                   @complete="store.searchCurrencies($event)"
                                   class="w-full"
                     />
-
-
-                </VhField>
+                    <label for="articles-name">Select Currencies<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
                 <VhField label="Is Multi Lingual">
                     <div class="flex flex-row">
@@ -238,22 +236,21 @@ const toggleFormMenu = (event) => {
                         </div>
                     </div>
                 </VhField>
-
-                <VhField label="Languages*" v-show="store.item.is_multi_lingual == 1">
+                <FloatLabel class="my-3" :variant="store.float_label_variants" v-show="store.item.is_multi_lingual == 1">
                     <AutoComplete name="store-languages"
                                   data-testid="store-languages"
                                   v-model="store.item.languages"
                                   option-label = "name"
                                   multiple
-                                  placeholder="Select Languages"
                                   :complete-on-focus = "true"
                                   :suggestions="store.language_suggestion_list"
                                   @change = "store.addLanguages()"
                                   @complete="store.searchLanguages($event)"
                                   class="w-full"
-                    />
+                                  />
 
-                </VhField>
+                    <label for="currencies-name">Select Languages<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
                 <VhField label="Is Multi Vendor">
                     <div class="flex flex-row">
@@ -268,18 +265,16 @@ const toggleFormMenu = (event) => {
 
                     </div>
                 </VhField>
-
-                <VhField label="Allowed IPs">
+                    <FloatLabel class="my-3" :variant="store.float_label_variants" >
                     <Chips class="w-full"
                            v-model="store.item.allowed_ips"
-                           placeholder="e.g. 192.168.1.1"
                            data-testid="store-allowed-ips"
                            type="number"
                            separator=","/>
 
-                </VhField>
-
-                <VhField label="Status*">
+                    <label for="allowed-ips">Allowed IPs<span class="text-red-500">*</span>-e.g. 192.168.1.1</label>
+                </FloatLabel>
+                <FloatLabel class="my-3" :variant="store.float_label_variants" >
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
@@ -288,16 +283,18 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.status_suggestion_list"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
-                                  placeholder="Select Status"
                                   optionLabel="name"
                                   forceSelection />
-                </VhField>
-                <VhField label="Status Notes">
-                    <Textarea placeholder="Enter Status Note"
+                    <label for="stauts">Select Status<span class="text-red-500">*</span></label>
+                </FloatLabel>
+                <FloatLabel class="my-3" :variant="store.float_label_variants" >
+                    <Textarea
                               v-model="store.item.status_notes"
                               data-testid="store-taxonomy_status_notes"
                               :autoResize="true" rows="3" class="w-full" />
-                </VhField>
+                    <label for="stauts-notes">Enter Status Note</label>
+                </FloatLabel>
+
                 <VhField label="Is Default">
                     <ToggleSwitch    v-bind:false-value="0"
                                     v-bind:true-value="1"
