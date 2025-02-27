@@ -27,7 +27,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div>
 
         <Panel class="is-small">
 
@@ -158,7 +158,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Is Shareable">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="wishlists-is-shareable"
@@ -192,7 +192,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Is Default">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="wishlists-is_default"

@@ -5,6 +5,8 @@ import List from '../pages/wishlists/List.vue'
 import Form from '../pages/wishlists/Form.vue'
 import Item from '../pages/wishlists/Item.vue'
 import Product from '../pages/wishlists/Product.vue'
+import Filters from "../pages/wishlists/Filters.vue";
+
 routes_list = {
 
     path: '/wishlists',
@@ -12,6 +14,12 @@ routes_list = {
     component: List,
     props: true,
     children:[
+        {
+            path: 'filters',
+            name: 'wishlists.filters',
+            component: Filters,
+            props: true,
+        },
         {
             path: 'form/:id?',
             name: 'wishlists.form',
