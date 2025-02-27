@@ -1348,7 +1348,6 @@ export const useOrderStore = defineStore({
 
 
                 chart: {
-                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
@@ -1513,7 +1512,7 @@ export const useOrderStore = defineStore({
                 },
 
                 chart: {
-                    background: '#f6f7f9',
+                    background: 'transparent',
                     toolbar: {
                         show: false,
                     },
@@ -1637,7 +1636,6 @@ export const useOrderStore = defineStore({
                 ...data.chart_options,
                 chart: {
                     type: "line",
-                    background: '#f6f7f9',
                     toolbar: { show: false },
                 },
                 stroke: {

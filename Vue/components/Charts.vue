@@ -2,7 +2,10 @@
 
     <div>
 
+        <!-- <pre>{{ chartOptions }}</pre> -->
+
         <apexchart
+
 
             :options="chartOptions"
 
@@ -97,6 +100,8 @@ const props = defineProps({
 const chartOptions = ref({
 
     chart: {
+
+        background: 'transparent',
 
         stacked: props.stacked,
 

@@ -7,6 +7,7 @@ import Aura from '@primeuix/themes/aura';
 import VueApexCharts from 'vue3-apexcharts';
 
 import '@/index.css'
+    
 
 //-------------PrimeVue Imports
 import BadgeDirective from "primevue/badgedirective";
@@ -91,6 +92,17 @@ const vaahstore = definePreset(Aura, {
 });
 //-------------PrimeVue Use
 app.use(PrimeVue, {
+    pt: {
+        card: {
+            root: {class: '!shadow-card bg-gray-50'},
+            body: { class: 'px-2 pt-3 pb-0 gap-0' },
+            content: { class: 'p-0' },
+            title: { class: '!text-gray-500 font-normal p-0 mb-4 !border-b-0 ml-2' }
+        },
+        rating: {
+            onIcon: {class: '!text-warning-500'}
+        }
+    },
     theme: {
         preset: vaahstore,
         darkMode: false,
@@ -181,6 +193,9 @@ app.component("FloatLabel", FloatLabel);
 import Card from "primevue/card";
 app.component("Card", Card);
 
+import Rating from "primevue/rating";
+app.component("Rating", Rating);
+
 import Image from "primevue/Image";
 import { semantic } from '@primeuix/themes/aura/base';
 import { Warning } from 'postcss';
@@ -213,6 +228,8 @@ app.component('Drawer', Drawer);
 import DynamicDialog from 'primevue/dynamicdialog';
 app.component('DynamicDialog', DynamicDialog);
 
+import { Icon } from '@iconify/vue';
+app.component('Icon', Icon);
 
 
 

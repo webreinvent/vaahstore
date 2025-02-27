@@ -1523,7 +1523,6 @@ export const useShipmentStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#ffffff',
 
                 },
                 yaxis: {
@@ -1604,7 +1603,6 @@ export const useShipmentStore = defineStore({
             const updated_bar_chart_options = {
                 ...data.chart_options, // Merge existing options
                 chart: {
-                    background: '#ffffff',
                     toolbar: {
                         show: false,
                     },

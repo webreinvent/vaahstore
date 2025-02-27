@@ -8,6 +8,7 @@
     "type": "module",
     "dependencies": {
         "@grapoza/vue-tree": "^5.1.0",
+        "@iconify/vue": "^4.3.0",
         "@primeuix/themes": "^1.0.0",
         "@vueuse/core": "^11.2.0",
         "axios": "^1.7.7",
