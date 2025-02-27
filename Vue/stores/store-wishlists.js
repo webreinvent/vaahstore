@@ -89,6 +89,58 @@ export const useWishlistStore = defineStore({
         default_message:null,
     }),
     getters: {
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
 
     },
     actions: {
@@ -205,16 +257,27 @@ export const useWishlistStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'wishlists.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'wishlists.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('wishlists.view')
+                || route_name.includes('wishlists.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('wishlists.filters') || route_name.includes('wishlists.products')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -898,9 +961,9 @@ export const useWishlistStore = defineStore({
             this.$router.push({name: 'wishlists.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -920,7 +983,7 @@ export const useWishlistStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -930,7 +993,7 @@ export const useWishlistStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }

@@ -2,7 +2,7 @@
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useWishlistStore} from '../../../stores/store-wishlists'
 
-import Filters from './Filters.vue'
+import Filters from '../Filters.vue'
 
 const store = useWishlistStore();
 
@@ -30,10 +30,10 @@ const toggleBulkMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -93,11 +93,13 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="wishlists-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
+                                as="router-link"
+                                :to="`/wishlists/filters`"
                                 type="button"
-                                class="p-button-sm"
+                                size="small"
                                 data-testid="wishlists-actions-show-filters"
-                                @click="store.show_filters = true;">
-                                Filters
+                            >
+                                <span style="font-weight: var(--p-button-label-font-weight);" >Filters</span>
                                 <Badge v-if="store.count_filters > 0" :value="store.count_filters"></Badge>
                             </Button>
 
@@ -113,7 +115,6 @@ const toggleBulkMenuState = (event) => {
                     </div>
 
 
-                    <Filters/>
 
                 </div>
 
