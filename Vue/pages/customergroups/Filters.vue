@@ -1,17 +1,31 @@
 <script  setup>
 
-import { useCustomerGroupStore } from '../../../stores/store-customergroups'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useCustomerGroupStore } from '../../stores/store-customergroups'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useCustomerGroupStore();
+const root = useRootStore();
 
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/customergroups`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
 
             <VhFieldVertical>
 
@@ -47,13 +61,14 @@ const store = useCustomerGroupStore();
                 </AutoComplete>
 
             </VhFieldVertical>
+        <Divider/>
 
             <VhFieldVertical >
                 <template #label>
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
@@ -66,6 +81,9 @@ const store = useCustomerGroupStore();
 
 
             </VhFieldVertical >
+
+
+        <Divider/>
 
             <VhFieldVertical >
                 <template #label>
@@ -159,7 +177,5 @@ const store = useCustomerGroupStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
