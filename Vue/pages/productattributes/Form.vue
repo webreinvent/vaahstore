@@ -1,12 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductAttributeStore } from '../../stores/store-productattributes'
+import { useRootStore } from '@/stores/root.js'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useProductAttributeStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -28,9 +30,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -108,7 +108,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="Product Variation*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.product_variation"
                                   value="id"
                                   class="w-full"
@@ -118,7 +118,6 @@ const toggleFormMenu = (event) => {
                                   @change="store.setProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Product variation"
                                   forceSelection >
                         <template #option="slotProps">
                             <div class="flex align-options-center">
@@ -126,14 +125,16 @@ const toggleFormMenu = (event) => {
                             </div>
                         </template>
                     </AutoComplete>
-                </VhField>
+
+                    <label for="productattributes-vh_st_product_variation_id">Select Product variation*</label>
+
+                </FloatLabel>
 
 
-                <VhField label="Attribute*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.attribute"
                                   value="id"
                                   class="w-full"
-                                  placeholder="Select Attributes"
                                   data-testid="productattributes-vh_st_attribute_id"
                                   :suggestions="store.filtered_attributes"
                                   @complete="store.searchAttribute"
@@ -147,7 +148,10 @@ const toggleFormMenu = (event) => {
                             </div>
                         </template>
                     </AutoComplete>
-                </VhField>
+
+                    <label for="productattributes-vh_st_attribute_id">Select Attributes*</label>
+
+                </FloatLabel>
 
                 <vhField label="Attribute Values" v-if="store.item.attribute && store.item.attribute_values">
                     <div v-for="item in store.item.attribute_values">
@@ -163,6 +167,5 @@ const toggleFormMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>

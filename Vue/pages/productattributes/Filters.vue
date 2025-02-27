@@ -21,7 +21,7 @@ const root = useRootStore();
         <template #icons>
             <Button data-testid="projects-hide-filter"
                     as="router-link"
-                    :to="`/storepaymentmethods`"
+                    :to="`/productattributes`"
                     icon="pi pi-times"
                     rounded
                     variant="text"
