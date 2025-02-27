@@ -1180,7 +1180,6 @@ export const useWarehouseStore = defineStore({
                 ...data.chart_options,
 
                 chart: {
-                    background: '#ffffff',
                     toolbar: {
                         show: false,
                     },

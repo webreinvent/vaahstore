@@ -1949,7 +1949,6 @@ export const useVendorStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#f6f7f9',
 
                 },
 
