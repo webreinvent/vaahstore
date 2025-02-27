@@ -3,9 +3,11 @@ import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import { useStorePaymentMethodStore } from '../../stores/store-storepaymentmethods'
+import { useRootStore } from '@/stores/root'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useStorePaymentMethodStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -56,9 +58,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small" v-if="store && store.item">
+    <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -226,7 +226,6 @@ const toggleItemMenu = (event) => {
                 </div>
             </div>
         </Panel>
-
-    </div>
+    
 
 </template>
