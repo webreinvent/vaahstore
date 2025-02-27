@@ -724,7 +724,7 @@ export const useAttributeStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type='deactivate-all';
-            vaah().confirmDialogDeActivateAll(this.listAction);
+            vaah().confirmDialogDeactivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
