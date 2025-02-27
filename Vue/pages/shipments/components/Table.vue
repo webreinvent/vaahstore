@@ -29,7 +29,7 @@ const openLinkInNewTab = (url) => {
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -49,7 +49,7 @@ const openLinkInNewTab = (url) => {
                 </template>
 
             </Column>
-             <Column header="Tracking Key"  :sortable="true">
+             <Column header="Tracking Key"  :sortable="true" v-if="store.isListView()">
 
                  <template #body="prop">
                          {{prop.data.tracking_key}}
@@ -103,7 +103,7 @@ const openLinkInNewTab = (url) => {
 
              </Column>
                 <Column field="updated_at" header="Created"
-                        v-if="store.isViewLarge()"
+                        v-if="store.isListView()"
                         style="width:100px;"
                         :sortable="true">
 
@@ -137,7 +137,7 @@ const openLinkInNewTab = (url) => {
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="shipments-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isListView() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -145,7 +145,7 @@ const openLinkInNewTab = (url) => {
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="shipments-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isListView() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />

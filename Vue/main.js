@@ -26,10 +26,9 @@ import Select from "primevue/select";
 import InputNumber from "primevue/inputnumber";
 
 import Chip from 'primevue/chip';
+import SelectButton from 'primevue/selectbutton';
 
 import Chart from 'primevue/chart';
-
-
 
 import FileUpload from 'primevue/fileupload';
 
@@ -114,6 +113,8 @@ app.component('ConfirmDialog', ConfirmDialog);
 app.component('Menu', Menu);
 app.component('ProgressBar', ProgressBar);
 app.component('Toast', Toast);
+app.component('Chip', Chip);
+app.component('SelectButton', SelectButton);
 //-------------/PrimeVue Use
 
 // -------------CRUD PrimeVue Use
@@ -208,7 +209,8 @@ app.component('Editor', Editor);
 
 import Drawer from 'primevue/drawer';
 app.component('Drawer', Drawer);
-
+import Slider from 'primevue/slider';
+app.component('Slider', Slider);
 
 import DynamicDialog from 'primevue/dynamicdialog';
 app.component('DynamicDialog', DynamicDialog);

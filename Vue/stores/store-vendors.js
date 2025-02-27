@@ -226,9 +226,6 @@ export const useVendorStore = defineStore({
                 this.view = 'list-and-filters';
             }
 
-            if(route_name.includes('vendors.reports')){
-                this.view = 'list-and-reports';
-            }
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -251,7 +248,7 @@ export const useVendorStore = defineStore({
             //watch routes
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
-                    if(this.watch_stopper && !newVal.path.startsWith(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;

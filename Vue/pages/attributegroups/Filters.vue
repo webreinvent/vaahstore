@@ -1,7 +1,8 @@
 <script  setup>
 
-import { useAttributeGroupStore } from '../../../stores/store-attributegroups'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useAttributeGroupStore } from '../../stores/store-attributegroups'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useAttributeGroupStore();
 
@@ -9,9 +10,29 @@ const store = useAttributeGroupStore();
 
 <template>
     <div>
+        <Panel >
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="attributegroups-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
+<!--        <Sidebar v-model:visible="store.show_filters"-->
+<!--                 position="right">-->
 
 
 
@@ -21,7 +42,7 @@ const store = useAttributeGroupStore();
                 </template>
 
                 <AutoComplete name="attribute-filter"
-                              data-testid="attribute-filter"
+                              data-testid="attributegroups-filter"
                               v-model="store.selected_attributes"
                               @change = "store.addAttributes()"
                               option-label = "name"
@@ -43,7 +64,7 @@ const store = useAttributeGroupStore();
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
@@ -153,7 +174,8 @@ const store = useAttributeGroupStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
+<!--        </Sidebar>-->
+        </Panel>
 
     </div>
 </template>
