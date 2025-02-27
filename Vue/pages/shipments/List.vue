@@ -7,7 +7,7 @@ import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-import Filters from './components/Filters.vue'
+import Filters from './Filters.vue'
 import Charts from "../../components/Charts.vue";
 const store = useShipmentStore();
 const root = useRootStore();
@@ -63,108 +63,113 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full m-1" v-if="store.assets">
 
-        <div :class="'col-'+(store.show_filters?9:store.list_view_width)">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses">
 
 
+                <Panel class="is-small">
 
-            <Panel class="is-small">
+                    <template class="p-1" #header>
 
-                <template class="p-1" #header>
-
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Shipments</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
-                        </div>
-
-                    </div>
-
-                </template>
-                <div class="flex gap-2 mb-1">
-                    <div class="w-full bg-white   border-gray-200 rounded-sm mb-2">
-
-                        <div class="flex flex-wrap justify-content-between gap-3 align-items-start mt-3" v-if=" store.isViewLarge()">
-
-                            <Charts
-                                class="border-1 border-gray-200 border-round-sm overflow-hidden"
-
-                                :chartOptions="store.shipment_by_order_chart_options"
-                                :chartSeries="store.shipment_by_order_chart_series"
-                                height=300 width=350
-                                titleAlign="center"
-                            />
-                            <Charts
-                                class="border-1 border-gray-200 border-round-sm overflow-hidden"
-
-                                :chartOptions="store.shipment_by_items_chart_options"
-                                :chartSeries="store.shipment_by_items_chart_series"
-                                height=300 width=350
-                                titleAlign="center"
-                            />
-                            <Charts
-                                class="border-1 border-gray-200 border-round-sm overflow-hidden"
-                                type="bar"
-                                :chartOptions="store.shipment_items_by_status_chart_options"
-                                :chartSeries="store.shipment_items_by_status_chart_series"
-                                height=300 width=350
-                                titleAlign="center"
-                            />
+                        <div class="flex flex-row">
+                            <div >
+                                <b class="mr-1">Shipments</b>
+                                <Badge v-if="store.list && store.list.total > 0"
+                                       :value="store.list.total">
+                                </Badge>
+                            </div>
 
                         </div>
+
+                    </template>
+                    <div class="flex gap-2 mb-1">
+                        <div class="w-full bg-white   border-gray-200 rounded-sm mb-2">
+
+                            <div class="flex flex-wrap justify-content-between gap-3 align-items-start mt-3" v-if=" store.isListView()">
+
+                                <Charts
+                                    class="border-1 border-gray-200 border-round-sm overflow-hidden"
+
+                                    :chartOptions="store.shipment_by_order_chart_options"
+                                    :chartSeries="store.shipment_by_order_chart_series"
+                                    height=300 width=350
+                                    titleAlign="center"
+                                />
+                                <Charts
+                                    class="border-1 border-gray-200 border-round-sm overflow-hidden"
+
+                                    :chartOptions="store.shipment_by_items_chart_options"
+                                    :chartSeries="store.shipment_by_items_chart_series"
+                                    height=300 width=350
+                                    titleAlign="center"
+                                />
+                                <Charts
+                                    class="border-1 border-gray-200 border-round-sm overflow-hidden"
+                                    type="bar"
+                                    :chartOptions="store.shipment_items_by_status_chart_options"
+                                    :chartSeries="store.shipment_items_by_status_chart_series"
+                                    height=300 width=350
+                                    titleAlign="center"
+                                />
+
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <template #icons>
+                    <template #icons>
 
-                    <div class="p-inputgroup">
+                        <div class="p-inputgroup">
 
-                    <Button data-testid="shipments-list-create"
-                            class="p-button-sm"
-                            @click="store.toForm()">
-                        <i class="pi pi-plus mr-1"></i>
-                        Create
-                    </Button>
+                            <Button data-testid="shipments-list-create"
+                                    class="p-button-sm"
+                                    @click="store.toForm()">
+                                <i class="pi pi-plus mr-1"></i>
+                                Create
+                            </Button>
 
-                    <Button data-testid="shipments-list-reload"
-                            class="p-button-sm"
-                            @click="store.getList()">
-                        <i class="pi pi-refresh mr-1"></i>
-                    </Button>
+                            <Button data-testid="shipments-list-reload"
+                                    class="p-button-sm"
+                                    @click="store.getList()">
+                                <i class="pi pi-refresh mr-1"></i>
+                            </Button>
 
-                    <!--form_menu-->
+                            <!--form_menu-->
 
-                    <Button v-if="root.assets && root.assets.module
+                            <Button v-if="root.assets && root.assets.module
                                                 && root.assets.module.is_dev"
-                        type="button"
-                        @click="toggleCreateMenu"
-                        class="p-button-sm"
-                        data-testid="shipments-create-menu"
-                        icon="pi pi-angle-down"
-                        aria-haspopup="true"/>
+                                    type="button"
+                                    @click="toggleCreateMenu"
+                                    class="p-button-sm"
+                                    data-testid="shipments-create-menu"
+                                    icon="pi pi-angle-down"
+                                    aria-haspopup="true"/>
 
-                    <Menu ref="create_menu"
-                          :model="store.list_create_menu"
-                          :popup="true" />
+                            <Menu ref="create_menu"
+                                  :model="store.list_create_menu"
+                                  :popup="true" />
 
-                    <!--/form_menu-->
+                            <!--/form_menu-->
 
-                    </div>
+                        </div>
 
-                </template>
+                    </template>
 
-                <Actions/>
+                    <Actions/>
 
-                <Table/>
+                    <Table/>
 
-            </Panel>
+                </Panel>
+            </div>
+
+            <div v-if="store.getRightColumnClasses"
+                 :class="store.getRightColumnClasses">
+
+                <RouterView/>
+
+            </div>
         </div>
-
-         <Filters/>
-
-        <RouterView/>
 
     </div>
 
