@@ -1,7 +1,7 @@
 <script  setup>
 
-import { useStorePaymentMethodStore } from '../../../stores/store-storepaymentmethods'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useStorePaymentMethodStore } from '../../stores/store-storepaymentmethods'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = useStorePaymentMethodStore();
 
