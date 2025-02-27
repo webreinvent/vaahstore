@@ -619,9 +619,9 @@ export const useCategoryStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
