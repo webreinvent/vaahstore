@@ -31,7 +31,7 @@ const toggleSelectedMenuState = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div>
 
         <Panel >
 
@@ -93,6 +93,7 @@ const toggleSelectedMenuState = (event) => {
                             data-testid="wishlists-product-search"
                             v-model="store.selected_product"
                             option-label = "name"
+                            :dropdown="true"
                             :complete-on-focus = "true"
                             :suggestions="store.product_suggestion"
                             @complete="store.searchProduct($event)"
