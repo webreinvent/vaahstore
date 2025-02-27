@@ -9,7 +9,7 @@
                 <Column field="label" header="Data Columns" class="max-w-min">saas</Column>
                 <Column header="CSV Headers">
                     <template #body="slotProps">
-                        <Dropdown
+                        <Select
                             v-model="slotProps.data.csv_field_index"
                             :options="store.csv_fields"
                             :optionLabel="(option) => store.normaliseLabel(option.label)"
