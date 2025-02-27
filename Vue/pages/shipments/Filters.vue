@@ -1,14 +1,15 @@
 <script  setup>
 
-import { useShipmentStore } from '../../../stores/store-shipments'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useShipmentStore } from '../../stores/store-shipments'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useShipmentStore();
 
 </script>
 
 <template>
-    <div class="col-3" v-if="store.show_filters">
+    <div>
 
             <Panel class="is-small">
 
@@ -27,10 +28,13 @@ const store = useShipmentStore();
 
                     <div class="p-inputgroup">
 
-                        <Button data-testid="shipments-hide-filter"
-                                class="p-button-sm"
-                                @click="store.show_filters = false">
-                            <i class="pi pi-times"></i>
+                        <Button data-testid="payments-hide-filter"
+                                @click="store.toList()"
+                                icon="pi pi-times"
+                                rounded
+                                variant="text"
+                                severity="contrast"
+                                size="small">
                         </Button>
 
                     </div>
@@ -41,7 +45,7 @@ const store = useShipmentStore();
                     <template #label>
                         <b>Orders By:</b>
                     </template>
-                    <VhField label="Prder">
+                    <VhField label="Orders">
                         <AutoComplete name="shipments-filters-orders"
                                       data-testid="shipments-filters-orders"
                                       v-model="store.selected_orders"
@@ -54,6 +58,7 @@ const store = useShipmentStore();
                                       placeholder="Search orders"
                                       class="w-full "
                                       append-to="self"
+                                      :dropdown="true"
                                       :pt="{
                                       token: {
                                         class: 'max-w-full'
@@ -75,7 +80,7 @@ const store = useShipmentStore();
                         <b>Created Between:</b>
                     </template>
 
-                    <Calendar v-model="store.selected_dates"
+                    <DatePicker v-model="store.selected_dates"
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               :manualInput="false"

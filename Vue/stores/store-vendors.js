@@ -226,9 +226,6 @@ export const useVendorStore = defineStore({
                 this.view = 'list-and-filters';
             }
 
-            if(route_name.includes('vendors.reports')){
-                this.view = 'list-and-reports';
-            }
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
