@@ -295,25 +295,28 @@ const toggleFormMenu = (event) => {
                     <label for="stauts-notes">Enter Status Note</label>
                 </FloatLabel>
 
-                <VhField label="Is Default">
+                <div class="flex items-center gap-2 my-3" >
                     <ToggleSwitch    v-bind:false-value="0"
-                                    v-bind:true-value="1"
-                                    class="p-inputswitch"
-                                    name="stores-is_default"
-                                    data-testid="store-is_default"
-                                    v-model="store.item.is_default" />
+                                     v-bind:true-value="1"
+                                     class="p-inputswitch"
+                                     name="stores-is_default"
+                                     data-testid="store-is_default"
+                                     v-model="store.item.is_default" />
+                    <label for="stores-default">Is Default</label>
+                </div>
 
-                </VhField>
 
-
-                <VhField label="Is Active">
-                    <ToggleSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 class="p-inputswitch"
-                                 name="stores-active"
-                                 data-testid="stores-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        class="p-inputswitch"
+                        name="stores-active"
+                        data-testid="stores-active"
+                        v-model="store.item.is_active"
+                    />
+                    <label for="stores-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
