@@ -29,7 +29,7 @@ import Chip from 'primevue/chip';
 import SelectButton from 'primevue/selectbutton';
 
 import Chart from 'primevue/chart';
-
+import Stepper from 'primevue/stepper';
 import FileUpload from 'primevue/fileupload';
 
 import Accordion from 'primevue/accordion';
@@ -150,7 +150,7 @@ app.component('AccordionHeader', AccordionHeader);
 app.component('AccordionContent', AccordionContent);
 app.component('AccordionPanel', AccordionPanel);
 app.component('Chart', Chart);
-
+app.component('Stepper', Stepper);
 app.component('Tabs', Tabs);
 app.component('Tab', Tab);
 app.component('TabPanels', TabPanels);
