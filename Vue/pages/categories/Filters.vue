@@ -1,45 +1,37 @@
 <script  setup>
 
-import { useCategoryStore } from '../../../stores/store-categories'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useCategoryStore } from '@/stores/store-categories'
+import VhFieldVertical from '@/vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useRootStore } from '@/stores/root'
 import {ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 const store = useCategoryStore();
 const route = useRoute();
 const router = useRouter();
-
+const root = useRootStore();
 </script>
 
 <template>
-    <div class="col-3" v-if="store.show_filters">
+    <Panel :pt="root.panel_pt" >
+        <template class="p-1" #header>
 
-            <Panel class="is-small">
+            <b class="mr-1">Filters</b>
 
-                <template class="p-1" #header>
+        </template>
+        <template #icons>
 
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Filters</b>
-                        </div>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/categories`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
 
-                    </div>
-
-                </template>
-
-                <template #icons>
-
-                    <div class="p-inputgroup">
-
-                        <Button data-testid="categories-hide-filter"
-                                class="p-button-sm"
-                                @click="store.show_filters = false">
-                            <i class="pi pi-times"></i>
-                        </Button>
-
-                    </div>
-
-                </template>
+        </template>
 
                 <VhFieldVertical >
                     <template #label>
@@ -63,7 +55,7 @@ const router = useRouter();
                         <b>Select Created Date:</b>
                     </template>
 
-                    <Calendar v-model="store.selected_dates"
+                    <DatePicker v-model="store.selected_dates"
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               data-testid="categories-filters-created_at"
@@ -175,5 +167,4 @@ const router = useRouter();
 
         </Panel>
 
-    </div>
 </template>

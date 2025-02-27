@@ -1,7 +1,7 @@
 <script  setup>
 import {ref, reactive, watch, onMounted} from 'vue';
 import {useRoute} from 'vue-router';
-
+import Filters from '../Filters.vue'
 import { useCategoryStore } from '../../../stores/store-categories'
 
 const store = useCategoryStore();
@@ -31,10 +31,10 @@ const toggleBulkMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -59,11 +59,7 @@ const toggleBulkMenuState = (event) => {
             <div >
 
 
-                <div class="grid p-fluid">
-
-
-                    <div class="col-12">
-                        <div class="p-inputgroup ">
+                <InputGroup>
 
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
@@ -77,11 +73,13 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="categories-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
+                                v-if="!store.isMobile"
+                                as="router-link"
+                                :to="`/categories/filters`"
                                 type="button"
-                                class="p-button-sm"
-                                :disabled="Object.keys(route.params).length"
+                                size="small"
                                 data-testid="categories-actions-show-filters"
-                                @click="store.show_filters = !store.show_filters">
+                                @click="store.show_filters = true">
                                 Filters
                                 <Badge v-if="store.count_filters > 0" :value="store.count_filters"></Badge>
                             </Button>
@@ -110,10 +108,8 @@ const toggleBulkMenuState = (event) => {
                                       :popup="true" />
                                 <!--/bulk_menu-->
 
-                        </div>
-                    </div>
-
-                </div>
+                </InputGroup>
+            </div>
 
             </div>
             <!--/right-->
@@ -121,5 +117,4 @@ const toggleBulkMenuState = (event) => {
         </div>
         <!--/actions-->
 
-    </div>
 </template>
