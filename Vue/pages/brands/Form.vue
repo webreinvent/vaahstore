@@ -36,7 +36,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
 </script>
 <template>
 
-    <div class="col-6">
+    <div>
 
         <Panel class="is-small">
 
@@ -206,7 +206,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
                 </VhField>
 
                 <VhField label="Registered at">
-                    <Calendar tabindex="0"
+                    <DatePicker tabindex="0"
                               :showIcon="true"
                               class="w-full"
                               name="brands-registered_at"
@@ -215,7 +215,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
                               placeholder="Select Date and Time"
-                              v-model="store.item.registered_at"></Calendar>
+                              v-model="store.item.registered_at"></DatePicker>
                 </VhField>
 
                 <VhField label="Approved By">
@@ -235,7 +235,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
                 </VhField>
 
                 <VhField label="Approved at">
-                    <Calendar tabindex="0"
+                    <DatePicker tabindex="0"
                               :showIcon="true"
                               class="w-full"
                               name="brands-approved_at"
@@ -244,7 +244,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
                               placeholder="Select Date and Time"
-                              v-model="store.item.approved_at"></Calendar>
+                              v-model="store.item.approved_at"></DatePicker>
                 </VhField>
 
 
@@ -272,7 +272,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
                 </VhField>
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="brands-active"

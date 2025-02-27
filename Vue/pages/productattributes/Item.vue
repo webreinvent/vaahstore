@@ -3,9 +3,11 @@ import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import { useProductAttributeStore } from '../../stores/store-productattributes'
+import { useRootStore } from '@/stores/root'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useProductAttributeStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -56,9 +58,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small" v-if="store && store.item">
+    <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -183,7 +183,7 @@ const toggleItemMenu = (event) => {
                                 <td><b>Attribute</b></td>
                                 <td  colspan="2" >
                                     <div class="word-overflow" style="width:300px;word-break: break-word;">
-                                        <tag>{{store.item.attribute.name}}</tag></div>
+                                        <Tag>{{store.item.attribute.name}}</Tag></div>
                                 </td>
                             </tr>
                             <tr>
@@ -191,7 +191,7 @@ const toggleItemMenu = (event) => {
                                 <td colspan="2">
                                     <div class="word-overflow" style="width:300px;word-break: break-word;">
                                         <template v-for="value in store.item.attribute_values">
-                                            <tag style="margin-right:10px;">{{value.new_value}}</tag>
+                                            <Tag class="mr-0.2 rounded-sm" severity="info">{{value.new_value}}</Tag>
                                         </template>
                                     </div>
                                 </td>
@@ -213,7 +213,5 @@ const toggleItemMenu = (event) => {
                 </div>
             </div>
         </Panel>
-
-    </div>
 
 </template>

@@ -62,73 +62,81 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full m-1" v-if="store.assets">
 
-        <div :class="'col-'+store.list_view_width">
-            <Panel class="is-small">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses">
+                <Panel class="is-small">
 
-                <template class="p-1" #header>
+                    <template class="p-1" #header>
 
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Product Medias</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
+                        <div class="flex flex-row">
+                            <div >
+                                <b class="mr-1">Product Medias</b>
+                                <Badge v-if="store.list && store.list.total > 0"
+                                       :value="store.list.total">
+                                </Badge>
+                            </div>
+
                         </div>
 
-                    </div>
+                    </template>
 
-                </template>
+                    <template #icons>
 
-                <template #icons>
+                        <div class="p-inputgroup">
 
-                    <div class="p-inputgroup">
+                            <Button data-testid="productmedias-list-create"
+                                    class="p-button-sm"
+                                    :disabled="!store.assets.permissions.includes('can-update-module')"
+                                    @click="store.toForm()">
+                                <i class="pi pi-plus mr-1"></i>
+                                Create
+                            </Button>
 
-                    <Button data-testid="productmedias-list-create"
-                            class="p-button-sm"
-                            :disabled="!store.assets.permissions.includes('can-update-module')"
-                            @click="store.toForm()">
-                        <i class="pi pi-plus mr-1"></i>
-                        Create
-                    </Button>
+                            <Button data-testid="productmedias-list-reload"
+                                    class="p-button-sm"
+                                    @click="store.reload()">
+                                <i class="pi pi-refresh mr-1"></i>
+                            </Button>
 
-                    <Button data-testid="productmedias-list-reload"
-                            class="p-button-sm"
-                            @click="store.reload()">
-                        <i class="pi pi-refresh mr-1"></i>
-                    </Button>
+                            <!--form_menu-->
 
-                    <!--form_menu-->
-
-                    <Button v-if="root.assets && root.assets.module
+                            <Button v-if="root.assets && root.assets.module
                                                 && root.assets.module.is_dev"
-                        type="button"
-                        @click="toggleCreateMenu"
-                        class="p-button-sm"
-                            :disabled="!store.assets.permissions.includes('can-update-module')"
-                        data-testid="productmedias-create-menu"
-                        icon="pi pi-angle-down"
-                        aria-haspopup="true"/>
+                                    type="button"
+                                    @click="toggleCreateMenu"
+                                    class="p-button-sm"
+                                    :disabled="!store.assets.permissions.includes('can-update-module')"
+                                    data-testid="productmedias-create-menu"
+                                    icon="pi pi-angle-down"
+                                    aria-haspopup="true"/>
 
-                    <Menu ref="create_menu"
-                          :model="store.list_create_menu"
-                          :popup="true" />
+                            <Menu ref="create_menu"
+                                  :model="store.list_create_menu"
+                                  :popup="true" />
 
-                    <!--/form_menu-->
+                            <!--/form_menu-->
 
-                    </div>
+                        </div>
 
-                </template>
+                    </template>
 
-                <Actions/>
+                    <Actions/>
 
-                <Table/>
+                    <Table/>
 
-            </Panel>
+                </Panel>
+            </div>
+
+            <div v-if="store.getRightColumnClasses"
+                 :class="store.getRightColumnClasses">
+
+                <RouterView/>
+
+            </div>
         </div>
-
-        <RouterView/>
 
     </div>
 

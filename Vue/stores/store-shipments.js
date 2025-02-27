@@ -91,6 +91,58 @@ export const useShipmentStore = defineStore({
 
     }),
     getters: {
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-full';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
 
     },
     actions: {
@@ -132,26 +184,38 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'shipments.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'shipments.form':
-                    this.view = 'small';
-                    this.list_view_width = 5;
-                    break;
-                case 'shipments.view':
-                    this.view = 'small';
-                    this.list_view_width = 5;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    this.show_filters = false;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'shipments.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     case 'shipments.form':
+            //         this.view = 'small';
+            //         this.list_view_width = 5;
+            //         break;
+            //     case 'shipments.view':
+            //         this.view = 'small';
+            //         this.list_view_width = 5;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         this.show_filters = false;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('shipments.view')
+                || route_name.includes('shipments.form')
+            ){
+                this.view = 'list-and-item';
             }
+
+            if(route_name.includes('shipments.filters')){
+                this.view = 'list-and-filters';
+            }
+
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -742,15 +806,15 @@ export const useShipmentStore = defineStore({
             this.$router.push({name: 'shipments.form', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -760,7 +824,7 @@ export const useShipmentStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1090,6 +1154,10 @@ export const useShipmentStore = defineStore({
         },
         //---------------------------------------------------------------------
         addOrdersToShipment () {
+            if(!this.item.orders || (this.item.orders && this.item.orders.length < 1)){
+                vaah().toastErrors(['Select an Order']);
+                return false;
+            }
             this.order_list_tables = this.item.orders.map(order => ({
                 name: order.user_name,
                 id:order.id,

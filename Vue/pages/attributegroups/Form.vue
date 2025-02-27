@@ -28,7 +28,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
+    <div>
 
         <Panel class="is-small">
 
@@ -166,6 +166,7 @@ const toggleFormMenu = (event) => {
                                   @change="store.setAttribute($event)"
                                   optionLabel="name"
                                   multiple
+                                  :dropdown="true"
                                   :complete-on-focus = "true"
                                   :suggestions="store.active_attributes_name"
                                   @complete="store.searchActiveAttributes"
@@ -199,7 +200,7 @@ const toggleFormMenu = (event) => {
                                             </VhField>
 
                                             <VhField label="Is Active">
-                                                <InputSwitch v-bind:false-value="0"
+                                                <ToggleSwitch v-bind:false-value="0"
                                                              v-bind:true-value="1"
                                                              class="p-inputswitch"
                                                              name="attributegroups-active"
