@@ -229,9 +229,6 @@ export const useOrderStore = defineStore({
                 this.view = 'list-and-filters';
             }
 
-            if(route_name.includes('orders.reports')){
-                this.view = 'list-and-reports';
-            }
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
