@@ -1,7 +1,8 @@
 <script  setup>
 
-import { useUserStore } from '../../../stores/store-users'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useUserStore } from '../../stores/store-users'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useUserStore();
 
