@@ -92,7 +92,7 @@ const root = useRootStore();
                     <b>Date Range Filter:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           class="w-full"

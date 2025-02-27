@@ -2,12 +2,12 @@
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
-import { useStoreStore } from '../../stores/store-stores'
-
+import { useStoreStore } from '@/stores/store-stores'
+import { useRootStore } from '@/stores/root'
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useStoreStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
 
     /**
@@ -56,9 +56,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small" v-if="store && store.item">
+    <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
                 <div style="width:350px;overflow-wrap: break-word;word-wrap:break-word;">
@@ -341,6 +339,5 @@ const toggleItemMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>

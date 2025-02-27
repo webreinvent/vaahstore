@@ -1,14 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
-import { useStoreStore } from '../../stores/store-stores'
-
+import { useStoreStore } from '@/stores/store-stores'
+import { useRootStore } from '@/stores/root.js'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useStoreStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
     if(route.params && route.params.id)
     {
@@ -27,9 +27,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -54,7 +52,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
 
-                    <Button class="p-button-sm"
+                    <Button v-tooltip.left="'View'"
                             v-if="store.item && store.item.id"
                             data-testid="stores-view_item"
                             @click="store.toView(store.item)"
@@ -151,7 +149,7 @@ const toggleFormMenu = (event) => {
 
                     <div class="flex flex-row">
                         <div class="col-3">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
@@ -161,7 +159,7 @@ const toggleFormMenu = (event) => {
                         </div>
 
                         <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-9 flex flex-row">
-                            <Dropdown v-model="store.item.default_currency"
+                            <Select v-model="store.item.default_currency"
                                       :options="store.item.currencies"
                                       data-testid="store-default_currency"
                                       filter
@@ -174,7 +172,7 @@ const toggleFormMenu = (event) => {
                                         <span>&nbsp;&nbsp&nbsp;{{slotProps.option.name}}</span>
                                     </div>
                                 </template>
-                            </Dropdown>
+                            </Select>
                             <Button
                                     v-if="store.item && store.item.default_currency"
                                     @click="store.item.default_currency = null"
@@ -208,7 +206,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Multi Lingual">
                     <div class="flex flex-row">
                         <div class="col-3">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-currency"
@@ -218,7 +216,7 @@ const toggleFormMenu = (event) => {
                         </div>
 
                         <div v-if="store.item && store.item.languages && store.item.languages.length >= 1" class="pl-5 col-9 flex flex-row">
-                            <Dropdown v-model="store.item.default_language"
+                            <Select v-model="store.item.default_language"
                                       :options="store.item.languages"
                                       data-testid="store-language_default"
                                       filter
@@ -230,7 +228,7 @@ const toggleFormMenu = (event) => {
                                         <span>{{slotProps.option.name}}</span>
                                     </div>
                                 </template>
-                            </Dropdown>
+                            </Select>
                             <Button
                                 v-if="store.item && store.item.default_language"
                                 @click="store.item.default_language = null"
@@ -260,7 +258,7 @@ const toggleFormMenu = (event) => {
                 <VhField label="Is Multi Vendor">
                     <div class="flex flex-row">
                         <div class="col-4">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch"
                                          name="stores-multi-vendor"
@@ -301,7 +299,7 @@ const toggleFormMenu = (event) => {
                               :autoResize="true" rows="3" class="w-full" />
                 </VhField>
                 <VhField label="Is Default">
-                    <InputSwitch    v-bind:false-value="0"
+                    <ToggleSwitch    v-bind:false-value="0"
                                     v-bind:true-value="1"
                                     class="p-inputswitch"
                                     name="stores-is_default"
@@ -312,7 +310,7 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="stores-active"
@@ -323,6 +321,5 @@ const toggleFormMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>
