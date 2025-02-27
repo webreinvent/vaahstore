@@ -1,7 +1,8 @@
 <script  setup>
 
-import { useProductMediaStore } from '../../../stores/store-productmedias'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductMediaStore } from '../../stores/store-productmedias'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useProductMediaStore();
 
@@ -10,8 +11,27 @@ const store = useProductMediaStore();
 <template>
     <div>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+        <Panel >
+
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="productmedias-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
             <VhFieldVertical >
                 <template #label>
                     <b>Product Variations By:</b>
@@ -25,6 +45,7 @@ const store = useProductMediaStore();
                                   option-label = "name"
                                   option-value = "name"
                                   multiple
+                                  :dropdown="true"
                                   :complete-on-focus = "true"
                                   :pt="{
                                               token: {
@@ -58,7 +79,7 @@ const store = useProductMediaStore();
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           data-testid="productmedias-filters-created_date"
@@ -83,6 +104,7 @@ const store = useProductMediaStore();
                                   @change = "store.addMedia()"
                                   option-label = "type"
                                   multiple
+                                  :dropdown="true"
                                   :complete-on-focus = "true"
                                   :suggestions="store.media_suggestion"
                                   @complete="store.searchMediaType($event)"
@@ -219,7 +241,7 @@ const store = useProductMediaStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
+        </Panel>
 
     </div>
 </template>
