@@ -21,7 +21,7 @@
         </template>
 
         <template #footer>
-            <div class="grid grid-nogutter justify-content-between">
+            <div class="flex justify-content-between">
                 <Button label="Back" @click="store.prevPage()" icon="pi pi-angle-left" />
                 <Button label="Next" @click="nextPage()" icon="pi pi-angle-right" icon-pos="right" />
             </div>

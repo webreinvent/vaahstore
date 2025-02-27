@@ -297,7 +297,7 @@
         }
     }"
         >
-            <div class="grid grid-nogutter justify-content-between">
+            <div class="flex justify-content-between">
                 <Button label="Back" @click="store.prevPage()" icon="pi pi-angle-left" />
                 <Button
                         :disabled="!store.list.records.length"
