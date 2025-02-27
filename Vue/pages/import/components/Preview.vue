@@ -224,7 +224,7 @@
                         </template>
 
                         <template v-if="col.field==='available_at'" #body="{data}">
-                            <div class="flex align-items-center" style="width: 200px">
+                            <div class="flex align-items-center" >
 
 
                                 <DatePicker tabindex="0"
@@ -248,7 +248,7 @@
                         </template>
 
                         <template v-if="col.field==='launch_at'" #body="{data}">
-                            <div class="flex align-items-center" style="width: 200px">
+                            <div class="flex align-items-center">
                                 <DatePicker tabindex="0"
                                           :showIcon="true"
                                           class="w-full"
