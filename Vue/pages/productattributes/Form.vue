@@ -126,7 +126,7 @@ const toggleFormMenu = (event) => {
                         </template>
                     </AutoComplete>
 
-                    <label for="productattributes-vh_st_product_variation_id">Select Product variation*</label>
+                    <label for="productattributes-vh_st_product_variation_id">Select Product variation <span class="text-red-500">*</span></label>
 
                 </FloatLabel>
 
@@ -149,7 +149,7 @@ const toggleFormMenu = (event) => {
                         </template>
                     </AutoComplete>
 
-                    <label for="productattributes-vh_st_attribute_id">Select Attributes*</label>
+                    <label for="productattributes-vh_st_attribute_id">Select Attributes <span class="text-red-500">*</span></label>
 
                 </FloatLabel>
 
