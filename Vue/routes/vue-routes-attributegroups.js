@@ -4,6 +4,7 @@ let routes_list= [];
 import List from '../pages/attributegroups/List.vue'
 import Form from '../pages/attributegroups/Form.vue'
 import Item from '../pages/attributegroups/Item.vue'
+import Filters from "../pages/attributegroups/Filters.vue"
 
 routes_list = {
 
@@ -12,6 +13,12 @@ routes_list = {
     component: List,
     props: true,
     children:[
+        {
+            path: 'filters',
+            name: 'attributegroups.filters',
+            component: Filters,
+            props: true,
+        },
         {
             path: 'form/:id?',
             name: 'attributegroups.form',

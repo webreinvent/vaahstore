@@ -1,14 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useProductStockStore } from '../../stores/store-productstocks'
-
+import { useRootStore } from '@/stores/root.js'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useProductStockStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
     if(route.params && route.params.id)
     {
@@ -28,9 +28,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -55,6 +53,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
                     <Button class="p-button-sm"
+                            v-tooltip.left="'View'"
                             v-if="store.item && store.item.id"
                             data-testid="productstocks-view_item"
                             @click="store.toView(store.item)"
@@ -111,8 +110,7 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item" class="pt-2">
-
-                <VhField label="Vendor*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.vendor"
                                   @change="store.setVendor($event)"
                                   value="id"
@@ -122,7 +120,6 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchVendor($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Vendor"
                                   forceSelection
                                   :pt="{
                           token: {
@@ -143,9 +140,10 @@ const toggleFormMenu = (event) => {
                             </div>
                         </template>
                     </AutoComplete>
-                </VhField>
+                    <label for="productstocks-vendor">Select Vendor <span class="text-red-500">*</span></label>
+                    </FloatLabel>
 
-                <VhField label="Product*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.product"
                                   @change="store.setProduct($event)"
                                   value="id"
@@ -155,7 +153,6 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchProduct($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Product"
                                   forceSelection
                                   :pt="{
                           token: {
@@ -176,9 +173,10 @@ const toggleFormMenu = (event) => {
                             </div>
                         </template>
                     </AutoComplete>
-                </VhField>
+                    <label for="productstocks-product">Select Product <span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Product Variation*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.product_variation"
                                   @change="store.setProductVariation($event)"
                                   value="id"
@@ -188,7 +186,6 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchProductVariation($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Product Variation"
                                   forceSelection
                                   :pt="{
                           token: {
@@ -209,9 +206,10 @@ const toggleFormMenu = (event) => {
                             </div>
                         </template>
                     </AutoComplete>
-                </VhField>
+                    <label for="productstocks-product-variation">Select Product Variation <span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Warehouse*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.warehouse"
                                   @change="store.setWarehouse($event)"
                                   value="id"
@@ -221,7 +219,6 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchWarehouse($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Warehouse"
                                   forceSelection
                                   :pt="{
                           token: {
@@ -242,9 +239,10 @@ const toggleFormMenu = (event) => {
                             </div>
                         </template>
                     </AutoComplete>
-                </VhField>
+                    <label for="productstocks-warehouse">Select Warehouse <span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Quantity*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputNumber
                         name="productstocks-quantity"
                         v-model="store.item.quantity"
@@ -253,9 +251,10 @@ const toggleFormMenu = (event) => {
                         class="w-full"
                         data-testid="productstocks-quantity"
                         :min="0"/>
-                </VhField>
+                    <label for="productstocks-quantity">Enter Quantity <span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Status*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
@@ -265,29 +264,33 @@ const toggleFormMenu = (event) => {
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
                                   optionLabel="name"
-                                  placeholder="Select Status"
                                   forceSelection />
-                </VhField>
+                    <label for="productstocks-status">Select Status <span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Status Notes">
-                    <Textarea placeholder="Enter Status Note" v-model="store.item.status_notes"
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <Textarea  v-model="store.item.status_notes"
                               data-testid="productstocks-taxonomy_status_notes" :autoResize="true"
                               rows="3" class="w-full" />
-                </VhField>
+                    <label for="productstocks-taxonomy_status_notes">Enter Status Note </label>
+                </FloatLabel>
 
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 class="p-inputswitch"
-                                 name="productstocks-active"
-                                 data-testid="productstocks-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
+
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        class="p-inputswitch"
+                        name="productstocks-active"
+                        data-testid="productstocks-active"
+                        v-model="store.item.is_active"
+                    />
+                    <label for="articles-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
 
-    </div>
 
 </template>
