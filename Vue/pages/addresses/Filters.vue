@@ -65,6 +65,7 @@ const root = useRootStore();
                     @change="store.setFilterUser($event)"
                     option-label = "first_name"
                     multiple
+                    :dropdown="true"
                     :complete-on-focus = "true"
                     :suggestions="store.user_suggestion"
                     @complete="store.searchUser($event)"
@@ -87,7 +88,7 @@ const root = useRootStore();
                           data-testid="addresses-filters-date_range"
                           :manualInput="false"
                           class="w-full"
-                          append-to="self"
+                            showIcon
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >

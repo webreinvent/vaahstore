@@ -114,7 +114,7 @@ const toggleCreateMenu = (event) => {
                             </template>
 
                             <template #content>
-                                <div class="max-h-14rem overflow-y-auto">
+                                <div class="max-h-20rem overflow-y-auto">
 
 
                                     <DataTable :value="store.highest_stock"
@@ -202,7 +202,7 @@ const toggleCreateMenu = (event) => {
                             </template>
 
                             <template #content>
-                                <div class="max-h-10rem overflow-y-auto">
+                                <div class="max-h-20rem overflow-y-auto">
 
                                     <DataTable :value="store.lowest_stock"
                                                dataKey="id"

@@ -54,6 +54,7 @@ const root = useRootStore();
                               @change="store.setAttributeFilter($event)"
                               option-label="name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_attributes"
                               @complete="store.searchAttribute"
@@ -112,9 +113,9 @@ const root = useRootStore();
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               append-to="self"
-                                size="small"
                               placeholder="Choose date range"
-                              :manualInput="false" />
+                              :manualInput="false"
+                                showIcon/>
 
                     <label for="range-date" class="cursor-pointer"></label>
                 </div>

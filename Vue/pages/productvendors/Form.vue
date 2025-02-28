@@ -167,6 +167,7 @@ const toggleFormMenu = (event) => {
                             v-model="store.item.store_vendor_product"
                             optionLabel="name"
                             multiple
+                            :dropdown="true"
                             :complete-on-focus = "true"
                             :pt="{
                                       token: {

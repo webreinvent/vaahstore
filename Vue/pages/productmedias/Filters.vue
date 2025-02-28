@@ -87,7 +87,7 @@ const store = useProductMediaStore();
                           class="w-full"
                           append-to="self"
                           placeholder="Choose date range"
-
+                            showIcon
                 />
 
 

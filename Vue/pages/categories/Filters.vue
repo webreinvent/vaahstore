@@ -61,7 +61,8 @@ const root = useRootStore();
                               data-testid="categories-filters-created_at"
                               placeholder="Choose date range"
                               :manualInput="false"
-                              class="w-full"/>
+                              class="w-full"
+                                showIcon/>
 
                 </VhFieldVertical >
             <VhFieldVertical >

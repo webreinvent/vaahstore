@@ -141,7 +141,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Last Payment at*" >
                     <DatePicker tabindex="0"
                               :showIcon="true"
-                                size="small"
                               name="storepaymentmethods-last_payment_at"
                               id="last_payment_at"
                               class="w-full"

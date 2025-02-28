@@ -156,7 +156,7 @@ const toggleCreateMenu = (event) => {
                                                         type="area"
                                                         :chartOptions="order_store.order_payments_income_chart_options"
                                                         :chartSeries="order_store.order_payments_income_chart_series"
-                                                        height=100 width=300
+                                                        height=100 width=350
                                                         titleAlign="center"
 
 

@@ -31,10 +31,6 @@ const store = useUserStore();
 
             </template>
 
-<!--        <Sidebar v-model:visible="store.show_filters"-->
-<!--                 position="right"-->
-<!--                 style="z-index: 1101"-->
-<!--        >-->
 
 
             <VhFieldVertical>
@@ -84,7 +80,7 @@ const store = useUserStore();
                           append-to="self"
                           data-testid="users-filter-created_at"
                           placeholder="Choose date range"
-
+                            showIcon
                 />
 
 
@@ -183,7 +179,7 @@ const store = useUserStore();
             </VhFieldVertical>
 
 
-<!--        </Sidebar>-->
+
         </Panel>
 
     </div>

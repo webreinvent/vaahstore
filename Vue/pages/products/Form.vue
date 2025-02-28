@@ -251,7 +251,6 @@ const toggleFormMenu = (event) => {
                 <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <DatePicker tabindex="0"
                               :showIcon="true"
-                            size="small"
                               name="brands-registered_at"
                               id="registered_at"
                               value="registered_at"
@@ -266,7 +265,6 @@ const toggleFormMenu = (event) => {
                 <VhField label="Availablity Date">
                     <DatePicker tabindex="0"
                               :showIcon="true"
-                            size="small"
                               name="brands-registered_at"
                               id="registered_at"
                               value="registered_at"

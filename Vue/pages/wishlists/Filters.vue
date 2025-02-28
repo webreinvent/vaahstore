@@ -35,19 +35,17 @@ const store = useWishlistStore();
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Status By:</b>
+                    <b>Wish List Status By:</b>
                 </template>
-                <VhField label="Wish List Status">
-                    <MultiSelect
-                        v-model="store.query.filter.wishlist_status"
-                        :options="store.assets.taxonomy.status"
-                        filter
-                        optionValue="slug"
-                        optionLabel="name"
-                        placeholder="Select Status"
-                        display="chip"
-                        class="w-full relative" />
-                </VhField>
+                <MultiSelect
+                    v-model="store.query.filter.wishlist_status"
+                    :options="store.assets.taxonomy.status"
+                    filter
+                    optionValue="slug"
+                    optionLabel="name"
+                    placeholder="Select Status"
+                    display="chip"
+                    class="w-full relative" />
 
 
             </VhFieldVertical>
@@ -144,7 +142,8 @@ const store = useWishlistStore();
                               placeholder="Choose Date Range"
                               class="w-full"
                               append-to="self"
-                              :manualInput="false"/>
+                              :manualInput="false"
+                                showIcon/>
 
                     <label for="range-date" class="cursor-pointer"></label>
                 </div>
