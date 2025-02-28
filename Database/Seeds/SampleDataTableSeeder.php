@@ -423,6 +423,11 @@ class SampleDataTableSeeder extends Seeder
                 $query->where('slug', 'brand-status');
             })
             ->first();
+        $variation_status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'product-variation-status');
+            })
+            ->first();
         foreach ($products as $product) {
 
             $existing_product = Product::where('name', $product['name'])->first();
@@ -504,7 +509,7 @@ class SampleDataTableSeeder extends Seeder
             $attributes = json_decode($jsonString, true);
 
             // Create variations
-            self::createProductVariations($product, $attributes);
+            self::createProductVariations($product, $attributes,$variation_status['id']);
 
 
             $Product_media = new ProductMedia();
@@ -555,7 +560,7 @@ class SampleDataTableSeeder extends Seeder
     }
     //---------------------------------------------------------------
 
-    public static function createProductVariations($product, $attributes)
+    public static function createProductVariations($product, $attributes,$status_id)
     {
         $faker = Factory::create();
 
@@ -587,6 +592,7 @@ class SampleDataTableSeeder extends Seeder
                 'name' => $variation_name,
                 'slug' => $variation_slug,
                 'quantity' => 0,
+                'taxonomy_id_variation_status' => $status_id,
                 'price' => $faker->randomFloat(2, 10, 100),
                 'is_active' => 1,
             ]);
