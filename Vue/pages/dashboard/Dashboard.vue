@@ -274,7 +274,7 @@ const metrics = ref([]);
 
             <div>
                 <Card
-                    v-if="orders_store.isListView()"
+
                     class="flex-grow-1 shadow-1 h-full border-round-xl"
                     :pt="{
                                         content: {

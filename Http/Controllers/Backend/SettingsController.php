@@ -647,7 +647,7 @@ class SettingsController extends Controller
                 }
 
             }
-
+            DB::table('vh_st_product_categories')->truncate();
             // Commit the transaction
             DB::commit();
 
