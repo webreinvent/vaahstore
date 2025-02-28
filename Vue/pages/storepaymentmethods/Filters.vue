@@ -1,23 +1,38 @@
 <script  setup>
 
-import { useStorePaymentMethodStore } from '../../../stores/store-storepaymentmethods'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useStorePaymentMethodStore } from '../../stores/store-storepaymentmethods'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useStorePaymentMethodStore();
+const root = useRootStore();
 
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/storepaymentmethods`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
 
             <VhFieldVertical >
                 <template #label>
                     <b>Status By:</b>
                 </template>
-                <VhField label="Status">
+                <VhField>
                     <MultiSelect
                         v-model="store.query.filter.payment_status"
                         :options="store.assets.taxonomy.status"
@@ -32,13 +47,15 @@ const store = useStorePaymentMethodStore();
 
             </VhFieldVertical>
 
+        <Divider/>
+
 
 
             <VhFieldVertical >
                 <template #label>
                     <b>Payment Methods By:</b>
                 </template>
-                <VhField label="Payment Status">
+                <VhField>
                     <MultiSelect
                         v-model="store.query.filter.payment_type"
                         :options="store.assets.active_payment_methods"
@@ -154,7 +171,5 @@ const store = useStorePaymentMethodStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
