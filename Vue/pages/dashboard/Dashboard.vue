@@ -493,7 +493,7 @@ const metrics = ref([]);
                                                 <div v-for="(imageUrl, imgIndex) in prop.data.image_urls"
                                                      :key="imgIndex">
                                                     <Image preview
-                                                           :src="base_url + '/' + imageUrl"
+                                                           :src="imageUrl"
                                                            alt="Error" class="shadow-4" width="35"/>
                                                 </div>
                                             </div>

@@ -4,6 +4,7 @@ let routes_list= [];
 import List from '../pages/warehouses/List.vue'
 import Form from '../pages/warehouses/Form.vue'
 import Item from '../pages/warehouses/Item.vue'
+import Filters from '../pages/warehouses/Filters.vue'
 
 routes_list = {
 
@@ -23,7 +24,13 @@ routes_list = {
             name: 'warehouses.view',
             component: Item,
             props: true,
-        }
+        },
+        {
+            path: 'filters',
+            name: 'warehouses.filters',
+            component: Filters,
+            props: true,
+        },
     ]
 };
 

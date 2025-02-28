@@ -3,10 +3,12 @@ import {onMounted, ref, watch} from "vue";
 import { useAddressStore } from '../../stores/store-addresses'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root.js'
 import {useRoute} from 'vue-router';
 
 
 const store = useAddressStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -28,9 +30,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -111,7 +111,7 @@ const toggleFormMenu = (event) => {
 
             <div v-if="store.item" class="pt-2">
 
-                <VhField label="User*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete
                         v-model="store.item.user"
                         @change="store.setUser($event)"
@@ -120,14 +120,15 @@ const toggleFormMenu = (event) => {
                         name="addresses-user"
                         :suggestions="store.user_suggestion"
                         @complete="store.searchUser($event)"
-                        placeholder="Select User"
                         :dropdown="true" optionLabel="first_name"
                         data-testid="addresses-user"
                         forceSelection>
                     </AutoComplete>
-                </VhField>
+                    <label for="addressess-user">Select User <span class="text-red-500">*</span></label>
 
-                <VhField label="Type*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete
                         v-model="store.item.address_type"
                         @change="store.setAddressType($event)"
@@ -136,45 +137,54 @@ const toggleFormMenu = (event) => {
                         name="addresses-type"
                         :suggestions="store.type_suggestion"
                         @complete="store.searchType($event)"
-                        placeholder="Select Type"
                         :dropdown="true" optionLabel="name"
                         data-testid="addresses-type"
                         forceSelection>
                     </AutoComplete>
-                </VhField>
+                    <label for="addressess-type">Select Type <span class="text-red-500">*</span></label>
 
-                <VhField label="Address line 1*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Textarea rows="3" class="w-full"
-                              placeholder="Enter a Address Line 1"
                               name="addresses-address_line_1"
                               data-testid="addresses-address_line_1"
                               v-model="store.item.address_line_1"/>
-                </VhField>
 
-                <VhField label="Address line 2">
+                    <label for="addressess-address_line_1">Enter a Address Line 1 <span class="text-red-500">*</span> </label>
+
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Textarea rows="3" class="w-full"
-                              placeholder="Enter a Address Line 2"
                               name="addresses-address_line_2"
                               data-testid="addresses-address_line_2"
                               v-model="store.item.address_line_2"/>
-                </VhField>
+
+                    <label for="addressess-address_line_2">Enter a Address Line 2 </label>
+
+                </FloatLabel>
 
 
-                <VhField label="City">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="warehouses-city"
                                data-testid="warehouses-city"
-                               placeholder="Enter City"
                                v-model="store.item.city"/>
-                </VhField>
-                <VhField label="State">
+                    <label for="warehouses-city">Select City </label>
+
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="warehouses-state"
                                data-testid="warehouses-state"
-                               placeholder="Enter State"
                                v-model="store.item.state"/>
-                </VhField>
-                <VhField label="Country*">
+                    <label for="warehouses-state">Select State </label>
+
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.country"
                                   value="id"
                                   class="w-full"
@@ -182,12 +192,13 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.country_suggestions"
                                   @complete="store.searchCountry($event)"
                                   :dropdown="true"
-                                  placeholder="Select Country"
                                   forceSelection />
-                </VhField>
+                    <label for="warehouses-country">Select Country <span class="text-red-500">*</span></label>
+
+                </FloatLabel>
 
 
-                <VhField label="Status*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete
                         v-model="store.item.status"
                         @change="store.setStatus($event)"
@@ -195,33 +206,35 @@ const toggleFormMenu = (event) => {
                         name="addresses-status"
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
-                        placeholder="Select Status"
                         value="id"
                         :dropdown="true" optionLabel="name"
                         data-testid="addresses-status"
                         forceSelection>
                     </AutoComplete>
-                </VhField>
+                    <label for="addresses-status">Select Status <span class="text-red-500">*</span></label>
 
-                <VhField label="Status Notes">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Textarea rows="3" class="w-full"
-                              placeholder="Enter a Status Note"
                               name="orders-status_notes"
                               data-testid="orders-status_notes"
                               v-model="store.item.status_notes"/>
-                </VhField>
+                    <label for="orders-status_notes">Status Notes</label>
 
-                <VhField label="Is Default">
-                    <InputSwitch v-bind:false-value="0"
+                </FloatLabel>
+
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="addresses-active"
                                  data-testid="addresses-active"
                                  v-model="store.item.is_default"/>
-                </VhField>
+                    <label for="addresses-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
 
-    </div>
 
 </template>
