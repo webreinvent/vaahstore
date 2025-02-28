@@ -91,6 +91,13 @@ const vaahstore = definePreset(Aura, {
 });
 //-------------PrimeVue Use
 app.use(PrimeVue, {
+    pt:{
+        datatable:{
+            tableContainer:{
+
+            }
+        }
+    },
     theme: {
         preset: vaahstore,
         darkMode: false,
