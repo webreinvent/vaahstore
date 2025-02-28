@@ -610,7 +610,7 @@ class SampleDataTableSeeder extends Seeder
                 'slug' => $variation_slug,
                 'quantity' => 0,
                 'taxonomy_id_variation_status' => $status_id,
-                'price' => $faker->randomFloat(2, 10, 100),
+                'price' => $faker->randomFloat(2, 20, 35),
                 'is_active' => 1,
             ]);
         }
@@ -1213,7 +1213,7 @@ class SampleDataTableSeeder extends Seeder
                         if ($order->user) {
                             $order->user_name = $order->user->username;
                             $order->payable_amount = $order->amount - $order->paid;
-                            $order->pay_amount = rand(0, $order->amount);
+                            $order->pay_amount = rand(20, 35);
 
                             $inputs['amount'] = $order->pay_amount;
 
