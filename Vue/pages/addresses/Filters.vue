@@ -1,18 +1,32 @@
 <script  setup>
 
-import { useAddressStore } from '../../../stores/store-addresses'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
-import VhField from './../../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useAddressStore } from '../../stores/store-addresses'
+import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root'
 
 const store = useAddressStore();
+const root = useRootStore();
 
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt">
+        <template class="p-1" #header>
+            <b class="mr-1">Filters</b>
+        </template>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+        <template #icons>
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/addresses`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+        </template>
 
             <VhFieldVertical>
                 <template #label>
@@ -67,7 +81,7 @@ const store = useAddressStore();
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           data-testid="addresses-filters-date_range"
@@ -188,7 +202,5 @@ const store = useAddressStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>
