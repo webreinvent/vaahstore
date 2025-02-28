@@ -342,6 +342,7 @@ const toggleFormMenu = (event) => {
                               data-testid="users-birth"
                               dateFormat="dd-mm-yy"
                               :showTime="false"
+                                showIcon
                     />
                 </VhField>
 
