@@ -647,7 +647,20 @@ class SettingsController extends Controller
                 }
 
             }
-            DB::table('vh_st_product_categories')->truncate();
+            $tables_to_truncate = [
+                'vh_st_product_categories',
+                'vh_st_cart_products',
+                'vh_st_currencies',
+                'vh_st_lingual',
+                'vh_st_product_variation_medias',
+                'vh_st_user_customer_groups',
+                'vh_st_vendor_pro_stores',
+            ];
+
+            foreach ($tables_to_truncate as $table) {
+                DB::table($table)->truncate();
+            }
+
             // Commit the transaction
             DB::commit();
 
