@@ -510,10 +510,6 @@ class SampleDataTableSeeder extends Seeder
 
             // Save the product
             $product = Product::create($inputs);
-
-
-
-
             $random_categories = Category::where('id', '!=', $category->id)
                 ->whereNull('parent_id')
                 ->where('is_active', 1)
@@ -521,13 +517,10 @@ class SampleDataTableSeeder extends Seeder
                 ->limit(1)
                 ->pluck('id');
 
-
             if ($random_categories){
                 $category_ids = array_merge([$category->id], $random_categories->toArray());
                 $product->productCategories()->attach($category_ids, ['vh_st_product_id' => $product->id]);
             }
-
-
             $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "./json/attributes.json";
             $jsonString = file_get_contents($json_file_variants);
             $attributes = json_decode($jsonString, true);
@@ -588,7 +581,7 @@ class SampleDataTableSeeder extends Seeder
     {
         $faker = Factory::create();
 
-        $variation_attributes = ['color', 'size'];
+        $variation_attributes = ['color', 'gender'];
 
         $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
             return in_array($key, $variation_attributes);
@@ -814,10 +807,13 @@ class SampleDataTableSeeder extends Seeder
             })
             ->first();
 
+
         $valid_products = Product::whereHas('productVendors')
             ->with('productVariations', 'productVendors')
-            ->take(rand(1, 10))
-            ->get();
+            ->get()
+            ->shuffle()
+            ->take(rand(1, 8));
+
 
         $user_addresses = StoreUser::where('id', $order->vh_user_id)
             ->with('addresses')
