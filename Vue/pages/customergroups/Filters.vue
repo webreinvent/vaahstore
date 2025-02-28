@@ -57,6 +57,7 @@ const root = useRootStore();
                     @complete="store.getCustomers($event)"
                     placeholder="Select Customers"
                     append-to="self"
+                    :dropdown="true"
                     class="w-full">
                 </AutoComplete>
 
@@ -74,6 +75,7 @@ const root = useRootStore();
                           :manualInput="false"
                           class="w-full"
                           append-to="self"
+                            showIcon
                           data-testid="customergroups-filters-created_date"
                           placeholder="Choose Date Range"
 

@@ -134,7 +134,7 @@ const useVaah = vaah();
                     :sortable="true" header="Shipping Status">
                 <template #body="prop">
                     <Badge
-                        :severity="prop.data.order_shipment_status === 'Delivered' ? 'success' : 'warning'"
+                        :severity="prop.data.order_shipment_status === 'Delivered' ? 'success' : 'warn'"
                         class="min-w-max"
                     >
                         {{ prop.data.order_shipment_status }}
