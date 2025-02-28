@@ -457,7 +457,7 @@ class SampleDataTableSeeder extends Seeder
                     'slug' => Str::slug($product['brand']['name']),
                     'is_active' => 1,
                     'taxonomy_id_brand_status' => $brand_status['id'],
-                    'image' => $brand_image ?? 'uploads/brands/default.png',
+                    'image' => $brand_image ?? 'default.png',
                 ]
             );
             $category = Category::firstOrCreate(
@@ -812,7 +812,7 @@ class SampleDataTableSeeder extends Seeder
             ->with('productVariations', 'productVendors')
             ->get()
             ->shuffle()
-            ->take(rand(1, 8));
+            ->take(rand(1, 10));
 
 
         $user_addresses = StoreUser::where('id', $order->vh_user_id)
