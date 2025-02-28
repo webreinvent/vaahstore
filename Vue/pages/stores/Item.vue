@@ -187,7 +187,7 @@ const toggleItemMenu = (event) => {
                                 </td>
                                 <td  colspan="2"  >
                                     <Tag v-if="store.item && store.item.status && store.item.status.name === 'Approved'"  severity="success" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
-                                    <Tag v-else-if="store.item && store.item.status && store.item.status.name === 'Pending'"  severity="warning" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
+                                    <Tag v-else-if="store.item && store.item.status && store.item.status.name === 'Pending'"  severity="warn" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
                                     <Tag v-else-if="store.item && store.item.status && store.item.status.name === 'Rejected'"  severity="danger" :value="store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
                                     <Tag v-else severity="primary" :value="store.item && store.item.status && store.item.status.name"  style="margin-top:10px;border-radius:20px;padding:5px 10px;"></Tag>
                                 </td>
