@@ -2,7 +2,7 @@
 
 
     <Button type="button" label="Fill All" icon="pi pi-arrow-down" @click="store.fillAll()" :disabled="store.is_button_disabled"
-            style="margin-left: 50rem;  margin-top: 1.5rem; border-radius: 4rem; width: 6rem;"/>
+            style="margin-left: 50rem;"/>
 
     <table>
         <tr v-for="item in store.crud_options">
@@ -32,18 +32,21 @@
 
     <Button label="Submit"
             @click="store.createBulkRecords()"
-            style="width: 10rem; margin-top: 1.5rem; border-radius: 4rem"
+         size="small"
+            class="mr-1"
             :disabled="store.is_button_disabled"/>
 
     <Button label="Reset All"
             @click="store.resetAll()"
-            style="width: 10rem; margin-top: 1.5rem; border-radius: 4rem; margin-left: 1rem"
+            size="small"
+            class="mr-1"
             :disabled="store.is_button_disabled"/>
 
     <Button label="Delete All"
             @click="store.deleteAll()"
-            class="p-button-danger"
-            style="width: 10rem; margin-top: 1.5rem; border-radius: 4rem; margin-left: 1rem"
+            size="small"
+            severity="danger"
+            class="mr-1"
             :disabled="store.is_button_disabled"/>
 
 
