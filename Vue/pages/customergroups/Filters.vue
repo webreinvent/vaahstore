@@ -2,6 +2,7 @@
 
 import { useCustomerGroupStore } from '../../stores/store-customergroups'
 import VhFieldVertical from './../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import { useRootStore } from '@/stores/root'
 
 const store = useCustomerGroupStore();

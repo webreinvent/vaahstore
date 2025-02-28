@@ -44,6 +44,7 @@ onMounted(async () => {
                               @change = "store.addSelectedProduct()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.products_suggestion"
                               @complete="store.searchProduct($event)"
@@ -246,6 +247,7 @@ onMounted(async () => {
                               selectionMode="range"
                               @date-select="store.setDateRange"
                               class="w-full"
+                                showIcon
                               append-to="self"
                               :manualInput="false"/>
 
