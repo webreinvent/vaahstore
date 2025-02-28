@@ -155,7 +155,6 @@ const items = ref([
     },
 ]);
 
-
 </script>
 
 <template>
@@ -165,7 +164,7 @@ const items = ref([
             style="max-height: calc(100vh - 53px);">
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-                    <a v-ripple :href="href" v-bind="props.action" @click="navigate" class="rounded-xl !p-1.5 text-sm font-normal mb-2"
+                    <a v-ripple :href="href" v-bind="props.action" @click="navigate" class="rounded-xl !p-1.5 text-sm font-normal mb-2 overflow-visible"
                         :class="[route.path === item.route ? 'bg-blue-500 text-white ' : 'hover:bg-blue-500/10']">
                         <!-- <span :class="item.icon" class="p-2 bg-white rounded-lg text-info-500 shadow-card" /> -->
                             <Icon :icon="item.icon" class="size-7 p-0.5 rounded-lg bg-white text-info-500 shrink-0" :class="[route.path === item.route ? 'shadow-none' : 'shadow-card']" />
