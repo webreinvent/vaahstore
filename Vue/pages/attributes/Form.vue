@@ -1,12 +1,13 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useAttributeStore } from '../../stores/store-attributes'
-
+import { useRootStore } from '@/stores/root.js'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useAttributeStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -28,9 +29,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -138,62 +137,62 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="attributes-name"
                                data-testid="attributes-name"
-                               placeholder="Enter Name"
                                @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
-                </VhField>
+                    <label for="attributes-name">Name <span class="text-red-500">*</span></label>
 
-                <VhField label="Slug*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="attributes-slug"
                                data-testid="attributes-slug"
-                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
-                </VhField>
+                    <label for="attributes-slug">Slug <span class="text-red-500">*</span></label>
 
-                <vhField label="Value*">
+                </FloatLabel>
+
+
                     <div class="p-inputgroup flex-1">
-                        <InputText placeholder="Enter Attribute Value" v-model="store.attribute_new_value" v-on:keyup.enter="store.addAttributeNewValue()"/>
+                        <FloatLabel :variant="store.float_label_variants">
+                        <InputText v-model="store.attribute_new_value" v-on:keyup.enter="store.addAttributeNewValue()"/>
                         <Button severity="Primary" @click="store.addAttributeNewValue()">Add</Button>
+                            <label for="attributes-value">Enter Attribute Value <span class="text-red-500">*</span></label>
+
+                        </FloatLabel>
                     </div>
                     <div v-for="item in store.item.value">
                         <div class="p-inputgroup flex-1 p-1" v-if="item.is_active == 1">
-                            <InputText placeholder="Enter Attribute Value" disabled="" :value="item.value"/>
+                            <InputText disabled="" :value="item.value"/>
                             <Button class="danger" @click="store.deleteAttributeValue(item.value)">Remove</Button>
                         </div>
                     </div>
-                </vhField>
 
-                <!--                <VhField label="Value">-->
-                <!--                    <InputText class="w-full"-->
-                <!--                               name="attributes-value"-->
-                <!--                               data-testid="attributes-value"-->
-                <!--                               v-model="store.item.value"/>-->
-                <!--                </VhField>-->
-
-                <VhField label="Type*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="attributes-type"
                                data-testid="attributes-type"
-                               placeholder="Enter Type"
                                v-model="store.item.type"/>
-                </VhField>
+                    <label for="attributes-type">Enter Type <span class="text-red-500">*</span></label>
 
-                <VhField label="Description">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Textarea v-model="store.item.description"
                               rows="3" class="w-full"
-                              placeholder="Enter Description"
                               data-testid="attributes-description"
                               :autoResize="true"/>
-                </VhField>
+                    <label for="attributes-value">Enter Description <span class="text-red-500">*</span></label>
+
+                </FloatLabel>
 
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="attributes-active"
@@ -204,6 +203,5 @@ const toggleFormMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>
