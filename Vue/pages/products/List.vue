@@ -242,7 +242,7 @@ const toggleQuickFilterState = (event) => {
                                                                 <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                                     <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
                                                                         <Image preview
-                                                                               :src="base_url + '/' + imageUrl"
+                                                                               :src="imageUrl"
                                                                                alt="Error" class="shadow-4" width="35"/>
                                                                     </div>
                                                                 </div>

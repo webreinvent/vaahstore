@@ -1,14 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import {useCategoryStore} from '../../stores/store-categories'
-
+import { useRootStore } from '@/stores/root.js'
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useCategoryStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
     /**
      * Fetch the record from the database
@@ -31,9 +31,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6">
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -58,7 +56,7 @@ const toggleFormMenu = (event) => {
 
                 <div class="p-inputgroup">
 
-                    <Button class="p-button-sm"
+                    <Button
                             v-tooltip.left="'View'"
                             v-if="store.item && store.item.id"
                             data-testid="categories-view_item"
@@ -131,53 +129,55 @@ const toggleFormMenu = (event) => {
                     </div>
 
                 </Message>
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
 
-                <VhField label="Parent Category">
-                    <TreeSelect
-                        v-model="store.item.parent_category"
-                        :options="store.categories_dropdown_data"
-                        placeholder="Select category"
-                        :show-count="true"
-                        data-testid="categories-parent_category"
-                        @change="store.setParentId()"
-                        class=" w-full"/>
+                        <TreeSelect
 
-                </VhField>
-                <VhField label="Name">
-                    <div class="p-inputgroup">
+                            v-model="store.item.parent_category"
+                            :options="store.categories_dropdown_data"
+                            :show-count="true"
+                            data-testid="categories-parent_category"
+                            @change="store.setParentId()"
+                            class="w-full"
+                        />
+
+
+
+                    <label for="articles-name">Parent Category</label>
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <InputText class="w-full"
+                               name="categories-name"
+                               data-testid="categories-name"
+                               @update:modelValue="store.watchItem"
+                               v-model="store.item.name" required/>
+                    <label for="categories-name">Enter Name<span class="text-red-500">*</span></label>
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                         <InputText class="w-full"
-                                   placeholder="Enter the name"
-                                   name="categories-name"
-                                   data-testid="categories-name"
-                                   @update:modelValue="store.watchItem"
-                                   v-model="store.item.name" required/>
-                        <div class="required-field hidden"></div>
-                    </div>
-                </VhField>
-
-                <VhField label="Slug">
-                    <div class="p-inputgroup">
-                        <InputText class="w-full"
-                                   placeholder="Enter the slug"
                                    name="categories-slug"
                                    data-testid="categories-slug"
                                    v-model="store.item.slug" required/>
                         <div class="required-field hidden"></div>
-                    </div>
-                </VhField>
+                    <label for="categories-slug">Enter Slug<span class="text-red-500">*</span></label>
+                </FloatLabel>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
-                                 v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
-                                 name="categories-active"
-                                 data-testid="categories-active"
-                                 v-model="store.item.is_active"/>
-                </VhField>
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch
+                        v-bind:false-value="0"
+                        v-bind:true-value="1"
+                        class="p-inputswitch"
+                        name="stores-active"
+                        data-testid="stores-active"
+                        v-model="store.item.is_active"
+                    />
+                    <label for="stores-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
 
-    </div>
 
 </template>

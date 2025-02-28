@@ -1035,7 +1035,9 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                if (this.categories_dropdown_data && this.categories_dropdown_data.length > 0) {
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                }
 
             }else{
                 this.$router.push({name: 'products.index'});

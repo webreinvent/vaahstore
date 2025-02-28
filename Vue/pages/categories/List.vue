@@ -7,7 +7,6 @@ import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-import Filters from './components/Filters.vue'
 
 const store = useCategoryStore();
 const root = useRootStore();
@@ -16,9 +15,12 @@ const route = useRoute();
 import { useConfirm } from "primevue/useconfirm";
 const confirm = useConfirm();
 
-
+function handleScreenResize() {
+    store.setScreenSize();
+}
 onMounted(async () => {
     document.title = 'Categories - Store';
+    window.addEventListener('resize', handleScreenResize);
     store.item = null;
     /**
      * call onLoad action when List view loads
@@ -64,12 +66,16 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full" v-if="store.assets">
 
-        <div :class="route.params && route.params.id ? 'col-6' : 'col'">
-            <Panel class="is-small">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <!--left-->
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses"
 
-                <template class="p-1" #header>
+                 class="mb-4 lg:mb-0">
+                <Panel :pt="root.panel_pt">
+                    <template #header>
 
                     <div class="flex flex-row">
                         <div >
@@ -85,17 +91,17 @@ const toggleCreateMenu = (event) => {
 
                 <template #icons>
 
-                    <div class="p-inputgroup">
+                    <InputGroup>
 
                     <Button data-testid="categories-list-create"
-                            class="p-button-sm"
+                            size="small"
                             @click="store.toForm()">
                         <i class="pi pi-plus mr-1"></i>
                         Create
                     </Button>
 
                     <Button data-testid="categories-list-reload"
-                            class="p-button-sm"
+                            size="small"
                             @click="store.reload()">
                         <i class="pi pi-refresh mr-1"></i>
                     </Button>
@@ -106,7 +112,7 @@ const toggleCreateMenu = (event) => {
                                                 && root.assets.module.is_dev"
                         type="button"
                         @click="toggleCreateMenu"
-                        class="p-button-sm"
+                            size="small"
                         data-testid="categories-create-menu"
                         icon="pi pi-angle-down"
                         aria-haspopup="true"/>
@@ -117,7 +123,7 @@ const toggleCreateMenu = (event) => {
 
                     <!--/form_menu-->
 
-                    </div>
+                    </InputGroup>
 
                 </template>
 
@@ -128,10 +134,14 @@ const toggleCreateMenu = (event) => {
             </Panel>
         </div>
 
-         <Filters/>
+            <div v-if="store.getRightColumnClasses"
+                 :class="store.getRightColumnClasses">
 
-        <RouterView/>
+                <RouterView/>
 
+            </div>
+
+    </div>
     </div>
 
 
