@@ -3,27 +3,28 @@
         <h5 class="text-xs mb-2">Get Charts Data By:</h5>
 
     <div class="flex justify-content-start align-items-center gap-4">
-        <div class="p-inputgroup max-w-max">
+        <InputGroup>
             <!--            {{store.chart_date_filter}}-->
             <SelectButton v-model="store.chart_date_filter"
                           optionLabel="name"
                           optionValue="value"
                           :options="store.chart_by_date_filter"
-                          class="p-button-sm"
+                          size="small"
                           data-testid="general-charts_filters"
                           aria-labelledby="single"
             />
 
 
-            <Button class="p-button-sm"
+            <Button   size="small"
                     icon="pi pi-copy"
                     data-testid="general-charts_filters_copy"
                     @click="store.getCopy('is_sidebar_collapsed')"
             />
-        </div>
+        </InputGroup>
 
         <div class=" flex gap-2 ml-2">
-            <Calendar
+            <DatePicker
+                size="small"
                 placeholder="Select Start Date"
                 date-format="yy-mm-dd"
                 @date-select="handleDateChangeRound($event,'filter_start_date')"
@@ -31,10 +32,11 @@
                 :disabled="store.chart_date_filter !== 'custom'"
                 v-model="store.filter_start_date"
                 showIcon/>
-            <Calendar
+            <DatePicker
                 placeholder="Select End Date"
                 date-format="yy-mm-dd"
                 :maxDate="today"
+                size="small"
                 @date-select="handleDateChangeRound($event,'filter_end_date')"
 
                 :disabled="store.chart_date_filter !== 'custom'"
@@ -45,7 +47,8 @@
 
     </div>
     <Button label="Submit"
-            class="ml-auto mt-2 px-6"
+            class="ml-auto mt-2"
+            size="small"
             @click="store.storeChartFilterSettings()"
             :disabled="store.is_button_disabled"/>
 

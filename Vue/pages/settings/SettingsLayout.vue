@@ -23,7 +23,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="grid justify-content-center">
+    <div class="w-full">
         <div class="col">
             <router-view></router-view>
         </div>
