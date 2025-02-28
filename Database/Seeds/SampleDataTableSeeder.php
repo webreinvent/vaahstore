@@ -460,9 +460,16 @@ class SampleDataTableSeeder extends Seeder
                     'image' => $brand_image ?? 'uploads/brands/default.png',
                 ]
             );
+            $category = Category::firstOrCreate(
+                ['name' => $product['analytics']['masterCategory']],
+                [
+                    'slug' => Str::slug($product['analytics']['masterCategory']),
+                    'is_active' => 1,
+                    'parent_id' => null
+                ]
+            );
 
             $inputs['vh_st_brand_id'] = $brand->id;
-            $random_category = Category::whereNull('parent_id') ->where('is_active', 1)->inRandomOrder()->first();
             // Assign a random product status
             $taxonomy_status = Taxonomy::where('name', 'Approved')
                 ->whereHas('type', function ($query) {
@@ -503,7 +510,24 @@ class SampleDataTableSeeder extends Seeder
 
             // Save the product
             $product = Product::create($inputs);
-            $product->productCategories()->attach($random_category->id, ['vh_st_product_id' => $product->id]);
+
+
+
+
+            $random_categories = Category::where('id', '!=', $category->id)
+                ->whereNull('parent_id')
+                ->where('is_active', 1)
+                ->inRandomOrder()
+                ->limit(1)
+                ->pluck('id');
+
+
+            if ($random_categories){
+                $category_ids = array_merge([$category->id], $random_categories->toArray());
+                $product->productCategories()->attach($category_ids, ['vh_st_product_id' => $product->id]);
+            }
+
+
             $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "./json/attributes.json";
             $jsonString = file_get_contents($json_file_variants);
             $attributes = json_decode($jsonString, true);
