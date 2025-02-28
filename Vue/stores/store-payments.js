@@ -1239,14 +1239,8 @@ export const usePaymentStore = defineStore({
                 title: {
                     text: 'Payment Methods',
                     align: 'left',
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#263238'
-                    }
                 },
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },

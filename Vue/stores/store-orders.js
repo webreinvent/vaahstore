@@ -1168,14 +1168,8 @@ export const useOrderStore = defineStore({
                 title: {
                     text: 'Status Distribution',
                     align: 'left',
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#263238'
-                    }
                 },
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },
