@@ -331,7 +331,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                   >&#8377;{{ prop.data.remaining_payable_amount }}</span>
                             <span class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
 
-                                   severity="warning">&#8377;{{prop.data.remaining_payable_amount}}</span>
+                                   severity="warn">&#8377;{{prop.data.remaining_payable_amount}}</span>
                             </div>
                         </template>
 

@@ -192,7 +192,7 @@ const openVendorPage = (id) => {
                                                        severity="success"> {{store.item.status.name}} </Badge>
 
                                                 <Badge v-else
-                                                       severity="warning"> {{store.item.status?.name}}</Badge>
+                                                       severity="warn"> {{store.item.status?.name}}</Badge>
 
                                             </td>
                                         </tr>

@@ -144,7 +144,7 @@ const permissions=store.assets.permissions;
                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Rejected'"
                            severity="danger"> {{prop.data.status.name}} </Badge>
                     <Badge v-else
-                           severity="warning"> {{prop.data.status.name}} </Badge>
+                           severity="warn"> {{prop.data.status.name}} </Badge>
                 </template>
 
             </Column>
@@ -182,10 +182,8 @@ const permissions=store.assets.permissions;
                 <template #body="prop">
                     <ToggleSwitch v-model.bool="prop.data.is_active"
                                  data-testid="vendors-table-is-active"
-                                  v-bind:false-value="0"  v-bind:true-value="1"
-                                  class="p-inputswitch-sm"
-                                  size="small"
-                                  variant="success"
+                                 v-bind:false-value="0"  v-bind:true-value="1"
+                                 class="p-inputswitch-sm"
                                  :disabled="!store.assets.permissions.includes('can-update-module')"
                                  @input="store.toggleIsActive(prop.data)"/>
 
