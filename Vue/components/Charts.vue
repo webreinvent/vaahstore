@@ -4,18 +4,7 @@
 
         <!-- <pre>{{ chartOptions }}</pre> -->
 
-        <apexchart
-
-
-            :options="chartOptions"
-
-            :series="chartSeries"
-
-            v-bind="$attrs"
-
-
-
-        />
+        <apexchart :options="chartOptions" :series="chartSeries" v-bind="$attrs" />
 
     </div>
 
@@ -99,6 +88,16 @@ const props = defineProps({
 
 const chartOptions = ref({
 
+    title: {
+        align: 'left',
+        offsetY: 20,
+        style: {
+            fontSize: '14px',
+            fontWeight: 'normal',
+            color: '#263238'
+        }
+    },
+
     chart: {
 
         background: 'transparent',
@@ -111,7 +110,7 @@ const chartOptions = ref({
 
     plotOptions: {
 
-        bar: { },
+        bar: {},
 
     },
 
@@ -125,7 +124,7 @@ const chartOptions = ref({
 
         title: {
 
-            text: props.chartOptions.yaxisTitle ,
+            text: props.chartOptions.yaxisTitle,
 
         },
 
@@ -176,7 +175,5 @@ watch(() => props.chartSeries, (newSeries) => {
 
 
 <style scoped>
-
 /* Add any component-specific styles here */
-
 </style>

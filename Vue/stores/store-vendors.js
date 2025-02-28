@@ -1939,8 +1939,8 @@ export const useVendorStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },

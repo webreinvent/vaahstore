@@ -1190,7 +1190,6 @@ export const useWarehouseStore = defineStore({
                     offsetY: 12,
                     style: {
                         fontSize: '16px',
-                        fontWeight: 'bold',
                         color: '#263238',
                     },
                 }, tooltip: {

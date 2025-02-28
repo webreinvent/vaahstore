@@ -1377,7 +1377,6 @@ export const useShipmentStore = defineStore({
             const updatedChartOptions = {
                 chart: {
                     type: "line",
-                    background: "#fff",
                     toolbar: { show: false }
                 },
                 stroke: {
