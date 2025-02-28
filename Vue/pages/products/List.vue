@@ -133,7 +133,8 @@ const toggleQuickFilterState = (event) => {
                                         <template #title>
                                             <div class="flex align-items-center justify-content-between">
                                                 <h2 class="text-lg">Top Selling Products</h2>
-                                                <Chips
+                                                <div>
+                                                <Chip
                                                     v-if="store.filter_all"
                                                     class="white-space-nowrap align-items-center"
                                                     :style="{
@@ -166,6 +167,7 @@ const toggleQuickFilterState = (event) => {
                                                     icon="pi pi-filter"
                                                 >
                                                 </Button>
+                                                </div>
                                                 <Menu ref="quick_filter_menu_state"
                                                       :model="store.quick_filter_menu"
                                                       :popup="true"/>

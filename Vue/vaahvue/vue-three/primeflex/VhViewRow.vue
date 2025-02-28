@@ -72,7 +72,7 @@ const props = defineProps({
                     <Badge v-if="value.slug == 'approved'"  @click="vaah().copy(value.name)" severity="success">
                         {{value.name}}
                     </Badge>
-                    <Badge v-else-if="value.slug == 'pending'" @click="vaah().copy(value.name)" severity="warning">
+                    <Badge v-else-if="value.slug == 'pending'" @click="vaah().copy(value.name)" severity="warn">
                         {{value.name}}
                     </Badge>
                     <Badge v-else-if="value.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
@@ -214,7 +214,7 @@ const props = defineProps({
                 <Badge v-if="store.item.quantity === 0"
                        severity="danger" :style="{height: 'max-content !important', lineHeight: 'normal', Padding: '0.4rem'}">Out Of Stock</Badge>
                 <Badge v-else-if="store.item.quantity > 0 && store.item.quantity < 10"
-                       severity="warning">Low Stock</Badge>
+                       severity="warn">Low Stock</Badge>
                 <Badge v-else-if="store.item.quantity >= 10"
                        severity="success">In Stock</Badge>
             </td>
