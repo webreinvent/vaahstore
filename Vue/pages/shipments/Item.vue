@@ -127,7 +127,14 @@ const openVendorPage = (id) => {
                 </Message>
 
                 <Tabs >
-                    <TabPanel header="Shipment Details">
+                    <TabList>
+                        <Tab value="0">Shipment Details</Tab>
+                        <Tab value="1">Shipment Items Detail</Tab>
+
+                    </TabList>
+
+                    <TabPanels>
+                    <TabPanel value="0">
                         <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                             <table class="p-datatable-table overflow-wrap-anywhere">
                                 <tbody class="p-datatable-tbody">
@@ -212,7 +219,7 @@ const openVendorPage = (id) => {
 
                         </div>
                     </TabPanel>
-                    <TabPanel header="Shipment Items Detail">
+                    <TabPanel value="1">
 
 
 
@@ -272,6 +279,7 @@ const openVendorPage = (id) => {
 
 
                     </TabPanel>
+                    </TabPanels>
                 </Tabs>
 
 
