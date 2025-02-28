@@ -1978,7 +1978,19 @@ export const useVendorStore = defineStore({
                 tooltip: {
                     shared: true,
 
-                }
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
             };
 
             this.updateChartOptions(updated_area_chart_options);
