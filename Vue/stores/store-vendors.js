@@ -199,30 +199,15 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            // switch(route_name)
-            // {
-            //     case 'vendors.index':
-            //         this.view = 'large';
-            //         this.list_view_width = 12;
-            //         break;
-            //     case 'vendors.product':
-            //         this.view = 'small';
-            //         this.list_view_width = 6;
-            //         break;
-            //     default:
-            //         this.view = 'small';
-            //         this.list_view_width = 6;
-            //         break
-            // }
             this.view = 'list';
 
             if(route_name.includes('vendors.view')
-                || route_name.includes('vendors.form')
+                || route_name.includes('vendors.form') || route_name.includes('vendors.product')|| route_name.includes('vendors.role')
             ){
                 this.view = 'list-and-item';
             }
 
-            if(route_name.includes('vendors.filters') || route_name.includes('vendors.product') || route_name.includes('vendors.role')){
+            if(route_name.includes('vendors.filters')){
                 this.view = 'list-and-filters';
             }
 
