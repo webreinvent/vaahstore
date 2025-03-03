@@ -209,9 +209,6 @@ export const usePaymentStore = defineStore({
                 this.view = 'list-and-filters';
             }
 
-            if(route_name.includes('payments.reports')){
-                this.view = 'list-and-reports';
-            }
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)

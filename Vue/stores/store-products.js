@@ -1035,7 +1035,9 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                if (this.categories_dropdown_data && this.categories_dropdown_data.length > 0) {
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                }
 
             }else{
                 this.$router.push({name: 'products.index'});
@@ -1408,9 +1410,9 @@ export const useProductStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -2756,7 +2758,7 @@ export const useProductStore = defineStore({
         async toggleIsPreferred(vendor_item)
         {
 
-            const action = vendor_item.is_preferred ? 'preferred' : 'not-preferred';
+            const action = vendor_item.is_preferred ? 'not-preferred' : 'preferred';
             await this.vendorPreferredAction(action, vendor_item);
         },
         //---------------------------------------------------------------------

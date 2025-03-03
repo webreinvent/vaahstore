@@ -1,13 +1,13 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
-
-import { useCategoryStore } from '../../stores/store-categories'
+import { useRootStore } from '@/stores/root'
+import { useCategoryStore } from '@/stores/store-categories'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useCategoryStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
 
     /**
@@ -40,9 +40,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small" v-if="store && store.item">
+    <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -121,7 +119,7 @@ const toggleItemMenu = (event) => {
                     <tbody class="p-datatable-tbody">
                     <template v-for="(value, column) in store.item ">
 
-                        <template v-if="column === 'created_by'|| column === 'parent_category_name'|| column === 'meta'|| column === 'category_id'|| column === 'parent_category' || column === 'updated_by'
+                        <template v-if="column === 'created_by'|| column === 'parent_category_name'|| column === 'parent_id'|| column === 'meta'|| column === 'category_id'|| column === 'parent_category' || column === 'updated_by'
                         || column === 'deleted_by'">
                         </template>
 
@@ -132,6 +130,14 @@ const toggleItemMenu = (event) => {
                             />
                         </template>
                         <template v-else-if="column === 'name'">
+                            <tr v-if="store.item.parent_category">
+                                <td><b>Parent Id</b></td>
+                                <td  colspan="2" >
+                                    <span >
+                                        {{store.item.parent_id}}
+                                    </span>
+                                </td>
+                            </tr>
                             <tr v-if="store.item.parent_category">
                                 <td><b>Parent Category</b></td>
                                 <td  colspan="2" >
@@ -181,6 +187,5 @@ const toggleItemMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
 
 </template>

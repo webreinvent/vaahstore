@@ -16,8 +16,14 @@ import { useConfirm } from "primevue/useconfirm";
 const confirm = useConfirm();
 
 
+function handleScreenResize() {
+    store.setScreenSize();
+}
+
 onMounted(async () => {
     document.title = 'Payment Methods - Store';
+
+    window.addEventListener('resize', handleScreenResize);
     /**
      * call onLoad action when List view loads
      */
@@ -62,24 +68,29 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full" v-if="store.assets">
 
-        <div :class="'col-'+store.list_view_width">
-            <Panel class="is-small">
+        <div class="lg:flex lg:space-x-4 items-start">
 
-                <template class="p-1" #header>
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses"
 
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Payment Methods</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
+                 class="mb-4 lg:mb-0">
+
+                <Panel :pt="root.panel_pt">
+                    <template #header>
+
+                        <div class="flex flex-row">
+                            <div>
+                                <b class="mr-1">Payment Methods</b>
+                                <Badge v-if="store.list && store.list.total > 0"
+                                       :value="store.list.total">
+                                </Badge>
+                            </div>
+
                         </div>
 
-                    </div>
-
-                </template>
+                    </template>
 
                 <template #icons>
 
@@ -125,8 +136,15 @@ const toggleCreateMenu = (event) => {
 
             </Panel>
         </div>
+            <div v-if="store.getRightColumnClasses"
+                 :class="store.getRightColumnClasses">
 
-        <RouterView/>
+                <RouterView/>
+
+            </div>
+            <!--/right-->
+        </div>
+
 
     </div>
 

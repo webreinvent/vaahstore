@@ -31,8 +31,8 @@ onMounted(async () => {
 
             <template #content>
                 <Accordion :multiple="true" :activeIndex="store.active_index" id="accordionTabContainer">
-                    <AccordionTab>
-                        <template #header>
+                    <AccordionPanel>
+                        <AccordionHeader>
                             <div class="w-full">
                                 <div>
                                     <h5 class="font-semibold text-sm">Sample Data</h5>
@@ -41,14 +41,15 @@ onMounted(async () => {
                                     </p>
                                 </div>
                             </div>
-                        </template>
-
-                        <SampleSeed />
-                    </AccordionTab>
+                        </AccordionHeader>
+                        <AccordionContent>
+                            <SampleSeed />
+                        </AccordionContent>
+                    </AccordionPanel>
                 </Accordion>
                 <Accordion :multiple="true" :activeIndex="store.active_index" id="accordionTabContainer">
-                    <AccordionTab>
-                        <template #header>
+                    <AccordionPanel>
+                        <AccordionHeader>
                             <div class="w-full">
                                 <div>
                                     <h5 class="font-semibold text-sm">Charts Date Filters</h5>
@@ -57,10 +58,11 @@ onMounted(async () => {
                                     </p>
                                 </div>
                             </div>
-                        </template>
-
-                        <ChartsDateFilter/>
-                    </AccordionTab>
+                        </AccordionHeader>
+                        <AccordionContent>
+                            <ChartsDateFilter />
+                        </AccordionContent>
+                    </AccordionPanel>
                 </Accordion>
             </template>
         </Card>

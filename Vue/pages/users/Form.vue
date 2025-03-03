@@ -35,7 +35,7 @@ const toggleFormMenu = (event) => {
 
 </script>
 <template>
-    <div class="col-5" >
+    <div>
         <Panel class="is-small">
             <template class="p-1" #header>
                 <div class="flex flex-row">
@@ -201,7 +201,7 @@ const toggleFormMenu = (event) => {
 
                 <template v-if="!store.isHidden('title')">
                     <VhField label="Title">
-                        <Dropdown class="w-full"
+                        <Select class="w-full"
                                   v-model="store.item.title"
                                   :options="store.assets.name_titles"
                                   optionLabel="name"
@@ -275,7 +275,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Country Code" v-if="!store.isHidden('country_calling_code')">
-                    <Dropdown class="w-full"
+                    <Select class="w-full"
                               v-model="store.item.country_calling_code"
                               :options="store.assets.countries"
                               :editable="true"
@@ -312,7 +312,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Timezone" v-if="!store.isHidden('timezone')">
-                    <Dropdown v-model="store.item.timezone"
+                    <Select v-model="store.item.timezone"
                               :options="store.assets.timezones"
                               optionLabel="name"
                               optionValue="slug"
@@ -333,7 +333,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Date of Birth" v-if="!store.isHidden('birth')">
-                    <Calendar class="w-full"
+                    <DatePicker class="w-full"
                               id="dob"
                               inputId="basic"
                               v-model="store.item.birth"
@@ -342,6 +342,7 @@ const toggleFormMenu = (event) => {
                               data-testid="users-birth"
                               dateFormat="dd-mm-yy"
                               :showTime="false"
+                                showIcon
                     />
                 </VhField>
 
@@ -355,7 +356,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Status*">
-                                        <Dropdown class="w-full"
+                                        <Select class="w-full"
                                                   v-model="store.item.status"
                                                   :options="store.status_options"
                                                   optionLabel="label"
@@ -369,7 +370,7 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Is Active*">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  name="users-is_active"
                                  data-testid="users-is_active"

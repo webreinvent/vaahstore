@@ -123,7 +123,7 @@ const toggleQuickFilterState = (event) => {
                         </div>
 
                     </template>
-                    <div class="flex gap-2 mb-1" >
+                    <div class="flex gap-2 mb-1" v-if=" store.isListView()">
                         <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
                             <div class=" justify-content-between " >
 
@@ -133,7 +133,8 @@ const toggleQuickFilterState = (event) => {
                                         <template #title>
                                             <div class="flex align-items-center justify-content-between">
                                                 <h2 class="text-lg">Top Selling Products</h2>
-                                                <Chips
+                                                <div>
+                                                <Chip
                                                     v-if="store.filter_all"
                                                     class="white-space-nowrap align-items-center"
                                                     :style="{
@@ -166,6 +167,7 @@ const toggleQuickFilterState = (event) => {
                                                     icon="pi pi-filter"
                                                 >
                                                 </Button>
+                                                </div>
                                                 <Menu ref="quick_filter_menu_state"
                                                       :model="store.quick_filter_menu"
                                                       :popup="true"/>
@@ -242,7 +244,7 @@ const toggleQuickFilterState = (event) => {
                                                                 <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
                                                                     <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
                                                                         <Image preview
-                                                                               :src="base_url + '/' + imageUrl"
+                                                                               :src="imageUrl"
                                                                                alt="Error" class="shadow-4" width="35"/>
                                                                     </div>
                                                                 </div>

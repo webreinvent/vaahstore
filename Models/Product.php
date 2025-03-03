@@ -157,7 +157,7 @@ class Product extends VaahModel
     {
         return $this->hasOne(Brand::class,'id','vh_st_brand_id')
                ->withTrashed()
-               ->select('id','name','slug','is_default','deleted_at');
+               ->select('id','name','slug','is_default','image','deleted_at');
     }
     //-------------------------------------------------
 
@@ -2852,6 +2852,7 @@ class Product extends VaahModel
                         'id' => $brand->id,
                         'name' => $brand->name,
                         'slug' => $brand->slug,
+                        'image_urls' => $brand->image ? [asset('image/uploads/brands/' . $brand->image)] : [],
                         'total_sales' => $total_sales,
                     ];
                 }

@@ -1,122 +1,80 @@
 <script  setup>
 
-import { useProductMediaStore } from '../../../stores/store-productmedias'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useAttributeGroupStore } from '../../stores/store-attributegroups'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
-const store = useProductMediaStore();
+const store = useAttributeGroupStore();
 
 </script>
 
 <template>
     <div>
+        <Panel >
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="attributegroups-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
+<!--        <Sidebar v-model:visible="store.show_filters"-->
+<!--                 position="right">-->
+
+
+
             <VhFieldVertical >
                 <template #label>
-                    <b>Product Variations By:</b>
+                    <b>Attributes:</b>
                 </template>
-                <VhField label="Product Variation">
 
-                    <AutoComplete name="productmedias-variations-filter"
-                                  data-testid="productmedias-filters-variations"
-                                  v-model="store.selected_variation"
-                                  @change = "store.setVariationFilter()"
-                                  option-label = "name"
-                                  option-value = "name"
-                                  multiple
-                                  :complete-on-focus = "true"
-                                  :pt="{
-                                              token: {
-                        class: 'max-w-full'
-                    },
-                    removeTokenIcon: {
-                    class: 'min-w-max'
-                    },
-                    item: { style: {
-                    textWrap: 'wrap'
-                    }  },
-                    panel: { class: 'w-16rem ' }
+                <AutoComplete name="attribute-filter"
+                              data-testid="attributegroups-filter"
+                              v-model="store.selected_attributes"
+                              @change = "store.addAttributes()"
+                              option-label = "name"
+                              multiple
+                              :dropdown="true"
+                              :complete-on-focus = "true"
+                              :suggestions="store.filtered_attributes"
+                              @complete="store.searchAttributes"
+                              :pt="{
+                                                panel: { class: 'w-16rem ' },
                                                 }"
-                                  :suggestions="store.variation_suggestion"
-                                  @complete="store.searchVariation($event)"
-                                  placeholder="Select Variations"
-                                  append-to="self"
-                                  class="w-full " />
-                </VhField>
-
+                              placeholder="Select Attributes"
+                              append-to="self"
+                              class="w-full " />
 
             </VhFieldVertical>
-
-
-
-
-
 
             <VhFieldVertical >
                 <template #label>
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
-                          data-testid="productmedias-filters-created_date"
                           :manualInput="false"
                           class="w-full"
                           append-to="self"
                           placeholder="Choose date range"
-
+                            showIcon
                 />
-
-
             </VhFieldVertical >
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Media Type:</b>
-                </template>
-                <VhField label="Type">
-                    <AutoComplete name="productmedias-filter"
-                                  data-testid="productmedias-filters-media_type"
-                                  v-model="store.selected_media"
-                                  @change = "store.addMedia()"
-                                  option-label = "type"
-                                  multiple
-                                  :complete-on-focus = "true"
-                                  :suggestions="store.media_suggestion"
-                                  @complete="store.searchMediaType($event)"
-                                  placeholder="Select Media Type"
-                                  append-to="self"
-                                  class="w-full " />
-                </VhField>
-
-
-            </VhFieldVertical>
-
-
-            <VhFieldVertical >
-                <template #label>
-                    <b>Status By:</b>
-                </template>
-                <VhField label="Status">
-                    <MultiSelect
-                        v-model="store.query.filter.media_status"
-                        :options="store.assets.status"
-                        filter
-                        optionValue="name"
-                        optionLabel="name"
-                        data-testid="productmedias-filters-status"
-                        placeholder="Select Status"
-                        display="chip"
-                        class="w-full relative"
-                        appendTo="self" />
-                </VhField>
-
-
-            </VhFieldVertical>
-
-            <Divider/>
 
             <VhFieldVertical >
                 <template #label>
@@ -126,7 +84,7 @@ const store = useProductMediaStore();
                 <div class="field-radiobutton">
                     <RadioButton name="sort-none"
                                  inputId="sort-none"
-                                 data-testid="productmedias-filters-sort-none"
+                                 data-testid="attributegroups-filters-sort-none"
                                  value=""
                                  v-model="store.query.filter.sort" />
                     <label for="sort-none" class="cursor-pointer">None</label>
@@ -134,7 +92,7 @@ const store = useProductMediaStore();
                 <div class="field-radiobutton">
                     <RadioButton name="sort-ascending"
                                  inputId="sort-ascending"
-                                 data-testid="productmedias-filters-sort-ascending"
+                                 data-testid="attributegroups-filters-sort-ascending"
                                  value="updated_at"
                                  v-model="store.query.filter.sort" />
                     <label for="sort-ascending" class="cursor-pointer">Updated (Ascending)</label>
@@ -142,7 +100,7 @@ const store = useProductMediaStore();
                 <div class="field-radiobutton">
                     <RadioButton name="sort-descending"
                                  inputId="sort-descending"
-                                 data-testid="productmedias-filters-sort-descending"
+                                 data-testid="attributegroups-filters-sort-descending"
                                  value="updated_at:desc"
                                  v-model="store.query.filter.sort" />
                     <label for="sort-descending" class="cursor-pointer">Updated (Descending)</label>
@@ -153,8 +111,6 @@ const store = useProductMediaStore();
             <Divider/>
 
             <VhFieldVertical >
-
-
                 <template #label>
                     <b>Is Active:</b>
                 </template>
@@ -163,14 +119,14 @@ const store = useProductMediaStore();
                     <RadioButton name="active-all"
                                  inputId="active-all"
                                  value="null"
-                                 data-testid="productmedias-filters-active-all"
+                                 data-testid="attributegroups-filters-active-all"
                                  v-model="store.query.filter.is_active" />
                     <label for="active-all" class="cursor-pointer">All</label>
                 </div>
                 <div class="field-radiobutton">
                     <RadioButton name="active-true"
                                  inputId="active-true"
-                                 data-testid="productmedias-filters-active-true"
+                                 data-testid="attributegroups-filters-active-true"
                                  value="true"
                                  v-model="store.query.filter.is_active" />
                     <label for="active-true" class="cursor-pointer">Only Active</label>
@@ -178,7 +134,7 @@ const store = useProductMediaStore();
                 <div class="field-radiobutton">
                     <RadioButton name="active-false"
                                  inputId="active-false"
-                                 data-testid="productmedias-filters-active-false"
+                                 data-testid="attributegroups-filters-active-false"
                                  value="false"
                                  v-model="store.query.filter.is_active" />
                     <label for="active-false" class="cursor-pointer">Only Inactive</label>
@@ -194,7 +150,7 @@ const store = useProductMediaStore();
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-exclude"
                                  inputId="trashed-exclude"
-                                 data-testid="productmedias-filters-trashed-exclude"
+                                 data-testid="attributegroups-filters-trashed-exclude"
                                  value=""
                                  v-model="store.query.filter.trashed" />
                     <label for="trashed-exclude" class="cursor-pointer">Exclude Trashed</label>
@@ -202,7 +158,7 @@ const store = useProductMediaStore();
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-include"
                                  inputId="trashed-include"
-                                 data-testid="productmedias-filters-trashed-include"
+                                 data-testid="attributegroups-filters-trashed-include"
                                  value="include"
                                  v-model="store.query.filter.trashed" />
                     <label for="trashed-include" class="cursor-pointer">Include Trashed</label>
@@ -210,7 +166,7 @@ const store = useProductMediaStore();
                 <div class="field-radiobutton">
                     <RadioButton name="trashed-only"
                                  inputId="trashed-only"
-                                 data-testid="productmedias-filters-trashed-only"
+                                 data-testid="attributegroups-filters-trashed-only"
                                  value="only"
                                  v-model="store.query.filter.trashed" />
                     <label for="trashed-only" class="cursor-pointer">Only Trashed</label>
@@ -219,7 +175,8 @@ const store = useProductMediaStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
+<!--        </Sidebar>-->
+        </Panel>
 
     </div>
 </template>

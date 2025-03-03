@@ -1,6 +1,7 @@
 <script  setup>
-import { useWishlistStore } from '../../../stores/store-wishlists'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useWishlistStore } from '../../stores/store-wishlists'
+import VhFieldVertical from '../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import VhField from '../../vaahvue/vue-three/primeflex/VhField.vue'
 
 const store = useWishlistStore();
 
@@ -8,25 +9,43 @@ const store = useWishlistStore();
 
 <template>
     <div>
+        <Panel >
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <template class="p-1" #header>
+
+                <b class="mr-1">Filters</b>
+
+            </template>
+
+            <template #icons>
+
+                <Button data-testid="vendors-hide-filter"
+                        @click="store.toList()"
+                        icon="pi pi-times"
+                        rounded
+                        variant="text"
+                        severity="contrast"
+                        size="small">
+                </Button>
+
+            </template>
+
+<!--        <Sidebar v-model:visible="store.show_filters"-->
+<!--                 position="right">-->
 
             <VhFieldVertical >
                 <template #label>
-                    <b>Status By:</b>
+                    <b>Wish List Status By:</b>
                 </template>
-                <VhField label="Wish List Status">
-                    <MultiSelect
-                        v-model="store.query.filter.wishlist_status"
-                        :options="store.assets.taxonomy.status"
-                        filter
-                        optionValue="slug"
-                        optionLabel="name"
-                        placeholder="Select Status"
-                        display="chip"
-                        class="w-full relative" />
-                </VhField>
+                <MultiSelect
+                    v-model="store.query.filter.wishlist_status"
+                    :options="store.assets.taxonomy.status"
+                    filter
+                    optionValue="slug"
+                    optionLabel="name"
+                    placeholder="Select Status"
+                    display="chip"
+                    class="w-full relative" />
 
 
             </VhFieldVertical>
@@ -44,6 +63,7 @@ const store = useWishlistStore();
                     @change="store.setFilterSelectedUsers()"
                     option-label = "username"
                     multiple
+                    :dropdown="true"
                     :complete-on-focus = "true"
                     :suggestions="store.user_suggestion"
                     @complete="store.searchUsers($event)"
@@ -80,6 +100,7 @@ const store = useWishlistStore();
                     @change="store.setFilterSelectedProducts()"
                     option-label = "name"
                     multiple
+                    :dropdown="true"
                     :complete-on-focus = "true"
                     :suggestions="store.product_suggestion"
                     @complete="store.searchProduct($event)"
@@ -112,7 +133,7 @@ const store = useWishlistStore();
 
                 <div class="field-radiobutton">
 
-                    <Calendar v-model="store.selected_dates"
+                    <DatePicker v-model="store.selected_dates"
                               name="range-date"
                               inputId="range-date"
                               data-testid="wishlist-filters-range-date"
@@ -121,7 +142,8 @@ const store = useWishlistStore();
                               placeholder="Choose Date Range"
                               class="w-full"
                               append-to="self"
-                              :manualInput="false"/>
+                              :manualInput="false"
+                                showIcon/>
 
                     <label for="range-date" class="cursor-pointer"></label>
                 </div>
@@ -194,7 +216,9 @@ const store = useWishlistStore();
 
             </VhFieldVertical>
 
-        </Sidebar>
+<!--        </Sidebar>-->
+
+        </Panel>
 
     </div>
 </template>

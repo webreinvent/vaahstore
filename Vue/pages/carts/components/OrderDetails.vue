@@ -24,8 +24,8 @@ onMounted(async () => {
 
         <div class="flex gap-3 my-3">
             <div class="w-full">
-                <h1 class="text-center mb-3">Thank you for your purchase!</h1>
-                <p class="text-center">Your order will be delivered in 2 days!</p>
+                <h1 class="text-center font-bold text-xl mb-3">Thank you for your purchase!</h1>
+                <p class="text-center font-bold">Your order will be delivered in 2 days!</p>
 
                 <DataTable :value="store.ordered_product"
                            dataKey="id"
@@ -81,8 +81,8 @@ onMounted(async () => {
             </div>
             <div class="mx-auto max-w-2xl px-4 2xl:px-0">
                 <div class="flex justify-content-center  items-center">
-                    <Button @click="store.returnToProduct()" data-testid="order-details-to_product" label="Return To Shopping" class="w-full"/>
-                    <Button label="Track Your Order" data-testid="order-details-to_order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
+                    <Button @click="store.returnToProduct()" data-testid="order-details-to_product" size="small" label="Return To Shopping" class="w-full"/>
+                    <Button label="Track Your Order" size="small" data-testid="order-details-to_order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
                 </div>
                 <div class="flex flex-wrap justify-between">
 

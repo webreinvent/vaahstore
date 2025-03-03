@@ -1,17 +1,33 @@
 <script  setup>
 
-import { useProductStockStore } from '../../../stores/store-productstocks'
-import VhFieldVertical from './../../../vaahvue/vue-three/primeflex/VhFieldVertical.vue'
+import { useProductStockStore } from '@/stores/store-productstocks'
+import { useRootStore } from '@/stores/root'
+import VhFieldVertical from '@/vaahvue/vue-three/primeflex/VhFieldVertical.vue'
 
 const store = useProductStockStore();
-
+const root = useRootStore();
 </script>
 
 <template>
-    <div>
+    <Panel :pt="root.panel_pt" >
+        <template class="p-1" #header>
 
-        <Sidebar v-model:visible="store.show_filters"
-                 position="right">
+            <b class="mr-1">Filters</b>
+
+        </template>
+        <template #icons>
+
+            <Button data-testid="projects-hide-filter"
+                    as="router-link"
+                    :to="`/productstocks`"
+                    icon="pi pi-times"
+                    rounded
+                    variant="text"
+                    severity="contrast"
+                    size="small">
+            </Button>
+
+        </template>
 
             <VhFieldVertical >
                 <template #label>
@@ -44,6 +60,7 @@ const store = useProductStockStore();
                               @change = "store.addSelectedVendor()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.vendors_suggestion"
                               @complete="store.searchVendors($event)"
@@ -77,6 +94,7 @@ const store = useProductStockStore();
                               @change = "store.addSelectedProduct()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.products_suggestion"
                               @complete="store.searchProduct($event)"
@@ -110,6 +128,7 @@ const store = useProductStockStore();
                               @change = "store.addSelectedVariation()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.product_variations_suggestion"
                               @complete="store.searchVariations($event)"
@@ -144,6 +163,7 @@ const store = useProductStockStore();
                               @change = "store.addSelectedWarehouse()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.warehouses_suggestion"
                               @complete="store.searchWarehouses($event)"
@@ -171,12 +191,12 @@ const store = useProductStockStore();
                     <b>Select Created Date:</b>
                 </template>
 
-                <Calendar v-model="store.selected_dates"
+                <DatePicker v-model="store.selected_dates"
                           selectionMode="range"
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
-                          append-to="self"
+                            showIcon
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >
@@ -305,7 +325,5 @@ const store = useProductStockStore();
             </VhFieldVertical>
 
 
-        </Sidebar>
-
-    </div>
+    </Panel>
 </template>

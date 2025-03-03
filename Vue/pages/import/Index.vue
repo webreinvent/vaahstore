@@ -2,7 +2,7 @@
 <template>
     <div>
 
-        <Steps :model="filtered_steps"
+        <Stepper :model="filtered_steps"
                aria-label="Form Steps"
                class="steps-custom mb-5"
                v-model:activeStep="store.pageIndex"
