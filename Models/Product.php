@@ -827,6 +827,7 @@ class Product extends VaahModel
         $exclude = request()->query('exclude', []);
         $user = null;
         $cart_records = 0;
+
         if ($user_id = session('vh_user_id')) {
             $user = User::find($user_id);
             if ($user) {
@@ -835,10 +836,15 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type','productMedias.images:id,vh_st_product_media_id,url','status', 'productVendors', 'productCategories'];
+        $relationships = [
+            'brand', 'store', 'type',
+            'productMedias.images:id,vh_st_product_media_id,url',
+            'status', 'productVendors', 'productCategories'
+        ];
+
         foreach ($include as $key => $value) {
             if ($value === 'true') {
-                $keys = explode(',', $key); // Split comma-separated values
+                $keys = explode(',', $key);
                 foreach ($keys as $relationship) {
                     $relationship = trim($relationship);
                     if (method_exists(self::class, $relationship)) {
@@ -847,7 +853,10 @@ class Product extends VaahModel
                 }
             }
         }
+
         $list = self::getSorted($request->filter)->with($relationships)->withCount('productVariations');
+
+        // Apply filters
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -855,10 +864,8 @@ class Product extends VaahModel
         $list->quantityFilter($request->filter);
         $list->productVariationFilter($request->filter);
         $list->vendorFilter($request->filter);
-        $list->storeFilter($request->filter);
         $list->brandFilter($request->filter);
         $list->dateFilter($request->filter);
-        $list->brandFilter($request->filter);
         $list->productTypeFilter($request->filter);
         $list->categoryFilter($request->filter);
         $list->priceFilter($request->filter);
@@ -867,31 +874,61 @@ class Product extends VaahModel
         $list->newArrivalsFilter($request->filter);
         $list->topSellingsFilter($request->filter);
 
+        // **Filter products by store slug instead of ID**
+        // **Filter products by store slug instead of ID**
+        $store_slugs = request()->query('include', [])['stores'] ?? [];
+
+        if (!empty($store_slugs)) {
+            // Ensure store_slugs is an array (handles single slug input)
+            if (!is_array($store_slugs)) {
+                $store_slugs = json_decode($store_slugs, true);
+            }
+
+            if (is_array($store_slugs) && !empty($store_slugs)) {
+                $store_ids = Store::whereIn('slug', $store_slugs)->pluck('id')->toArray();
+
+                if (!empty($store_ids)) {
+                    $list->whereHas('store', function ($query) use ($store_ids) {
+                        $query->whereIn('id', $store_ids);
+                    });
+                }
+            }
+        } else {
+            // Fetch products of default store if store slug is not passed
+            $default_store_id = Store::where('is_default', true)->value('id');
+            $list->where('vh_st_store_id', $default_store_id);
+        }
+
+// **Filter products by ID if `ids` is provided**
         if ($request->has('ids')) {
-            $ids = json_decode($request->ids, true);  // Decode the JSON array
-            if (is_array($ids)) {
-                $list = $list->whereIn('id', $ids);
+            $ids = json_decode($request->ids, true); 
+
+            if (is_array($ids) && !empty($ids)) {
+                $list->whereIn('id', $ids);
             }
         }
 
-        $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+
+
+
+        // Handle pagination
+        $rows = config('vaahcms.per_page');
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
-
         $list = $list->paginate($rows);
+
+        // Exclude unwanted keys
         $keys_to_exclude = [];
         foreach ($exclude as $key => $value) {
             if ($value === 'true') {
                 $keys_to_exclude = array_merge($keys_to_exclude, array_map('trim', explode(',', $key)));
             }
         }
-
         $keys_to_exclude = array_unique($keys_to_exclude);
-        foreach($list as $item) {
 
+        foreach ($list as $item) {
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
@@ -908,23 +945,29 @@ class Product extends VaahModel
                 ];
             })->values();
 
-            $item->variations=$item->productVariations->pluck('id')->toArray();
+            $item->variations = $item->productVariations->pluck('id')->toArray();
+
             foreach ($keys_to_exclude as $single_key) {
                 if (isset($item[$single_key])) {
                     unset($item[$single_key]);
                 }
             }
+
             unset($item->productVariations);
         }
+
         $response['success'] = true;
         $response['data'] = $list;
         $response['active_cart_user'] = $user;
+
         if ($user) {
             $response['active_cart_user']['cart_records'] = $cart_records;
             $response['active_cart_user']['vh_st_cart_id'] = $cart->id;
         }
+
         return $response;
     }
+
 
     //-------------------------------------------------
     public static function updateList($request)
