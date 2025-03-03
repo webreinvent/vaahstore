@@ -17,12 +17,12 @@
       
       <div class="p-1 rounded-md bg-gray-100 text-center absolute -bottom-6 w-[75%] left-1/2 -translate-x-1/2 shadow-2">
         <!-- Ranking -->
-        <div class="font-bold text-[10px]">
+        <div class="font-bold text-[10px] leading-[14px]">
           {{ getRankText(index) }}
         </div>
 
         <!-- Vendor Name -->
-        <div class="text-center text-[8px] text-700 line-clamp-1 font-bold text-gray-400">
+        <div class="text-center text-[8px] text-700 leading-[12px] line-clamp-1 font-bold text-gray-400">
           {{ vendor.name }}
         </div>
       </div>

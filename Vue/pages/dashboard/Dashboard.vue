@@ -181,13 +181,10 @@ const metrics = ref([]);
                                     :icon="orders_store.chart_series?.growth_rate <= 0 ? 'mdi-light:arrow-down' : 'mdi-light:arrow-up'"
                                     :class="orders_store.chart_series?.growth_rate <= 0 ? 'text-danger-500' : 'text-success-500'"
                                     width="20" height="20"></Icon>
-                                <i v-if="orders_store.order_payments_chart_series?.income_growth_rate > 0"
-                                    class="pi pi-plus" style="font-size:6px;color:#5acc81;margin-right:2px;" />
+                            
                                 <span
-                                    :style="{ fontWeight: '400', color: orders_store.order_payments_chart_series?.income_growth_rate <= 0 ? 'red' : '#5acc81', fontSize: orders_store.show_filters ? '10px' : '12px' }">
-                                    {{
-                                        orders_store.order_payments_chart_series?.income_growth_rate.toLocaleString('en-US')
-                                    }}%
+                                    :style="{ fontWeight: '400', color: orders_store.chart_series.growth_rate <= 0 ? 'red' : '#5acc81', fontSize: orders_store.show_filters ? '10px' : '12px' }">
+                                    {{ orders_store.chart_series.growth_rate.toLocaleString('en-US') }}%
                                 </span>
                             </template>
                             <template v-else>
@@ -211,7 +208,7 @@ const metrics = ref([]);
                 <template #title>
                     <div class="flex gap-1 items-center">
                         <Icon icon="solar:box-linear" width="20" height="20"></Icon>
-                        <span class="text-sm"> Overall Sales</span>
+                        <span class="text-sm"> Payment Recieved</span>
                         <span class="rounded-full bg-gray-200 size-1 mx-1"></span>
                         <span class="text-xs">
                             ₹{{
@@ -227,8 +224,7 @@ const metrics = ref([]);
                                 :icon="orders_store.order_payments_chart_series?.income_growth_rate <= 0 ? 'mdi-light:arrow-down' : 'mdi-light:arrow-up'"
                                 :class="orders_store.order_payments_chart_series?.income_growth_rate <= 0 ? 'text-danger-500' : 'text-success-500'"
                                 width="20" height="20"></Icon>
-                            <i v-if="orders_store.order_payments_chart_series?.income_growth_rate > 0"
-                                class="pi pi-plus" style="font-size:6px;color:#5acc81;margin-right:2px;" />
+                            
                             <span
                                 :style="{ fontWeight: '400', color: orders_store.order_payments_chart_series?.income_growth_rate <= 0 ? 'red' : '#5acc81', fontSize: orders_store.show_filters ? '10px' : '12px' }">
                                 {{
@@ -275,22 +271,22 @@ const metrics = ref([]);
                 </template>
             </Card>
             <div class="flex flex-col gap-3">
-            <!--          Vendors By Sale-->
-            <Card class="min-w-max border-round-xl  h-full">
-                <template #title>
-                    <div class="flex align-items-center gap-1">
-                        <Icon icon="uil:chat-bubble-user" width="20" height="20"></Icon>
-                        <h2 class="text-sm">Top Vendors By Sale</h2 class="text-sm">
+                <!--          Vendors By Sale-->
+                <Card class="min-w-max border-round-xl  h-full">
+                    <template #title>
+                        <div class="flex align-items-center gap-1">
+                            <Icon icon="uil:chat-bubble-user" width="20" height="20"></Icon>
+                            <h2 class="text-sm">Top Vendors By Sale</h2 class="text-sm">
 
-                    </div>
-                </template>
+                        </div>
+                    </template>
 
-                <template #content>
-                    <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">
-                        <VendorSale :vendorData="vendor_store.top_selling_vendors" />
-                    </div>
+                    <template #content>
+                        <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">
+                            <VendorSale :vendorData="vendor_store.top_selling_vendors" />
+                        </div>
 
-                    <!-- <DataTable :value="vendor_store.top_selling_vendors" dataKey="id"
+                        <!-- <DataTable :value="vendor_store.top_selling_vendors" dataKey="id"
                             class="p-datatable-sm p-datatable-hoverable-rows" :nullSortOrder="-1"
                             v-model:selection="vendor_store.action.items" stripedRows responsiveLayout="scroll">
                             <Column field="variation_name" header="" class="overflow-wrap-anywhere">
@@ -302,9 +298,9 @@ const metrics = ref([]);
                                         </div>
                                     </div>
                                 </template>
-        </Column>
-        <Column field="total_sales" header="" class="overflow-wrap-anywhere">
-            <template #body="prop">
+            </Column>
+            <Column field="total_sales" header="" class="overflow-wrap-anywhere">
+                <template #body="prop">
                                     <div class="flex ">
 
                                         <div class="product_desc ml-3">
@@ -312,84 +308,85 @@ const metrics = ref([]);
                                         </div>
                                     </div>
                                 </template>
-        </Column>
-        <template #empty>
+            </Column>
+            <template #empty>
                                 <div class="text-center py-3">
                                     No records found.
                                 </div>
                             </template>
-        </DataTable> -->
-                </template>
-            </Card>
-            
-            <!--          Top Brands-->
-            <Card class="min-w-max border-round-xl h-full">
-                <template #title>
-                    <div class="flex align-items-center gap-1">
-                        <Icon icon="mage:tag" width="20" height="20"></Icon>
-                        <h2 class="text-sm">Top Brands</h2 class="text-sm">
+            </DataTable> -->
+                    </template>
+                </Card>
 
-                    </div>
-                </template>
+                <!--          Top Brands-->
+                <Card class="min-w-max border-round-xl h-full">
+                    <template #title>
+                        <div class="flex align-items-center gap-1">
+                            <Icon icon="mage:tag" width="20" height="20"></Icon>
+                            <h2 class="text-sm">Top Brands</h2 class="text-sm">
 
-                <template #content>
+                        </div>
+                    </template>
 
-                    <div v-for="product in product_store.top_selling_brands" :key="product.id">
-                        <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
-                    </div>
+                    <template #content>
 
-                </template>
-            </Card>
-        </div>
+                        <div v-for="product in product_store.top_selling_brands" :key="product.id">
+                            <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+                        </div>
+
+                    </template>
+                </Card>
+            </div>
 
             <div class="flex flex-col gap-3">
-            <Card class="h-full">
-                <template #title>
-                    <div class="flex align-items-center gap-1">
-                        <Icon icon="pajamas:sort-lowest" width="20" height="20"></Icon>
-                        <h2 class="text-sm">Highest Stock</h2 class="text-sm">
-                    </div>
-                </template>
+                <Card class="h-full">
+                    <template #title>
+                        <div class="flex align-items-center gap-1">
+                            <Icon icon="pajamas:sort-lowest" width="20" height="20"></Icon>
+                            <h2 class="text-sm">Highest Stock</h2 class="text-sm">
+                        </div>
+                    </template>
 
-                <template #content>
-                    <div class="max-h-14rem overflow-y-auto">
-                        <div v-if="product_stock_store.highest_stock && product_stock_store.highest_stock.length > 0">
-                            <div v-for="product in product_stock_store.highest_stock" :key="product.id">
-                                <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
+                    <template #content>
+                        <div class="max-h-14rem overflow-y-auto">
+                            <div
+                                v-if="product_stock_store.highest_stock && product_stock_store.highest_stock.length > 0">
+                                <div v-for="product in product_stock_store.highest_stock" :key="product.id">
+                                    <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
+                                </div>
+                            </div>
+
+                            <!-- Empty state -->
+                            <div v-else class="text-center py-3">
+                                No records found.
+                            </div>
+
+
+                        </div>
+                    </template>
+                </Card>
+
+                <Card class="h-full">
+                    <template #title>
+                        <div class="flex align-items-center gap-1">
+                            <Icon icon="lineicons:sort-high-to-low" width="20" height="20"></Icon>
+                            <h2 class="text-sm">Lowest Stock</h2 class="text-sm">
+                        </div>
+                    </template>
+
+                    <template #content>
+                        <div class="max-h-10rem overflow-y-auto">
+                            <div v-if="product_stock_store.lowest_stock && product_stock_store.lowest_stock.length > 0">
+                                <div v-for="product in product_stock_store.lowest_stock" :key="product.id">
+                                    <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Empty state -->
-                        <div v-else class="text-center py-3">
-                            No records found.
-                        </div>
+                    </template>
+                </Card>
+            </div>
 
 
-                    </div>
-                </template>
-            </Card>
-
-            <Card class="h-full">
-                <template #title>
-                    <div class="flex align-items-center gap-1">
-                        <Icon icon="lineicons:sort-high-to-low" width="20" height="20"></Icon>
-                        <h2 class="text-sm">Lowest Stock</h2 class="text-sm">
-                    </div>
-                </template>
-
-                <template #content>
-                    <div class="max-h-10rem overflow-y-auto">
-                        <div v-if="product_stock_store.lowest_stock && product_stock_store.lowest_stock.length > 0">
-                            <div v-for="product in product_stock_store.lowest_stock" :key="product.id">
-                                <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
-
-            
 
 
 
