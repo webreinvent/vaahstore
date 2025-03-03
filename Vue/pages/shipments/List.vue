@@ -109,9 +109,12 @@ const toggleCreateMenu = (event) => {
                                 <Charts
                                     class="border-1 border-gray-200 border-round-sm overflow-hidden"
                                     type="bar"
-                                    :chartOptions="store.shipment_items_by_status_chart_options"
+                                    :chartOptions="{
+                                        ...store.shipment_items_by_status_chart_options,
+                                        legend: { show: false }
+                                    }"
                                     :chartSeries="store.shipment_items_by_status_chart_series"
-                                    height=300 width=350
+                                    height=300 width=300
                                     titleAlign="center"
                                 />
 
