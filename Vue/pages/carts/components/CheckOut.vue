@@ -59,9 +59,12 @@ watchEffect(() => {
 
         <Button
             @click="store.cartDetails(route_params_id)"
-            class="p-button-sm"
+            size="small"
             label="Back"><i class="pi pi-arrow-left mr-1 "></i>Back
         </Button>
+        <b class="mr-1 ml-3" v-if="store.item ">
+            {{ store.item.user?.username }}-{{ store.item.user?.email }} ({{store.cart_item_at_checkout?.length}})
+        </b>
         <div class="flex gap-3 my-3">
 
             <div class="w-full">
@@ -203,8 +206,8 @@ watchEffect(() => {
                                         </div>
                                         <li class="p-2" v-if="store.isSelectedShippingAddress(address)">Cash On Delivery Available</li>
                                         <div   class="flex justify-content gap-2 mt-5">
-                                            <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
-                                            <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
+                                            <Button type="button" size="small" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
+                                            <Button type="button" size="small" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
                                         </div>
                                     </template>
                                 </Card>
