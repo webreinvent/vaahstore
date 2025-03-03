@@ -123,7 +123,7 @@ const toggleQuickFilterState = (event) => {
                         </div>
 
                     </template>
-                    <div class="flex gap-2 mb-1" >
+                    <div class="flex gap-2 mb-1" v-if=" store.isListView()">
                         <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
                             <div class=" justify-content-between " >
 

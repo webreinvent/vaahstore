@@ -75,27 +75,7 @@ const toggleCreateMenu = (event) => {
 
                  class="mb-4 lg:mb-0">
 
-                <div class="flex gap-2 mb-1">
-                    <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
-                        <div class="flex justify-content-between " v-if=" store.isListView()">
-                            <p><b>Warehouses Dashboard</b></p>
 
-
-                        </div>
-                        <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3" v-if=" store.isListView()">
-
-
-                            <Charts
-                                class="border-1 border-gray-200 border-round-sm overflow-hidden"
-                                type="bar"
-                                :chartOptions="store.warehouse_stock_bar_chart_options"
-                                :chartSeries="store.warehouse_stock_bar_chart_series"
-                                height=300 width=600
-                                titleAlign="center"
-                            />
-                        </div>
-                    </div>
-                </div>
 
                 <Panel :pt="root.panel_pt">
                     <template #header>
@@ -112,7 +92,23 @@ const toggleCreateMenu = (event) => {
 
                     </template>
 
+                    <div class="flex gap-2 mb-1" v-if=" store.isListView()">
+                        <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
 
+                            <div class="flex flex-wrap justify-content-center gap-3 align-items-start mt-3" v-if=" store.isListView()">
+
+
+                                <Charts
+                                    class="border-1 border-gray-200 border-round-sm overflow-hidden"
+                                    type="bar"
+                                    :chartOptions="store.warehouse_stock_bar_chart_options"
+                                    :chartSeries="store.warehouse_stock_bar_chart_series"
+                                    height=300 width=600
+                                    titleAlign="center"
+                                />
+                            </div>
+                        </div>
+                    </div>
 
                 <template #icons>
 
