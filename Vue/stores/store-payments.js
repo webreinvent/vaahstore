@@ -1244,8 +1244,6 @@ export const usePaymentStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                },fill: {
-                    type: 'gradient',
                 },
                 legend: {
                     position: 'right',

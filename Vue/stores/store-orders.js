@@ -1173,9 +1173,7 @@ export const useOrderStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                },fill: {
-                    type: 'gradient',
-                },
+                },  
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1189,12 +1187,12 @@ export const useOrderStore = defineStore({
                     }
                 },
                 legend: {
-                    position: 'right',
-                    horizontalAlign: 'center',
+                    position: 'bottom',
+                    horizontalAlign: 'left',
                     floating: false,
                     fontSize: '12px',
                     offsetX: -10,
-                    offsetY: 35,
+                    offsetY: 0,
                     formatter: function (val, opts) {
                         return `${val} - ${opts.w.globals.series[opts.seriesIndex]}`;
                     },
