@@ -32,7 +32,7 @@ const allProductsOutOfStock = computed(() => {
                 <div >
                     <Button
                         @click="store.redirectToCart"
-                        class="p-button-sm"
+                        size="small"
                         label="Back">
                         <i class="pi pi-arrow-left mr-1"></i>Back
                     </Button>
@@ -179,9 +179,10 @@ const allProductsOutOfStock = computed(() => {
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
+                        size="small"
                         :disabled="allProductsOutOfStock"
                         @click="store.checkOut(store.item.id)"
-                >Check Out
+                >Proceed To CheckOut
                     <i class="pi pi-arrow-right ml-2"></i>
                 </Button>
             </div>
