@@ -1449,8 +1449,8 @@ export const useUserStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '20px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },fill: {

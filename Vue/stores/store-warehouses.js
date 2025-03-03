@@ -1189,9 +1189,10 @@ export const useWarehouseStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        color: '#263238',
-                    },
+                        fontSize: '14px',
+                        fontWeight: 'normal',
+                        color: '#263238'
+                    }
                 }, tooltip: {
                     theme: 'light',
                 },
