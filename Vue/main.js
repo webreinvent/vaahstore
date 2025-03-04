@@ -98,7 +98,15 @@ app.use(PrimeVue, {
             darkModeSelector: false,
             darkModeInject: false
         },
-    }
+    },
+    pt: {
+        panel:{
+            root:{class:'bg-gray-50 !border-0'},
+            header: {class: '!py-4 px-2 !border-0'},
+            content:{class: "!px-2 border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
+            contentContainer: {class: "border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
+        }
+    },
 });
 app.use(ConfirmationService);
 app.use(ToastService);
@@ -186,7 +194,6 @@ app.component("Card", Card);
 
 import Image from "primevue/image";
 import { semantic } from '@primeuix/themes/aura/base';
-import { Warning } from 'postcss';
 app.component("Image", Image);
 
 
@@ -207,6 +214,9 @@ app.component('Chips', Chips);
 
 import Editor from 'primevue/editor';
 app.component('Editor', Editor);
+
+import { Icon } from '@iconify/vue';
+app.component('Icon', Icon);
 
 
 import Drawer from 'primevue/drawer';

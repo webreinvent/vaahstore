@@ -78,17 +78,17 @@ const toggleCreateMenu = (event) => {
 
                  class="mb-4 lg:mb-0">
 
-                <Panel :pt="root.panel_pt">
+                <Panel>
                     <template #header>
 
-                        <div class="flex flex-row">
-                            <div>
-                                <b class="mr-1">Carts</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
+                        <div class="w-full">
+                            <div class="flex items-center gap-2">
+                                <Icon icon="solar:cart-large-minimalistic-linear" width="20" height="20" class="text-gray-950"></Icon>
+
+                                <h1 class="text-gray-950 font-medium text-base">Carts</h1>
                             </div>
 
+                            <div class="h-[1px] bg-gray-100 w-full mt-3"/>
                         </div>
 
                     </template>
