@@ -119,18 +119,25 @@ class Store extends VaahModel
     }
 
     //-------------------------------------------------
-    public function currenciesData(){
+    public function currencies(){
         return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
             ->where('is_active', 1)
             ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
                 'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
     }
-    public function defaultCurrency(){
-        return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
+    public function defaultCurrency()
+    {
+        return $this->hasOne(Currency::class, 'vh_st_store_id', 'id')
             ->where('is_default', 1)
-            ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
-                'vh_st_currencies.code','vh_st_currencies.symbol']);
+            ->select([
+                'vh_st_currencies.vh_st_store_id',
+                'vh_st_currencies.name',
+                'vh_st_currencies.code',
+                'vh_st_currencies.is_default',
+                'vh_st_currencies.symbol'
+            ])->withDefault();
     }
+
     //-------------------------------------------------
     public function lingualData(){
         return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')
@@ -951,7 +958,7 @@ class Store extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesData', 'lingualData','defaultCurrency'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currencies', 'lingualData','defaultCurrency'])
             ->withTrashed()
             ->first();
 
@@ -964,22 +971,7 @@ class Store extends VaahModel
 
         $item->default_currency = null;
         $item->currencies = [];
-        if ($item->currenciesData->isNotEmpty()){
 
-            $currency_default_record = $item->currenciesData()->where('is_default',1)
-                ->select('name',)->get();
-            if($currency_default_record->isNotEmpty()){
-
-                $item->default_currency = $currency_default_record[0];
-            }
-
-            $currencies = [];
-            foreach ($item->currenciesData as $key => $value) {
-                $currencies[$key]['name'] = $value['name'];
-            }
-            $item->currencies = $currencies;
-
-        }
 
         $item->default_language = null;
         $item->languages = [];
@@ -1058,10 +1050,15 @@ class Store extends VaahModel
 
                 Currency::updateOrInsert(
                     ['vh_st_store_id' => $item->id, 'name' => $v['name']],
-                    ['is_active' => 1]
+                    [
+                        'is_active' => 1,
+                        'code' => $v['code'] ?? null,
+                        'symbol' => $v['symbol'] ?? null
+                    ]
                 );
 
             }
+
 
             if (!empty($inputs['default_currency'])){
                 Currency::where(['vh_st_store_id' => $item->id, 'name' => $inputs['default_currency']['name'],
@@ -1427,9 +1424,9 @@ class Store extends VaahModel
     {
         $item = self::where(['is_active' => 1, 'is_default' => 1])->first();
         if ($item) {
-            $item->currencies = $item->currenciesData;
+            $item->currencies = $item->currencies;
             $item->languages = $item->lingualData;
-            unset($item->currenciesData, $item->lingualData);
+            unset($item->currencies, $item->lingualData);
         }
 
         $response['success'] = (bool) $item;

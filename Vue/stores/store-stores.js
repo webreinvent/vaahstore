@@ -778,11 +778,12 @@ export const useStoreStore = defineStore({
                     break;
                 case 'trash':
                 case 'restore':
-                    this.item = data;
+                    // this.item = data;
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'save':
                     this.item = data;
+                    await this.getItem(data.id)
                     break;
                 case 'delete':
                     this.item = null;

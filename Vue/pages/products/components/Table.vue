@@ -108,7 +108,7 @@ const openProductCategories = (categories,product) => {
              <Column field="price range" header="Price Range">
                  <template #body="prop">
         <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
-            {{ prop.data.product_price_range.price_range.join(' - ') }}
+            <span v-html="prop.data.store.default_currency?.symbol"></span>  {{ prop.data.product_price_range.price_range.join(' - ') }}
         </span>
                      <span v-else>
             0
@@ -308,7 +308,7 @@ const openProductCategories = (categories,product) => {
         <VendorsList/>
     </div>
 
-    <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '25rem' }"
+    <Dialog v-model:visible="store.add_to_cart" modal header="Add To Cart" :style="{ width: '30rem' }"
             @hide="store.onHideCartDialog"
     >
         <div class="p-inputgroup py-3">
@@ -336,7 +336,7 @@ const openProductCategories = (categories,product) => {
                     panel: { class: 'w-16rem ' }
                                                 }">
             </AutoComplete>
-            <Button type="button" label="Add To Cart" @click="store.addProductToCart(store.product_detail)">
+            <Button type="button" size="small" label="Add To Cart" @click="store.addProductToCart(store.product_detail)">
 
             </Button>
         </div>

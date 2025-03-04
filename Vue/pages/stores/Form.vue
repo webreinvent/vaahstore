@@ -163,7 +163,7 @@ const toggleFormMenu = (event) => {
                             <Select v-model="store.item.default_currency"
                                       :options="store.item.currencies"
                                       data-testid="store-default_currency"
-                                      filter
+
                                       optionLabel="name"
                                       placeholder="Select Default Currency"
                                       style="width:180px"
@@ -194,7 +194,7 @@ const toggleFormMenu = (event) => {
                                   multiple
                                   :complete-on-focus = "true"
                                   :suggestions="store.currency_suggestion_list"
-                                  @change = "store.addCurrencies()"
+
                                   @complete="store.searchCurrencies($event)"
                                   class="w-full"
                     />
