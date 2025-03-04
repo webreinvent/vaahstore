@@ -1445,7 +1445,6 @@ export const useShipmentStore = defineStore({
             const updatedChartOptions = {
                 chart: {
                     type: "line",
-                    background: "#fff",
                     toolbar: { show: false }
                 },
                 stroke: {
@@ -1468,8 +1467,8 @@ export const useShipmentStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
@@ -1581,8 +1580,11 @@ export const useShipmentStore = defineStore({
                     }
                 },
                 chart: {
-                    toolbar: { show: false },
-                    background: '#ffffff',
+
+                    toolbar: {
+                        show: false,
+                    },
+
                 },
                 xaxis: {
                     labels: {
@@ -1675,7 +1677,6 @@ export const useShipmentStore = defineStore({
             const updated_bar_chart_options = {
                 ...data.chart_options, // Merge existing options
                 chart: {
-                    background: '#ffffff',
                     toolbar: {
                         show: false,
                     },
@@ -1730,8 +1731,8 @@ export const useShipmentStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238',
                     },
                 },

@@ -1235,20 +1235,18 @@ export const usePaymentStore = defineStore({
                 ...data.chart_options,
                 title: {
                     text: 'Payment Methods',
+                    offsetY: 12,
                     align: 'left',
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },
-                },fill: {
-                    type: 'gradient',
                 },
                 legend: {
                     position: 'right',
@@ -1272,8 +1270,7 @@ export const usePaymentStore = defineStore({
                                 show: false,
                                 name: {
                                     show: true,
-                                    fontSize: '14px',
-                                    fontWeight: 'bold',
+                                    
                                     color: '#263238',
                                 },
                                 value: {
