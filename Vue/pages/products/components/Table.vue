@@ -194,7 +194,7 @@ const openProductCategories = (categories,product) => {
                      <div class="p-inputgroup">
                         <span v-if="prop.data.product_categories && prop.data.product_categories.length" class="p-inputgroup-addon cursor-pointer"
                               @click="openProductCategories(prop.data.product_categories,prop.data.name)" v-tooltip.top="'View Categories'">
-                              <Badge severity="info">{{prop.data.product_categories.length}}</Badge>
+                              <Badge >{{prop.data.product_categories.length}}</Badge>
                         </span>
                          <span class="p-inputgroup-addon" v-else>
                              <Badge severity="info">0</Badge>
