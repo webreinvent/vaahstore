@@ -90,8 +90,12 @@ class SampleDataTableSeeder extends Seeder
     {
         $faker = Faker::create();
 
-
         $statuses = Taxonomy::getTaxonomyByType('store-status')->pluck('id')->toArray();
+        $status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'store-status');
+            })
+            ->first();
         $currencies = vh_st_get_country_currencies();
         $languages = vh_st_get_country_languages();
 
@@ -105,10 +109,10 @@ class SampleDataTableSeeder extends Seeder
             $store->is_multi_currency = rand(0, 1);
             $store->is_multi_lingual = rand(0, 1);
             $store->is_multi_vendor = rand(0, 1);
-            $store->is_default = ($i === 0) ? 1 : 0;
-            $store->taxonomy_id_store_status = $statuses ? $statuses[array_rand($statuses)] : null;
+            $store->is_default =  0;
+            $store->taxonomy_id_store_status = $status ? $status->id : null;
             $store->status_notes = 'store Status';
-            $store->is_active = rand(0, 1);
+            $store->is_active = 1;
             $store->slug = Str::slug($store->name . '-' . Str::random(5));
             $store->allowed_ips = array_map(fn () => $faker->ipv4, range(1, 5));
             $store->save();
@@ -120,6 +124,8 @@ class SampleDataTableSeeder extends Seeder
                         'vh_st_store_id' => $store->id,
                         'name' => $currencies[$index]['name'],
                         'is_active' => 1,
+                        'code' => $currencies[$index]['code'],
+                        'symbol' => $currencies[$index]['symbol'],
                     ];
                 }
             }
@@ -136,6 +142,7 @@ class SampleDataTableSeeder extends Seeder
             }
         }
 
+        // Insert generated store data
         if (!empty($currencies_to_insert)) {
             Currency::insert($currencies_to_insert);
         }
@@ -143,7 +150,45 @@ class SampleDataTableSeeder extends Seeder
         if (!empty($languages_to_insert)) {
             Lingual::insert($languages_to_insert);
         }
+
+        // === Create Default Store ===
+        $default_store = new Store();
+        $default_store->name = 'Default Store';
+        $default_store->is_multi_currency = 1;
+        $default_store->is_multi_lingual = 1;
+        $default_store->is_multi_vendor = 1;
+        $default_store->is_default = 1;
+        $default_store->taxonomy_id_store_status = $status ? $status->id : null;
+        $default_store->status_notes = 'Default store Status';
+        $default_store->is_active = 1;
+        $default_store->slug = Str::slug('Default');
+        $default_store->save();
+
+        // Insert default store currencies
+        $filtered_currencies = array_values(array_filter($currencies, function ($currency) {
+            return in_array($currency['name'], ['US Dollar', 'Indian Rupee']);
+        }));
+
+        if ($default_store->is_multi_currency && count($filtered_currencies) > 0) {
+            $default_currencies_to_insert = [];
+
+            foreach ($filtered_currencies as $currency) {
+                $default_currencies_to_insert[] = [
+                    'vh_st_store_id' => $default_store->id,
+                    'name' => $currency['name'],
+                    'is_active' => 1,
+                    'code' => $currency['code'],
+                    'symbol' => $currency['symbol'],
+                    'is_default' => ($currency['name'] === 'US Dollar') ? 1 : 0, // Set US Dollar as default
+                ];
+            }
+
+            if (!empty($default_currencies_to_insert)) {
+                Currency::insert($default_currencies_to_insert);
+            }
+        }
     }
+
     //---------------------------------------------------------------
 
     public function getListFromJson($json_file_name)
@@ -443,9 +488,13 @@ class SampleDataTableSeeder extends Seeder
 
             // Assign a random active store
             $stores = Store::where('is_active', 1)->pluck('id')->toArray();
-            if (!empty($stores)) {
-                $inputs['vh_st_store_id'] = $stores[array_rand($stores)];
+            $default_store = Store::where('is_default', 1)->value('id');
+
+            if (!empty($stores) && $default_store) {
+                // 90% chance to pick the default store
+                $inputs['vh_st_store_id'] = (rand(1, 100) <= 90) ? $default_store : $stores[array_rand($stores)];
             }
+
 
             //Assign or create a brand
             $image_url = $product['brand']['src'] ?? $product['defaultImage']['secureSrc'] ?? null;
@@ -659,17 +708,22 @@ class SampleDataTableSeeder extends Seeder
 
         for ($i = 0; $i < 100; $i++) {
             // Fetch a random store that has active products
-            $store = Store::whereHas('products', function ($query) {
-                $query->where('is_active', 1);
-            })->inRandomOrder()->first();
+            $store = Store::where('is_default', 1)
+                ->first();
 
+//            dd($store);
             if (!$store) {
                 // If no store is found, continue to the next iteration
                 continue;
             }
 
             // Fetch random active product IDs from the store
-            $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
+//            $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
+            $product_ids = Product::where('vh_st_store_id', $store->id)
+                ->where('is_active', 1)
+                ->pluck('id')
+                ->toArray();
+//            dd($product_ids);
             if (empty($product_ids)) {
                 continue; // If no products, skip this iteration
             }
@@ -708,14 +762,22 @@ class SampleDataTableSeeder extends Seeder
     public function seedVendors()
     {
         $faker = Faker::create();
-        $store_ids = Store::pluck('id')->toArray();
+        $default_store_id = Store::where('is_default', 1)->value('id');
+
+        // Get all store IDs (excluding default store for the 10% cases)
+        $store_ids = Store::where('is_active', 1)->pluck('id')->toArray();
         $active_user = auth()->user();
         $statuses = Taxonomy::getTaxonomyByType('vendor-status')->pluck('id')->toArray();
 
         for ($i = 0; $i < 50; $i++) {
             $item = new Vendor;
             $item->name =$faker->name;
-            $item->vh_st_store_id = $store_ids ? $store_ids[array_rand($store_ids)] : null;
+            if (rand(1, 100) <= 90) {
+                $item->vh_st_store_id = $default_store_id;
+            } else {
+                // 10% chance, assign to a random store
+                $item->vh_st_store_id = $store_ids[array_rand($store_ids)];
+            }
 
             $item->owned_by = $active_user->id;
             $item->registered_at = null;

@@ -837,7 +837,7 @@ class Product extends VaahModel
         }
 
         $relationships = [
-            'brand', 'store', 'type',
+            'brand', 'store.defaultCurrency', 'type',
             'productMedias.images:id,vh_st_product_media_id,url',
             'status', 'productVendors', 'productCategories'
         ];
@@ -901,7 +901,7 @@ class Product extends VaahModel
 
 // **Filter products by ID if `ids` is provided**
         if ($request->has('ids')) {
-            $ids = json_decode($request->ids, true); 
+            $ids = json_decode($request->ids, true);
 
             if (is_array($ids) && !empty($ids)) {
                 $list->whereIn('id', $ids);

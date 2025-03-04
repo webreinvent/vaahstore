@@ -125,7 +125,12 @@ class Store extends VaahModel
             ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
                 'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
     }
-
+    public function defaultCurrency(){
+        return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
+            ->where('is_default', 1)
+            ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
+                'vh_st_currencies.code','vh_st_currencies.symbol']);
+    }
     //-------------------------------------------------
     public function lingualData(){
         return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')
@@ -946,7 +951,7 @@ class Store extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesData', 'lingualData'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesData', 'lingualData','defaultCurrency'])
             ->withTrashed()
             ->first();
 

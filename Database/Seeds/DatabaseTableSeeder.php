@@ -5,7 +5,11 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\Currency;
+use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
+use WebReinvent\VaahCms\Models\Taxonomy;
+require_once base_path('VaahCms/Modules/Store/Helpers/currencies.php');
 
 class DatabaseTableSeeder extends Seeder
 {
@@ -32,13 +36,59 @@ class DatabaseTableSeeder extends Seeder
         $this->seedLanguages();
         $this->seedLanguageCategories();
         $this->seedLanguageStrings();
+        $this->seedDefaultStore();
 
 
         $seeder = new SettingTableSeeder();
         $seeder->run();
 
     }
+    public function seedDefaultStore()
+    {
+        $item = Store::where('is_default', 1)->first();
+        if(!$item){
+            $status = Taxonomy::where('slug', 'approved')
+                ->whereHas('type', function ($query) {
+                    $query->where('slug', 'store-status');
+                })
+                ->first();
 
+
+            $item = new Store;
+            $item->name = 'Default Store';
+            $item->is_multi_currency  = 1;
+            $item->is_multi_lingual  = 1;
+            $item->is_multi_vendor  = 1;
+            $item->is_default = 1;
+            $item->taxonomy_id_store_status = $status['id'];
+            $item->status_notes = 'Default store Status';
+            $item->is_active = 1;
+            $item->slug = Str::slug('Default');
+            $item->save();
+            $currencies = vh_st_get_country_currencies();
+
+            $filtered_currencies = array_values(array_filter($currencies, function ($currency) {
+                return in_array($currency['name'], ['US Dollar', 'Indian Rupee']);
+            }));
+            if ($item->is_multi_currency && count($currencies) > 1) {
+                $currencies_to_insert = [];
+
+                foreach ($filtered_currencies as $currency) {
+                    $currencies_to_insert[] = [
+                        'vh_st_store_id' => $item->id,
+                        'name' => $currency['name'],
+                        'is_active' => 1,
+                        'is_default' => ($currency['name'] === 'US Dollar') ? 1 : 0,
+                    ];
+                }
+
+                if (!empty($currencies_to_insert)) {
+                    Currency::insert($currencies_to_insert);
+                }
+            }
+        }
+
+    }
     //--------------------------------------------------------------
 
     public function getListFromJson($json_file_name)
@@ -170,4 +220,6 @@ class DatabaseTableSeeder extends Seeder
         }
 
     }
+
+
 }
