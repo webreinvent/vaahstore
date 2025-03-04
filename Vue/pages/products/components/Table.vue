@@ -35,13 +35,12 @@ const openProductCategories = (categories,product) => {
 
     <div v-if="store.list" class="data-container" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
-         <DataTable :value="store.list.data"
+         <DataTable  :value="store.list.data"
                        dataKey="id"
                     :rowClass="(rowData) => rowData.id === store.item?.id ? 'bg-yellow-100' : ''"
 
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
-                   stripedRows
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
@@ -104,7 +103,7 @@ const openProductCategories = (categories,product) => {
 
              <Column field="vendors" header="Vendors" :sortable="false">
                  <template #body="prop">
-                     <div class="p-inputgroup">
+                     <div class="p-inputgroup    ">
             <span class="p-inputgroup-addon cursor-pointer"
                   v-tooltip.top="'View Vendors'"
                   @click="store.openVendorsPanel(prop.data)">
@@ -115,7 +114,7 @@ const openProductCategories = (categories,product) => {
                     {{ prop.data ? prop.data.product_vendors.length : 0 }}
                 </b>
             </span>
-                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                         <Button  icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Vendors'"
                                  :disabled="prop.data && prop.data.id === store.item?.id && $route.path.includes('vendor')"
                                  @click="store.toVendor(prop.data)" />
@@ -129,12 +128,12 @@ const openProductCategories = (categories,product) => {
 
                  <template #body="prop">
 
-                     <Badge v-if="prop.data.status.slug == 'approved'"
+                     <Badge unstyled="true" class="!text-green-500 bg-[#0E9F6E1A]" v-if="prop.data.status.slug == 'approved'"
                             severity="success"
                      >{{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
+                     <Badge class="!text-red-500 bg-[#E02424] " v-else-if="prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
+                     <Badge v-else class="!text-yellow-500 bg-[##E3A0081A]"
                             severity="warn"> {{prop.data.status.name}} </Badge>
                  </template>
 
