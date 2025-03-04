@@ -14,6 +14,7 @@ import { useShipmentStore } from "../../stores/store-shipments";
 import { useWarehouseStore } from "../../stores/store-warehouses";
 import { usePaymentStore } from "../../stores/store-payments";
 import { useProductStockStore } from "../../stores/store-productstocks";
+import { useDashboardStore } from "../../stores/store-dashboard";
 import VendorSale from "../../components/VendorSale.vue";
 
 const orders_store = useOrderStore();
@@ -24,6 +25,7 @@ const warehouse_store = useWarehouseStore();
 const payment_store = usePaymentStore();
 const product_stock_store = useProductStockStore();
 const root = useRootStore();
+const store = useDashboardStore();
 const route = useRoute();
 const base_url = ref('');
 const formattedDateRange = computed(() => {
@@ -50,6 +52,7 @@ onMounted(async () => {
     await product_store.topSellingBrands();
     await product_store.topSellingCategories();
     await customers_store.fetchCustomerCountChartData();
+    await store.getAssets();
 
     const formatCurrency = (value) => {
         if (value == null) return 'Loading...';
@@ -120,13 +123,28 @@ const toggleQuickFilterState = (event) => {
 };
 const metrics = ref([]);
 
+
 </script>
 <template>
     <div class="flex-grow-1  border-round-xl has-background-white mb-3 p-3 surface-ground">
-        <h4 class="text-lg">
-            Selected Date Range:{{ formattedDateRange }}
-        </h4>
-        <h6 class="text-sm">Note : For Change the Date Range Navigate to Store>Settings</h6>
+       <div class="flex justify-content-between">
+           <div>
+               <h4 class="text-lg">
+                   Selected Date Range:{{ formattedDateRange }}
+               </h4>
+               <h6 class="text-sm">Note : For Change the Date Range Navigate to Store>Settings</h6>
+           </div>
+
+           <div v-if="root.assets && root.assets.stores && root.assets.stores.active_stores" >
+<!--               <AutoComplete-->
+<!--                   v-model="value"-->
+<!--                   :suggestions="suggestions"-->
+<!--                   optionLabel="name"-->
+<!--                   @complete="searchStore"-->
+<!--                   dropdown-->
+<!--               />-->
+           </div>
+       </div>
     </div>
     <div class=" mb-3 mt-1">
 
@@ -181,7 +199,7 @@ const metrics = ref([]);
                                     :icon="orders_store.chart_series?.growth_rate <= 0 ? 'mdi-light:arrow-down' : 'mdi-light:arrow-up'"
                                     :class="orders_store.chart_series?.growth_rate <= 0 ? 'text-danger-500' : 'text-success-500'"
                                     width="20" height="20"></Icon>
-                            
+
                                 <span
                                     :style="{ fontWeight: '400', color: orders_store.chart_series.growth_rate <= 0 ? 'red' : '#5acc81', fontSize: orders_store.show_filters ? '10px' : '12px' }">
                                     {{ orders_store.chart_series.growth_rate.toLocaleString('en-US') }}%
@@ -224,7 +242,7 @@ const metrics = ref([]);
                                 :icon="orders_store.order_payments_chart_series?.income_growth_rate <= 0 ? 'mdi-light:arrow-down' : 'mdi-light:arrow-up'"
                                 :class="orders_store.order_payments_chart_series?.income_growth_rate <= 0 ? 'text-danger-500' : 'text-success-500'"
                                 width="20" height="20"></Icon>
-                            
+
                             <span
                                 :style="{ fontWeight: '400', color: orders_store.order_payments_chart_series?.income_growth_rate <= 0 ? 'red' : '#5acc81', fontSize: orders_store.show_filters ? '10px' : '12px' }">
                                 {{
