@@ -7,7 +7,7 @@ import Aura from '@primeuix/themes/aura';
 import VueApexCharts from 'vue3-apexcharts';
 
 import '@/index.css'
-    
+
 
 //-------------PrimeVue Imports
 import BadgeDirective from "primevue/badgedirective";
@@ -93,6 +93,21 @@ const vaahstore = definePreset(Aura, {
 //-------------PrimeVue Use
 app.use(PrimeVue, {
     pt: {
+        datatable:{
+            tableContainer:{
+
+            },
+        },
+        button:{
+            root:{
+                class:"!bg-gray-100 !border-gray-200 text-gray-500 rounded-lg border p-1 hover:bg-gray-200"
+            }
+        },
+        badge: {
+            root:{
+                class:"py-1 px-2 font-bold rounded-full text-[8px] leading-4"
+            }
+        },
         card: {
             root: {class: '!shadow-card bg-gray-50'},
             body: { class: 'px-2 pt-3 pb-0 gap-0' },
