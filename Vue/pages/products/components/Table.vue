@@ -59,10 +59,10 @@ const openProductCategories = (categories,product) => {
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-if="prop.data.is_default">
-                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                        <div  style="word-break: break-word;">{{ prop.data.name }}</div>
                          </span>
                     <span v-else>
-                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                        <div class=" text-xs" style="word-break: break-word;">{{ prop.data.name }}</div>
                     </span>
                 </template>
 
@@ -85,10 +85,10 @@ const openProductCategories = (categories,product) => {
              <Column field="quantity" header="Quantity" v-if="store.isListView()" :sortable="true">
                  <template #body="prop">
                      <template v-if="prop.data && prop.data.product_price_range">
-                         <p v-if="prop.data.product_price_range.quantity"
+                         <p class="text-center" v-if="prop.data.product_price_range.quantity"
 
                                 >{{prop.data.product_price_range.quantity}}</p>
-                         <p v-else-if="prop.data.quantity == 0 || prop.data.quantity === null"
+                         <p class="text-center" v-else-if="prop.data.quantity == 0 || prop.data.quantity === null"
 
                          >0</p>
                          <Badge v-else
@@ -103,8 +103,8 @@ const openProductCategories = (categories,product) => {
 
              <Column field="vendors" header="Vendors" :sortable="false">
                  <template #body="prop">
-                     <div class="p-inputgroup gap-2 justify-end border p-1 rounded-lg  ">
-            <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer"
+                     <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-8">
+            <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                   v-tooltip.top="'View Vendors'"
                   @click="store.openVendorsPanel(prop.data)">
                 <b v-if="prop.data && prop.data.is_attached_default_vendor === false">
@@ -114,7 +114,7 @@ const openProductCategories = (categories,product) => {
                     {{ prop.data ? prop.data.product_vendors.length : 0 }}
                 </b>
             </span>
-                         <Button :pt="{ icon: { class: 'text-xs' } }"  icon="pi pi-plus" class=" !border-none px-2  !rounded-lg" severity="info" v-if="!prop.data.deleted_at"
+                         <Button :pt="{ icon: { class: '!text-[8px]' } }"  icon="pi pi-plus" class="quantity-button !rounded" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Vendors'"
                                  :disabled="prop.data && prop.data.id === store.item?.id && $route.path.includes('vendor')"
                                  @click="store.toVendor(prop.data)" />
@@ -168,33 +168,26 @@ const openProductCategories = (categories,product) => {
                      :sortable="false">
 
                  <template #body="prop">
-                     <div class="p-inputgroup gap-2 justify-end border p-1 rounded-lg">
-                         <span   v-if="prop.data.product_variations_count && prop.data.product_variations_count!= null"
-                                class="p-inputgroup-addon cursor-pointer border-none py-1 bg-transparent"
-                                v-tooltip.top="'View Variations'"
-                                @click="store.toViewVariation(prop.data)">
-
-                             <b>{{prop.data.product_variations_count}}</b>
-
-                         </span>
-                         <span class="p-inputgroup-addon" v-else>
-                             <b>{{prop.data.product_variations_count}}</b>
-                         </span>
-                         <Button :pt="{ icon: { class: 'text-xs' } }" class=" !border-none px-2  !rounded-lg" icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                     <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-8">
+            <span v-if="prop.data.product_variations_count && prop.data.product_variations_count!= null" class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
+                  v-tooltip.top="'View Variations'"
+                  @click="store.toViewVariation(prop.data)">
+               <b>{{prop.data.product_variations_count}}</b>
+            </span>
+                         <Button :pt="{ icon: { class: '!text-[8px]' } }"  icon="pi pi-plus" class="quantity-button !rounded" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Variations'"
                                  :disabled="prop.data.id===store.item?.id && $route.path.includes('variation')"
                                  @click="store.toVariation(prop.data)" />
                      </div>
-
                  </template>
              </Column>
 
              <Column field="product_categories.name" header="Categories">
                  <template #body="prop">
-                     <div class="p-inputgroup">
-                        <span v-if="prop.data.product_categories && prop.data.product_categories.length" class="p-inputgroup-addon cursor-pointer"
+                     <div class="p-inputgroup justify-center">
+                        <span v-if="prop.data.product_categories && prop.data.product_categories.length" class=""
                               @click="openProductCategories(prop.data.product_categories,prop.data.name)" v-tooltip.top="'View Categories'">
-                              <Badge >{{prop.data.product_categories.length}}</Badge>
+                              <p>{{prop.data.product_categories.length}}</p>
                         </span>
                          <span class="p-inputgroup-addon" v-else>
                              <Badge severity="info">0</Badge>
