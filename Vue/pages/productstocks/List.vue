@@ -305,7 +305,7 @@ const toggleCreateMenu = (event) => {
 
                                                 </InputGroup>
 
-                </template>
+                </template> 
 
                 <Actions/>
 
