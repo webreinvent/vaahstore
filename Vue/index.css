@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.icon-button {
+    background: transparent !important;
+    border: none !important;
+
+}
+
