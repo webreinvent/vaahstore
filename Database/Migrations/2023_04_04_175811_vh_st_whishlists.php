@@ -18,6 +18,9 @@ class VhStwhishlists extends Migration
             Schema::create('vh_st_whishlists', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
+                $table->string('name')->nullable()->index();
+                $table->string('slug')->nullable()->index();
+                $table->boolean('type')->nullable()->index();
                 $table->integer('vh_user_id')->nullable()->index();
                 $table->integer('taxonomy_id_whishlists_status')->nullable()->index();
                 $table->integer('taxonomy_id_whishlists_types')->nullable()->index();

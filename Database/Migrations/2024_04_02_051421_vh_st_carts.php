@@ -18,6 +18,7 @@ class VhStcarts extends Migration
             Schema::create('vh_st_carts', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
+                $table->integer('vh_st_user_id')->nullable()->index();
 
                 $table->string('name')->nullable()->index();
                 $table->string('slug')->nullable()->index();
