@@ -23,6 +23,10 @@ class VhStBrands extends Migration
 
             $table->string('name')->nullable()->index();
             $table->string('slug')->nullable()->index();
+            $table->string('image')->nullable()->index();
+            $table->string('meta_title')->nullable()->index();
+            $table->text('meta_description')->nullable();
+            $table->text('meta_keywords')->nullable();
 
             $table->dateTime('registered_at')->nullable();
 
