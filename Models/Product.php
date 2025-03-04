@@ -837,7 +837,7 @@ class Product extends VaahModel
         }
 
         $relationships = [
-            'brand', 'store.defaultCurrency', 'type',
+            'brand', 'store.currencies', 'type',
             'productMedias.images:id,vh_st_product_media_id,url',
             'status', 'productVendors', 'productCategories'
         ];
@@ -932,6 +932,11 @@ class Product extends VaahModel
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
+            if ($item->store && $item->store->currencies) {
+                $item->store->default_currency = $item->store->currencies
+                        ->where('is_default', 1)
+                        ->first() ?? $item->store->currencies->first();
+            }
 
             $all_grouped_attributes = [];
             foreach ($item->productVariations as $variation) {

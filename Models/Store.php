@@ -133,10 +133,11 @@ class Store extends VaahModel
                 'vh_st_currencies.vh_st_store_id',
                 'vh_st_currencies.name',
                 'vh_st_currencies.code',
-                'vh_st_currencies.is_default',
-                'vh_st_currencies.symbol'
-            ])->withDefault();
+                'vh_st_currencies.symbol',
+                'vh_st_currencies.is_default'
+            ]);
     }
+
 
     //-------------------------------------------------
     public function lingualData(){
@@ -969,10 +970,9 @@ class Store extends VaahModel
             return $response;
         }
 
-        $item->default_currency = null;
-        $item->currencies = [];
 
 
+//        dd($item->default_currency);
         $item->default_language = null;
         $item->languages = [];
         if ($item->lingualData->isNotEmpty()){
@@ -990,7 +990,9 @@ class Store extends VaahModel
             }
             $item->languages = $languages;
         }
-
+        if (!$item->default_currency) {
+            $item->defaultCurrency = $item->currencies->first() ?? null;
+        }
         $response['success'] = true;
         $response['data'] = $item;
 

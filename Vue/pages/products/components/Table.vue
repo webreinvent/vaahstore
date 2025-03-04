@@ -111,7 +111,7 @@ const openProductCategories = (categories,product) => {
             <span v-html="prop.data.store.default_currency?.symbol"></span>  {{ prop.data.product_price_range.price_range.join(' - ') }}
         </span>
                      <span v-else>
-            0
+            <span v-html="prop.data.store.default_currency?.symbol"></span> 0
         </span>
                  </template>
              </Column>
