@@ -14,7 +14,6 @@ import { useShipmentStore } from "../../stores/store-shipments";
 import { useWarehouseStore } from "../../stores/store-warehouses";
 import { usePaymentStore } from "../../stores/store-payments";
 import { useProductStockStore } from "../../stores/store-productstocks";
-import { useDashboardStore } from "../../stores/store-dashboard";
 import VendorSale from "../../components/VendorSale.vue";
 
 const orders_store = useOrderStore();
@@ -25,7 +24,6 @@ const warehouse_store = useWarehouseStore();
 const payment_store = usePaymentStore();
 const product_stock_store = useProductStockStore();
 const root = useRootStore();
-const store = useDashboardStore();
 const route = useRoute();
 const base_url = ref('');
 const formattedDateRange = computed(() => {
@@ -52,7 +50,7 @@ onMounted(async () => {
     await product_store.topSellingBrands();
     await product_store.topSellingCategories();
     await customers_store.fetchCustomerCountChartData();
-    await store.getAssets();
+
 
     const formatCurrency = (value) => {
         if (value == null) return 'Loading...';
