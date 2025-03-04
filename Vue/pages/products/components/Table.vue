@@ -103,8 +103,8 @@ const openProductCategories = (categories,product) => {
 
              <Column field="vendors" header="Vendors" :sortable="false">
                  <template #body="prop">
-                     <div class="p-inputgroup    ">
-            <span class="p-inputgroup-addon cursor-pointer"
+                     <div class="p-inputgroup gap-2 justify-end border p-1 rounded-lg  ">
+            <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer"
                   v-tooltip.top="'View Vendors'"
                   @click="store.openVendorsPanel(prop.data)">
                 <b v-if="prop.data && prop.data.is_attached_default_vendor === false">
@@ -114,7 +114,7 @@ const openProductCategories = (categories,product) => {
                     {{ prop.data ? prop.data.product_vendors.length : 0 }}
                 </b>
             </span>
-                         <Button  icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                         <Button :pt="{ icon: { class: 'text-xs' } }"  icon="pi pi-plus" class=" !border-none px-2  !rounded-lg" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Vendors'"
                                  :disabled="prop.data && prop.data.id === store.item?.id && $route.path.includes('vendor')"
                                  @click="store.toVendor(prop.data)" />
@@ -168,9 +168,9 @@ const openProductCategories = (categories,product) => {
                      :sortable="false">
 
                  <template #body="prop">
-                     <div class="p-inputgroup">
-                         <span  v-if="prop.data.product_variations_count && prop.data.product_variations_count!= null"
-                                class="p-inputgroup-addon cursor-pointer"
+                     <div class="p-inputgroup gap-2 justify-end border p-1 rounded-lg">
+                         <span   v-if="prop.data.product_variations_count && prop.data.product_variations_count!= null"
+                                class="p-inputgroup-addon cursor-pointer border-none py-1 bg-transparent"
                                 v-tooltip.top="'View Variations'"
                                 @click="store.toViewVariation(prop.data)">
 
@@ -180,7 +180,7 @@ const openProductCategories = (categories,product) => {
                          <span class="p-inputgroup-addon" v-else>
                              <b>{{prop.data.product_variations_count}}</b>
                          </span>
-                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                         <Button :pt="{ icon: { class: 'text-xs' } }" class=" !border-none px-2  !rounded-lg" icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Variations'"
                                  :disabled="prop.data.id===store.item?.id && $route.path.includes('variation')"
                                  @click="store.toVariation(prop.data)" />
@@ -226,15 +226,15 @@ const openProductCategories = (categories,product) => {
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-1  ">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny !bg-white !border-none p-button-text"
                                 data-testid="products-table-to-view"
                                 v-tooltip.top="'Add To Cart'"
                                 @click="store.addToCart(prop.data)"
                                 icon="pi pi-shopping-cart" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny icon-button p-button-text"
                                 data-testid="products-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
@@ -242,14 +242,14 @@ const openProductCategories = (categories,product) => {
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
-                                class="p-button-tiny p-button-text"
+                                class="p-button-tiny  p-button-text icon-button"
                                 data-testid="products-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny text-red-400 p-button-danger p-button-text icon-button"
                                 data-testid="products-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at &&
                                 store.assets.permissions.includes('can-update-module')"
@@ -258,7 +258,7 @@ const openProductCategories = (categories,product) => {
                                 icon="pi pi-trash" />
 
 
-                        <Button class="p-button-tiny p-button-success p-button-text"
+                        <Button class="p-button-tiny p-button-success p-button-text icon-button"
                                 data-testid="products-table-action-restore"
                                 v-if="store.isListView() && prop.data.deleted_at &&
                                  store.assets.permissions.includes('can-update-module')"
