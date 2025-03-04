@@ -129,12 +129,12 @@ const openProductCategories = (categories,product) => {
                  <template #body="prop">
 
                      <Badge unstyled="true" class="!text-green-500 bg-[#0E9F6E1A]" v-if="prop.data.status.slug == 'approved'"
-                            severity="success"
+
                      >{{prop.data.status.name}} </Badge>
-                     <Badge class="!text-red-500 bg-[#E02424] " v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else class="!text-yellow-500 bg-[##E3A0081A]"
-                            severity="warn"> {{prop.data.status.name}} </Badge>
+                     <Badge unstyled="true"  class="!text-red-500 bg-[#E02424]/10 "v-else-if="prop.data.status.slug == 'rejected'"
+                            > {{prop.data.status.name}} </Badge>
+                     <Badge unstyled="true"  v-else class="!text-yellow-500 bg-[##E3A0081A]/10"
+                            > {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
@@ -221,7 +221,7 @@ const openProductCategories = (categories,product) => {
                 <template #body="prop">
                     <div class="p-inputgroup gap-1  ">
 
-                        <Button class="p-button-tiny !bg-white !border-none p-button-text"
+                        <Button class="p-button-tiny icon-button p-button-text"
                                 data-testid="products-table-to-view"
                                 v-tooltip.top="'Add To Cart'"
                                 @click="store.addToCart(prop.data)"
