@@ -25,6 +25,7 @@ class VhStStores extends Migration
             $table->boolean('is_multi_currency')->nullable()->index();
             $table->boolean('is_multi_lingual')->nullable()->index();
             $table->boolean('is_multi_vendor')->nullable()->index();
+            $table->string('allowed_ips')->change();
             $table->json('allowed_ips')->nullable();
 
             $table->string('status_notes')->nullable();
