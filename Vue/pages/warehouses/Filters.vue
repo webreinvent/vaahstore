@@ -38,7 +38,8 @@ const root = useRootStore();
                           :manualInput="false"
                           class="w-full"
                           append-to="self"
-                          placeholder="Choose Date Range"/>
+                          placeholder="Choose Date Range"
+                            showIcon/>
 
             </VhFieldVertical >
         <Divider/>

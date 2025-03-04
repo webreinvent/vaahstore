@@ -1445,7 +1445,6 @@ export const useShipmentStore = defineStore({
             const updatedChartOptions = {
                 chart: {
                     type: "line",
-                    background: "#fff",
                     toolbar: { show: false }
                 },
                 stroke: {
@@ -1468,8 +1467,8 @@ export const useShipmentStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
@@ -1554,36 +1553,30 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------------------------
         ordersShipmentItemsByDateRangeAfter(data,res){
-            const series_data = data.chart_series.map(series => ({
-                name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
-            }));
+            const series_data = [
+                {
+                    name: "Pending Shipment Quantity",
+                    data: data.chart_series[0].data,
+                },
+                {
+                    name: "Total Shipped Quantity",
+                    data: data.chart_series[1].data,
+                }
+            ];
 
             this.updateShipmentItemsChartSeries(series_data);
 
             const updated_area_chart_options = {
                 ...data.chart_options,
-                stroke: { curve: 'smooth', width: 4 },
+                stroke: { curve: 'smooth', width: 3 },
                 title: {
-                    text: 'Quantity Shipped Over Date Range',
+                    text: 'Shipment Quantities Over Date Range',
                     align: 'center',
-                    offsetY: 12,
+                    offsetY: 10,
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
                         color: '#263238'
-                    }
-                },
-                noData: {
-                    text: 'Oops! No Data Available',
-                    align: 'center',
-                    verticalAlign: 'middle',
-                    offsetX: 0,
-                    offsetY: 0,
-                    style: {
-                        color: '#FF0000',
-                        fontSize: '14px',
-                        fontFamily: undefined
                     }
                 },
                 chart: {
@@ -1591,38 +1584,50 @@ export const useShipmentStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#ffffff',
 
-                },
-                yaxis: {
-                    labels: {
-                        show: false,
-                    },
                 },
                 xaxis: {
                     labels: {
                         show: false,
                     },
                 },
+                yaxis: [
+                    {
+                        title: { text: "Pending Shipment Quantity" },
+                        labels: {
+                            formatter: (value) => value.toFixed(0),
+                        },
+                        min: Math.min(...data.chart_series[0].data.map(d => d.y)) - 10, // Dynamic min
+                        max: Math.max(...data.chart_series[0].data.map(d => d.y)) + 10, // Dynamic max
+                    },
+                    {
+                        opposite: true, // Place on the right side
+                        title: { text: "Total Shipped Quantity" },
+                        labels: {
+                            formatter: (value) => value.toFixed(0),
+                        },
+                        min: Math.min(...data.chart_series[1].data.map(d => d.y)) - 5,
+                        max: Math.max(...data.chart_series[1].data.map(d => d.y)) + 5,
+                    }
+                ],
                 legend: {
                     show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
-                    floating: false,
                     fontSize: '11px',
                 },
-
-                dataLabels: {
-                    enabled: false,
-                },
+                dataLabels: { enabled: false },
                 tooltip: {
                     enabled: true,
                     shared: true,
-                    style: { fontSize: '14px' },
-                },
-                grid: {
-                    show: false,
+                    y: {
+                        formatter: function (value) {
+                            return value.toLocaleString();
+                        }
+                    }
                 }
+,
+                grid: { show: false }
             };
 
             this.updateShipmentItemsChartOptions(updated_area_chart_options);
@@ -1672,7 +1677,6 @@ export const useShipmentStore = defineStore({
             const updated_bar_chart_options = {
                 ...data.chart_options, // Merge existing options
                 chart: {
-                    background: '#ffffff',
                     toolbar: {
                         show: false,
                     },
@@ -1727,8 +1731,8 @@ export const useShipmentStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238',
                     },
                 },

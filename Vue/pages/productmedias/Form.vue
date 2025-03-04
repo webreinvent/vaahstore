@@ -169,6 +169,7 @@ const toggleFormMenu = (event) => {
                         v-model="store.item.product_variation"
                         optionLabel="name"
                         multiple
+                        :dropdown="true"
                         :complete-on-focus = "true"
                         :pt="{
                                               token: {
@@ -239,7 +240,8 @@ const toggleFormMenu = (event) => {
                     </FileUpload>
                 </VhField>
                 <VhField label="Alt Text">
-                    <InputText class="w-full" v-model="store.item.name" data-testid="media_name" />
+                    <InputText class="w-full" placeholder="Enter Alternate Text"
+                               v-model="store.item.name" data-testid="media_name" />
                 </VhField>
                 <div v-if="store.item.images && store.item.images.length > 0">
                     <VhField label="Media Type" >

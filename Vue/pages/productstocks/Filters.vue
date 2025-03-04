@@ -60,6 +60,7 @@ const root = useRootStore();
                               @change = "store.addSelectedVendor()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.vendors_suggestion"
                               @complete="store.searchVendors($event)"
@@ -93,6 +94,7 @@ const root = useRootStore();
                               @change = "store.addSelectedProduct()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.products_suggestion"
                               @complete="store.searchProduct($event)"
@@ -126,6 +128,7 @@ const root = useRootStore();
                               @change = "store.addSelectedVariation()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.product_variations_suggestion"
                               @complete="store.searchVariations($event)"
@@ -160,6 +163,7 @@ const root = useRootStore();
                               @change = "store.addSelectedWarehouse()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.warehouses_suggestion"
                               @complete="store.searchWarehouses($event)"
@@ -192,7 +196,7 @@ const root = useRootStore();
                           @date-select="store.setDateRange"
                           :manualInput="false"
                           class="w-full"
-                          append-to="self"
+                            showIcon
                           placeholder="Choose Date Range"/>
 
             </VhFieldVertical >

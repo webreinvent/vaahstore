@@ -66,6 +66,7 @@ const store = useBrandStore();
                           placeholder="Choose Date Range"
                           append-to="self"
                           class="w-full"
+                            showIcon
                           :manualInput="false"/>
 
             </VhFieldVertical >

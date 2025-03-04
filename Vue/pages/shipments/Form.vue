@@ -276,7 +276,7 @@ const openShippingQuantityModal = (shipment_id,product,shipped_item_id) => {
                                         <div v-else-if="store.item.id">
                                             <Button v-if="prop.data.exists_in_shipment !== false" class="p-button-tiny p-button-text"
                                                     data-testid="shipments-table-to-view"
-                                                    v-tooltip.top="'View'"
+                                                    v-tooltip.top="'View & Edit'"
                                                     @click="openShippingQuantityModal(store.item.id,prop.data.name,prop.data.id)"
                                                     icon="pi pi-pencil" />
                                         </div>

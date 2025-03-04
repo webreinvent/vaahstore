@@ -1,12 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useCustomerGroupStore } from '../../stores/store-customergroups'
+import { useRootStore } from '@/stores/root.js'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useCustomerGroupStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -28,9 +30,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -133,25 +133,27 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="Name*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
-                               placeholder="Enter a Name"
                                name="customergroups-name"
                                data-testid="customergroups-name"
                                @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
-                </VhField>
+                    <label for="customergroups-name">Name <span class="text-red-500">*</span></label>
 
-                <VhField label="Slug*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="customergroups-slug"
-                               placeholder="Enter a Slug"
                                data-testid="customergroups-slug"
                                v-model="store.item.slug"/>
-                </VhField>
+                    <label for="customergroups-slug">Slug <span class="text-red-500">*</span></label>
+
+                </FloatLabel>
 
 
-                <VhField label="Customers*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete
                         name="customergroups-customer-filter"
                         data-testid="customergroups-customer-filter"
@@ -174,13 +176,14 @@ const toggleFormMenu = (event) => {
                         :complete-on-focus = "true"
                         :suggestions="store.customer_suggestions"
                         @complete="store.searchCustomers($event)"
-                        placeholder="Select Customers"
                         class="w-full">
                     </AutoComplete>
-                </VhField>
+                    <label for="customergroups-customer">Select Customers <span class="text-red-500">*</span></label>
+
+                </FloatLabel>
 
 
-                <VhField label="Status*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete
                         v-model="store.item.status"
                         @change="store.setStatus($event)"
@@ -189,24 +192,25 @@ const toggleFormMenu = (event) => {
                         name="customergroups-status"
                         :suggestions="store.status_suggestion"
                         @complete="store.searchStatus($event)"
-                        placeholder="Select Status"
                         :dropdown="true" optionLabel="name"
                         data-testid="customergroups-status"
                         forceSelection>
                     </AutoComplete>
-                </VhField>
+                    <label for="customergroups-status">Select Status <span class="text-red-500">*</span></label>
 
-                <VhField label="Status Notes">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Textarea rows="3" class="w-full"
-                              placeholder="Enter a Status Note"
                               name="customergroups-status_notes"
                               data-testid="customergroups-status_notes"
                               v-model="store.item.status_notes"/>
-                </VhField>
+                    <label for="customergroups-status_notes">Enter a Status Note  <span class="text-red-500">*</span></label>
+
+                </FloatLabel>
 
             </div>
         </Panel>
 
-    </div>
 
 </template>

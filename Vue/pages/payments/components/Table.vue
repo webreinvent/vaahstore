@@ -80,7 +80,10 @@ const useVaah = vaah();
                          <Badge v-if="prop.data.status.slug == 'success'" severity="success">
                              {{prop.data.status.name}}
                          </Badge>
-                         <Badge v-else severity="primary">
+                         <Badge v-else-if="prop.data.status.slug == 'pending'" severity="warn">
+                             {{prop.data.status.name}}
+                         </Badge>
+                         <Badge v-else severity="danger">
                              {{prop.data.status.name}}
                          </Badge>
                      </template>

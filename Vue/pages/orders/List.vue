@@ -199,7 +199,7 @@ const toggleCreateMenu = (event) => {
                                                     type="area"
                                                     :chartOptions="store.sales_chart_options"
                                                     :chartSeries="store.sales_chart_series"
-                                                    height=200 width=300
+                                                    height=200 width=350
                                                     titleAlign="center"
 
 
@@ -276,7 +276,7 @@ const toggleCreateMenu = (event) => {
                                                     type="area"
                                                     :chartOptions="store.order_payments_income_chart_options"
                                                     :chartSeries="store.order_payments_income_chart_series"
-                                                    height=200 width=300
+                                                    height=200 width=350
                                                     titleAlign="center"
 
 
@@ -323,11 +323,7 @@ const toggleCreateMenu = (event) => {
 
                     <div class="p-inputgroup">
 
-                        <div class="flex justify-content-end " v-if=" store.isListView()">
 
-
-
-                        </div>
                         <Button data-testid="orders-list-reload"
                                 class="p-button-sm"
                                 @click="store.getList()">

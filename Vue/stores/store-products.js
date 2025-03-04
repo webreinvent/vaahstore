@@ -2758,7 +2758,7 @@ export const useProductStore = defineStore({
         async toggleIsPreferred(vendor_item)
         {
 
-            const action = vendor_item.is_preferred ? 'preferred' : 'not-preferred';
+            const action = vendor_item.is_preferred ? 'not-preferred' : 'preferred';
             await this.vendorPreferredAction(action, vendor_item);
         },
         //---------------------------------------------------------------------

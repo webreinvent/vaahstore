@@ -47,6 +47,7 @@ const store = useAttributeGroupStore();
                               @change = "store.addAttributes()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.filtered_attributes"
                               @complete="store.searchAttributes"
@@ -71,7 +72,7 @@ const store = useAttributeGroupStore();
                           class="w-full"
                           append-to="self"
                           placeholder="Choose date range"
-
+                            showIcon
                 />
             </VhFieldVertical >
 

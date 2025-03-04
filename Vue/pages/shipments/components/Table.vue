@@ -78,7 +78,7 @@ const openLinkInNewTab = (url) => {
                             severity="success"> {{prop.data.status.name}} </Badge>
 
                      <Badge v-else class="min-w-max"
-                            severity="warning"> {{prop.data.status?.name}}</Badge>
+                            severity="warn"> {{prop.data.status?.name}}</Badge>
 
                  </template>
              </Column>

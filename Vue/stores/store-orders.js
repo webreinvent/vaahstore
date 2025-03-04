@@ -1166,18 +1166,15 @@ export const useOrderStore = defineStore({
                     text: 'Status Distribution',
                     align: 'left',
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },
-                },fill: {
-                    type: 'gradient',
                 },
                 noData: {
                     text: 'Oops! No Data Available',
@@ -1261,56 +1258,77 @@ export const useOrderStore = defineStore({
             if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
                 return;
             }
+
             this.chart_series = data.chart_series;
             this.overall_sales = data.chart_series?.overall_total_sales;
             this.growth_rate = data.chart_series?.growth_rate;
 
+            // Store original sales values for tooltip
+            const originalDataMap = new Map();
+            data.chart_series.orders_sales_chart_data.forEach(series => {
+                series.data.forEach(point => {
+                    originalDataMap.set(point.x, point.y); // Store exact values
+                });
+            });
+
+            // Smooth the chart data for visualization
+            const smoothData = (dataPoints, windowSize = 3) => {
+                return dataPoints.map((point, index, arr) => {
+                    const start = Math.max(0, index - windowSize + 1);
+                    const subset = arr.slice(start, index + 1);
+                    const avg = subset.reduce((sum, p) => sum + p.y, 0) / subset.length;
+                    return { x: point.x, y: avg, originalY: point.y }; // Store original y-value
+                });
+            };
 
             const series_data = data.chart_series.orders_sales_chart_data.map(series => ({
                 name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
+                data: smoothData(series.data),  // Apply smoothing
             }));
             this.updateSalesChartSeries(series_data);
+
+            // Detect negative growth
             const isNegativeGrowth = this.growth_rate < 0;
             const chartColor = isNegativeGrowth ? '#4e78e1' : '#4e78e1';
+
+            // Calculate Y-axis min/max for better scaling
+            const allValues = series_data.flatMap(s => s.data.map(d => d.y));
+            const minY = Math.min(...allValues) * 0.95; // Reduce 5% for better visualization
+            const maxY = Math.max(...allValues) * 1.05; // Increase 5% to avoid sharp deflection
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
                     width: 2,
-
                 },
                 title: {
                     text: '',
-
-                },fill: {
+                },
+                fill: {
                     type: ["gradient"],
                     gradient: {
-                        shadeIntensity: 0,
-                        opacityFrom: 0.5,
-                        opacityTo: 0.05,
-                        stops: [0, 80, 100]
+                        shadeIntensity: 0.2,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.1,
+                        stops: [0, 80, 100],
                     }
                 },
-                colors: ['#008FFB'],
+                colors: [chartColor],
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
-                    offsetX: 0,
-                    offsetY: 0,
                     style: {
                         color: '#476baf',
                         fontSize: '14px',
-                        fontFamily: undefined
                     }
                 },
                 xaxis: {
                     type: 'datetime',
-
                     labels: {
                         show: false,
+                        format: 'dd MMM',
                     },
                     axisBorder: {
                         show: false,
@@ -1320,6 +1338,8 @@ export const useOrderStore = defineStore({
                     }
                 },
                 yaxis: {
+                    min: minY,
+                    max: maxY,
                     labels: {
                         show: false,
                     },
@@ -1327,60 +1347,32 @@ export const useOrderStore = defineStore({
                         show: false,
                     },
                 },
+
                 tooltip: {
-                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
-                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
-                        const value = series[seriesIndex][dataPointIndex] ?? 0;
-                        const formattedValue = value >= 1000 ? (value / 1000).toFixed(2) + 'k' : value;
+                    x: {
+                        format: 'dd MMM yyyy',
+                    },
+                    y: {
+                        formatter: function (value, { dataPointIndex, w }) {
+                            const xValue = w.globals.seriesX[0][dataPointIndex]; // Get X (date)
+                            const exactSale = originalDataMap.get(xValue) || value; // Get exact Y value
 
-                        return `<div style="
-                                background: #fff; padding: 10px; border-radius: 50%;
-                                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
-                                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05);">
-                                <strong style="color: #333; font-size: 14px;">${date}</strong>
-                                <div style="font-size: 14px; color: ${chartColor};">Sale: <strong>&#8377;${formattedValue}</strong></div>
-                            </div>`;
+                            const formattedValue = exactSale >= 1000
+                                ? (exactSale / 1000).toFixed(2) + 'k'
+                                : exactSale;
+
+                            return `&#8377;${formattedValue}`; 
+                        }
                     }
-                },
-
+                }
+                ,
 
                 chart: {
-                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
-                    type:'area',
-                    // dropShadow: {
-                    //     enabled: true,
-                    //     color: '#000',
-                    //     top: 18,
-                    //     left: 7,
-                    //     blur: 20,
-                    //     opacity: 1
-                    // },
-                    // zoom: {
-                    //     type: 'x',
-                    //     enabled: true,
-                    //     autoScaleYaxis: true
-                    // },
-
+                    type: 'area',
                 },
-                // fill: {
-                //     type: 'gradient',
-                //     gradient: {
-                //         shadeIntensity: 1,
-                //         inverseColors: false,
-                //         opacityFrom: 1,
-                //         opacityTo: 0.9,
-                //         stops: [0, 90, 100]
-                //     },
-                // },
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-
                 dataLabels: {
                     enabled: false,
                 },
@@ -1390,13 +1382,9 @@ export const useOrderStore = defineStore({
                 legend: {
                     show: false
                 },
-
             };
 
             this.updateSalesChartOptions(updated_sales_chart_options);
-
-
-
         },
 
         //---------------------------------------------------
@@ -1510,7 +1498,6 @@ export const useOrderStore = defineStore({
                 },
 
                 chart: {
-                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
@@ -1634,7 +1621,6 @@ export const useOrderStore = defineStore({
                 ...data.chart_options,
                 chart: {
                     type: "line",
-                    background: '#f6f7f9',
                     toolbar: { show: false },
                 },
                 stroke: {

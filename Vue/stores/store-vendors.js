@@ -158,7 +158,7 @@ export const useVendorStore = defineStore({
                 return null;
             }
             if(state.view === 'list-and-item') {
-                return 'lg:w-full';
+                return 'lg:w-1/2';
             }
 
             if(state.view === 'list-and-filters') {
@@ -199,30 +199,15 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            // switch(route_name)
-            // {
-            //     case 'vendors.index':
-            //         this.view = 'large';
-            //         this.list_view_width = 12;
-            //         break;
-            //     case 'vendors.product':
-            //         this.view = 'small';
-            //         this.list_view_width = 6;
-            //         break;
-            //     default:
-            //         this.view = 'small';
-            //         this.list_view_width = 6;
-            //         break
-            // }
             this.view = 'list';
 
             if(route_name.includes('vendors.view')
-                || route_name.includes('vendors.form')
+                || route_name.includes('vendors.form') || route_name.includes('vendors.product')|| route_name.includes('vendors.role')
             ){
                 this.view = 'list-and-item';
             }
 
-            if(route_name.includes('vendors.filters') || route_name.includes('vendors.product') || route_name.includes('vendors.role')){
+            if(route_name.includes('vendors.filters')){
                 this.view = 'list-and-filters';
             }
 
@@ -248,7 +233,7 @@ export const useVendorStore = defineStore({
             //watch routes
             this.watch_stopper = watch(route, (newVal,oldVal) =>
                 {
-                    if(this.watch_stopper && !newVal.name.startsWith(this.route_prefix)){
+                    if(this.watch_stopper && !newVal.path.startsWith(this.route_prefix)){
                         this.watch_stopper();
 
                         return false;
@@ -1936,8 +1921,8 @@ export const useVendorStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
@@ -1946,7 +1931,6 @@ export const useVendorStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#f6f7f9',
 
                 },
 
@@ -1978,7 +1962,19 @@ export const useVendorStore = defineStore({
                 tooltip: {
                     shared: true,
 
-                }
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
             };
 
             this.updateChartOptions(updated_area_chart_options);

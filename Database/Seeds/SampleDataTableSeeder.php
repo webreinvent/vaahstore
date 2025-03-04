@@ -7,6 +7,8 @@ use Faker\Factory as Faker;
 use Faker\Provider\ar_SA\Payment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
 use VaahCms\Modules\Store\Models\Address;
@@ -280,7 +282,11 @@ class SampleDataTableSeeder extends Seeder
         $brands = $this->getListFromJson("brands.json");
         $statuses = Taxonomy::getTaxonomyByType('brand-status')->pluck('id')->toArray();
         $active_user = auth()->user();
-
+        $brand_status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'brand-status');
+            })
+            ->first();
         foreach ($brands as $brand_data) {
             $brand = new Brand;
             $existing_brand = Brand::where('slug', $brand_data['slug'])->first();
@@ -290,7 +296,7 @@ class SampleDataTableSeeder extends Seeder
                 'is_default' => ($brand_data['name'] === 'Brand A') ? 1 : 0,
                 'registered_by' => $active_user->id,
                 'approved_by' => $active_user->id,
-                'taxonomy_id_brand_status' => $statuses ? $statuses[array_rand($statuses)] : null,
+                'taxonomy_id_brand_status' => $brand_status['id'],
                 'status_notes' => $brand_data['status_notes'],
                 'is_active' => $brand_data['is_active'] ? 1 : 0,
                 'slug' => Str::slug($brand_data['slug']),
@@ -412,7 +418,16 @@ class SampleDataTableSeeder extends Seeder
         $products = json_decode($jsonString, true);
         $image_path= null;
 
-
+        $brand_status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'brand-status');
+            })
+            ->first();
+        $variation_status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'product-variation-status');
+            })
+            ->first();
         foreach ($products as $product) {
 
             $existing_product = Product::where('name', $product['name'])->first();
@@ -433,12 +448,28 @@ class SampleDataTableSeeder extends Seeder
             }
 
             //Assign or create a brand
+            $image_url = $product['brand']['src'] ?? $product['defaultImage']['secureSrc'] ?? null;
+            $brand_image = self::uploadBrandImage($product['brand']['name'], $image_url);
+
             $brand = Brand::firstOrCreate(
                 ['name' => $product['brand']['name']],
-                ['slug' => Str::slug($product['brand']['name'])]
+                [
+                    'slug' => Str::slug($product['brand']['name']),
+                    'is_active' => 1,
+                    'taxonomy_id_brand_status' => $brand_status['id'],
+                    'image' => $brand_image ?? 'default.png',
+                ]
             );
+            $category = Category::firstOrCreate(
+                ['name' => $product['analytics']['masterCategory']],
+                [
+                    'slug' => Str::slug($product['analytics']['masterCategory']),
+                    'is_active' => 1,
+                    'parent_id' => null
+                ]
+            );
+
             $inputs['vh_st_brand_id'] = $brand->id;
-            $random_category = Category::whereNull('parent_id') ->where('is_active', 1)->inRandomOrder()->first();
             // Assign a random product status
             $taxonomy_status = Taxonomy::where('name', 'Approved')
                 ->whereHas('type', function ($query) {
@@ -479,13 +510,23 @@ class SampleDataTableSeeder extends Seeder
 
             // Save the product
             $product = Product::create($inputs);
-            $product->productCategories()->attach($random_category->id, ['vh_st_product_id' => $product->id]);
+            $random_categories = Category::where('id', '!=', $category->id)
+                ->whereNull('parent_id')
+                ->where('is_active', 1)
+                ->inRandomOrder()
+                ->limit(1)
+                ->pluck('id');
+
+            if ($random_categories){
+                $category_ids = array_merge([$category->id], $random_categories->toArray());
+                $product->productCategories()->attach($category_ids, ['vh_st_product_id' => $product->id]);
+            }
             $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "./json/attributes.json";
             $jsonString = file_get_contents($json_file_variants);
             $attributes = json_decode($jsonString, true);
 
             // Create variations
-            self::createProductVariations($product, $attributes);
+            self::createProductVariations($product, $attributes,$variation_status['id']);
 
 
             $Product_media = new ProductMedia();
@@ -508,13 +549,39 @@ class SampleDataTableSeeder extends Seeder
             self::saveProductImages($Product_media, $inputs, $image_path);
         }
     }
+
+    public static function uploadBrandImage($brand_name, $image_url)
+    {
+        if (!empty($image_url)) {
+            $directory = public_path('image/uploads/brands');
+            $file_name = Str::slug($brand_name) . '.jpg'; // Static filename per brand (avoiding timestamp)
+
+            // Check if the brand image already exists
+            if (File::exists($directory . '/' . $file_name)) {
+                return $file_name; // Return existing image path
+            }
+
+            // Ensure the directory exists
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0777, true, true);
+            }
+
+            // Download the image and save it
+            $image_contents = Http::get($image_url)->body();
+            File::put($directory . '/' . $file_name, $image_contents);
+
+            return $file_name; // Save relative path in DB
+        }
+
+        return null;
+    }
     //---------------------------------------------------------------
 
-    public static function createProductVariations($product, $attributes)
+    public static function createProductVariations($product, $attributes,$status_id)
     {
         $faker = Factory::create();
 
-        $variation_attributes = ['color', 'size'];
+        $variation_attributes = ['color', 'gender'];
 
         $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
             return in_array($key, $variation_attributes);
@@ -542,7 +609,8 @@ class SampleDataTableSeeder extends Seeder
                 'name' => $variation_name,
                 'slug' => $variation_slug,
                 'quantity' => 0,
-                'price' => $faker->randomFloat(2, 10, 100),
+                'taxonomy_id_variation_status' => $status_id,
+                'price' => $faker->randomFloat(2, 20, 35),
                 'is_active' => 1,
             ]);
         }
@@ -739,10 +807,13 @@ class SampleDataTableSeeder extends Seeder
             })
             ->first();
 
+
         $valid_products = Product::whereHas('productVendors')
             ->with('productVariations', 'productVendors')
-            ->take(rand(1, 10))
-            ->get();
+            ->get()
+            ->shuffle()
+            ->take(rand(1, 10));
+
 
         $user_addresses = StoreUser::where('id', $order->vh_user_id)
             ->with('addresses')
@@ -1142,7 +1213,7 @@ class SampleDataTableSeeder extends Seeder
                         if ($order->user) {
                             $order->user_name = $order->user->username;
                             $order->payable_amount = $order->amount - $order->paid;
-                            $order->pay_amount = rand(0, $order->amount);
+                            $order->pay_amount = rand(20, 35);
 
                             $inputs['amount'] = $order->pay_amount;
 

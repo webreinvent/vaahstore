@@ -42,7 +42,6 @@ watchEffect(() => {
         store.order_filter_key= '';
     }
 });
-const selectedTabIndex = ref(route.query && route.query.filter && route.query.filter.order ? 1 : 0);
 
 </script>
 <template>
@@ -125,8 +124,15 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                     </div>
 
                 </Message>
-                <Tabs :activeIndex="selectedTabIndex">
-                    <TabPanel header="Payment Details">
+                <Tabs value="0" >
+
+                    <TabList>
+                        <Tab value="0">Payment Details</Tab>
+                        <Tab value="1">Orders Payment Details ({{ store.item?.order_payments?.length || 0 }})</Tab>
+
+                    </TabList>
+                    <TabPanels>
+                    <TabPanel value="0">
 
                         <Message severity="info" :closable="false" v-if="store.item.notes">
                             <pre style="font-family: Inter, ui-sans-serif, system-ui; word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.notes}}</pre>
@@ -254,7 +260,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                 </div>
                     </TabPanel>
-                    <TabPanel :header="`Orders Payment Details (${store.item?.order_payments?.length})`" >
+                    <TabPanel  value="1">
                         <InputText class="" v-model="store.order_filter_key" placeholder="Search By Order" />
                 <div class="mt-4" v-if="store.item && store.item.order_payments">
                 <DataTable :value="store.filteredOrders"
@@ -331,7 +337,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                   >&#8377;{{ prop.data.remaining_payable_amount }}</span>
                             <span class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
 
-                                   severity="warning">&#8377;{{prop.data.remaining_payable_amount}}</span>
+                                   severity="warn">&#8377;{{prop.data.remaining_payable_amount}}</span>
                             </div>
                         </template>
 
@@ -369,6 +375,8 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                 </DataTable>
                 </div>
                     </TabPanel>
+
+                    </TabPanels>
                 </Tabs>
             </div>
         </Panel>
