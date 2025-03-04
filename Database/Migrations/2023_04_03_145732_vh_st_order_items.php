@@ -28,6 +28,8 @@ class VhStorderitems extends Migration
                 $table->integer('vh_st_product_id')->nullable()->index();
                 $table->integer('vh_st_product_variation_id')->nullable()->index();
                 $table->integer('vh_st_vendor_id')->nullable()->index();
+                $table->integer('quantity')->nullable()->index();
+                $table->decimal('price', 10, 2)->nullable()->index();
 
                 $table->boolean('is_invoice_available')->nullable()->index();
 
