@@ -25,9 +25,15 @@ class VhStProducts extends Migration
 
             $table->string('name',255)->nullable()->index();
             $table->string('slug')->nullable()->index();
+            $table->string('summary')->nullable();
+            $table->text('details')->nullable();
 
             $table->bigInteger('quantity')->nullable()->index();
             $table->boolean('in_stock')->nullable()->index();
+            $table->dateTime('available_at')->nullable();
+            $table->dateTime('launch_at')->nullable();
+            $table->boolean('is_featured_on_home_page')->nullable()->index();
+            $table->boolean('is_featured_on_category_page')->nullable()->index();
 
             $table->boolean('is_active')->nullable()->index();
             $table->boolean('is_default')->default(0)->nullable()->index();
@@ -35,6 +41,9 @@ class VhStProducts extends Migration
 
             //----common fields
             $table->json('meta')->nullable();
+            $table->string('seo_title')->nullable()->index();
+            $table->text('seo_meta_description')->nullable();
+            $table->longText('seo_meta_keyword')->nullable();
             $table->integer('created_by')->nullable()->index();
             $table->integer('updated_by')->nullable()->index();
             $table->integer('deleted_by')->nullable()->index();
