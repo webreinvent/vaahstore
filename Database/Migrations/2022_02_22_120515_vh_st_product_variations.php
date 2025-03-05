@@ -31,7 +31,7 @@ class VhStProductVariations extends Migration
             $table->boolean('has_media')->nullable()->index();
             $table->boolean('is_active')->nullable()->index();
             $table->boolean('description')->nullable()->index();
-            $table->integer('price')->nullable()->index();
+            $table->decimal('price', 10, 2)->nullable()->index();
             $table->boolean('is_mail_sent')->nullable()->index();
             $table->dateTime('low_stock_at')->nullable()->index();
             $table->boolean('is_quantity_low')->nullable()->index();
