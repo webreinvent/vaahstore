@@ -350,11 +350,13 @@ const toggleQuickFilterState = (event) => {
                     </div>
                     <template #icons>
 
-                        <InputGroup>
+<!--                        <InputGroup>-->
+                        <div class=" gap-2 flex">
                             <Button
                                 size="small"
                                 data-testid="products-bulk_import"
                                 @click="store.toImport()">
+                                <Icon icon="oui:import" width="16" height="16"  style="color: #7b7a7a" />
                                 Bulk Import
                             </Button
         >
@@ -362,14 +364,14 @@ const toggleQuickFilterState = (event) => {
                                     size="small"
                                     :disabled="!store.assets.permissions.includes('can-update-module')"
                                     @click="store.toForm()">
-                                <i class="pi pi-plus mr-1"></i>
+                                <Icon icon="mdi-light:plus" width="20" height="20"  style="color: #7b7a7a" />
                                 Create
                             </Button>
 
                             <Button data-testid="products-list-reload"
                                     size="small"
                                     @click="store.reloadPage()">
-                                <i class="pi pi-refresh mr-1"></i>
+                                <Icon class="mx-1"  icon="famicons:reload-sharp" width="16" height="16"  style="color: #7b7a7a" />
                             </Button>
 
                             <!--form_menu-->
@@ -387,10 +389,11 @@ const toggleQuickFilterState = (event) => {
                             <Menu ref="create_menu"
                                   :model="store.list_create_menu"
                                   :popup="true"/>
+                        </div>
 
                             <!--/form_menu-->
 
-                        </InputGroup>
+<!--                        </InputGroup>-->
 
                     </template>
 
