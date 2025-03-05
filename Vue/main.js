@@ -67,6 +67,7 @@ import Dialog from "primevue/dialog";
 import Checkbox from "primevue/checkbox";
 import ConfirmPopup from "primevue/confirmpopup";
 import ToggleButton from "primevue/togglebutton";
+import Skeleton from 'primevue/skeleton';
 
 //-------------/CRUD PrimeVue Imports
 
@@ -186,6 +187,7 @@ app.component('Tab', Tab);
 app.component('TabPanels', TabPanels);
 app.component('TabPanel', TabPanel);
 app.component('TabList', TabList);
+app.component('Skeleton', Skeleton);
 
 //-------------/CRUD PrimeVue Use
 

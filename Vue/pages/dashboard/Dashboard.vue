@@ -177,7 +177,7 @@ const today = ref(new Date());
     </div>
     <div class=" mb-3 mt-1">
 
-        <div class="!grid grid-cols-4 gap-4">
+        <div v-if="metrics.length > 0" class="!grid grid-cols-4 gap-4">
             <div v-for="metric in metrics" :key="metric.label">
                 <Card class="surface-ground h-full p-4">
                     <template #content>
@@ -190,6 +190,12 @@ const today = ref(new Date());
                     </template>
                 </Card>
             </div>
+        </div>
+        <div v-else class="!grid grid-cols-4 gap-4">
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
         </div>
     </div>
     <div class="!mt-3">
