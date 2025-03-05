@@ -33,6 +33,7 @@ onMounted(async () => {
     base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
     await settings_store.getAssets();
+    await product_store.getAssets();
     await settings_store.getList();
 
 
@@ -106,6 +107,8 @@ onMounted(async () => {
     await shipment_store.shipmentItemsByStatusBarChart();
     await warehouse_store.warehouseStockInBarChart();
     await payment_store.paymentMethodsPieChartData();
+
+    product_store.setDefaultStoreForProductList();
 });
 
 const quick_filter_menu_state = ref();
