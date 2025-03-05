@@ -1166,18 +1166,15 @@ export const useOrderStore = defineStore({
                     text: 'Status Distribution',
                     align: 'left',
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },
-                },fill: {
-                    type: 'gradient',
                 },
                 noData: {
                     text: 'Oops! No Data Available',
@@ -1371,7 +1368,6 @@ export const useOrderStore = defineStore({
                 ,
 
                 chart: {
-                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
@@ -1502,7 +1498,6 @@ export const useOrderStore = defineStore({
                 },
 
                 chart: {
-                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
@@ -1626,7 +1621,6 @@ export const useOrderStore = defineStore({
                 ...data.chart_options,
                 chart: {
                     type: "line",
-                    background: '#f6f7f9',
                     toolbar: { show: false },
                 },
                 stroke: {

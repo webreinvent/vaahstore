@@ -8,6 +8,7 @@ import VueApexCharts from 'vue3-apexcharts';
 
 import '@/index.css'
 
+
 //-------------PrimeVue Imports
 import BadgeDirective from "primevue/badgedirective";
 import ConfirmDialog from 'primevue/confirmdialog';
@@ -26,10 +27,11 @@ import Select from "primevue/select";
 import InputNumber from "primevue/inputnumber";
 
 import Chip from 'primevue/chip';
-import SelectButton from 'primevue/selectbutton';
 
 import Chart from 'primevue/chart';
-import Stepper from 'primevue/stepper';
+
+
+
 import FileUpload from 'primevue/fileupload';
 
 import Accordion from 'primevue/accordion';
@@ -65,7 +67,6 @@ import Dialog from "primevue/dialog";
 import Checkbox from "primevue/checkbox";
 import ConfirmPopup from "primevue/confirmpopup";
 import ToggleButton from "primevue/togglebutton";
-import Password from 'primevue/password';
 
 //-------------/CRUD PrimeVue Imports
 
@@ -91,6 +92,38 @@ const vaahstore = definePreset(Aura, {
 });
 //-------------PrimeVue Use
 app.use(PrimeVue, {
+    pt: {
+        datatable:{
+            tableContainer:{
+
+            },
+        },
+        button:{
+            root:{
+                class:"!bg-gray-100 !border-gray-200 text-gray-500 rounded-lg border p-1 hover:bg-gray-200"
+            }
+        },
+        badge: {
+            root:{
+                class:"py-1 px-2 font-bold rounded-full text-[8px] leading-4"
+            }
+        },
+        card: {
+            root: {class: '!shadow-card bg-gray-50'},
+            body: { class: 'px-2 pt-3 pb-0 gap-0' },
+            content: { class: 'p-0' },
+            title: { class: '!text-gray-500 font-normal p-0 mb-4 !border-b-0 ml-2' }
+        },
+        rating: {
+            onIcon: {class: '!text-warning-500'}
+        },
+        panel:{
+            root:{class:'bg-gray-50 !border-0'},
+            header: {class: '!py-4 px-2 !border-0'},
+            content:{class: "!px-2 border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
+            contentContainer: {class: "border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
+        }
+    },
     theme: {
         preset: vaahstore,
         darkMode: false,
@@ -114,9 +147,6 @@ app.component('ConfirmDialog', ConfirmDialog);
 app.component('Menu', Menu);
 app.component('ProgressBar', ProgressBar);
 app.component('Toast', Toast);
-app.component('Chip', Chip);
-app.component('SelectButton', SelectButton);
-app.component('Password', Password);
 //-------------/PrimeVue Use
 
 // -------------CRUD PrimeVue Use
@@ -150,7 +180,7 @@ app.component('AccordionHeader', AccordionHeader);
 app.component('AccordionContent', AccordionContent);
 app.component('AccordionPanel', AccordionPanel);
 app.component('Chart', Chart);
-app.component('Stepper', Stepper);
+
 app.component('Tabs', Tabs);
 app.component('Tab', Tab);
 app.component('TabPanels', TabPanels);
@@ -184,9 +214,11 @@ app.component("FloatLabel", FloatLabel);
 import Card from "primevue/card";
 app.component("Card", Card);
 
-import Image from "primevue/image";
+import Rating from "primevue/rating";
+app.component("Rating", Rating);
+
+import Image from "primevue/Image";
 import { semantic } from '@primeuix/themes/aura/base';
-import { Warning } from 'postcss';
 app.component("Image", Image);
 
 
@@ -208,14 +240,17 @@ app.component('Chips', Chips);
 import Editor from 'primevue/editor';
 app.component('Editor', Editor);
 
+import { Icon } from '@iconify/vue';
+app.component('Icon', Icon);
+
 
 import Drawer from 'primevue/drawer';
 app.component('Drawer', Drawer);
-import Slider from 'primevue/slider';
-app.component('Slider', Slider);
+
 
 import DynamicDialog from 'primevue/dynamicdialog';
 app.component('DynamicDialog', DynamicDialog);
+
 
 
 

@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.icon-button {
+    background: transparent !important;
+    border: none !important;
+}
+
+.quantity-button {
+    padding: 4px !important;
+    font-size: 8px !important;
+    border: none !important
+}
+

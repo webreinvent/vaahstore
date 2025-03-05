@@ -1243,7 +1243,6 @@ export const useWarehouseStore = defineStore({
                 ...data.chart_options,
 
                 chart: {
-                    background: '#ffffff',
                     toolbar: {
                         show: false,
                     },
@@ -1253,10 +1252,10 @@ export const useWarehouseStore = defineStore({
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#263238',
-                    },
+                        fontSize: '14px',
+                        fontWeight: 'normal',
+                        color: '#263238'
+                    }
                 }, tooltip: {
                     theme: 'light',
                 },
