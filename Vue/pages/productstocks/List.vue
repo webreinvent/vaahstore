@@ -87,13 +87,13 @@ const toggleCreateMenu = (event) => {
                     <div v-if="store.isListView()" class="flex flex-wrap gap-5 mt-1 mb-4 *:w-1/3">
                         <Card>
                             <template #title>
-                                
+
                                 <div class="flex align-items-center justify-between">
                                     <div class="flex items-center gap-1">
                                         <Icon icon="bi:graph-up-arrow" width="16" height="16" />
                                         <h2 class="text-lg">Highest Stock</h2>
                                     </div>
-                                                                        <Button data-testid="productstocks_chart-quick_filter" type="button"
+                                    <Button data-testid="productstocks_chart-quick_filter" type="button"
                                         @click="store.QuickHighFilter()" aria-haspopup="true"
                                         aria-controls="quick_filter_menu_state" size="small" label="All"
                                         icon="pi pi-filter">
@@ -104,10 +104,13 @@ const toggleCreateMenu = (event) => {
 
                             <template #content>
                                 <div class="max-h-20rem overflow-y-auto">
-                                    <div>
+                                    <div v-if="store.highest_stock && store.highest_stock.length">
                                         <div v-for="product in store.highest_stock" :key="product.id">
                                             <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
                                         </div>
+                                    </div>
+                                    <div v-else class="text-center text-lg pb-5">
+                                        No records found.
                                     </div>
                                 </div>
                             </template>
@@ -120,7 +123,7 @@ const toggleCreateMenu = (event) => {
                                         <Icon icon="bi:graph-down-arrow" width="16" height="16" />
                                         <h2 class="text-lg">Lowest Stock</h2>
                                     </div>
-                                    
+
 
                                     <Button data-testid="productstocks_chart-quick_filter" type="button"
                                         @click="store.QuickLowFilter()" aria-haspopup="true"
@@ -133,15 +136,16 @@ const toggleCreateMenu = (event) => {
 
                             <template #content>
                                 <div class="max-h-20rem overflow-y-auto">
-
-                                    <div>
+                                    <div v-if="store.lowest_stock && store.lowest_stock.length">
                                         <div v-for="product in store.lowest_stock" :key="product.id">
                                             <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
                                         </div>
                                     </div>
-
-                                  
+                                    <div v-else class="text-center text-lg">
+                                        No records found.
+                                    </div>
                                 </div>
+
                             </template>
                         </Card>
                     </div>
