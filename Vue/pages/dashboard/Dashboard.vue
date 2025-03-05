@@ -15,7 +15,7 @@ import {useWarehouseStore} from "../../stores/store-warehouses";
 import {usePaymentStore} from "../../stores/store-payments";
 import {useProductStockStore} from "../../stores/store-productstocks";
 import {useSettingStore} from "../../stores/store-settings";
-
+import VendorSale from "../../components/VendorSale.vue";
 const orders_store = useOrderStore();
 const settings_store = useSettingStore();
 const product_store = useProductStore();

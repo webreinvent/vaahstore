@@ -214,6 +214,9 @@ app.component("FloatLabel", FloatLabel);
 import Card from "primevue/card";
 app.component("Card", Card);
 
+import SelectButton  from "primevue/selectbutton";
+app.component("SelectButton", SelectButton);
+
 import Rating from "primevue/rating";
 app.component("Rating", Rating);
 
