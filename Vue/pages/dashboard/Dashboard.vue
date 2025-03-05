@@ -126,53 +126,79 @@ const today = ref(new Date());
 </script>
 <template>
     <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 surface-ground ">
-    <h4 class="text-sm mb-2">
-        Filter By:
-    </h4>
-        <InputGroup>
-            <!--            {{store.chart_date_filter}}-->
-            <SelectButton v-model="settings_store.chart_date_filter"
-                          optionLabel="name"
-                          optionValue="value"
-                          :options="settings_store.chart_by_date_filter"
-                          size="small"
-                          @update:modelValue="settings_store.storeChartFilterSettings"
-                          data-testid="general-charts_filters"
-                          aria-labelledby="single"
-            />
+    <div class="flex justify-content-between">
+        <div>
+            <h4 class="text-sm mb-2">
+                Filter By:
+            </h4>
+            <InputGroup>
+                <!--            {{store.chart_date_filter}}-->
+                <SelectButton v-model="settings_store.chart_date_filter"
+                              optionLabel="name"
+                              optionValue="value"
+                              :options="settings_store.chart_by_date_filter"
+                              size="small"
+                              @update:modelValue="settings_store.storeChartFilterSettings"
+                              data-testid="general-charts_filters"
+                              aria-labelledby="single"
+                />
 
 
 
-        </InputGroup>
-        <div v-if="settings_store.chart_date_filter === 'custom'" class="flex gap-2 mt-3 mb-2">
-            <DatePicker
-                class="rounded-lg"
-                size="small"
-                placeholder="Select Start Date"
-                date-format="yy-mm-dd"
-                @date-select="handleDateChangeRound($event,'filter_start_date')"
-                :maxDate="today"
-                :disabled="settings_store.chart_date_filter !== 'custom'"
-                v-model="settings_store.filter_start_date"
-                showIcon/>
-            <DatePicker
-                class="rounded-lg"
-                placeholder="Select End Date"
-                date-format="yy-mm-dd"
-                :maxDate="today"
-                size="small"
-                @date-select="handleDateChangeRound($event,'filter_end_date')"
-
-                :disabled="settings_store.chart_date_filter !== 'custom'"
-                v-model="settings_store.filter_end_date"
-                showIcon/>
-            <Button label="Submit"
-                    class=""
+            </InputGroup>
+            <div v-if="settings_store.chart_date_filter === 'custom'" class="flex gap-2 mt-3 mb-2">
+                <DatePicker
+                    class="rounded-lg"
                     size="small"
-                    @click="settings_store.storeChartFilterSettings()"
-                    :disabled="settings_store.is_button_disabled"/>
+                    placeholder="Select Start Date"
+                    date-format="yy-mm-dd"
+                    @date-select="handleDateChangeRound($event,'filter_start_date')"
+                    :maxDate="today"
+                    :disabled="settings_store.chart_date_filter !== 'custom'"
+                    v-model="settings_store.filter_start_date"
+                    showIcon/>
+                <DatePicker
+                    class="rounded-lg"
+                    placeholder="Select End Date"
+                    date-format="yy-mm-dd"
+                    :maxDate="today"
+                    size="small"
+                    @date-select="handleDateChangeRound($event,'filter_end_date')"
 
+                    :disabled="settings_store.chart_date_filter !== 'custom'"
+                    v-model="settings_store.filter_end_date"
+                    showIcon/>
+                <Button label="Submit"
+                        class=""
+                        size="small"
+                        @click="settings_store.storeChartFilterSettings()"
+                        :disabled="settings_store.is_button_disabled"/>
+
+            </div>
         </div>
+
+        <div class="mt-2">
+            <FloatLabel :variant="product_store.float_label_variants"
+            >
+                <AutoComplete
+                    name="products-filter-store"
+                    data-testid="products-filter-store"
+                    v-model="product_store.selected_store_at_list"
+                    @change="product_store.onStoreSelect($event)"
+                    option-label = "name"
+                    dropdown
+                    style="height:30px"
+                    :complete-on-focus = "true"
+                    :suggestions="product_store.filteredStores"
+                    @complete="product_store.searchStoreForListQuery"
+
+
+
+                />
+                <label for="articles-name">Select Store</label>
+            </FloatLabel>
+        </div>
+    </div>
 
     </div>
     <div class=" mb-3 mt-1">
