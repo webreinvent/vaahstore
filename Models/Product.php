@@ -2788,42 +2788,47 @@ class Product extends VaahModel
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
 
+        $store_id = isset($request->store['id']) ? (int)$request->store['id'] : null;
+
         $query = OrderItem::query();
+
+        // Apply date range filter if required
         if ($apply_date_range) {
             $query->whereBetween('created_at', [$start_date, $end_date]);
         }
-        $rows = config('vaahcms.per_page');
 
+        if ($store_id) {
+            $query->whereHas('product', function ($q) use ($store_id) {
+                $q->where('vh_st_store_id', $store_id);
+            });
+        }
+
+        $rows = config('vaahcms.per_page');
         if ($request->has('rows')) {
             $rows = $request->rows;
         }
+
         $top_selling_products = $query
             ->select('vh_st_product_id')
             ->with(['product' => function ($q) {
                 $q->whereNull('deleted_at');
-                $q->with('medias','brand');
+                $q->with('medias', 'brand', 'store');
             }])
-            ->groupBy('vh_st_product_id')->paginate($rows);
-
-
+            ->groupBy('vh_st_product_id')
+            ->paginate($rows);
 
         $top_selling_products = $top_selling_products->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
             if (!$item->vh_st_product_id) {
                 return null;
             }
 
-
-
             $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
-
             if ($apply_date_range) {
                 $sales_query->whereBetween('created_at', [$start_date, $end_date]);
             }
 
             $total_sales = $sales_query->sum('quantity');
             $products = $item->product;
-
-
 
             if (!$products) {
                 return null;
@@ -2838,11 +2843,13 @@ class Product extends VaahModel
             // Fallback if no medias found in the relation: fetch directly from the ProductMedia model
             if ($product_media_ids->isEmpty()) {
                 $product_media_ids = ProductMedia::where('vh_st_product_id', $item->vh_st_product_id)
-                    ->pluck('id'); // Plucking media IDs directly
+                    ->pluck('id');
             }
 
             $image_urls = self::getImageUrls($product_media_ids);
             $brand = $products->brand;
+            $store = $products->store;
+
             return [
                 'id' => $products->id ?? null,
                 'name' => $products->name ?? null,
@@ -2853,6 +2860,11 @@ class Product extends VaahModel
                     'id' => $brand->id ?? null,
                     'name' => $brand->name ?? null,
                 ],
+                'store' => [
+                    'id' => $store->id ?? null,
+                    'name' => $store->name ?? null,
+                    'slug' => $store->slug ?? null,
+                ]
             ];
         })
             ->filter()
@@ -2861,11 +2873,13 @@ class Product extends VaahModel
         if ($apply_date_range) {
             $top_selling_products = $top_selling_products->take($limit);
         }
+
         return [
             'success' => true,
             'data' => $top_selling_products->values(),
         ];
     }
+
 
 
 
@@ -2884,7 +2898,15 @@ class Product extends VaahModel
             : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
 
+        // Get Store ID from request
+        $store_id = $request->store['id'] ?? null;
+
         $query = OrderItem::query()
+            ->whereHas('product', function ($q) use ($store_id) {
+                if ($store_id) {
+                    $q->where('vh_st_store_id', $store_id);
+                }
+            })
             ->with(['product.brand'])
             ->when($apply_date_range, function ($query) use ($start_date, $end_date) {
                 $query->whereBetween('created_at', [$start_date, $end_date]);
@@ -2909,12 +2931,13 @@ class Product extends VaahModel
             ->filter()
             ->sortByDesc('total_sales')
             ->take($limit);
+
         return [
             'success' => true,
             'data' => $query->values(),
         ];
-
     }
+
 
 
     //----------------------------------------------------------
@@ -2926,7 +2949,16 @@ class Product extends VaahModel
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
-        $query = OrderItem::query();
+
+        // Get Store ID from request
+        $store_id = $request->store['id'] ?? null;
+
+        $query = OrderItem::query()
+            ->whereHas('product', function ($q) use ($store_id) {
+                if ($store_id) {
+                    $q->where('vh_st_store_id', $store_id);
+                }
+            });
 
         if ($apply_date_range) {
             $query->whereBetween('created_at', [$start_date, $end_date]);
@@ -2965,11 +2997,13 @@ class Product extends VaahModel
                     'name' => $category->name,
                 ];
             });
+
         return [
             'success' => true,
             'data' => $top_categories->values(),
         ];
     }
+
 
 
 

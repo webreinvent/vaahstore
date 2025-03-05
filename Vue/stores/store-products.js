@@ -2872,6 +2872,7 @@ export const useProductStore = defineStore({
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: this.selected_store_at_list ?? null,
             }
             let options = {
                 params: params,
@@ -2895,6 +2896,7 @@ export const useProductStore = defineStore({
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: this.selected_store_at_list ?? null,
             }
             let options = {
                 params: params,
@@ -2917,6 +2919,7 @@ export const useProductStore = defineStore({
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: this.selected_store_at_list ?? null,
             }
             let options = {
                 params: params,

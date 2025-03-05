@@ -13,8 +13,10 @@ import {useShipmentStore} from "../../stores/store-shipments";
 import {useWarehouseStore} from "../../stores/store-warehouses";
 import {usePaymentStore} from "../../stores/store-payments";
 import {useProductStockStore} from "../../stores/store-productstocks";
+import {useSettingStore} from "../../stores/store-settings";
 
 const orders_store = useOrderStore();
+const settings_store = useSettingStore();
 const product_store = useProductStore();
 const vendor_store = useVendorStore();
 const shipment_store = useShipmentStore();
@@ -24,21 +26,13 @@ const product_stock_store = useProductStockStore();
 const root = useRootStore();
 const route = useRoute();
 const base_url = ref('');
-const formattedDateRange = computed(() => {
-    const startDate = root.filter_start_date;
-    const endDate = root.filter_end_date;
 
-    if (!startDate || !endDate) return "Date range not selected";
-
-    const formatOptions = { year: "numeric", month: "short", day: "2-digit" };
-    const formatter = new Intl.DateTimeFormat("en-US", formatOptions);
-
-    return `${formatter.format(new Date(startDate))} - ${formatter.format(new Date(endDate))}`;
-});
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
+    await settings_store.getAssets();
+    await settings_store.getList();
 
 
     await orders_store.fetchOrdersChartData();
@@ -118,13 +112,66 @@ const toggleQuickFilterState = (event) => {
 };
 const metrics = ref([]);
 
+
+
+
+const handleDateChangeRound = (newDate, date_type) => {
+    if (newDate && date_type) {
+        store[date_type] = new Date(newDate.getTime() - newDate.getTimezoneOffset() * 60000);
+    }
+}
+const today = ref(new Date());
 </script>
 <template>
-    <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 surface-ground ">
-    <h4 class="text-lg">
-        Selected Date Range:{{ formattedDateRange }}
+    <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 bg-white ">
+    <h4 class="text-sm mb-2">
+        Select Date Range
     </h4>
-        <h6 class="text-sm">Note : For Change the Date Range Navigate to Store>Settings</h6>
+        <InputGroup>
+            <!--            {{store.chart_date_filter}}-->
+            <SelectButton v-model="settings_store.chart_date_filter"
+                          optionLabel="name"
+                          optionValue="value"
+                          :options="settings_store.chart_by_date_filter"
+                          size="small"
+                          @update:modelValue="settings_store.storeChartFilterSettings"
+                          data-testid="general-charts_filters"
+                          aria-labelledby="single"
+            />
+
+
+
+        </InputGroup>
+        <div v-if="settings_store.chart_date_filter === 'custom'" class="flex gap-2 mt-3 mb-2">
+            <DatePicker
+                class="rounded-lg"
+                size="small"
+                placeholder="Select Start Date"
+                date-format="yy-mm-dd"
+                @date-select="handleDateChangeRound($event,'filter_start_date')"
+                :maxDate="today"
+                :disabled="settings_store.chart_date_filter !== 'custom'"
+                v-model="settings_store.filter_start_date"
+                showIcon/>
+            <DatePicker
+                class="rounded-lg"
+                placeholder="Select End Date"
+                date-format="yy-mm-dd"
+                :maxDate="today"
+                size="small"
+                @date-select="handleDateChangeRound($event,'filter_end_date')"
+
+                :disabled="settings_store.chart_date_filter !== 'custom'"
+                v-model="settings_store.filter_end_date"
+                showIcon/>
+            <Button label="Submit"
+                    class=""
+                    size="small"
+                    @click="settings_store.storeChartFilterSettings()"
+                    :disabled="settings_store.is_button_disabled"/>
+
+        </div>
+
     </div>
     <div class="container mb-3 mt-1">
 
