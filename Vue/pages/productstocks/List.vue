@@ -89,11 +89,11 @@ const toggleCreateMenu = (event) => {
                             <template #title>
 
                                 <div class="flex align-items-center justify-between">
-                                    <div class="flex items-center gap-1">
+                                    <div class="flex items-center gap-2">
                                         <Icon icon="bi:graph-up-arrow" width="16" height="16" />
                                         <h2 class="text-lg">Highest Stock</h2>
                                     </div>
-                                    <Button data-testid="productstocks_chart-quick_filter" type="button"
+                                    <Button class="gap-0" data-testid="productstocks_chart-quick_filter"   type="button"
                                         @click="store.QuickHighFilter()" aria-haspopup="true"
                                         aria-controls="quick_filter_menu_state" size="small" label="All"
                                         icon="pi pi-filter">
@@ -103,7 +103,7 @@ const toggleCreateMenu = (event) => {
                             </template>
 
                             <template #content>
-                                <div class="max-h-20rem overflow-y-auto">
+                                <div class="max-h-20rem overflow-y-auto mb-2">
                                     <div v-if="store.highest_stock && store.highest_stock.length">
                                         <div v-for="product in store.highest_stock" :key="product.id">
                                             <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
@@ -119,15 +119,15 @@ const toggleCreateMenu = (event) => {
 
                             <template #title>
                                 <div class="flex align-items-center justify-content-between">
-                                    <div class="flex items-center gap-1">
+                                    <div class="flex items-center gap-2">
                                         <Icon icon="bi:graph-down-arrow" width="16" height="16" />
                                         <h2 class="text-lg">Lowest Stock</h2>
                                     </div>
 
 
-                                    <Button data-testid="productstocks_chart-quick_filter" type="button"
+                                    <Button  data-testid="productstocks_chart-quick_filter" type="button"
                                         @click="store.QuickLowFilter()" aria-haspopup="true"
-                                        aria-controls="quick_filter_menu_state" class="ml-1 p-button-sm px-1"
+                                        aria-controls="quick_filter_menu_state" class="gap-0 ml-1 p-button-sm px-1"
                                         label="All" icon="pi pi-filter">
                                     </Button>
 
