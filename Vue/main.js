@@ -236,6 +236,8 @@ app.component('Textarea', Textarea);
 import Chips from 'primevue/chips';
 app.component('Chips', Chips);
 
+import SelectButton from 'primevue/selectbutton';
+app.component('SelectButton', SelectButton);
 
 import Editor from 'primevue/editor';
 app.component('Editor', Editor);
