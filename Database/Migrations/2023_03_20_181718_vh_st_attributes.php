@@ -22,6 +22,7 @@ class VhStattributes extends Migration
                 $table->string('name')->nullable()->index();
                 $table->string('slug')->nullable()->index();
                 $table->string('type')->nullable()->index();
+                $table->text('description')->nullable()->index();
                 $table->boolean('is_active')->nullable()->index();
 
 

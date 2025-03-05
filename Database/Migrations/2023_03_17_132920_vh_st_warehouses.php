@@ -28,6 +28,9 @@ class VhStwarehouses extends Migration
                 $table->string('country')->nullable()->index();
                 $table->string('status_notes')->nullable();
                 $table->boolean('is_active')->nullable()->index();
+                $table->string('postal_code')->nullable()->index();
+                $table->string('address_1')->nullable()->index();
+                $table->string('address_2')->nullable()->index();
 
 
                 //----common fields
