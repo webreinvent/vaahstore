@@ -19,13 +19,12 @@ class DashboardController extends Controller
     {
 
         try{
-//dd(12);
             $data = [];
             $data['active_permissions'] = Permission::getActiveItems();
             Permission::syncPermissionsWithRoles();
             $data['rows'] = config('vaahcms.per_page');
-            $data['stores'] = $this->getStores();
-
+            $active_stores = $this->getStores();
+            $data = array_merge($data, $active_stores);
 
             $response['success'] = true;
             $response['data']= $data;
@@ -49,11 +48,11 @@ class DashboardController extends Controller
             ->orderByDesc('is_default')->get(['id','name', 'slug', 'is_default']);
         if ($stores){
             return [
-                $stores
+                'stores' =>$stores
             ];
         }else{
             return [
-                 null
+                'stores' => null
             ];
         }
     }
