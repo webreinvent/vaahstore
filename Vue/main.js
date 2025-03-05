@@ -116,6 +116,12 @@ app.use(PrimeVue, {
         },
         rating: {
             onIcon: {class: '!text-warning-500'}
+        },
+        panel:{
+            root:{class:'bg-gray-50 !border-0'},
+            header: {class: '!py-4 px-2 !border-0'},
+            content:{class: "!px-2 border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
+            contentContainer: {class: "border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
         }
     },
     theme: {
@@ -125,15 +131,7 @@ app.use(PrimeVue, {
             darkModeSelector: false,
             darkModeInject: false
         },
-    },
-    pt: {
-        panel:{
-            root:{class:'bg-gray-50 !border-0'},
-            header: {class: '!py-4 px-2 !border-0'},
-            content:{class: "!px-2 border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
-            contentContainer: {class: "border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
-        }
-    },
+    }
 });
 app.use(ConfirmationService);
 app.use(ToastService);
@@ -253,8 +251,7 @@ app.component('Drawer', Drawer);
 import DynamicDialog from 'primevue/dynamicdialog';
 app.component('DynamicDialog', DynamicDialog);
 
-import { Icon } from '@iconify/vue';
-app.component('Icon', Icon);
+
 
 
 
