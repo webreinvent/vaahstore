@@ -98,7 +98,33 @@ app.use(PrimeVue, {
 
             },
         },
-        button: {
+        paginator:{
+           first:{
+               class:"!rounded-lg !px-2 border-[#D7D9E0]"
+           },
+            prev:{
+                class:"!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            next:{
+               class:"!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            nextIcon:{
+               class:""
+            },
+            last:{
+                class:"!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            page:{
+               class:"!rounded-lg !px-2 border-[#D7D9E0] bg-transparent"
+            },
+            pcRowPerPageDropdown:{
+               class:"!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            current:{
+               class:"!border-blue-500 !bg-blue-500/10"
+            }
+    },
+            button: {
             root:{
                 class:"!bg-gray-100 !border-gray-200 text-gray-500 rounded-lg border p-1 hover:bg-gray-200"
             }

@@ -364,7 +364,7 @@ const toggleQuickFilterState = (event) => {
                                     size="small"
                                     :disabled="!store.assets.permissions.includes('can-update-module')"
                                     @click="store.toForm()">
-                                <Icon icon="mdi-light:plus" width="20" height="20"  style="color: #7b7a7a" />
+                                <Icon class="-mr-1" icon="ph:plus-light" width="16" height="16"  style="color: #7b7a7a" />
                                 Create
                             </Button>
 
