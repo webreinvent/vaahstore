@@ -1362,10 +1362,11 @@ export const useOrderStore = defineStore({
                                 ? (exactSale / 1000).toFixed(2) + 'k'
                                 : exactSale;
 
-                            return `&#8377;${formattedValue}`;
-                        }
+                            return `${this.default_currency_symbol}${formattedValue}`;
+                        }.bind(this)
                     }
                 }
+
                 ,
 
                 chart: {
@@ -1390,12 +1391,12 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------
 
-        async fetchOrderPaymentsData() {
+        async fetchOrderPaymentsData(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
-
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1487,16 +1488,17 @@ export const useOrderStore = defineStore({
                         const formattedValue = value >= 1000 ? (value / 1000).toFixed(2) + 'k' : value;
 
                         return `<div style="
-            background: #fff; padding: 12px; border-radius: 50%;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
-            min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
-            <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
-            <div style="font-size: 14px; color: #008FFB;">
-                Amount: <strong>&#8377;${formattedValue}</strong>
-            </div>
+        background: #fff; padding: 12px; border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+        min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+        <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+        <div style="font-size: 14px; color: #008FFB;">
+            Amount: <strong>${this.default_currency_symbol}${formattedValue}</strong>
+        </div>
         </div>`;
-                    }
-                },
+                    }.bind(this)
+                }
+,
 
                 chart: {
                     toolbar: {

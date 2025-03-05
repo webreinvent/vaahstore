@@ -101,7 +101,7 @@ onMounted(async () => {
 
 
     await orders_store.fetchOrdersCountChartData();
-    await orders_store.fetchOrderPaymentsData();
+    await orders_store.fetchOrderPaymentsData(store.default_store);
     await orders_store.fetchOrdersChartData();
 
     await vendor_store.vendorSalesByRange(store.default_store);
@@ -136,6 +136,7 @@ const onStoreSelect = (selectedStore) => {
     orders_store.fetchSalesChartData(store.selected_store_at_dashboard);
     vendor_store.topSellingVendorsData(store.selected_store_at_dashboard);
     vendor_store.vendorSalesByRange(store.selected_store_at_dashboard);
+    orders_store.fetchOrderPaymentsData(store.selected_store_at_dashboard);
 };
 
 </script>
@@ -306,7 +307,7 @@ const onStoreSelect = (selectedStore) => {
                         <span class="text-sm"> Payment Recieved</span>
                         <span class="rounded-full bg-gray-200 size-1 mx-1"></span>
                         <span class="text-xs">
-                            ₹{{
+                            <span v-html="orders_store.default_currency_symbol"></span>{{
                                 orders_store.overall_income && !isNaN(orders_store.overall_income) ?
                                     orders_store.overall_income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                                     :
