@@ -122,20 +122,7 @@ const openProductCategories = (categories,product) => {
                  </template>
              </Column>
 
-             <Column field="status.name" header="Status"
-                     :sortable="true"
-                     v-if="store.isListView()">
 
-                 <template #body="prop">
-        <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
-            <span v-html="prop.data.store.default_currency?.symbol"></span>  {{ prop.data.product_price_range.price_range.join(' - ') }}
-        </span>
-                     <span v-else>
-            <span v-html="prop.data.store.default_currency?.symbol"></span> 0
-        </span>
-                 </template>
-
-             </Column>
 
              <Column  header="Selected Vendor"
                       v-if="store.isListView()">
@@ -153,11 +140,11 @@ const openProductCategories = (categories,product) => {
 
              <Column field="price range" header="Price Range">
                  <template #body="prop">
-        <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
-            {{ prop.data.product_price_range.price_range.join(' - ') }}
+       <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
+            <span v-html="prop.data.store.default_currency?.symbol"></span>  {{ prop.data.product_price_range.price_range.join(' - ') }}
         </span>
                      <span v-else>
-            0
+            <span v-html="prop.data.store.default_currency?.symbol"></span> 0
         </span>
                  </template>
              </Column>

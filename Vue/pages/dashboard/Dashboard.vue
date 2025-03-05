@@ -125,9 +125,9 @@ const handleDateChangeRound = (newDate, date_type) => {
 const today = ref(new Date());
 </script>
 <template>
-    <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 bg-white ">
+    <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 surface-ground ">
     <h4 class="text-sm mb-2">
-        Select Date Range
+        Filter By:
     </h4>
         <InputGroup>
             <!--            {{store.chart_date_filter}}-->
