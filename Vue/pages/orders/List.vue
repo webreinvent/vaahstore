@@ -167,7 +167,7 @@ const toggleCreateMenu = (event) => {
                                                 <div class="min-w-max">
                                                     <b>Overall Sale</b>
                                                     <p :style="{fontSize: store.show_filters ? '14px' : '18px' }">
-                                                        <b>₹{{
+                                                        <b><span v-html="store.default_currency_symbol"></span> {{
                                                             store.overall_sales > 0 ?
                                                             store.overall_sales?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
                                                             '0'
@@ -242,7 +242,7 @@ const toggleCreateMenu = (event) => {
                                                 <div class="min-w-max">
                                                     <b>Payment Received </b>
                                                     <p :style="{fontSize: store.show_filters ? '14px' : '18px' }">
-                                                        <b>₹{{
+                                                        <b><span v-html="store.default_currency_symbol"></span>{{
                                                             store.overall_income && !isNaN(store.overall_income) ?
                                                             store.overall_income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
                                                             '0'

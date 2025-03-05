@@ -881,10 +881,14 @@ class Order extends VaahModel
         $currency_symbol = null;
         if ($store_id) {
             $store = Store::with('defaultCurrency')->find($store_id);
-            if ($store && $store->defaultCurrency) {
-                $currency_symbol = $store->defaultCurrency->symbol;
-            }
+        } else {
+            $store = Store::with('defaultCurrency')->where('is_default', 1)->first();
         }
+
+        if ($store && $store->defaultCurrency) {
+            $currency_symbol = $store->defaultCurrency->symbol;
+        }
+
 
         $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
         $labels = [];
@@ -1056,32 +1060,41 @@ class Order extends VaahModel
             $labels[] = $date->format('Y-m-d');
         }
 
-        $query = OrderPayment::query()
-            ->whereHas('order.items.product', function ($q) use ($store_id) {
+        // Initialize the query conditionally based on store_id
+        $query = OrderPayment::query();
+
+        if ($store_id) {
+            $query->whereHas('order.items.product', function ($q) use ($store_id) {
                 $q->where('vh_st_store_id', $store_id);
             });
+        }
 
+        // Apply date range filter
         if (isset($inputs['start_date'], $inputs['end_date'])) {
             $query->whereBetween('created_at', [$start_date, $end_date]);
         }
 
+        // Fetch order payments data
         $orders_income = $query
             ->selectRaw('DATE(created_at) as created_date, SUM(payment_amount) as total_income')
             ->groupBy('created_date')
             ->orderBy('created_date')
             ->get();
 
+        // Format data for time series chart
         $time_series_data_income = $orders_income->map(function ($item) {
             return ['x' => $item->created_date, 'y' => $item->total_income];
         })->toArray();
 
+        // Calculate overall income
         $overall_income = round($orders_income->sum('total_income'), 2);
 
+        // Calculate income growth rate
         $first_income = reset($time_series_data_income)['y'] ?? 0;
         $last_income = end($time_series_data_income)['y'] ?? 0;
-
         $growth_rate = $first_income > 0 ? (($last_income - $first_income) / $first_income) * 100 : ($last_income > 0 ? 100 : 0);
 
+        // Return response data
         return [
             'data' => [
                 'order_payments_chart_series' => [
