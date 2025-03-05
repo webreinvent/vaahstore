@@ -35,9 +35,10 @@ onMounted(async () => {
     base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
     await settings_store.getAssets();
+    await store.getAssets();
     await product_store.getAssets();
     await settings_store.getList();
-    // await store.getAssets();
+
 
 
     await orders_store.fetchOrdersChartData();
@@ -111,7 +112,7 @@ onMounted(async () => {
     await warehouse_store.warehouseStockInBarChart();
     await payment_store.paymentMethodsPieChartData();
 
-    product_store.setDefaultStoreForProductList();
+    store.setDefaultStoreForAtDashboard();
 });
 
 const quick_filter_menu_state = ref();
@@ -189,7 +190,7 @@ const today = ref(new Date());
                 <AutoComplete
                     name="products-filter-store"
                     data-testid="products-filter-store"
-                    v-model="product_store.selected_store_at_list"
+                    v-model="store.selected_store_at_dashboard"
                     @change="product_store.onStoreSelect($event)"
                     option-label = "name"
                     dropdown
@@ -200,7 +201,7 @@ const today = ref(new Date());
 
 
 
-                />
+                />{{this.selected_store_at_dashboard}}
                 <label for="articles-name">Select Store</label>
             </FloatLabel>
         </div>

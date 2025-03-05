@@ -3,6 +3,7 @@
 use VaahCms\Modules\Store\Models\Store;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use WebReinvent\VaahCms\Models\Permission;
 
 class DashboardController extends Controller
 {
@@ -18,13 +19,16 @@ class DashboardController extends Controller
     {
 
         try{
-
+//dd(12);
             $data = [];
-            $data['stores'] = self::getStores();
+            $data['active_permissions'] = Permission::getActiveItems();
+            Permission::syncPermissionsWithRoles();
+            $data['rows'] = config('vaahcms.per_page');
+            $data['stores'] = $this->getStores();
 
 
             $response['success'] = true;
-            $response['data'] = $data;
+            $response['data']= $data;
 
         }catch (\Exception $e){
             $response = [];
@@ -41,14 +45,15 @@ class DashboardController extends Controller
     }
 
     public function getStores(){
-        $stores = Store::where('is_active',1)->get(['id','name', 'slug', 'is_default']);
+        $stores = Store::where('is_active',1)
+            ->orderByDesc('is_default')->get(['id','name', 'slug', 'is_default']);
         if ($stores){
             return [
-                'active_stores' =>$stores
+                $stores
             ];
         }else{
             return [
-                'active_stores' => null
+                 null
             ];
         }
     }
