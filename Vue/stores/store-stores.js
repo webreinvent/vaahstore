@@ -342,7 +342,8 @@ export const useStoreStore = defineStore({
         searchCurrencies(event) {
             const query = event.query.toLowerCase();
             this.currency_suggestion_list = this.currencies_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
+                return item.name.toLowerCase().includes(query) &&
+                    (!this.item.default_currency || item.name !== this.item.default_currency.name);
             });
         },
 

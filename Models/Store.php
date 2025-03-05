@@ -119,12 +119,19 @@ class Store extends VaahModel
     }
 
     //-------------------------------------------------
-    public function currencies(){
+    public function currencies()
+    {
         return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
             ->where('is_active', 1)
-            ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
-                'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
+            ->where(function ($query) {
+                $query->where('is_default', 0)
+                    ->orWhereNull('is_default');
+            })
+            ->select(['vh_st_currencies.vh_st_store_id', 'vh_st_currencies.name',
+                'vh_st_currencies.code', 'vh_st_currencies.symbol', 'vh_st_currencies.is_default']);
     }
+
+
     public function defaultCurrency()
     {
         return $this->hasOne(Currency::class, 'vh_st_store_id', 'id')
@@ -297,22 +304,22 @@ class Store extends VaahModel
 
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
+        if (!empty($inputs['default_currency'])) {
+            $currency = new Currency();
+            $currency->vh_st_store_id = $item->id;
+            $currency->name = $inputs['default_currency']['name'];
+            $currency->code = $inputs['default_currency']['code'];
+            $currency->symbol = $inputs['default_currency']['symbol'];
+            $currency->is_default = 1;
+            $currency->is_active = 1;
+            $currency->save();
+        }
         if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
             foreach ($inputs['currencies'] as $key => $value) {
 
                 $record = new Currency();
                 $record->vh_st_store_id = $item->id;
                 $record->name = $value['name'];
-
-                if (!empty($inputs['default_currency'])) {
-                    if ($inputs['default_currency']['name'] == $value['name']) {
-                        $record->is_default = 1;
-                    }
-                } else {
-                    $record->is_default = 0;
-                }
-
                 $record->is_active = 1;
                 $record->save();
             }
@@ -426,7 +433,7 @@ class Store extends VaahModel
                 'max:250'
             ],
             'currencies' => 'required_if:is_multi_currency,1',
-            'currency_default' => '',
+            'default_currency' => 'required',
             'languages' => 'required_if:is_multi_lingual,1',
             'language_default' => '',
             'allowed_ips.*' => 'ip',
@@ -990,9 +997,6 @@ class Store extends VaahModel
             }
             $item->languages = $languages;
         }
-        if (!$item->default_currency) {
-            $item->defaultCurrency = $item->currencies->first() ?? null;
-        }
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -1046,10 +1050,13 @@ class Store extends VaahModel
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        if(!empty($inputs['currencies'])) {
-            Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
-            foreach ($inputs['currencies'] as $key => $v) {
+        if (!empty($inputs['currencies'])) {
+            $currencyNames = collect($inputs['currencies'])->pluck('name')->toArray();
+            Currency::where('vh_st_store_id', $item->id)
+                ->whereNotIn('name', $currencyNames)
+                ->update(['is_active' => 0, 'is_default' => 0]);
 
+            foreach ($inputs['currencies'] as $v) {
                 Currency::updateOrInsert(
                     ['vh_st_store_id' => $item->id, 'name' => $v['name']],
                     [
@@ -1058,16 +1065,23 @@ class Store extends VaahModel
                         'symbol' => $v['symbol'] ?? null
                     ]
                 );
-
             }
-
-
-            if (!empty($inputs['default_currency'])){
-                Currency::where(['vh_st_store_id' => $item->id, 'name' => $inputs['default_currency']['name'],
-                    'is_active' => 1])->update(['is_default' => 1]);
-            }
-        }else{
+        } else {
             Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
+        }
+
+        if (!empty($inputs['default_currency'])) {
+            Currency::where('vh_st_store_id', $item->id)->update(['is_default' => 0]);
+
+            Currency::updateOrInsert(
+                ['vh_st_store_id' => $item->id, 'name' => $inputs['default_currency']['name']],
+                [
+                    'is_active' => 1,
+                    'is_default' => 1,
+                    'code' => $inputs['default_currency']['code'] ?? null,
+                    'symbol' => $inputs['default_currency']['symbol'] ?? null
+                ]
+            );
         }
 
         if(!empty($inputs['languages'])) {

@@ -142,7 +142,25 @@ const toggleFormMenu = (event) => {
                 <label for="articles-name">Enter the Slug<span class="text-red-500">*</span></label>
             </FloatLabel>
 
+            <div class="flex items-center mb-2">
+                <FloatLabel class="my-1 w-full !rounded-r-none" :variant="store.float_label_variants"
+                >
 
+                    <AutoComplete name="store-currencies"
+                                  data-testid="store-currencies"
+                                  v-model="store.item.default_currency"
+                                  option-label="name"
+                                  :complete-on-focus="true"
+                                  :suggestions="store.currency_suggestion_list"
+                                  dropdown
+                                  @complete="store.searchCurrencies($event)"
+                                  class="w-full"
+                    />
+
+                    <label for="articles-name">Select Default Currency<span class="text-red-500">*</span></label>
+                </FloatLabel>
+
+            </div>
             <VhField label="Is Multi Currency">
 
                 <div class="">
@@ -152,7 +170,7 @@ const toggleFormMenu = (event) => {
                                       class="p-inputswitch"
                                       name="stores-multi-currency"
                                       data-testid="stores-multi-currency"
-                                      @change="store.item.currencies = null;store.item.default_currency = null;"
+                                      @change="store.item.currencies = null;"
                                       v-model="store.item.is_multi_currency"/>
                     </div>
 
@@ -174,34 +192,7 @@ const toggleFormMenu = (event) => {
                 />
                 <label for="articles-name">Select Currencies<span class="text-red-500">*</span></label>
             </FloatLabel>
-            <div class="flex items-center mb-4">
-                <FloatLabel class="my-1 w-full !rounded-r-none" :variant="store.float_label_variants"
-                            v-show="store.item && store.item.currencies && store.item.currencies.length >= 1">
-                    <!--                    <div v-if="store.item && store.item.currencies && store.item.currencies.length >= 1" class="pl-5 col-9 flex flex-row">-->
-                    <Select v-model="store.item.default_currency"
-                            :options="store.item.currencies"
-                            data-testid="store-default_currency"
-                            class="w-full"
-                            optionLabel="name"
-                    >
-                        <template #option="slotProps">
-                            <div class="flex align-items-center">
-                                <span>&nbsp;&nbsp&nbsp;{{slotProps.option.name}}</span>
-                            </div>
-                        </template>
-                    </Select>
 
-                    <!--                    </div>-->
-                    <label for="articles-name">Select Default Currency</label>
-                </FloatLabel>
-                <Button
-                    v-if="store.item && store.item.default_currency"
-                    @click="store.item.default_currency = null"
-                    data-testid="store-remove-default-currency"
-                    icon="pi pi-times"
-                    class="min-h-[35px]"
-                />
-            </div>
 
 
 
