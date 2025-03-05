@@ -97,14 +97,14 @@ onMounted(async () => {
         }
     ];
 
-    await vendor_store.topSellingVendorsData();
+    await vendor_store.topSellingVendorsData(store.default_store);
 
 
     await orders_store.fetchOrdersCountChartData();
     await orders_store.fetchOrderPaymentsData();
     await orders_store.fetchOrdersChartData();
 
-    await vendor_store.vendorSalesByRange();
+    await vendor_store.vendorSalesByRange(store.default_store);
 
     await shipment_store.ordersShipmentByDateRange();
     await shipment_store.shipmentItemsByStatusBarChart();
@@ -134,6 +134,8 @@ const onStoreSelect = (selectedStore) => {
     store.selected_store_at_dashboard = selectedStore.value;
     console.log("Selected Store:", store.selected_store_at_dashboard);
     orders_store.fetchSalesChartData(store.selected_store_at_dashboard);
+    vendor_store.topSellingVendorsData(store.selected_store_at_dashboard);
+    vendor_store.vendorSalesByRange(store.selected_store_at_dashboard);
 };
 
 </script>

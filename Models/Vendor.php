@@ -1567,7 +1567,7 @@ class Vendor extends VaahModel
 
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-
+        $store_id = isset($request->store['id']) ? (int)$request->store['id'] : null;
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
 
         $query = OrderItem::query();
@@ -1575,7 +1575,11 @@ class Vendor extends VaahModel
         if ($apply_date_range) {
             $query->whereBetween('created_at', [$start_date, $end_date]);
         }
-
+        if ($store_id) {
+            $query->whereHas('vendor', function ($q) use ($store_id) {
+                $q->where('vh_st_store_id', $store_id);
+            });
+        }
         $top_selling_vendors = $query
             ->select('vh_st_vendor_id')
             ->groupBy('vh_st_vendor_id')
@@ -1615,13 +1619,16 @@ class Vendor extends VaahModel
 
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
-
+        $store_id = isset($inputs['store']['id']) ? (int)$inputs['store']['id'] : null;
         $apply_date_range = !isset($inputs['filter_all']) || !$inputs['filter_all'];
 
         $top_vendors = [];
         if ($apply_date_range) {
+            $request->merge(['store' => $store_id ? ['id' => $store_id] : null]);
             $top_vendors = self::topSellingVendorsData($request)['data']->pluck('id')->toArray();
         }
+
+
 
         $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->addDay());
         $labels = [];
