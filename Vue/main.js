@@ -122,6 +122,39 @@ app.use(PrimeVue, {
             header: {class: '!py-4 px-2 !border-0'},
             content:{class: "!px-2 border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
             contentContainer: {class: "border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
+        },
+        accordion: {
+            root: { class: '!bg-gray-50 border-none' },
+            header: {
+                class: 'bg-white border border-gray-200 rounded-lg mb-2 hover:bg-gray-100 transition-colors duration-200',
+                style: {
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                }
+            },
+            headerAction: {
+                class: 'flex items-center justify-between w-full p-3 text-gray-700 font-medium'
+            },
+            headerIcon: {
+                class: 'text-gray-500 ml-auto transition-transform duration-200'
+            },
+            content: {
+                class: 'p-3 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-600'
+            }
+        },
+        accordionTab: {
+            root: { class: '!bg-black' },
+            header: {
+                class: 'rounded-lg'
+            },
+            headerAction: {
+                class: 'flex items-center justify-between w-full p-3 text-gray-700 font-medium'
+            },
+            headerIcon: {
+                class: 'text-gray-500 ml-auto transition-transform duration-200'
+            },
+            content: {
+                class: 'p-3 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-600'
+            }
         }
     },
     theme: {
