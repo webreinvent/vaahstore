@@ -7,7 +7,7 @@ import Aura from '@primeuix/themes/aura';
 import VueApexCharts from 'vue3-apexcharts';
 
 import '@/index.css'
-    
+
 
 //-------------PrimeVue Imports
 import BadgeDirective from "primevue/badgedirective";
@@ -93,6 +93,21 @@ const vaahstore = definePreset(Aura, {
 //-------------PrimeVue Use
 app.use(PrimeVue, {
     pt: {
+        datatable:{
+            tableContainer:{
+
+            },
+        },
+        button:{
+            root:{
+                class:"!bg-gray-100 !border-gray-200 text-gray-500 rounded-lg border p-1 hover:bg-gray-200"
+            }
+        },
+        badge: {
+            root:{
+                class:"py-1 px-2 font-bold rounded-full text-[8px] leading-4"
+            }
+        },
         card: {
             root: {class: '!shadow-card bg-gray-50'},
             body: { class: 'px-2 pt-3 pb-0 gap-0' },
@@ -101,6 +116,12 @@ app.use(PrimeVue, {
         },
         rating: {
             onIcon: {class: '!text-warning-500'}
+        },
+        panel:{
+            root:{class:'bg-gray-50 !border-0'},
+            header: {class: '!py-4 px-2 !border-0'},
+            content:{class: "!px-2 border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
+            contentContainer: {class: "border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
         }
     },
     theme: {
@@ -198,7 +219,6 @@ app.component("Rating", Rating);
 
 import Image from "primevue/Image";
 import { semantic } from '@primeuix/themes/aura/base';
-import { Warning } from 'postcss';
 app.component("Image", Image);
 
 
@@ -220,6 +240,9 @@ app.component('Chips', Chips);
 import Editor from 'primevue/editor';
 app.component('Editor', Editor);
 
+import { Icon } from '@iconify/vue';
+app.component('Icon', Icon);
+
 
 import Drawer from 'primevue/drawer';
 app.component('Drawer', Drawer);
@@ -228,8 +251,7 @@ app.component('Drawer', Drawer);
 import DynamicDialog from 'primevue/dynamicdialog';
 app.component('DynamicDialog', DynamicDialog);
 
-import { Icon } from '@iconify/vue';
-app.component('Icon', Icon);
+
 
 
 

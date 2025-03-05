@@ -18,7 +18,7 @@ const root = useRootStore();
 const route = useRoute();
 const importStore = useImportStore()
 import {useConfirm} from "primevue/useconfirm";
-
+import TileInfo from "../../components/TileInfo.vue";
 
 const confirm = useConfirm();
 
@@ -176,45 +176,49 @@ const toggleQuickFilterState = (event) => {
 
                                         <template #content>
                                             <div class="max-h-14rem overflow-y-auto">
-                                                <DataTable
-                                                    :value="store.top_selling_products"
-                                                    dataKey="id"
+                                                <div v-for="product in store.top_selling_products" :key="product.id">
+                                                <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+                                                </div>
+<!--                                                <DataTable-->
+<!--                                                    :value="store.top_selling_products"-->
+<!--                                                    dataKey="id"-->
 
-                                                    class="p-datatable-sm p-datatable-hoverable-rows"
-                                                    :nullSortOrder="-1"
-                                                    v-model:selection="store.action.items"
-                                                    stripedRows
-                                                    responsiveLayout="scroll"
-                                                >
-                                                    <Column field="variation_name" header="" class="overflow-wrap-anywhere">
-                                                        <template #body="prop">
-                                                            <div class="flex ">
-                                                                <div class="product_img">
-                                                                    <div v-if="Array.isArray(prop.data?.image_urls) && prop.data?.image_urls.length > 0">
-                                                                        <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
-                                                                            <Image preview
-                                                                                   :src="base_url + '/' + imageUrl"
-                                                                                   alt="Error" class="shadow-4" width="35"/>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div v-else>
-                                                                        <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                                                             alt="Error" class="shadow-4" width="35"/>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="product_desc ml-3">
-                                                                    <h4>{{ prop.data?.name }}</h4>
-                                                                    <p><b> {{ prop.data?.total_sales }}</b> Sold</p>
-                                                                </div>
-                                                            </div>
-                                                        </template>
-                                                    </Column>
-                                                    <template #empty>
-                                                        <div class="text-center py-3">
-                                                            No records found.
-                                                        </div>
-                                                    </template>
-                                                </DataTable>
+<!--                                                    class="p-datatable-sm p-datatable-hoverable-rows"-->
+<!--                                                    :nullSortOrder="-1"-->
+<!--                                                    v-model:selection="store.action.items"-->
+<!--                                                    stripedRows-->
+<!--                                                    responsiveLayout="scroll"-->
+<!--                                                >-->
+<!--                                                    <Column field="variation_name" header="" class="overflow-wrap-anywhere">-->
+<!--                                                        <template #body="prop">-->
+
+<!--&lt;!&ndash;                                                            <div class="flex  items-center">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                <div class="product_img">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <div v-if="Array.isArray(prop.data?.image_urls) && prop.data?.image_urls.length > 0">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                        <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                            <Image preview&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                                   :src="base_url + '/' + imageUrl"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                                   alt="Error" class="shadow-4" width="35"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                        </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <div v-else>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                        <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                             alt="Error" class="shadow-4" width="35"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                <div class=" product_desc  ml-3">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <h4>{{ prop.data?.name }}</h4>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                    <p><b class="text-gray-400 font-normal">  {{ prop.data?.total_sales }}</b> <span class="text-gray-400">Units Sold</span></p>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                                </div>&ndash;&gt;-->
+<!--&lt;!&ndash;                                                            </div>&ndash;&gt;-->
+<!--                                                        </template>-->
+<!--                                                    </Column>-->
+<!--                                                    <template #empty>-->
+<!--                                                        <div class="text-center py-3">-->
+<!--                                                            No records found.-->
+<!--                                                        </div>-->
+<!--                                                    </template>-->
+<!--                                                </DataTable>-->
                                             </div>
                                         </template>
                                     </Card>
@@ -227,45 +231,50 @@ const toggleQuickFilterState = (event) => {
                                         </template>
 
                                         <template #content>
-                                            <DataTable
-                                                :value="store.top_selling_brands"
-                                                dataKey="id"
+                                            <div class="max-h-14rem overflow-y-auto">
+                                            <div v-for="product in store.top_selling_brands" :key="product.id">
+                                                <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+                                            </div>
+                                            </div>
+<!--                                            <DataTable-->
+<!--                                                :value="store.top_selling_brands"-->
+<!--                                                dataKey="id"-->
 
-                                                class="p-datatable-sm p-datatable-hoverable-rows"
-                                                :nullSortOrder="-1"
-                                                v-model:selection="store.action.items"
-                                                stripedRows
-                                                responsiveLayout="scroll"
-                                            >
-                                                <Column field="variation_name" header="" class="overflow-wrap-anywhere">
-                                                    <template #body="prop">
-                                                        <div class="flex ">
-                                                            <div class="product_img">
-                                                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
-                                                                    <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
-                                                                        <Image preview
-                                                                               :src="imageUrl"
-                                                                               alt="Error" class="shadow-4" width="35"/>
-                                                                    </div>
-                                                                </div>
-                                                                <div v-else>
-                                                                    <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                                                         alt="Error" class="shadow-4" width="35"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="product_desc ml-3">
-                                                                <h4>{{ prop.data.name }}</h4>
-                                                                <!--                                <p><b> {{ prop.data.total_sales }}</b> Items</p>-->
-                                                            </div>
-                                                        </div>
-                                                    </template>
-                                                </Column>
-                                                <template #empty>
-                                                    <div class="text-center py-3">
-                                                        No records found.
-                                                    </div>
-                                                </template>
-                                            </DataTable>
+<!--                                                class="p-datatable-sm p-datatable-hoverable-rows"-->
+<!--                                                :nullSortOrder="-1"-->
+<!--                                                v-model:selection="store.action.items"-->
+<!--                                                stripedRows-->
+<!--                                                responsiveLayout="scroll"-->
+<!--                                            >-->
+<!--                                                <Column field="variation_name" header="" class="overflow-wrap-anywhere">-->
+<!--                                                    <template #body="prop">-->
+<!--                                                        <div class="flex ">-->
+<!--                                                            <div class="product_img">-->
+<!--                                                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">-->
+<!--                                                                    <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">-->
+<!--                                                                        <Image preview-->
+<!--                                                                               :src="imageUrl"-->
+<!--                                                                               alt="Error" class="shadow-4" width="35"/>-->
+<!--                                                                    </div>-->
+<!--                                                                </div>-->
+<!--                                                                <div v-else>-->
+<!--                                                                    <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"-->
+<!--                                                                         alt="Error" class="shadow-4" width="35"/>-->
+<!--                                                                </div>-->
+<!--                                                            </div>-->
+<!--                                                            <div class="product_desc ml-3">-->
+<!--                                                                <h4>{{ prop.data.name }}</h4>-->
+<!--                                                                &lt;!&ndash;                                <p><b> {{ prop.data.total_sales }}</b> Items</p>&ndash;&gt;-->
+<!--                                                            </div>-->
+<!--                                                        </div>-->
+<!--                                                    </template>-->
+<!--                                                </Column>-->
+<!--                                                <template #empty>-->
+<!--                                                    <div class="text-center py-3">-->
+<!--                                                        No records found.-->
+<!--                                                    </div>-->
+<!--                                                </template>-->
+<!--                                            </DataTable>-->
                                         </template>
                                     </Card>
                                     <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
@@ -277,45 +286,50 @@ const toggleQuickFilterState = (event) => {
                                         </template>
 
                                         <template #content>
-                                            <DataTable
-                                                :value="store.top_selling_categories"
-                                                dataKey="id"
+                                            <div class="max-h-14rem overflow-y-auto">
+                                                <div v-for="product in store.top_selling_categories" :key="product.id">
+                                                    <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+                                                </div>
+                                            </div>
+<!--                                            <DataTable-->
+<!--                                                :value="store.top_selling_categories"-->
+<!--                                                dataKey="id"-->
 
-                                                class="p-datatable-sm p-datatable-hoverable-rows"
-                                                :nullSortOrder="-1"
-                                                v-model:selection="store.action.items"
-                                                stripedRows
-                                                responsiveLayout="scroll"
-                                            >
-                                                <Column field="variation_name" header="" class="overflow-wrap-anywhere">
-                                                    <template #body="prop">
-                                                        <div class="flex ">
-                                                            <div class="product_img">
-                                                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
-                                                                    <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
-                                                                        <Image preview
-                                                                               :src="base_url + '/' + imageUrl"
-                                                                               alt="Error" class="shadow-4" width="35"/>
-                                                                    </div>
-                                                                </div>
-                                                                <div v-else>
-                                                                    <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                                                         alt="Error" class="shadow-4" width="35"/>
-                                                                </div>
-                                                            </div>
-                                                            <div class="product_desc ml-3">
-                                                                <h4>{{ prop.data.name }}</h4>
-                                                                <!--                                <p><b> {{ prop.data.total_sales }}</b> Items</p>-->
-                                                            </div>
-                                                        </div>
-                                                    </template>
-                                                </Column>
-                                                <template #empty>
-                                                    <div class="text-center py-3">
-                                                        No records found.
-                                                    </div>
-                                                </template>
-                                            </DataTable>
+<!--                                                class="p-datatable-sm p-datatable-hoverable-rows"-->
+<!--                                                :nullSortOrder="-1"-->
+<!--                                                v-model:selection="store.action.items"-->
+<!--                                                stripedRows-->
+<!--                                                responsiveLayout="scroll"-->
+<!--                                            >-->
+<!--                                                <Column field="variation_name" header="" class="overflow-wrap-anywhere">-->
+<!--                                                    <template #body="prop">-->
+<!--                                                        <div class="flex ">-->
+<!--                                                            <div class="product_img">-->
+<!--                                                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">-->
+<!--                                                                    <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">-->
+<!--                                                                        <Image preview-->
+<!--                                                                               :src="base_url + '/' + imageUrl"-->
+<!--                                                                               alt="Error" class="shadow-4" width="35"/>-->
+<!--                                                                    </div>-->
+<!--                                                                </div>-->
+<!--                                                                <div v-else>-->
+<!--                                                                    <img src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"-->
+<!--                                                                         alt="Error" class="shadow-4" width="35"/>-->
+<!--                                                                </div>-->
+<!--                                                            </div>-->
+<!--                                                            <div class="product_desc ml-3">-->
+<!--                                                                <h4>{{ prop.data.name }}</h4>-->
+<!--                                                                &lt;!&ndash;                                <p><b> {{ prop.data.total_sales }}</b> Items</p>&ndash;&gt;-->
+<!--                                                            </div>-->
+<!--                                                        </div>-->
+<!--                                                    </template>-->
+<!--                                                </Column>-->
+<!--                                                <template #empty>-->
+<!--                                                    <div class="text-center py-3">-->
+<!--                                                        No records found.-->
+<!--                                                    </div>-->
+<!--                                                </template>-->
+<!--                                            </DataTable>-->
                                         </template>
                                     </Card>
                                 </div>
