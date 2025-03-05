@@ -1399,7 +1399,6 @@ export const useUserStore = defineStore({
             this.total_orders =data.summary.total_orders;
             this.avg_orders_per_customer =data.summary.avg_orders_per_customer;
             this.average_order_value  =data.summary.average_order_value;
-            console.log(this.total_customers)
 
             const seriesData = data.chart_series.map(series => ({
                 name: series.name ,
