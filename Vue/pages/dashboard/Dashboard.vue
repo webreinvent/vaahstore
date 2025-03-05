@@ -4,6 +4,7 @@ import { useRootStore } from "../../stores/root";
 import { useRoute } from "vue-router";
 import { computed, onMounted, ref } from "vue";
 import { useOrderStore } from "../../stores/store-orders";
+import { useDashboardStore } from "../../stores/store-dashboard";
 
 const customers_store = useUserStore();
 import TileInfo from "../../components/TileInfo.vue";
@@ -24,6 +25,7 @@ const shipment_store = useShipmentStore();
 const warehouse_store = useWarehouseStore();
 const payment_store = usePaymentStore();
 const product_stock_store = useProductStockStore();
+const store = useDashboardStore();
 const root = useRootStore();
 const route = useRoute();
 const base_url = ref('');
@@ -35,6 +37,7 @@ onMounted(async () => {
     await settings_store.getAssets();
     await product_store.getAssets();
     await settings_store.getList();
+    // await store.getAssets();
 
 
     await orders_store.fetchOrdersChartData();
