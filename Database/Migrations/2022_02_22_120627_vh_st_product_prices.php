@@ -16,6 +16,7 @@ class VhStProductPrices extends Migration
 
         Schema::create('vh_st_product_prices', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('vh_st_vendor_product_id')->nullable()->index();
             $table->uuid('uuid')->nullable()->index();
 
             $table->integer('vh_st_vendor_id')->nullable()->index();
