@@ -98,7 +98,7 @@ app.use(PrimeVue, {
 
             },
         },
-        button:{
+        button: {
             root:{
                 class:"!bg-gray-100 !border-gray-200 text-gray-500 rounded-lg border p-1 hover:bg-gray-200"
             }
@@ -112,7 +112,7 @@ app.use(PrimeVue, {
             root: {class: '!shadow-card bg-gray-50'},
             body: { class: 'px-2 pt-3 pb-0 gap-0' },
             content: { class: 'p-0' },
-            title: { class: '!text-gray-500 font-normal p-0 mb-4 !border-b-0 ml-2' }
+            title: { class: '!text-gray-500 font-normal p-0 mb-2 !border-b-0 ml-2' }
         },
         rating: {
             onIcon: {class: '!text-warning-500'}
