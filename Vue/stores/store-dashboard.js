@@ -43,7 +43,7 @@ export const useDashboardStore = defineStore({
         //---------------------------------------------------------------------
         searchStoreForListQuery(event){
             const query = event.query.toLowerCase();
-            this.filteredStores = this.stores.filter(store =>
+            this.filtered_stores = this.stores.filter(store =>
                 store.name.toLowerCase().includes(query)
             );
         },

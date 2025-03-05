@@ -1234,12 +1234,12 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------
 
 
-        async fetchSalesChartData() {
+        async fetchSalesChartData(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
-
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1262,7 +1262,8 @@ export const useOrderStore = defineStore({
             this.chart_series = data.chart_series;
             this.overall_sales = data.chart_series?.overall_total_sales;
             this.growth_rate = data.chart_series?.growth_rate;
-
+            this.default_currency_symbol = data.chart_series?.currency_symbol?? '';
+            console.log(this.default_currency_symbol)
             // Store original sales values for tooltip
             const originalDataMap = new Map();
             data.chart_series.orders_sales_chart_data.forEach(series => {
@@ -1361,7 +1362,7 @@ export const useOrderStore = defineStore({
                                 ? (exactSale / 1000).toFixed(2) + 'k'
                                 : exactSale;
 
-                            return `&#8377;${formattedValue}`; 
+                            return `&#8377;${formattedValue}`;
                         }
                     }
                 }

@@ -38,11 +38,11 @@ onMounted(async () => {
     await store.getAssets();
     await product_store.getAssets();
     await settings_store.getList();
-
+    store.setDefaultStoreForAtDashboard();
 
 
     await orders_store.fetchOrdersChartData();
-    await orders_store.fetchSalesChartData();
+    await orders_store.fetchSalesChartData(store.default_store);
     await product_stock_store.getStocksChartData();
     await product_store.topSellingProducts();
     await product_store.topSellingBrands();
@@ -101,7 +101,6 @@ onMounted(async () => {
 
 
     await orders_store.fetchOrdersCountChartData();
-    await orders_store.fetchSalesChartData();
     await orders_store.fetchOrderPaymentsData();
     await orders_store.fetchOrdersChartData();
 
@@ -112,7 +111,7 @@ onMounted(async () => {
     await warehouse_store.warehouseStockInBarChart();
     await payment_store.paymentMethodsPieChartData();
 
-    store.setDefaultStoreForAtDashboard();
+
 });
 
 const quick_filter_menu_state = ref();
@@ -130,6 +129,13 @@ const handleDateChangeRound = (newDate, date_type) => {
     }
 }
 const today = ref(new Date());
+
+const onStoreSelect = (selectedStore) => {
+    store.selected_store_at_dashboard = selectedStore.value;
+    console.log("Selected Store:", store.selected_store_at_dashboard);
+    orders_store.fetchSalesChartData(store.selected_store_at_dashboard);
+};
+
 </script>
 <template>
     <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 surface-ground ">
@@ -191,13 +197,13 @@ const today = ref(new Date());
                     name="products-filter-store"
                     data-testid="products-filter-store"
                     v-model="store.selected_store_at_dashboard"
-                    @change="product_store.onStoreSelect($event)"
+                    @change="onStoreSelect($event)"
                     option-label = "name"
                     dropdown
                     style="height:30px"
                     :complete-on-focus = "true"
-                    :suggestions="product_store.filteredStores"
-                    @complete="product_store.searchStoreForListQuery"
+                    :suggestions="store.filtered_stores"
+                    @complete="store.searchStoreForListQuery"
 
 
 
@@ -253,13 +259,14 @@ const today = ref(new Date());
                         <span class="text-sm"> Overall Sales</span>
                         <span class="rounded-full bg-gray-200 size-1 mx-1"></span>
                         <span class="text-xs">
-                            ₹{{
-                                orders_store.overall_sales > 0 ?
-                                    orders_store.overall_sales?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                                    :
-                                    '0'
-                            }}
-                        </span>
+                        <span v-html="orders_store.default_currency_symbol"></span>
+                        {{
+                            orders_store.overall_sales && orders_store.overall_sales > 0
+                                ? orders_store.overall_sales.toLocaleString()
+                                : '0'
+                        }}
+                    </span>
+
 
                         <template v-if="orders_store.chart_series?.growth_rate">
                             <template v-if="orders_store.chart_series?.growth_rate !== 0">
