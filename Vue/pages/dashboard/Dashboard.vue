@@ -378,7 +378,8 @@ const today = ref(new Date());
                     <template #content>
 
                         <div v-for="product in product_store.top_selling_brands" :key="product.id">
-                            <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+
+                            <TileInfo :product="product" :baseUrl="product.image_urls" :showRating="true" />
                         </div>
 
                     </template>
