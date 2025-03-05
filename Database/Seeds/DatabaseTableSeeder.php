@@ -5,11 +5,7 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use VaahCms\Modules\Store\Models\Currency;
-use VaahCms\Modules\Store\Models\Store;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
-use WebReinvent\VaahCms\Models\Taxonomy;
-require_once base_path('VaahCms/Modules/Store/Helpers/currencies.php');
 
 class DatabaseTableSeeder extends Seeder
 {
