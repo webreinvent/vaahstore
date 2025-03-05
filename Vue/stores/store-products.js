@@ -1039,9 +1039,9 @@ export const useProductStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
-                this.topSellingProducts();
-                this.topSellingBrands();
-                this.topSellingCategories();
+                this.topSellingProducts(this.selected_store_at_list);
+                this.topSellingBrands(this.selected_store_at_list);
+                this.topSellingCategories(this.selected_store_at_list);
             }
         },
         viewCart(id){
@@ -2866,13 +2866,13 @@ export const useProductStore = defineStore({
             return `${minPrice} - ${maxPrice}`;
         },
         //---------------------------------------------------------------------
-        async topSellingProducts() {
+        async topSellingProducts(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
-                store: this.selected_store_at_list ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -2890,13 +2890,13 @@ export const useProductStore = defineStore({
             }
         },
 
-        async topSellingBrands() {
+        async topSellingBrands(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
-                store: this.selected_store_at_list ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -2913,13 +2913,13 @@ export const useProductStore = defineStore({
                 this.top_selling_brands = data;
             }
         },
-        async topSellingCategories() {
+        async topSellingCategories(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
-                store: this.selected_store_at_list ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,

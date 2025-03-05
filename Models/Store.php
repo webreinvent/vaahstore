@@ -1022,17 +1022,17 @@ class Store extends VaahModel
     }
 
 
-    private static function updateCurrencies($storeId, $inputs)
+    private static function updateCurrencies($store_id, $inputs)
     {
         if (!empty($inputs['currencies'])) {
-            $currencyNames = collect($inputs['currencies'])->pluck('name')->toArray();
-            Currency::where('vh_st_store_id', $storeId)
-                ->whereNotIn('name', $currencyNames)
+            $currency_names = collect($inputs['currencies'])->pluck('name')->toArray();
+            Currency::where('vh_st_store_id', $store_id)
+                ->whereNotIn('name', $currency_names)
                 ->update(['is_active' => 0, 'is_default' => 0]);
 
             foreach ($inputs['currencies'] as $currency) {
                 Currency::updateOrInsert(
-                    ['vh_st_store_id' => $storeId, 'name' => $currency['name']],
+                    ['vh_st_store_id' => $store_id, 'name' => $currency['name']],
                     [
                         'is_active' => 1,
                         'code' => $currency['code'] ?? null,
@@ -1041,13 +1041,13 @@ class Store extends VaahModel
                 );
             }
         } else {
-            Currency::where('vh_st_store_id', $storeId)->update(['is_active' => 0, 'is_default' => 0]);
+            Currency::where('vh_st_store_id', $store_id)->update(['is_active' => 0, 'is_default' => 0]);
         }
 
         if (!empty($inputs['default_currency'])) {
-            Currency::where('vh_st_store_id', $storeId)->update(['is_default' => 0]);
+            Currency::where('vh_st_store_id', $store_id)->update(['is_default' => 0]);
             Currency::updateOrInsert(
-                ['vh_st_store_id' => $storeId, 'name' => $inputs['default_currency']['name']],
+                ['vh_st_store_id' => $store_id, 'name' => $inputs['default_currency']['name']],
                 [
                     'is_active' => 1,
                     'is_default' => 1,
@@ -1060,28 +1060,28 @@ class Store extends VaahModel
 
     //-------------------------------------------------
 
-    private static function updateLanguages($storeId, $inputs)
+    private static function updateLanguages($store_id, $inputs)
     {
         if (!empty($inputs['languages'])) {
-            $languageNames = collect($inputs['languages'])->pluck('name')->toArray();
-            Lingual::where('vh_st_store_id', $storeId)
-                ->whereNotIn('name', $languageNames)
+            $language_names = collect($inputs['languages'])->pluck('name')->toArray();
+            Lingual::where('vh_st_store_id', $store_id)
+                ->whereNotIn('name', $language_names)
                 ->update(['is_active' => 0, 'is_default' => 0]);
 
             foreach ($inputs['languages'] as $language) {
                 Lingual::updateOrInsert(
-                    ['vh_st_store_id' => $storeId, 'name' => $language['name']],
+                    ['vh_st_store_id' => $store_id, 'name' => $language['name']],
                     ['is_active' => 1, 'code' => $language['code'] ?? null]
                 );
             }
         } else {
-            Lingual::where('vh_st_store_id', $storeId)->update(['is_active' => 0, 'is_default' => 0]);
+            Lingual::where('vh_st_store_id', $store_id)->update(['is_active' => 0, 'is_default' => 0]);
         }
 
         if (!empty($inputs['default_language'])) {
-            Lingual::where('vh_st_store_id', $storeId)->update(['is_default' => 0]);
+            Lingual::where('vh_st_store_id', $store_id)->update(['is_default' => 0]);
             Lingual::updateOrInsert(
-                ['vh_st_store_id' => $storeId, 'name' => $inputs['default_language']['name']],
+                ['vh_st_store_id' => $store_id, 'name' => $inputs['default_language']['name']],
                 [
                     'is_active' => 1,
                     'is_default' => 1,

@@ -44,9 +44,9 @@ onMounted(async () => {
     await orders_store.fetchOrdersChartData();
     await orders_store.fetchSalesChartData(store.default_store);
     await product_stock_store.getStocksChartData();
-    await product_store.topSellingProducts();
-    await product_store.topSellingBrands();
-    await product_store.topSellingCategories();
+    await product_store.topSellingProducts(store.default_store);
+    await product_store.topSellingBrands(store.default_store);
+    await product_store.topSellingCategories(store.default_store);
     await customers_store.fetchCustomerCountChartData();
 
 
@@ -130,14 +130,21 @@ const handleDateChangeRound = (newDate, date_type) => {
 }
 const today = ref(new Date());
 
-const onStoreSelect = (selectedStore) => {
+const onStoreSelect = async (selectedStore) => {
     store.selected_store_at_dashboard = selectedStore.value;
     console.log("Selected Store:", store.selected_store_at_dashboard);
-    orders_store.fetchSalesChartData(store.selected_store_at_dashboard);
-    vendor_store.topSellingVendorsData(store.selected_store_at_dashboard);
-    vendor_store.vendorSalesByRange(store.selected_store_at_dashboard);
-    orders_store.fetchOrderPaymentsData(store.selected_store_at_dashboard);
+
+    await Promise.all([
+        orders_store.fetchSalesChartData(store.selected_store_at_dashboard),
+        vendor_store.topSellingVendorsData(store.selected_store_at_dashboard),
+        vendor_store.vendorSalesByRange(store.selected_store_at_dashboard),
+        orders_store.fetchOrderPaymentsData(store.selected_store_at_dashboard),
+        product_store.topSellingProducts(store.selected_store_at_dashboard),
+        product_store.topSellingBrands(store.selected_store_at_dashboard),
+        product_store.topSellingCategories(store.selected_store_at_dashboard),
+    ]);
 };
+
 
 </script>
 <template>
