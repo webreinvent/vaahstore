@@ -161,6 +161,28 @@ const toggleFormMenu = (event) => {
                 </FloatLabel>
 
             </div>
+
+            <div class="flex items-center mb-4">
+                <FloatLabel class="my-1 w-full !rounded-r-none" :variant="store.float_label_variants" >
+
+                    <AutoComplete name="store-languages"
+                                  data-testid="store-languages"
+                                  v-model="store.item.default_language"
+                                  option-label="name"
+                                  dropdown
+                                  :complete-on-focus="true"
+                                  :suggestions="store.language_suggestion_list"
+                                  @complete="store.searchLanguages($event)"
+                                  class="w-full"
+                    />
+
+                    <label for="articles-name">Select Default Language<span class="text-red-500">*</span></label>
+                </FloatLabel>
+
+            </div>
+
+
+
             <VhField label="Is Multi Currency">
 
                 <div class="">
@@ -206,7 +228,7 @@ const toggleFormMenu = (event) => {
                                       class="p-inputswitch"
                                       name="stores-multi-currency"
                                       data-testid="stores-multi-currency"
-                                      @change="store.item.languages = null;store.item.default_language = null;"
+                                      @change="store.item.languages = null;"
                                       v-model="store.item.is_multi_lingual"/>
                     </div>
 
@@ -232,31 +254,7 @@ const toggleFormMenu = (event) => {
                 <label for="currencies-name">Select Languages<span class="text-red-500">*</span></label>
             </FloatLabel>
 
-            <div class="flex items-center mb-4">
-                <FloatLabel class="my-1 w-full !rounded-r-none" :variant="store.float_label_variants" v-show="store.item && store.item.languages && store.item.languages.length >= 1">
 
-                        <Select v-model="store.item.default_language"
-                                :options="store.item.languages"
-                                data-testid="store-language_default"
-                                filter
-                                optionLabel="name"
-                                class="w-full">
-                            <template #option="slotProps">
-                                <div class="flex align-items-center">
-                                    <span>{{slotProps.option.name}}</span>
-                                </div>
-                            </template>
-                        </Select>
-
-                    <label for="articles-name">Select Default Language</label>
-                </FloatLabel>
-                <Button
-                    v-if="store.item && store.item.default_language"
-                    @click="store.item.default_language = null"
-                    class="min-h-[35px]"
-                    data-testid="store-remove-default-currency"
-                    icon="pi pi-times"/>
-            </div>
 
 
             <VhField label="Is Multi Vendor">

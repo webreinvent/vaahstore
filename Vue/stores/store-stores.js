@@ -471,7 +471,8 @@ export const useStoreStore = defineStore({
         searchLanguages(event) {
             const query = event.query.toLowerCase();
             this.language_suggestion_list = this.languages_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
+                return item.name.toLowerCase().includes(query)&&
+                    (!this.item.default_language || item.name !== this.item.default_language.name);
             });
         },
 
