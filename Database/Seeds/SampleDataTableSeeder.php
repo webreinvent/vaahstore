@@ -117,8 +117,9 @@ class SampleDataTableSeeder extends Seeder
             $store->allowed_ips = array_map(fn () => $faker->ipv4, range(1, 5));
             $store->save();
 
-            if ($store->is_multi_currency && count($currencies) > 1) {
+            if (count($currencies) > 1) {
                 $random_currencies = array_rand($currencies, min(2, count($currencies)));
+                $default_currency_index = $random_currencies[array_rand($random_currencies)]; // Pick one as default
                 foreach ((array) $random_currencies as $index) {
                     $currencies_to_insert[] = [
                         'vh_st_store_id' => $store->id,
@@ -126,17 +127,20 @@ class SampleDataTableSeeder extends Seeder
                         'is_active' => 1,
                         'code' => $currencies[$index]['code'],
                         'symbol' => $currencies[$index]['symbol'],
+                        'is_default' => ($index === $default_currency_index) ? 1 : 0,
                     ];
                 }
             }
 
-            if ($store->is_multi_lingual && count($languages) > 1) {
+            if (count($languages) > 1) {
                 $random_languages = array_rand($languages, min(2, count($languages)));
+                $default_language_index = $random_languages[array_rand($random_languages)];
                 foreach ((array) $random_languages as $index) {
                     $languages_to_insert[] = [
                         'vh_st_store_id' => $store->id,
                         'name' => $languages[$index]['name'],
                         'is_active' => 1,
+                        'is_default' => ($index === $default_language_index) ? 1 : 0,
                     ];
                 }
             }
@@ -186,6 +190,31 @@ class SampleDataTableSeeder extends Seeder
             if (!empty($default_currencies_to_insert)) {
                 Currency::insert($default_currencies_to_insert);
             }
+            // Insert default store languages (Random language default)
+            if (count($languages) > 1) {
+                $default_languages_to_insert = [];
+                $random_languages = array_rand($languages, min(2, count($languages))); // Pick two random languages
+
+                // Ensure $random_languages is always an array
+                $random_languages = is_array($random_languages) ? $random_languages : [$random_languages];
+
+                $default_language_index = $random_languages[array_rand($random_languages)]; // Pick one as default
+
+                foreach ($random_languages as $index) {
+                    $default_languages_to_insert[] = [
+                        'vh_st_store_id' => $default_store->id,
+                        'name' => $languages[$index]['name'],
+                        'code' => $languages[$index]['code'],
+                        'is_active' => 1,
+                        'is_default' => ($index === $default_language_index) ? 1 : 0, // One is default
+                    ];
+                }
+
+                if (!empty($default_languages_to_insert)) {
+                    Lingual::insert($default_languages_to_insert);
+                }
+            }
+
         }
     }
 
