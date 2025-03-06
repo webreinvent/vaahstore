@@ -35,13 +35,11 @@ const openProductCategories = (categories,product) => {
 
     <div v-if="store.list" class="data-container" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
         <!--table-->
-         <DataTable :value="store.list.data"
+         <DataTable  :value="store.list.data"
                        dataKey="id"
                     :rowClass="(rowData) => rowData.id === store.item?.id ? 'bg-yellow-100' : ''"
-
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
-                   stripedRows
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
@@ -60,10 +58,10 @@ const openProductCategories = (categories,product) => {
                            value="Trashed"
                            severity="danger"></Badge>
                     <span v-if="prop.data.is_default">
-                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                        <div  style="word-break: break-word;">{{ prop.data.name }}</div>
                          </span>
                     <span v-else>
-                        <div style="word-break: break-word;">{{ prop.data.name }}</div>
+                        <div class=" text-xs" style="word-break: break-word;">{{ prop.data.name }}</div>
                     </span>
                 </template>
 
@@ -86,12 +84,12 @@ const openProductCategories = (categories,product) => {
              <Column field="quantity" header="Quantity" v-if="store.isListView()" :sortable="true">
                  <template #body="prop">
                      <template v-if="prop.data && prop.data.product_price_range">
-                         <Badge v-if="prop.data.product_price_range.quantity"
-                                :value="prop.data.product_price_range.quantity"
-                                severity="info"></Badge>
-                         <Badge v-else-if="prop.data.quantity == 0 || prop.data.quantity === null"
-                                value="0"
-                                severity="danger"></Badge>
+                         <p class="text-center" v-if="prop.data.product_price_range.quantity"
+
+                                >{{prop.data.product_price_range.quantity}}</p>
+                         <p class="text-center" v-else-if="prop.data.quantity == 0 || prop.data.quantity === null"
+
+                         >0</p>
                          <Badge v-else
                                 :value="prop.data.quantity"
                                 severity="info"></Badge>
@@ -102,20 +100,42 @@ const openProductCategories = (categories,product) => {
                  </template>
              </Column>
 
-
-
-
-             <Column field="price range" header="Price Range">
+             <Column field="vendors" class="" header="Vendors" :sortable="false">
                  <template #body="prop">
-        <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
-            {{ prop.data.product_price_range.price_range.join(' - ') }}
-        </span>
-                     <span v-else>
-            0
-        </span>
+                     <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-8">
+            <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
+                  v-tooltip.top="'View Vendors'"
+                  @click="store.openVendorsPanel(prop.data)">
+                <b v-if="prop.data && prop.data.is_attached_default_vendor === false">
+                    {{ prop.data.product_vendors.length + 1 }}
+                </b>
+                <b v-else>
+                    {{ prop.data ? prop.data.product_vendors.length : 0 }}
+                </b>
+            </span>
+                         <Button :pt="{ icon: { class: '!text-[8px]' } }"  icon="pi pi-plus" class="quantity-button !rounded" severity="info" v-if="!prop.data.deleted_at"
+                                 v-tooltip.top="'Add Vendors'"
+                                 :disabled="prop.data && prop.data.id === store.item?.id && $route.path.includes('vendor')"
+                                 @click="store.toVendor(prop.data)" />
+                     </div>
                  </template>
              </Column>
 
+             <Column field="status.name" header="Status"
+                     :sortable="true"
+                     v-if="store.isListView()">
+                 <template #body="prop">
+
+                     <Badge unstyled="true" class="!text-green-500 bg-[#0E9F6E1A]" v-if="prop.data.status.slug == 'approved'"
+
+                     >{{prop.data.status.name}} </Badge>
+                     <Badge unstyled="true"  class="!text-red-500 bg-[#E02424]/10 "v-else-if="prop.data.status.slug == 'rejected'"
+                            > {{prop.data.status.name}} </Badge>
+                     <Badge unstyled="true"  v-else class="!text-yellow-500 bg-[##E3A0081A]/10"
+                            > {{prop.data.status.name}} </Badge>
+                 </template>
+
+             </Column>
 
              <Column  header="Selected Vendor"
                       v-if="store.isListView()">
@@ -131,88 +151,47 @@ const openProductCategories = (categories,product) => {
                  </template>
              </Column>
 
+             <Column field="price range" header="Price Range">
+                 <template #body="prop">
+        <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
+            {{ prop.data.product_price_range.price_range.join(' - ') }}
+        </span>
+                     <span v-else>
+            0
+        </span>
+                 </template>
+             </Column>
+
              <Column field="variations" header="Variations"
                      :sortable="false">
 
                  <template #body="prop">
-                     <div class="p-inputgroup">
-                         <span  v-if="prop.data.product_variations_count && prop.data.product_variations_count!= null"
-                                class="p-inputgroup-addon cursor-pointer"
-                                v-tooltip.top="'View Variations'"
-                                @click="store.toViewVariation(prop.data)">
-
-                             <b>{{prop.data.product_variations_count}}</b>
-
-                         </span>
-                         <span class="p-inputgroup-addon" v-else>
-                             <b>{{prop.data.product_variations_count}}</b>
-                         </span>
-                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
+                     <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-8">
+            <span v-if="prop.data.product_variations_count && prop.data.product_variations_count!= null" class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
+                  v-tooltip.top="'View Variations'"
+                  @click="store.toViewVariation(prop.data)">
+               <b>{{prop.data.product_variations_count}}</b>
+            </span>
+                         <Button :pt="{ icon: { class: '!text-[8px]' } }"  icon="pi pi-plus" class="quantity-button !rounded" severity="info" v-if="!prop.data.deleted_at"
                                  v-tooltip.top="'Add Variations'"
                                  :disabled="prop.data.id===store.item?.id && $route.path.includes('variation')"
                                  @click="store.toVariation(prop.data)" />
                      </div>
-
                  </template>
              </Column>
-
-             <Column field="vendors" header="Vendors" :sortable="false">
-                 <template #body="prop">
-                     <div class="p-inputgroup">
-            <span class="p-inputgroup-addon cursor-pointer"
-                  v-tooltip.top="'View Vendors'"
-                  @click="store.openVendorsPanel(prop.data)">
-                <b v-if="prop.data && prop.data.is_attached_default_vendor === false">
-                    {{ prop.data.product_vendors.length + 1 }}
-                </b>
-                <b v-else>
-                    {{ prop.data ? prop.data.product_vendors.length : 0 }}
-                </b>
-            </span>
-                         <Button icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 v-tooltip.top="'Add Vendors'"
-                                 :disabled="prop.data && prop.data.id === store.item?.id && $route.path.includes('vendor')"
-                                 @click="store.toVendor(prop.data)" />
-                     </div>
-                 </template>
-             </Column>
-
-
-
-
 
              <Column field="product_categories.name" header="Categories">
                  <template #body="prop">
-                     <div class="p-inputgroup">
-                        <span v-if="prop.data.product_categories && prop.data.product_categories.length" class="p-inputgroup-addon cursor-pointer"
+                     <div class="p-inputgroup justify-center">
+                        <span v-if="prop.data.product_categories && prop.data.product_categories.length" class=""
                               @click="openProductCategories(prop.data.product_categories,prop.data.name)" v-tooltip.top="'View Categories'">
-                              <Badge severity="info">{{prop.data.product_categories.length}}</Badge>
+                              <p>{{prop.data.product_categories.length}}</p>
                         </span>
                          <span class="p-inputgroup-addon" v-else>
                              <Badge severity="info">0</Badge>
                          </span>
                      </div>
                  </template>
-             </Column>
-
-
-
-
-
-             <Column field="status.name" header="Status"
-                     :sortable="true"
-                     v-if="store.isListView()">
-
-                 <template #body="prop">
-
-                     <Badge v-if="prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
-                            severity="warn"> {{prop.data.status.name}} </Badge>
-                 </template>
-
              </Column>
 
             <Column field="is_active" v-if="store.isListView()"
@@ -238,15 +217,15 @@ const openProductCategories = (categories,product) => {
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-1  ">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny icon-button p-button-text"
                                 data-testid="products-table-to-view"
                                 v-tooltip.top="'Add To Cart'"
                                 @click="store.addToCart(prop.data)"
                                 icon="pi pi-shopping-cart" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny icon-button p-button-text"
                                 data-testid="products-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
@@ -254,14 +233,14 @@ const openProductCategories = (categories,product) => {
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
-                                class="p-button-tiny p-button-text"
+                                class="p-button-tiny  p-button-text icon-button"
                                 data-testid="products-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny text-red-400 p-button-danger p-button-text icon-button"
                                 data-testid="products-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at &&
                                 store.assets.permissions.includes('can-update-module')"
@@ -270,7 +249,7 @@ const openProductCategories = (categories,product) => {
                                 icon="pi pi-trash" />
 
 
-                        <Button class="p-button-tiny p-button-success p-button-text"
+                        <Button class="p-button-tiny p-button-success p-button-text icon-button"
                                 data-testid="products-table-action-restore"
                                 v-if="store.isListView() && prop.data.deleted_at &&
                                  store.assets.permissions.includes('can-update-module')"
