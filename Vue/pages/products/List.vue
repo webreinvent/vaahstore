@@ -102,41 +102,47 @@ const toggleQuickFilterState = (event) => {
 
     <div class="w-full" v-if="store.assets">
 
-        <div class="lg:flex lg:space-x-4 items-start">
+        <div class="lg:flex  lg:space-x-4 items-start">
 
             <div v-if="store.getLeftColumnClasses"
                  :class="store.getLeftColumnClasses"
 
-                 class="mb-4 lg:mb-0">
+                 class="mb-4  lg:mb-0">
 
-                <Panel :pt="root.panel_pt">
+                <Panel >
                     <template #header>
 
                         <div class="flex flex-row">
-                            <div>
+                            <div class="flex items-center gap-2">
+                                <div>
+                                <Icon icon="bx:basket" width="18" height="18"  style="color: #111113" />
+                                </div>
+                                <div class="flex items-center mt-1">
                                 <b class="mr-1">Products</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
+                                <p class="font-bold text-xs"  v-if="store.list && store.list.total > 0"
+                                >{{store.list.total}}
+                                </p>
+                                    </div>
                             </div>
 
                         </div>
 
                     </template>
-                    <div class="flex gap-2 mb-1" v-if=" store.isListView()">
-                        <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
+                    <div class="flex gap-2  mb-1" v-if=" store.isListView()">
+                        <div class="w-full bg-transparent border-none  rounded-sm mb-2">
                             <div class=" justify-content-between " >
-
-
-                                <div class="flex flex-wrap  gap-2 mt-2">
-                                    <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
+                                <div class="flex border-none  gap-2 mt-2">
+                                    <Card class="w-1/3" >
                                         <template #title>
                                             <div class="flex align-items-center justify-content-between">
-                                                <h2 class="text-lg">Top Selling Products</h2>
+                                                <div class="flex items-center">
+                                                    <Icon class="mr-2" icon="ph:chart-line-up" width="20" height="20"  style="color: #474C5D" />
+                                                <h2 class="text-sm">Top Selling Products</h2>
+                                                    </div>
                                                 <div>
                                                 <Chip
                                                     v-if="store.filter_all"
-                                                    class="white-space-nowrap align-items-center"
+                                                    class="white-space-nowrap  align-items-center"
                                                     :style="{
                                                                 fontSize: '11px',
                                                                 marginRight: '5px',
@@ -162,10 +168,9 @@ const toggleQuickFilterState = (event) => {
                                                     @click="toggleQuickFilterState($event)"
                                                     aria-haspopup="true"
                                                     aria-controls="quick_filter_menu_state"
-                                                    class="ml-1 p-button-sm px-1"
-
-                                                    icon="pi pi-filter"
+                                                    class="p-button-sm"
                                                 >
+                                                    <Icon icon="iconoir:filter" width="16" height="16"  style="color: #474C5D" />
                                                 </Button>
                                                 </div>
                                                 <Menu ref="quick_filter_menu_state"
@@ -173,10 +178,9 @@ const toggleQuickFilterState = (event) => {
                                                       :popup="true"/>
                                             </div>
                                         </template>
-
                                         <template #content>
-                                            <div class="max-h-14rem overflow-y-auto">
-                                                <div v-for="product in store.top_selling_products" :key="product.id">
+                                            <div class="max-h-14rem  overflow-y-auto">
+                                                <div class="border-b border-[#EDEDF1] " v-for="product in store.top_selling_products" :key="product.id">
                                                 <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
                                                 </div>
 <!--                                                <DataTable-->
@@ -222,17 +226,21 @@ const toggleQuickFilterState = (event) => {
                                             </div>
                                         </template>
                                     </Card>
-                                    <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
+                                    <Card class="w-1/3">
                                         <template #title>
-                                            <div class="flex align-items-center justify-content-between">
-                                                <h2 class="text-lg">Top Brands</h2>
-
+                                            <div class="flex align-items-center  justify-content-between">
+                                                <div class="flex items-center w-full justify-between ">
+                                                    <div class="flex items-center py-2">
+                                                    <Icon class="mr-2" icon="mage:tag" width="20" height="20"  style="color: #474C5D" />
+                                                    <h2 class="text-sm">Top Brands</h2>
+                                                        </div>
+                                                </div>
                                             </div>
                                         </template>
 
                                         <template #content>
                                             <div class="max-h-14rem overflow-y-auto">
-                                            <div v-for="product in store.top_selling_brands" :key="product.id">
+                                            <div class="border-b border-[#EDEDF1]" v-for="product in store.top_selling_brands" :key="product.id">
                                                 <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
                                             </div>
                                             </div>
@@ -277,20 +285,27 @@ const toggleQuickFilterState = (event) => {
 <!--                                            </DataTable>-->
                                         </template>
                                     </Card>
-                                    <Card class="border-1 border-gray-200 border-round-sm overflow-hidden">
+                                    <Card class="w-1/3 ">
                                         <template #title>
-                                            <div class="flex align-items-center justify-content-between">
-                                                <h2 class="text-lg">Top Categories</h2>
-
+                                            <div class="flex items-center py-2">
+                                                <Icon class="mr-2" icon="gravity-ui:circles-4-square" width="20" height="20"  style="color: #474C5D" />
+                                                <h2 class="text-sm">Top Brands</h2>
                                             </div>
                                         </template>
 
                                         <template #content>
                                             <div class="max-h-14rem overflow-y-auto">
+<!--                                                <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">-->
+<!--                                                    <VendorSale :vendorData="store.top_selling_categories" />-->
+<!--                                                </div>-->
                                                 <div v-for="product in store.top_selling_categories" :key="product.id">
                                                     <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+
                                                 </div>
                                             </div>
+<!--                                            <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">-->
+<!--                                               -->
+<!--                                            </div>-->
 <!--                                            <DataTable-->
 <!--                                                :value="store.top_selling_categories"-->
 <!--                                                dataKey="id"-->
@@ -339,25 +354,28 @@ const toggleQuickFilterState = (event) => {
                     </div>
                     <template #icons>
 
-                        <InputGroup>
+<!--                        <InputGroup>-->
+                        <div class=" gap-2 flex">
                             <Button
                                 size="small"
                                 data-testid="products-bulk_import"
                                 @click="store.toImport()">
+                                <Icon icon="oui:import" width="16" height="16"  style="color: #7b7a7a" />
                                 Bulk Import
-                            </Button>
+                            </Button
+        >
                             <Button data-testid="products-list-create"
                                     size="small"
                                     :disabled="!store.assets.permissions.includes('can-update-module')"
                                     @click="store.toForm()">
-                                <i class="pi pi-plus mr-1"></i>
+                                <Icon class="-mr-1" icon="ph:plus-light" width="16" height="16"  style="color: #7b7a7a" />
                                 Create
                             </Button>
 
                             <Button data-testid="products-list-reload"
                                     size="small"
                                     @click="store.reloadPage()">
-                                <i class="pi pi-refresh mr-1"></i>
+                                <Icon class="mx-1"  icon="famicons:reload-sharp" width="16" height="16"  style="color: #7b7a7a" />
                             </Button>
 
                             <!--form_menu-->
@@ -375,16 +393,21 @@ const toggleQuickFilterState = (event) => {
                             <Menu ref="create_menu"
                                   :model="store.list_create_menu"
                                   :popup="true"/>
+                        </div>
 
                             <!--/form_menu-->
 
-                        </InputGroup>
+<!--                        </InputGroup>-->
 
                     </template>
 
-                    <Actions/>
 
+                    <Card class="">
+                        <template #content>
+                            <Actions/>
                     <Table/>
+                        </template>
+                    </Card>
 
                 </Panel>
             </div>
