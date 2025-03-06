@@ -95,8 +95,8 @@ function toggleDatasetVisibility(index) {
                         </div>
 
                     </template>
-                        <div class="flex gap-2"  v-if=" store.isListView()">
-                            <Card class="min-w-max border-round-xl shadow-md shadow-2">
+                        <div class="flex gap-3"  v-if=" store.isListView()">
+                            <Card class="min-w-max">
                                 <template #title>
                                     <div class="flex align-items-center justify-content-between">
                                         <h2 class="text-lg">Top Vendors By Sales</h2>
@@ -179,21 +179,21 @@ function toggleDatasetVisibility(index) {
                                     </div>
                                 </template>
                             </Card>
-                            <div class="w-full bg-white border-round-2xl shadow-2">
+                            <div class="w-full bg-gray-50 rounded-lg shadow-card">
 
-                                <div class="flex mt-1 p-1" v-if=" store.isListView()">
+                                <div class=" items-center mt-1 p-1 w-full relative" v-if=" store.isListView()">
 
-                                    <Charts class="mt-1"
+                                    <Charts class="mt-1 w-full"
                                         type="line"
 
                                         :chartOptions="store.vendor_sales_area_chart_options"
                                         :chartSeries="store.vendor_sales_area_chart_series"
-                                        height=350 width=700
+                                        height=350 width=100%
                                         titleAlign="center"
                                         title="Sales By Vendor"
 
                                     />
-                                    <div class="flex my-4 " v-if="store.isListView()">
+                                    <div class="flex my-4 max-w-max absolute top-0 right-4" v-if="store.isListView()">
 
 
                                         <div class="scrollable-legend flex-1 bg-gray-100 border-round-xl p-2 overflow-y-auto max-h-18rem">
@@ -257,11 +257,12 @@ function toggleDatasetVisibility(index) {
                         </div>
 
                     </template>
-
+                        <Card class="mt-4">
+                            <template #content>
                     <Actions/>
-
                     <Table/>
-
+                            </template>
+                        </Card>
                 </Panel>
             </div>
 

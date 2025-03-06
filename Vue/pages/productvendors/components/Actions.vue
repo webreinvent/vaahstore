@@ -105,7 +105,7 @@ const toggleBulkMenuState = (event) => {
                                 type="button"
                                 icon="pi pi-filter-slash"
                                 data-testid="productvendors-actions-reset-filters"
-                                class="p-button-sm"
+                                class="p-button-sm gap-0"
                                 label="Reset"
                                 @click="store.resetQuery()" />
 

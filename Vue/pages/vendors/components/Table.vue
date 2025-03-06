@@ -70,7 +70,7 @@ const permissions=store.assets.permissions;
                     :sortable="false">
 
                 <template #body="prop">
-                    <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-0">
+                    <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-6">
                         <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                               v-tooltip.top="'View Products'"
                               v-if="(prop.data.vendor_products && prop.data.vendor_products.length)&& !prop.data.is_default"
@@ -88,7 +88,7 @@ const permissions=store.assets.permissions;
                               v-else-if="prop.data.is_default">
                              <b>{{store.assets.total_product}}</b>
                          </span>
-                         
+
                         <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                               v-else>
                              <b>{{ prop.data.product_vendors ? prop.data.product_vendors.length : 0 }}</b>
@@ -100,13 +100,13 @@ const permissions=store.assets.permissions;
                                 :disabled="$route.path.includes('product') && prop.data.id===store.item?.id"
                                  :pt="{ icon: { class: '!text-[8px]' } }"
                                 v-tooltip.top="'Add Products'" />
-                      
+
                     </div>
                 </template>
 
             </Column>
 
-            
+
 
 
             <Column field="vendor" header="Vendor User"
@@ -131,7 +131,7 @@ const permissions=store.assets.permissions;
                                 :disabled="$route.path.includes('role') && prop.data.id===store.item?.id"
                                 :class="{ 'blurred': $route.path.includes('role') && prop.data.id===store.item?.id }"
                                 v-tooltip.top="'Add Role'" />
-                                
+
                     </div>
                 </template>
 
