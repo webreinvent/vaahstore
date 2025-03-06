@@ -1,9 +1,9 @@
 <script setup>
-import {onMounted, reactive, ref} from "vue";
-import {useRoute} from 'vue-router';
+import { onMounted, reactive, ref } from "vue";
+import { useRoute } from 'vue-router';
 
-import {useProductVendorStore} from '@/stores/store-productvendors'
-import {useRootStore} from '@/stores/root'
+import { useProductVendorStore } from '@/stores/store-productvendors'
+import { useRootStore } from '@/stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
@@ -70,81 +70,69 @@ const toggleCreateMenu = (event) => {
 
         <div class="lg:flex lg:space-x-4 items-start">
             <!--left-->
-            <div v-if="store.getLeftColumnClasses"
-                 :class="store.getLeftColumnClasses"
+            <div v-if="store.getLeftColumnClasses" :class="store.getLeftColumnClasses" class="mb-4 lg:mb-0">
 
-                 class="mb-4 lg:mb-0">
-
-                <Panel :pt="root.panel_pt">
+                <Panel>
                     <template #header>
+                        <div class="flex flex-row">
+                            <div>
+                                <b class="mr-1">Vendor Products</b>
+                                <Badge v-if="store.list && store.list.total > 0" :value="store.list.total">
+                                </Badge>
+                            </div>
 
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Vendor Products</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
                         </div>
 
-                    </div>
+                    </template>
 
-                </template>
+                    <template #icons>
 
-                <template #icons>
+                        <InputGroup>
 
-                    <InputGroup>
+                            <Button data-testid="productvendors-list-create" size="small"
+                                :disabled="!store.assets.permissions.includes('can-update-module')"
+                                @click="store.toForm()">
+                                <i class="pi pi-plus"></i>
+                                Create
+                            </Button>
 
-                    <Button data-testid="productvendors-list-create"
-                            size="small"
-                            :disabled="!store.assets.permissions.includes('can-update-module')"
-                            @click="store.toForm()">
-                        <i class="pi pi-plus mr-1"></i>
-                        Create
-                    </Button>
+                            <Button data-testid="productvendors-list-reload" size="small" @click="store.reload()">
+                                <i class="pi pi-refresh !text-[10px]"></i>
+                            </Button>
 
-                    <Button data-testid="productvendors-list-reload"
-                            size="small"
-                            @click="store.reload()">
-                        <i class="pi pi-refresh mr-1"></i>
-                    </Button>
+                            <!--form_menu-->
 
-                    <!--form_menu-->
+                            <Button v-if="root.assets && root.assets.module
+                                && root.assets.module.is_dev" type="button" @click="toggleCreateMenu"
+                                :disabled="!store.assets.permissions.includes('can-update-module')" size="small"
+                                data-testid="productvendors-create-menu" icon="pi pi-angle-down" aria-haspopup="true" />
 
-                    <Button v-if="root.assets && root.assets.module
-                                                && root.assets.module.is_dev"
-                        type="button"
-                        @click="toggleCreateMenu"
-                            :disabled="!store.assets.permissions.includes('can-update-module')"
-                            size="small"
-                        data-testid="productvendors-create-menu"
-                        icon="pi pi-angle-down"
-                        aria-haspopup="true"/>
+                            <Menu ref="create_menu" :model="store.list_create_menu" :popup="true" />
 
-                    <Menu ref="create_menu"
-                          :model="store.list_create_menu"
-                          :popup="true" />
+                            <!--/form_menu-->
 
-                    <!--/form_menu-->
+                        </InputGroup>
 
-                    </InputGroup>
+                    </template>
+                    <Card>
+                        <template #content>
+                            <div class="-mt-2">
+                            <Actions />
 
-                </template>
+                            <Table />
+                        </div>
+                        </template>
+                    </Card>
+                </Panel>
+            </div>
 
-                <Actions/>
+            <div v-if="store.getRightColumnClasses" :class="store.getRightColumnClasses">
 
-                <Table/>
-
-            </Panel>
-        </div>
-
-            <div v-if="store.getRightColumnClasses"
-                 :class="store.getRightColumnClasses">
-
-                <RouterView/>
+                <RouterView />
 
             </div>
 
-    </div>
+        </div>
     </div>
 
 
