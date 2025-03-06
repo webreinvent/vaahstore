@@ -11,6 +11,7 @@ const cart_products_stock_available = ref([]);
 const product_store = useProductStore();
 onMounted(async () => {
     document.title = 'Carts - Items';
+    await store.loadAssets();
     if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
@@ -45,7 +46,7 @@ const allProductsOutOfStock = computed(() => {
 
                     <Button data-testid="carts-user-modal"
                             class="p-button-lg"
-                            v-if="!store.item.user"
+                            v-if="!store.item?.user"
                             v-tooltip.top="'Assign User'"
                             @click="store.openUserDialog(store.item)">
                         <i class="pi pi-user-plus mr-1"></i>
@@ -123,7 +124,7 @@ const allProductsOutOfStock = computed(() => {
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>&#8377;{{ prop.data.pivot.price  }}</p>
+                            <p><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price  }}</p>
                         </div>
                     </template>
 
@@ -134,7 +135,7 @@ const allProductsOutOfStock = computed(() => {
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>&#8377;{{ prop.data.pivot.price * prop.data.pivot.quantity}}</p>
+                            <p><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price * prop.data.pivot.quantity}}</p>
                         </div>
                     </template>
 
@@ -175,7 +176,7 @@ const allProductsOutOfStock = computed(() => {
             </DataTable>
             </div>
             <div class="table_bottom ">
-                <p><b>Total Amount: </b>&#8377;{{ store.total_amount_at_detail_page }}</p>
+                <p><b>Total Amount: </b><span v-html="store.assets?.store_default_currency"></span>{{ store.total_amount_at_detail_page }}</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"

@@ -15,7 +15,7 @@ const base_url = ref('');
 
 onMounted(async () => {
     document.title = 'Carts - Check-out';
-
+    await store.loadAssets();
     base_url.value = root.ajax_url.replace('backend/store', '/');
 
     if (route.params && route.params.id) {
@@ -103,7 +103,7 @@ watchEffect(() => {
                                                 }}</h4>
                                             <p v-if="prop.data.pivot.quantity"><b>Qty:</b> {{ prop.data.pivot.quantity }}</p>
                                             <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">
-                                                ₹{{ prop.data.pivot.price }}</p>
+                                                <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price }}</p>
                                         </div>
                                     </div>
                                 </template>
@@ -278,7 +278,7 @@ watchEffect(() => {
                                 <b>Total MRP :</b>
                             </p>
                             <p class="m-0">
-                                ₹{{ store.total_mrp }}
+                                <span v-html="store.assets?.store_default_currency"></span>{{ store.total_mrp }}
                             </p>
                         </div>
                         <div class="flex justify-content-between">
@@ -294,7 +294,7 @@ watchEffect(() => {
                                <b>Tax :</b>
                             </p>
                             <p>
-                                ₹0
+                                <span v-html="store.assets?.store_default_currency"></span>0
                              </p>
                         </div>
                         <div class="flex justify-content-between">
@@ -302,7 +302,7 @@ watchEffect(() => {
                                 <b>Discount On MRP:</b>
                             </p>
                             <p class="text-teal-500">
-                                -₹{{store.discount_on_order}}
+                                -<span v-html="store.assets?.store_default_currency"></span>{{store.discount_on_order}}
                             </p>
                         </div>
                         <div class="flex justify-content-between">
@@ -317,7 +317,7 @@ watchEffect(() => {
                                 <b>Total Amount :</b>
                             </p>
                             <p>
-                                <b>₹{{ store.total_mrp - 0 }}</b>
+                                <b><span v-html="store.assets?.store_default_currency"></span>{{ store.total_mrp - 0 }}</b>
                             </p>
                         </div>
 
