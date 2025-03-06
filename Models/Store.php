@@ -941,7 +941,6 @@ class Store extends VaahModel
 
 
 
-//        dd($item->default_currency);
         $item->default_language = null;
         $item->languages = [];
         if ($item->lingualData->isNotEmpty()){

@@ -40,7 +40,11 @@ class OrdersController extends Controller
             $data['taxonomy'] = [
                 "order_payment_status" => Taxonomy::getTaxonomyByType('order-payment-status'),
             ];
-            $currency_symbol = optional(Store::with('defaultCurrency')->where('is_default', 1)->first()->defaultCurrency)->symbol;
+            $currency_symbol = Store::where('is_default', 1)
+                ->with('defaultCurrency')
+                ->first()
+                ?->defaultCurrency?->symbol;
+
             $data['store_default_currency'] = $currency_symbol;
             $data['actions'] = [];
 

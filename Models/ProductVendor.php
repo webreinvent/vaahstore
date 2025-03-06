@@ -136,7 +136,7 @@ class ProductVendor extends VaahModel
     {
         return $this->hasOne(Product::class, 'id', 'vh_st_product_id')
             ->withTrashed()
-            ->select('id', 'name', 'slug', 'deleted_at', 'vh_st_store_id') // Ensure store ID is selected
+            ->select('id', 'name', 'slug', 'deleted_at', 'vh_st_store_id')
             ->with(['store' => function ($query) {
                 $query->with('defaultCurrency');
             }]);

@@ -46,7 +46,11 @@ class CartsController extends Controller
                 $data['new_user_at_shipping'][$column] = null;
             }
             $data['countries'] = array_column(VaahCountry::getList(), 'name');
-            $currency_symbol = optional(Store::with('defaultCurrency')->where('is_default', 1)->first()->defaultCurrency)->symbol;
+            $currency_symbol = Store::where('is_default', 1)
+                ->with('defaultCurrency')
+                ->first()
+                ?->defaultCurrency?->symbol;
+
             $data['store_default_currency'] = $currency_symbol;
             $data['actions'] = [];
 

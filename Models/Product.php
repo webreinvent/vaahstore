@@ -876,12 +876,10 @@ class Product extends VaahModel
         $list->newArrivalsFilter($request->filter);
         $list->topSellingsFilter($request->filter);
 
-        // **Filter products by store slug instead of ID**
-        // **Filter products by store slug instead of ID**
+        // **Filter products by store slug to get product by store**
         $store_slugs = request()->query('include', [])['stores'] ?? [];
 
         if (!empty($store_slugs)) {
-            // Ensure store_slugs is an array (handles single slug input)
             if (!is_array($store_slugs)) {
                 $store_slugs = json_decode($store_slugs, true);
             }
@@ -896,12 +894,10 @@ class Product extends VaahModel
                 }
             }
         } else {
-            // Fetch products of default store if store slug is not passed
             $default_store_id = Store::where('is_default', true)->value('id');
             $list->where('vh_st_store_id', $default_store_id);
         }
 
-// **Filter products by ID if `ids` is provided**
         if ($request->has('ids')) {
             $ids = json_decode($request->ids, true);
 
@@ -909,12 +905,6 @@ class Product extends VaahModel
                 $list->whereIn('id', $ids);
             }
         }
-
-
-
-
-
-        // Handle pagination
         $rows = config('vaahcms.per_page');
         if ($request->has('rows')) {
             $rows = $request->rows;
