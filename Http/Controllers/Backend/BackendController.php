@@ -37,10 +37,12 @@ class BackendController extends Controller
         $data['product_types'] = Taxonomy::getTaxonomyByType('product-types');
         $data['urls']['brands'] = route('vh.backend.store.brands.list');
         $data['charts_data_filtered_by'] = Setting::getSettingByKey('charts_filter');
-        $data['vendor_img_1'] = vh_module_assets_url("Store", "img/vendor/1st-vendor.png");
-        $data['vendor_img_2'] = vh_module_assets_url("Store", "img/vendor/2nd-vendor.png");
-        $data['vendor_img_3'] = vh_module_assets_url("Store", "img/vendor/3rd-vendor.png");
-        $data['vendor_img_4'] = vh_module_assets_url("Store", "img/vendor/4th-vendor.png");
+        $data['vendor_images'] = [
+            vh_module_assets_url("Store", "img/vendor/1st-vendor.png"),
+            vh_module_assets_url("Store", "img/vendor/2nd-vendor.png"),
+            vh_module_assets_url("Store", "img/vendor/3rd-vendor.png"),
+            vh_module_assets_url("Store", "img/vendor/4th-vendor.png"),
+        ];
 
         $response['success'] = true;
         $response['data'] = $data;

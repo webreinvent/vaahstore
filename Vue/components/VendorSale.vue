@@ -14,7 +14,7 @@
         <!-- Case 3: Fallback to default icon -->
         <i v-else class="pi pi-building text-4xl text-primary mx-auto block"></i>
       </div>
-      
+
       <div class="p-1 rounded-md bg-gray-100 text-center absolute -bottom-6 w-[75%] left-1/2 -translate-x-1/2 shadow-2">
         <!-- Ranking -->
         <div class="font-bold text-[10px] leading-[14px]">
@@ -36,7 +36,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import {computed, onMounted} from 'vue';
+import { useRootStore } from '@/stores/root'
+
+const root = useRootStore();
+
+onMounted(async () => {
+    await root.getAssets();
+    console.log(root.assets);
+});
 
 // Props
 const props = defineProps({
@@ -51,21 +59,16 @@ const props = defineProps({
 });
 
 // Sample logos for demonstration (replace with your actual vendor logos)
-const sampleLogos = [
-  '/parth-s001/store-dev/public/storage/media/1st-vendor.png',
-  '/parth-s001/store-dev/public/storage/media/2nd-vendor.png',
-  '/parth-s001/store-dev/public/storage/media/3rd-vendor.png',
-  '/parth-s001/store-dev/public/storage/media/4th-vendor.png',
-  '/parth-s001/store-dev/public/storage/media/1st-vendor.png',
-];
+const sampleLogos = computed(() => root.assets?.vendor_images || []);
+
 
 // Process vendors to handle different data structures
 const processedVendors = computed(() => {
   return (props.vendorData || []).map((vendor, index) => {
     return {
       ...vendor,
-      logo: vendor.logo || (!Array.isArray(vendor.image_urls) || vendor.image_urls.length === 0) 
-        ? sampleLogos[index % sampleLogos.length] 
+      logo: vendor.logo || (!Array.isArray(vendor.image_urls) || vendor.image_urls.length === 0)
+        ? sampleLogos[index % sampleLogos.length]
         : vendor.logo,
     };
   });
