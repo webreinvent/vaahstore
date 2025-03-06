@@ -8,6 +8,7 @@ use VaahCms\Modules\Store\Models\OrderItem;
 use VaahCms\Modules\Store\Models\PaymentMethod;
 use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductVariation;
+use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\Vendor;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
@@ -39,6 +40,8 @@ class OrdersController extends Controller
             $data['taxonomy'] = [
                 "order_payment_status" => Taxonomy::getTaxonomyByType('order-payment-status'),
             ];
+            $currency_symbol = optional(Store::with('defaultCurrency')->where('is_default', 1)->first()->defaultCurrency)->symbol;
+            $data['store_default_currency'] = $currency_symbol;
             $data['actions'] = [];
 
             $data['payment_methods'] = self::getPaymentMethods();

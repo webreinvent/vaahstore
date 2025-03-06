@@ -13,7 +13,7 @@ onMounted(async () => {
 
         await store.getOrderDetails(route.params.order_id);
     }
-
+    await store.loadAssets();
 
 });
 </script>
@@ -65,7 +65,7 @@ onMounted(async () => {
                             style="width:120px;">
                         <template #body="prop">
                             <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">
-                                ₹{{ prop.data.pivot.price }}</p>
+                                <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price }}</p>
                         </template>
                     </Column>
 
@@ -106,7 +106,7 @@ onMounted(async () => {
                                     <p class="m-0">
                                         <b>Total Amount Paid :</b>
                                     </p>
-                                    <p class="m-0">₹{{store.order_paid_amount}}
+                                    <p class="m-0"><span v-html="store.assets?.store_default_currency"></span>{{store.order_paid_amount}}
 
                                     </p>
                                 </div>
@@ -117,7 +117,7 @@ onMounted(async () => {
                                         <b>Total MRP :</b>
                                     </p>
                                     <p class="m-0">
-                                        ₹{{ store.ordered_total_mrp }}
+                                        <span v-html="store.assets?.store_default_currency"></span>{{ store.ordered_total_mrp }}
                                     </p>
                                 </div>
 
@@ -126,7 +126,7 @@ onMounted(async () => {
                                         <b>Tax :</b>
                                     </p>
                                     <p>
-                                        ₹0
+                                        <span v-html="store.assets?.store_default_currency"></span>0
                                     </p>
                                 </div>
                                 <div class="flex justify-content-between">
@@ -134,14 +134,14 @@ onMounted(async () => {
                                         <b>Discount On MRP:</b>
                                     </p>
                                     <p class="text-teal-500">
-                                        -₹0
+                                        -<span v-html="store.assets?.store_default_currency"></span>0
                                     </p>
                                 </div>
                                 <div class="flex justify-content-between">
                                     <p class="m-0">
                                         <b>Coupon Discount :</b>
                                     </p>
-                                    <p>-₹0</p>
+                                    <p>-<span v-html="store.assets?.store_default_currency"></span>0</p>
                                 </div>
                                 <hr>
                                 <div class="flex justify-content-between">
@@ -149,7 +149,7 @@ onMounted(async () => {
                                         <b>Total Amount :</b>
                                     </p>
                                     <p>
-                                        <b>₹{{ store.ordered_total_mrp - 0 }}</b>
+                                        <b><span v-html="store.assets?.store_default_currency"></span>{{ store.ordered_total_mrp - 0 }}</b>
                                     </p>
                                 </div>
                             </template>

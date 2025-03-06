@@ -200,7 +200,7 @@ const onStoreSelect = async (selectedStore) => {
             </div>
         </div>
 
-        <div class="mt-2">
+        <div class="mt-5">
             <FloatLabel :variant="product_store.float_label_variants"
             >
                 <AutoComplete
@@ -218,7 +218,7 @@ const onStoreSelect = async (selectedStore) => {
 
 
                 />{{this.selected_store_at_dashboard}}
-                <label for="articles-name">Select Store</label>
+                <label for="articles-name">Store By:</label>
             </FloatLabel>
         </div>
     </div>
