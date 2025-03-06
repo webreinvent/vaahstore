@@ -2,9 +2,17 @@
 import {vaah} from '../../../vaahvue/pinia/vaah'
 import {useOrderStore} from '../../../stores/store-orders'
 import OrderItems from "./OrderItems.vue";
+import {useRootStore} from "../../../stores/root";
+import {onMounted} from "vue";
 
 const store = useOrderStore();
 const useVaah = vaah();
+const root=useRootStore();
+
+onMounted(async () => {
+    store.assets_is_fetching=true;
+    store.getAssets();
+});
 
 </script>
 
@@ -81,7 +89,7 @@ const useVaah = vaah();
                     field="payable"
                     header="Payable">
                 <template #body="prop">
-                    <Badge severity="info">&#8377;{{ prop.data.payable }}</Badge>
+                    <Badge severity="info"><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.payable }}</Badge>
                 </template>
             </Column>
 
@@ -91,9 +99,9 @@ const useVaah = vaah();
                 <template #body="prop">
                     <Badge v-if="prop.data.paid == 0"
                            severity="danger"
-                           value="0"></Badge>
+                           ><span v-html="store.assets?.store_default_currency"></span>0</Badge>
                     <Badge v-else-if="prop.data.paid > 0"
-                           severity="info">&#8377;{{ prop.data.paid }}
+                           severity="info"><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.paid }}
                     </Badge>
                 </template>
             </Column>
