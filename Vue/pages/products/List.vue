@@ -102,30 +102,35 @@ const toggleQuickFilterState = (event) => {
 
     <div class="w-full" v-if="store.assets">
 
-        <div class="lg:flex lg:space-x-4 items-start">
+        <div class="lg:flex  lg:space-x-4 items-start">
 
             <div v-if="store.getLeftColumnClasses"
                  :class="store.getLeftColumnClasses"
 
-                 class="mb-4 lg:mb-0">
+                 class="mb-4  lg:mb-0">
 
-                <Panel :pt="root.panel_pt">
+                <Panel >
                     <template #header>
 
                         <div class="flex flex-row">
-                            <div class="flex items-center">
+                            <div class="flex items-center gap-2">
+                                <div>
+                                <Icon icon="bx:basket" width="18" height="18"  style="color: #111113" />
+                                </div>
+                                <div class="flex items-center mt-1">
                                 <b class="mr-1">Products</b>
                                 <p class="font-bold text-xs"  v-if="store.list && store.list.total > 0"
                                 >{{store.list.total}}
                                 </p>
+                                    </div>
                             </div>
 
                         </div>
 
                     </template>
-                    <div class="flex gap-2 mb-1" v-if=" store.isListView()">
-                        <div class="w-full bg-white  border-none border-gray-200 rounded-sm mb-2">
-                            <div class=" justify-content-between" >
+                    <div class="flex gap-2  mb-1" v-if=" store.isListView()">
+                        <div class="w-full bg-transparent border-none  rounded-sm mb-2">
+                            <div class=" justify-content-between " >
                                 <div class="flex border-none  gap-2 mt-2">
                                     <Card class="w-1/3" >
                                         <template #title>
@@ -290,14 +295,13 @@ const toggleQuickFilterState = (event) => {
 
                                         <template #content>
                                             <div class="max-h-14rem overflow-y-auto">
-                                                <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">
-                                                    <VendorSale :vendorData="store.top_selling_categories" />
-                                                </div>
-<!--                                                <div v-for="product in store.top_selling_categories" :key="product.id">-->
-<!--&lt;!&ndash;                                                    <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />&ndash;&gt;-->
-<!--                                                    {{store.top_selling_categories}}-->
-
+<!--                                                <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">-->
+<!--                                                    <VendorSale :vendorData="store.top_selling_categories" />-->
 <!--                                                </div>-->
+                                                <div v-for="product in store.top_selling_categories" :key="product.id">
+                                                    <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+
+                                                </div>
                                             </div>
 <!--                                            <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">-->
 <!--                                               -->
@@ -397,9 +401,13 @@ const toggleQuickFilterState = (event) => {
 
                     </template>
 
-                    <Actions/>
 
+                    <Card class="">
+                        <template #content>
+                            <Actions/>
                     <Table/>
+                        </template>
+                    </Card>
 
                 </Panel>
             </div>

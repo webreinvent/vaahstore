@@ -38,7 +38,6 @@ const openProductCategories = (categories,product) => {
          <DataTable  :value="store.list.data"
                        dataKey="id"
                     :rowClass="(rowData) => rowData.id === store.item?.id ? 'bg-yellow-100' : ''"
-
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
                    responsiveLayout="scroll">
@@ -101,7 +100,7 @@ const openProductCategories = (categories,product) => {
                  </template>
              </Column>
 
-             <Column field="vendors" header="Vendors" :sortable="false">
+             <Column field="vendors" class="" header="Vendors" :sortable="false">
                  <template #body="prop">
                      <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-8">
             <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
@@ -125,7 +124,6 @@ const openProductCategories = (categories,product) => {
              <Column field="status.name" header="Status"
                      :sortable="true"
                      v-if="store.isListView()">
-
                  <template #body="prop">
 
                      <Badge unstyled="true" class="!text-green-500 bg-[#0E9F6E1A]" v-if="prop.data.status.slug == 'approved'"
