@@ -142,10 +142,10 @@ app.use(PrimeVue, {
             onIcon: {class: '!text-warning-500'}
         },
         panel:{
-            root:{class:'bg-gray-50 !border-0'},
-            header: {class: '!py-4 px-2 !border-0'},
-            content:{class: "!px-2 border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
-            contentContainer: {class: "border-0 bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
+            root:{class:'!border-0 !bg-transparent'},
+            header: {class: '!p-2 !border-0 !bg-transparent'},
+            content:{class: "!p-2 !border-0 !bg-transparent shadow-[0px 2px 16px 0px #D7D9E0CC]"},
+            contentContainer: {class: "border-0 !bg-transparent shadow-[0px 2px 16px 0px #D7D9E0CC]"}
         },
         accordion: {
             root: { class: '!bg-gray-50 border-none' },

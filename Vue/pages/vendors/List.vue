@@ -80,7 +80,7 @@ function toggleDatasetVisibility(index) {
             <div v-if="store.getLeftColumnClasses"
                  :class="store.getLeftColumnClasses">
 
-                <Panel class="is-small">
+                <Panel class="is-small !bg-transparent">
 
                     <template class="p-1" #header>
 
@@ -257,11 +257,12 @@ function toggleDatasetVisibility(index) {
                         </div>
 
                     </template>
-
+                        <Card class="mt-4">
+                            <template #content>
                     <Actions/>
-
                     <Table/>
-
+                            </template>
+                        </Card>
                 </Panel>
             </div>
 
