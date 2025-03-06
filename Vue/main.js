@@ -1,7 +1,7 @@
-import { createApp, markRaw } from 'vue';
-import { createPinia, PiniaVuePlugin } from 'pinia'
+import {createApp, markRaw} from 'vue';
+import {createPinia, PiniaVuePlugin} from 'pinia'
 import PrimeVue from "primevue/config";
-import { definePreset } from '@primeuix/themes';
+import {definePreset} from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
 import VueApexCharts from 'vue3-apexcharts';
@@ -29,7 +29,6 @@ import InputNumber from "primevue/inputnumber";
 import Chip from 'primevue/chip';
 
 import Chart from 'primevue/chart';
-
 
 
 import FileUpload from 'primevue/fileupload';
@@ -71,7 +70,6 @@ import ToggleButton from "primevue/togglebutton";
 //-------------/CRUD PrimeVue Imports
 
 
-
 //-------------APP
 import App from './layouts/App.vue'
 import router from './routes/router'
@@ -79,7 +77,7 @@ import router from './routes/router'
 const app = createApp(App);
 
 const pinia = createPinia();
-pinia.use(({ store }) => {
+pinia.use(({store}) => {
     store.$router = markRaw(router)
 });
 app.use(pinia);
@@ -93,35 +91,61 @@ const vaahstore = definePreset(Aura, {
 //-------------PrimeVue Use
 app.use(PrimeVue, {
     pt: {
-        datatable:{
-            tableContainer:{
-
+        datatable: {
+            bodyrow: {
+                class: '!bg-transparent'
             },
         },
-        button:{
-            root:{
-                class:"!bg-gray-100 !border-gray-200 text-gray-500 rounded-lg border p-1 hover:bg-gray-200"
+        paginator: {
+            first: {
+                class: "!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            prev: {
+                class: "!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            next: {
+                class: "!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            nextIcon: {
+                class: ""
+            },
+            last: {
+                class: "!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            page: {
+                class: "!rounded-lg !px-2 border-[#D7D9E0] bg-transparent"
+            },
+            pcRowPerPageDropdown: {
+                class: "!rounded-lg !px-2 border-[#D7D9E0]"
+            },
+            current: {
+                class: "!border-blue-500 !bg-blue-500/10"
+            }
+        },
+        button: {
+            root: {
+                class: "!bg-gray-100 !border-gray-200 text-gray-500 rounded-lg border p-1 hover:bg-gray-200"
             }
         },
         badge: {
-            root:{
-                class:"py-1 px-2 font-bold rounded-full text-[8px] leading-4"
+            root: {
+                class: "py-1 px-2 font-bold rounded-full text-[8px] leading-4"
             }
         },
         card: {
             root: {class: '!shadow-card bg-gray-50'},
-            body: { class: 'px-2 pt-3 pb-0 gap-0' },
-            content: { class: 'p-0' },
-            title: { class: '!text-gray-500 font-normal p-0 mb-4 !border-b-0 ml-2' }
+            body: {class: 'px-2 pt-3 pb-0 gap-0'},
+            content: {class: 'p-0'},
+            title: {class: '!text-gray-500 font-normal p-0 mb-2 !border-b-0 ml-2'}
         },
         rating: {
             onIcon: {class: '!text-warning-500'}
         },
-        panel:{
-            root:{class:'!bg-gray-50 !border-0'},
-            header: {class: '!py-4 px-2 !bg-gray-50 !border-0'},
-            content:{class: "!px-2 border-0 !bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"},
-            contentContainer: {class: "border-0 !bg-gray-50 shadow-[0px 2px 16px 0px #D7D9E0CC]"}
+        panel: {
+            root: {class: 'bg-gray-50 !border-0 !bg-transparent '},
+            header: {class: '!border-0 bg-transparent  p-2'},
+            content: {class: "!p-2 !border-0 bg-transparent  shadow-[0px 2px 16px 0px #D7D9E0CC]"},
+            contentContainer: {class: " !border-0   shadow-[0px 2px 16px 0px #D7D9E0CC]"}
         }
     },
     theme: {
@@ -190,74 +214,86 @@ app.component('TabList', TabList);
 //-------------/CRUD PrimeVue Use
 
 import TreeSelect from 'primevue/treeselect';
+
 app.component('TreeSelect', TreeSelect);
 
 
 import MultiSelect from 'primevue/multiselect';
+
 app.component('MultiSelect', MultiSelect);
 
 
 import AutoComplete from 'primevue/autocomplete';
+
 app.component('AutoComplete', AutoComplete);
 
 
 import InputGroup from "primevue/inputgroup";
+
 app.component("InputGroup", InputGroup);
 
 import ToggleSwitch from "primevue/toggleswitch";
+
 app.component("ToggleSwitch", ToggleSwitch);
 
 import FloatLabel from "primevue/floatlabel";
+
 app.component("FloatLabel", FloatLabel);
 
 
 import Card from "primevue/card";
+
 app.component("Card", Card);
 
 import Rating from "primevue/rating";
+
 app.component("Rating", Rating);
 
 import Image from "primevue/Image";
-import { semantic } from '@primeuix/themes/aura/base';
+import {semantic} from '@primeuix/themes/aura/base';
+
 app.component("Image", Image);
 
 
 app.component('apexchart', VueApexCharts);
 
 
-
-
 import DatePicker from 'primevue/datepicker';
+
 app.component('DatePicker', DatePicker);
 
 import Textarea from 'primevue/textarea';
+
 app.component('Textarea', Textarea);
 
 import Chips from 'primevue/chips';
+
 app.component('Chips', Chips);
 
 import SelectButton from 'primevue/selectbutton';
+
 app.component('SelectButton', SelectButton);
 
 import Editor from 'primevue/editor';
+
 app.component('Editor', Editor);
 
-import { Icon } from '@iconify/vue';
+import {Icon} from '@iconify/vue';
+
 app.component('Icon', Icon);
 
 
 import Drawer from 'primevue/drawer';
+
 app.component('Drawer', Drawer);
 
 
 import DynamicDialog from 'primevue/dynamicdialog';
+
 app.component('DynamicDialog', DynamicDialog);
-
-
-
 
 
 app.mount('#appStore')
 
 
-export { app }
+export {app}
