@@ -84,6 +84,7 @@ const useVaah = vaah();
                             class="p-button-tiny p-button-text p-0"
                             data-testid="products-table-to-view"
                             v-tooltip.top="'Assign User'"
+                            :pt="{root: {class: '!bg-none !p-0'}}"
                             @click="store.openUserDialog(prop.data)">
                         <Icon icon="icons8:add-user" width="18px" height="18px" :class="prop.data.vh_user_id !== null && prop.data.user !== null ? 'text-[#D7D9E0]' : 'text-[#6C768B]'" />
                        </Button>
@@ -91,6 +92,7 @@ const useVaah = vaah();
                         <Button class="p-button-tiny p-button-text p-0"
                                 data-testid="carts-table-to-view"
                                 v-tooltip.top="'Cart Details'"
+                            :pt="{root: {class: '!bg-none !p-0'}}"
                                 @click="store.cartDetails(prop.data)">
                                 <Icon icon="lets-icons:arrow-right-light" width="20px" height="20px"  style="color: #1958F7" />
                         </Button>
