@@ -79,7 +79,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup flex-1">
                          <div v-tooltip.top="'Variations Price Range'">
                              <Badge severity="info" v-if="prop.data && Array.isArray(prop.data.product_price_range)&& prop.data.product_price_range.length > 0">
-                                 {{ prop.data.product_price_range.join(' - ') }}
+                                 <span v-html="prop.data.product?.store.default_currency.symbol"></span>{{ prop.data.product_price_range.join(' - ') }}
                              </Badge>
                              <Badge severity="danger" v-else>
                                  Not Available

@@ -134,8 +134,15 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')->withTrashed()->select('id', 'name', 'slug','deleted_at');
+        return $this->hasOne(Product::class, 'id', 'vh_st_product_id')
+            ->withTrashed()
+            ->select('id', 'name', 'slug', 'deleted_at', 'vh_st_store_id') // Ensure store ID is selected
+            ->with(['store' => function ($query) {
+                $query->with('defaultCurrency');
+            }]);
     }
+
+
     //-------------------------------------------------
     public function stores()
     {

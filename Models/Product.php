@@ -171,10 +171,12 @@ class Product extends VaahModel
 
     public function store()
     {
-        return $this->belongsTo(Store::class,'vh_st_store_id','id')
+        return $this->belongsTo(Store::class, 'vh_st_store_id', 'id')
             ->withTrashed()
-            ->select('id','name','slug', 'is_default','deleted_at');
+            ->select('id', 'name', 'slug', 'is_default', 'deleted_at')
+            ->with('defaultCurrency');
     }
+
 
     //-------------------------------------------------
     public function status()
