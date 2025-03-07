@@ -130,7 +130,7 @@ onMounted(async () => {
             field="payable"
             header="Payable"
           >
-            <template #body="prop"> ${{ prop.data.payable }} </template>
+            <template #body="prop"> <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.payable }} </template>
           </Column>
 
           <Column
@@ -140,7 +140,7 @@ onMounted(async () => {
             field="paid"
             header="Paid"
           >
-            <template #body="prop"> ${{ prop.data.paid }} </template>
+            <template #body="prop"> <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.paid }} </template>
           </Column>
 
           <Column
@@ -163,26 +163,7 @@ onMounted(async () => {
             </template>
           </Column>
 
-            <Column v-if="store.isListView()" :sortable="true"
-                    field="payable"
-                    header="Payable">
-                <template #body="prop">
-                    <Badge severity="info"><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.payable }}</Badge>
-                </template>
-            </Column>
 
-            <Column v-if="store.isListView()" :sortable="true"
-                    field="paid"
-                    header="Paid">
-                <template #body="prop">
-                    <Badge v-if="prop.data.paid == 0"
-                           severity="danger"
-                           ><span v-html="store.assets?.store_default_currency"></span>0</Badge>
-                    <Badge v-else-if="prop.data.paid > 0"
-                           severity="info"><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.paid }}
-                    </Badge>
-                </template>
-            </Column>
 
           <Column
             :header="store.getActionLabel()"

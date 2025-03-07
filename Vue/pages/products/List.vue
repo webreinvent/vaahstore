@@ -289,7 +289,7 @@ const toggleQuickFilterState = (event) => {
                                         <template #title>
                                             <div class="flex items-center py-2">
                                                 <Icon class="mr-2" icon="gravity-ui:circles-4-square" width="20" height="20"  style="color: #474C5D" />
-                                                <h2 class="text-sm">Top Brands</h2>
+                                                <h2 class="text-sm">Top Categories</h2>
                                             </div>
                                         </template>
 

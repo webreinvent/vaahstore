@@ -109,7 +109,7 @@ const displayStats = computed(() => {
   if (hasStockData.value) {
     return `${props.product.stock} in stock (${props.product.stock_percentage || 0}%)`;
   }
-  return `${props.product.total_sales || 0} Units Sold`;
+    return props.product.total_sales > 0 ? `${props.product.total_sales} Units Sold` : '';
 });
 
 const vendorName = computed(() => {

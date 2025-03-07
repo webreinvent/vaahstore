@@ -67,7 +67,7 @@ const useVaah = vaah();
                                  v-tooltip.top="'Add Price Item'"
                                  severity="info"
                                  @click="store.toProductPrice(prop.data)"
-                                 :disabled="$route.path.includes('price') && prop.data.id===store.item?.id" />                        
+                                 :disabled="$route.path.includes('price') && prop.data.id===store.item?.id" />
                      </div>
                  </template>
              </Column>
@@ -80,17 +80,13 @@ const useVaah = vaah();
                                  <span v-html="prop.data.product?.store.default_currency.symbol"></span>{{ prop.data.product_price_range.join(' - ') }}
                              </Badge>
                              <Badge severity="danger" v-else>
-                         <div  v-tooltip.top="'Variations Price Range'" class="mx-auto">
-                             <p v-if="prop.data && Array.isArray(prop.data.product_price_range)&& prop.data.product_price_range.length > 0">
-                                 {{ prop.data.product_price_range.join(' - ') }}
-                             </p>
-                             <p class="text-red-500 text-center" v-else>
                                  Not Available
-                             </p>
+                             </Badge>
                          </div>
                      </div>
                  </template>
              </Column>
+
 
 
 
