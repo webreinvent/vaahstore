@@ -43,6 +43,12 @@ class BackendController extends Controller
             vh_module_assets_url("Store", "img/vendor/3rd-vendor.png"),
             vh_module_assets_url("Store", "img/vendor/4th-vendor.png"),
         ];
+        $data['category_images'] = [
+            vh_module_assets_url("Store", "img/category/1st-category.png"),
+            vh_module_assets_url("Store", "img/category/2nd-category.png"),
+            vh_module_assets_url("Store", "img/category/3rd-category.png"),
+            vh_module_assets_url("Store", "img/category/4th-category.png"),
+        ];
 
         $response['success'] = true;
         $response['data'] = $data;

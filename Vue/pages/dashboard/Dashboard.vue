@@ -34,6 +34,8 @@ onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
+    root.assets_is_fetching=true;
+    await root.getAssets();
     await settings_store.getAssets();
     await store.getAssets();
     await product_store.getAssets();
@@ -385,38 +387,14 @@ const onStoreSelect = async (selectedStore) => {
 
                     <template #content>
                         <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">
-                            <VendorSale :vendorData="vendor_store.top_selling_vendors" />
+
+                            <VendorSale :data="product_store.top_selling_categories"
+                                        :sampleLogos="root.assets?.vendor_images"
+                                        type="vendor" />
+
                         </div>
 
-                        <!-- <DataTable :value="vendor_store.top_selling_vendors" dataKey="id"
-                            class="p-datatable-sm p-datatable-hoverable-rows" :nullSortOrder="-1"
-                            v-model:selection="vendor_store.action.items" stripedRows responsiveLayout="scroll">
-                            <Column field="variation_name" header="" class="overflow-wrap-anywhere">
-                                <template #body="prop">
-                                    <div class="flex ">
 
-                                        <div class="product_desc ml-3">
-                                            <h4>{{ prop.data.name }}</h4>
-                                        </div>
-                                    </div>
-                                </template>
-            </Column>
-            <Column field="total_sales" header="" class="overflow-wrap-anywhere">
-                <template #body="prop">
-                                    <div class="flex ">
-
-                                        <div class="product_desc ml-3">
-                                            <p><b> {{ prop.data.total_sales }}</b> Sold</p>
-                                        </div>
-                                    </div>
-                                </template>
-            </Column>
-            <template #empty>
-                                <div class="text-center py-3">
-                                    No records found.
-                                </div>
-                            </template>
-            </DataTable> -->
                     </template>
                 </Card>
 
@@ -505,7 +483,12 @@ const onStoreSelect = async (selectedStore) => {
 
                 <template #content>
                     <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-10">
-                        <VendorSale :vendorData="product_store.top_selling_categories" />
+
+                        <VendorSale
+                            :data="product_store.top_selling_categories"
+                            :sampleLogos="root.assets?.category_images"
+                            type="category"
+                        />
                     </div>
 
                 </template>
