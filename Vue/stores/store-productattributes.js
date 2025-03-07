@@ -786,7 +786,6 @@ export const useProductAttributeStore = defineStore({
         {
             //remove reactivity from source object
             query = vaah().clone(query)
-            console.log(query);
             //create query string
             let query_string = qs.stringify(query, {
                 skipNulls: true,

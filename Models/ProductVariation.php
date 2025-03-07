@@ -168,9 +168,12 @@ class ProductVariation extends VaahModel
     //-------------------------------------------------
     public function product()
     {
-        return $this->belongsTo(Product::class,'vh_st_product_id','id')->withTrashed()
-            ->select('id','name','slug','deleted_at');
+        return $this->belongsTo(Product::class, 'vh_st_product_id', 'id')
+            ->withTrashed()
+            ->select('id', 'name', 'slug', 'deleted_at', 'vh_st_store_id')
+            ->with(['store.defaultCurrency']);
     }
+
 
     public function productAttributes()
     {

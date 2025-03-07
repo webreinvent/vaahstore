@@ -85,7 +85,7 @@ const route = useRoute();
                     :sortable="true">
 
                 <template #body="prop">
-                    {{prop.data.price}}
+                    <span v-html="prop.data.product?.store.default_currency.symbol"></span>{{prop.data.price}}
                 </template>
 
             </Column>

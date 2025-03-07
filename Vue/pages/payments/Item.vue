@@ -19,7 +19,8 @@ onMounted(async () => {
         store.toList();
         return false;
     }
-
+    store.assets_is_fetching=true;
+    store.getAssets();
     /**
      * Fetch the record from the database
      */
@@ -170,7 +171,7 @@ watchEffect(() => {
                                     <td><b>Payment  Amount</b></td>
                                     <td  colspan="2" >
                                         <span class="word-overflow">
-                                       &#8377; {{store.payment_amount}}</span>
+                                       <span v-html="store.assets?.store_default_currency"></span> {{store.payment_amount}}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -295,7 +296,7 @@ watchEffect(() => {
 
                         <template #body="prop">
                             <div class="justify-content-end flex min-w-max">
-                                &#8377; {{(prop.data.order.amount).toFixed(2)}}
+                                <span v-html="store.assets?.store_default_currency"></span> {{(prop.data.order.amount).toFixed(2)}}
                             </div>
 
                         </template>
@@ -307,7 +308,7 @@ watchEffect(() => {
 
                         <template #body="prop">
                             <div class="justify-content-end flex min-w-max">
-                                &#8377;  {{prop.data.payable_amount}}
+                                <span v-html="store.assets?.store_default_currency"></span> {{prop.data.payable_amount}}
                             </div>
                         </template>
 
@@ -320,10 +321,10 @@ watchEffect(() => {
                             <div class="justify-content-end flex">
                             <span v-if="prop.data.payment_amount == 0"
                                    class="min-w-max"
-                                   >&#8377;{{ prop.data.payment_amount }}</span>
+                                   ><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.payment_amount }}</span>
                             <span v-else-if="prop.data.payment_amount > 0"
                                    :value="prop.data.payment_amount" class="min-w-max"
-                                   severity="secondary">&#8377;{{prop.data.payment_amount}}</span>
+                                   severity="secondary"><span v-html="store.assets?.store_default_currency"></span>{{prop.data.payment_amount}}</span>
                             </div>
                         </template>
 
@@ -334,10 +335,10 @@ watchEffect(() => {
                             <div class="justify-content-end flex">
                             <span  v-if="prop.data.remaining_payable_amount == 0"
                                    value="0"
-                                  >&#8377;{{ prop.data.remaining_payable_amount }}</span>
+                                  ><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.remaining_payable_amount }}</span>
                             <span class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
 
-                                   severity="warn">&#8377;{{prop.data.remaining_payable_amount}}</span>
+                                   severity="warn"><span v-html="store.assets?.store_default_currency"></span>{{prop.data.remaining_payable_amount}}</span>
                             </div>
                         </template>
 

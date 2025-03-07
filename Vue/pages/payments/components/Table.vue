@@ -1,9 +1,15 @@
 <script setup>
 import { vaah } from '../../../vaahvue/pinia/vaah'
 import { usePaymentStore } from '../../../stores/store-payments'
+import {onMounted} from "vue";
 
 const store = usePaymentStore();
 const useVaah = vaah();
+
+onMounted(async () => {
+    store.assets_is_fetching=true;
+    store.getAssets();
+});
 
 </script>
 
@@ -42,7 +48,7 @@ const useVaah = vaah();
              <Column field="amount" header="Amount"  :sortable="true" :style="{width: '120px'}">
                  <template #body="prop">
                      <div class="justify-content-end flex">
-                         &#8377;{{prop.data.amount}}
+                         <span v-html="store.assets?.store_default_currency"></span>{{prop.data.amount}}
                      </div>
                  </template>
              </Column>

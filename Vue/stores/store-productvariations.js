@@ -885,7 +885,6 @@ export const useProductVariationStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.fetched_product_id=null
-            console.log(this.fetched_product_id);
             this.$router.push({name: 'productvariations.index'})
         },
         //---------------------------------------------------------------------

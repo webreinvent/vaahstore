@@ -2,9 +2,18 @@
 import { vaah } from "../../../vaahvue/pinia/vaah";
 import { useOrderStore } from "../../../stores/store-orders";
 import OrderItems from "./OrderItems.vue";
+import {useRootStore} from "../../../stores/root";
+import {onMounted} from "vue";
 
 const store = useOrderStore();
 const useVaah = vaah();
+const root=useRootStore();
+
+onMounted(async () => {
+    store.assets_is_fetching=true;
+    store.getAssets();
+});
+
 </script>
 
 <template>
@@ -121,7 +130,7 @@ const useVaah = vaah();
             field="payable"
             header="Payable"
           >
-            <template #body="prop"> ${{ prop.data.payable }} </template>
+            <template #body="prop"> <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.payable }} </template>
           </Column>
 
           <Column
@@ -131,7 +140,7 @@ const useVaah = vaah();
             field="paid"
             header="Paid"
           >
-            <template #body="prop"> ${{ prop.data.paid }} </template>
+            <template #body="prop"> <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.paid }} </template>
           </Column>
 
           <Column
@@ -154,55 +163,7 @@ const useVaah = vaah();
             </template>
           </Column>
 
-          <Column
-            v-if="store.isListView()"
-            :sortable="true"
-            class="font-bold text-xs text-gray-400"
-            header="Payment Status"
-          >
-            <template #body="prop">
-              <template v-if="prop.data.order_payment_status">
-                <span
-                  :class="{
-                    'text-[#0E9F6E] rounded-full bg-[#0E9F6E1A] px-2 py-1':
-                      prop.data.order_payment_status.name === 'Paid',
-                    'text-purple-600 rounded-full bg-purple-100 px-2 py-1':
-                      prop.data.order_payment_status.name === 'Partially Paid',
-                    'text-[#E3A008] bg-[#E3A0081A] px-2 py-1 rounded-full':
-                      prop.data.order_payment_status.name === 'Pending',
-                  }"
-                >
-                  {{ prop.data.order_payment_status.name }}
-                </span>
-              </template>
-              <template v-else>
-                <Badge severity="danger"> </Badge>
-              </template>
-            </template>
-          </Column>
 
-          <Column
-            v-if="store.isListView()"
-            class="font-bold text-xs text-gray-400"
-            :sortable="true"
-            header="Shipping Status"
-          >
-            <template #body="prop">
-              <span
-                :class="{
-                  'text-[#0E9F6E] rounded-full bg-[#0E9F6E1A] px-2 py-1':
-                    prop.data.order_shipment_status === 'Delivered' ||
-                    prop.data.order_shipment_status === 'paid',
-                  'text-purple-600 rounded-full bg-purple-100 px-2 py-1':
-                    prop.data.order_shipment_status === 'Partially-Paid',
-                  'text-[#E3A008] bg-[#E3A0081A] px-2 py-1 rounded-full':
-                    prop.data.order_shipment_status === 'Pending',
-                }"
-              >
-                {{ prop.data.order_shipment_status }}
-              </span>
-            </template>
-          </Column>
 
           <Column
             :header="store.getActionLabel()"

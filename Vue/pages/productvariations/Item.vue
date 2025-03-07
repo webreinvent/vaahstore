@@ -206,7 +206,7 @@ const permissions=store.assets.permissions;
                             <tr>
                                 <td><b>Price</b></td>
                                 <td  colspan="2">
-                                    <badge v-if="store.item.price >= 1">{{store.item.price}}</badge>
+                                    <badge v-if="store.item.price >= 1"><span v-html="store.item.product?.store.default_currency.symbol"></span>{{store.item.price}}</badge>
 
                                 </td>
                             </tr>

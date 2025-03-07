@@ -1850,13 +1850,14 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async topSellingVendorsData() {
+        async topSellingVendorsData(store=null) {
 
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1879,7 +1880,7 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async vendorSalesByRange() {
+        async vendorSalesByRange(store=null) {
 
 
             let params = {
@@ -1887,6 +1888,7 @@ export const useVendorStore = defineStore({
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,

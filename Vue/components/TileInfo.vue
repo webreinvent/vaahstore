@@ -4,43 +4,43 @@
     <div class="shrink-0">
       <div v-if="Array.isArray(product.image_urls) && product.image_urls.length > 0">
         <div v-for="(imageUrl, imgIndex) in product.image_urls" :key="imgIndex" class="p-2 pb-1 bg-white rounded-md">
-          <Image 
-            preview 
-            :src="baseUrl + imageUrl" 
-            alt="Product image" 
-            class="overflow-hidden rounded" 
-            width="34" 
+          <Image
+            preview
+            :src="imageUrl"
+            alt="Product image"
+            class="overflow-hidden rounded"
+            width="34"
           />
         </div>
       </div>
       <div v-else class="p-2 pb-1 bg-white rounded-md">
-        <img 
-          src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg" 
-          alt="Default product image" 
-          class="overflow-hidden rounded" 
-          width="40" 
+        <img
+          :src="'https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg'"
+          alt="Default product image"
+          class="overflow-hidden rounded"
+          width="40"
         />
       </div>
     </div>
-    
+
     <!-- Product Details -->
     <div class="product_desc mx-2 flex-grow">
       <h4 class="line-clamp-1 text-sm text-gray-900 font-semibold">{{ productName }}</h4>
       <p class="text-[10px] font-semibold text-gray-400">{{ displayStats }}</p>
-      
+
       <!-- Stock Progress Bar using PrimeVue -->
       <div v-if="hasStockData" class="w-full mt-1">
         <ProgressBar style="width: 15rem; height:8px"
-          :value="stockPercentage" 
+          :value="stockPercentage"
           :class="progressBarColorClass"
         />
       </div>
-      
+
       <!-- <p v-if="showVendor && vendorName" class="text-[10px] text-gray-400 mt-1">
         Vendor: {{ vendorName }}
       </p> -->
     </div>
-    
+
     <!-- Rating (if available) -->
     <div v-if="showRating" class="ml-auto">
       <Rating v-model="productRating" :cancel="false" />
@@ -109,7 +109,7 @@ const displayStats = computed(() => {
   if (hasStockData.value) {
     return `${props.product.stock} in stock (${props.product.stock_percentage || 0}%)`;
   }
-  return `${props.product.total_sales || 0} Units Sold`;
+    return props.product.total_sales > 0 ? `${props.product.total_sales} Units Sold` : '';
 });
 
 const vendorName = computed(() => {

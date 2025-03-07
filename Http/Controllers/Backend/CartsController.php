@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Cart;
+use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 
@@ -45,6 +46,12 @@ class CartsController extends Controller
                 $data['new_user_at_shipping'][$column] = null;
             }
             $data['countries'] = array_column(VaahCountry::getList(), 'name');
+            $currency_symbol = Store::where('is_default', 1)
+                ->with('defaultCurrency')
+                ->first()
+                ?->defaultCurrency?->symbol;
+
+            $data['store_default_currency'] = $currency_symbol;
             $data['actions'] = [];
 
             $response['success'] = true;

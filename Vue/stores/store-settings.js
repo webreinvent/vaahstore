@@ -711,7 +711,6 @@ export const useSettingStore = defineStore({
             let charts_filter;
             if (this.chart_date_filter === 'custom') {
                 if (!this.filter_start_date || !this.filter_end_date) {
-                    vaah().toastErrors(['Both start date and end date must be selected.']);
                     return false;
                 }
                 charts_filter = {

@@ -4,51 +4,51 @@ import { useRootStore } from "../../stores/root";
 import { useRoute } from "vue-router";
 import { computed, onMounted, ref } from "vue";
 import { useOrderStore } from "../../stores/store-orders";
+import { useDashboardStore } from "../../stores/store-dashboard";
 
 const customers_store = useUserStore();
 import TileInfo from "../../components/TileInfo.vue";
 import Charts from "../../components/Charts.vue";
-import { useUserStore } from "../../stores/store-users";
-import { useVendorStore } from "../../stores/store-vendors";
-import { useShipmentStore } from "../../stores/store-shipments";
-import { useWarehouseStore } from "../../stores/store-warehouses";
-import { usePaymentStore } from "../../stores/store-payments";
-import { useProductStockStore } from "../../stores/store-productstocks";
+import {useUserStore} from "../../stores/store-users";
+import {useVendorStore} from "../../stores/store-vendors";
+import {useShipmentStore} from "../../stores/store-shipments";
+import {useWarehouseStore} from "../../stores/store-warehouses";
+import {usePaymentStore} from "../../stores/store-payments";
+import {useProductStockStore} from "../../stores/store-productstocks";
+import {useSettingStore} from "../../stores/store-settings";
 import VendorSale from "../../components/VendorSale.vue";
-
 const orders_store = useOrderStore();
+const settings_store = useSettingStore();
 const product_store = useProductStore();
 const vendor_store = useVendorStore();
 const shipment_store = useShipmentStore();
 const warehouse_store = useWarehouseStore();
 const payment_store = usePaymentStore();
 const product_stock_store = useProductStockStore();
+const store = useDashboardStore();
 const root = useRootStore();
 const route = useRoute();
 const base_url = ref('');
-const formattedDateRange = computed(() => {
-    const startDate = root.filter_start_date;
-    const endDate = root.filter_end_date;
 
-    if (!startDate || !endDate) return "Date range not selected";
-
-    const formatOptions = { year: "numeric", month: "short", day: "2-digit" };
-    const formatter = new Intl.DateTimeFormat("en-US", formatOptions);
-
-    return `${formatter.format(new Date(startDate))} - ${formatter.format(new Date(endDate))}`;
-});
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
     base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
+    root.assets_is_fetching=true;
+    await root.getAssets();
+    await settings_store.getAssets();
+    await store.getAssets();
+    await product_store.getAssets();
+    await settings_store.getList();
+    store.setDefaultStoreForAtDashboard();
 
 
     await orders_store.fetchOrdersChartData();
-    await orders_store.fetchSalesChartData();
+    await orders_store.fetchSalesChartData(store.default_store);
     await product_stock_store.getStocksChartData();
-    await product_store.topSellingProducts();
-    await product_store.topSellingBrands();
-    await product_store.topSellingCategories();
+    await product_store.topSellingProducts(store.default_store);
+    await product_store.topSellingBrands(store.default_store);
+    await product_store.topSellingCategories(store.default_store);
     await customers_store.fetchCustomerCountChartData();
 
 
@@ -99,20 +99,21 @@ onMounted(async () => {
         }
     ];
 
-    await vendor_store.topSellingVendorsData();
+    await vendor_store.topSellingVendorsData(store.default_store);
 
 
     await orders_store.fetchOrdersCountChartData();
-    await orders_store.fetchSalesChartData();
-    await orders_store.fetchOrderPaymentsData();
+    await orders_store.fetchOrderPaymentsData(store.default_store);
     await orders_store.fetchOrdersChartData();
 
-    await vendor_store.vendorSalesByRange();
+    await vendor_store.vendorSalesByRange(store.default_store);
 
     await shipment_store.ordersShipmentByDateRange();
     await shipment_store.shipmentItemsByStatusBarChart();
     await warehouse_store.warehouseStockInBarChart();
     await payment_store.paymentMethodsPieChartData();
+
+
 });
 
 const quick_filter_menu_state = ref();
@@ -122,31 +123,111 @@ const toggleQuickFilterState = (event) => {
 const metrics = ref([]);
 
 
+
+
+const handleDateChangeRound = (newDate, date_type) => {
+    if (newDate && date_type) {
+        store[date_type] = new Date(newDate.getTime() - newDate.getTimezoneOffset() * 60000);
+    }
+}
+const today = ref(new Date());
+
+const onStoreSelect = async (selectedStore) => {
+    store.selected_store_at_dashboard = selectedStore.value;
+
+    await Promise.all([
+        orders_store.fetchSalesChartData(store.selected_store_at_dashboard),
+        vendor_store.topSellingVendorsData(store.selected_store_at_dashboard),
+        vendor_store.vendorSalesByRange(store.selected_store_at_dashboard),
+        orders_store.fetchOrderPaymentsData(store.selected_store_at_dashboard),
+        product_store.topSellingProducts(store.selected_store_at_dashboard),
+        product_store.topSellingBrands(store.selected_store_at_dashboard),
+        product_store.topSellingCategories(store.selected_store_at_dashboard),
+    ]);
+};
+
+
 </script>
 <template>
-    <div class="flex-grow-1  border-round-xl has-background-white mb-3 p-3 surface-ground">
-       <div class="flex justify-content-between">
-           <div>
-               <h4 class="text-lg">
-                   Selected Date Range:{{ formattedDateRange }}
-               </h4>
-               <h6 class="text-sm">Note : For Change the Date Range Navigate to Store>Settings</h6>
-           </div>
+    <div  class="flex-grow-1  border-round-xl has-background-white mb-2 p-3 surface-ground ">
+    <div class="flex justify-content-between">
+        <div>
+            <h4 class="text-sm mb-2">
+                Filter By:
+            </h4>
+            <InputGroup>
+                <!--            {{store.chart_date_filter}}-->
+                <SelectButton v-model="settings_store.chart_date_filter"
+                              optionLabel="name"
+                              optionValue="value"
+                              :options="settings_store.chart_by_date_filter"
+                              size="small"
+                              @update:modelValue="settings_store.storeChartFilterSettings"
+                              data-testid="general-charts_filters"
+                              aria-labelledby="single"
+                />
 
-           <div v-if="root.assets && root.assets.stores && root.assets.stores.active_stores" >
-<!--               <AutoComplete-->
-<!--                   v-model="value"-->
-<!--                   :suggestions="suggestions"-->
-<!--                   optionLabel="name"-->
-<!--                   @complete="searchStore"-->
-<!--                   dropdown-->
-<!--               />-->
-           </div>
-       </div>
+
+
+            </InputGroup>
+            <div v-if="settings_store.chart_date_filter === 'custom'" class="flex gap-2 mt-3 mb-2">
+                <DatePicker
+                    class="rounded-lg"
+                    size="small"
+                    placeholder="Select Start Date"
+                    date-format="yy-mm-dd"
+                    @date-select="handleDateChangeRound($event,'filter_start_date')"
+                    :maxDate="today"
+                    :disabled="settings_store.chart_date_filter !== 'custom'"
+                    v-model="settings_store.filter_start_date"
+                    showIcon/>
+                <DatePicker
+                    class="rounded-lg"
+                    placeholder="Select End Date"
+                    date-format="yy-mm-dd"
+                    :maxDate="today"
+                    size="small"
+                    @date-select="handleDateChangeRound($event,'filter_end_date')"
+
+                    :disabled="settings_store.chart_date_filter !== 'custom'"
+                    v-model="settings_store.filter_end_date"
+                    showIcon/>
+                <Button label="Submit"
+                        class=""
+                        size="small"
+                        @click="settings_store.storeChartFilterSettings()"
+                        :disabled="settings_store.is_button_disabled"/>
+
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <FloatLabel :variant="product_store.float_label_variants"
+            >
+                <AutoComplete
+                    name="products-filter-store"
+                    data-testid="products-filter-store"
+                    v-model="store.selected_store_at_dashboard"
+                    @change="onStoreSelect($event)"
+                    option-label = "name"
+                    dropdown
+                    style="height:30px"
+                    :complete-on-focus = "true"
+                    :suggestions="store.filtered_stores"
+                    @complete="store.searchStoreForListQuery"
+
+
+
+                />{{this.selected_store_at_dashboard}}
+                <label for="articles-name">Store By:</label>
+            </FloatLabel>
+        </div>
+    </div>
+
     </div>
     <div class=" mb-3 mt-1">
 
-        <div class="!grid grid-cols-4 gap-4">
+        <div v-if="metrics.length > 0" class="!grid grid-cols-4 gap-4">
             <div v-for="metric in metrics" :key="metric.label">
                 <Card class="surface-ground h-full p-4">
                     <template #content>
@@ -159,6 +240,12 @@ const metrics = ref([]);
                     </template>
                 </Card>
             </div>
+        </div>
+        <div v-else class="!grid grid-cols-4 gap-4">
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
+        <Skeleton class="mb-2" height="8rem" borderRadius="14px"></Skeleton>
         </div>
     </div>
     <div class="!mt-3">
@@ -183,13 +270,14 @@ const metrics = ref([]);
                         <span class="text-sm"> Overall Sales</span>
                         <span class="rounded-full bg-gray-200 size-1 mx-1"></span>
                         <span class="text-xs">
-                            ₹{{
-                                orders_store.overall_sales > 0 ?
-                                    orders_store.overall_sales?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                                    :
-                                    '0'
-                            }}
-                        </span>
+                        <span v-html="orders_store.default_currency_symbol"></span>
+                        {{
+                            orders_store.overall_sales && orders_store.overall_sales > 0
+                                ? orders_store.overall_sales.toLocaleString()
+                                : '0'
+                        }}
+                    </span>
+
 
                         <template v-if="orders_store.chart_series?.growth_rate">
                             <template v-if="orders_store.chart_series?.growth_rate !== 0">
@@ -227,7 +315,7 @@ const metrics = ref([]);
                         <span class="text-sm"> Payment Recieved</span>
                         <span class="rounded-full bg-gray-200 size-1 mx-1"></span>
                         <span class="text-xs">
-                            ₹{{
+                            <span v-html="orders_store.default_currency_symbol"></span>{{
                                 orders_store.overall_income && !isNaN(orders_store.overall_income) ?
                                     orders_store.overall_income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                                     :
@@ -299,38 +387,14 @@ const metrics = ref([]);
 
                     <template #content>
                         <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">
-                            <VendorSale :vendorData="vendor_store.top_selling_vendors" />
+
+                            <VendorSale :data="product_store.top_selling_categories"
+                                        :sampleLogos="root.assets?.vendor_images"
+                                        type="vendor" />
+
                         </div>
 
-                        <!-- <DataTable :value="vendor_store.top_selling_vendors" dataKey="id"
-                            class="p-datatable-sm p-datatable-hoverable-rows" :nullSortOrder="-1"
-                            v-model:selection="vendor_store.action.items" stripedRows responsiveLayout="scroll">
-                            <Column field="variation_name" header="" class="overflow-wrap-anywhere">
-                                <template #body="prop">
-                                    <div class="flex ">
 
-                                        <div class="product_desc ml-3">
-                                            <h4>{{ prop.data.name }}</h4>
-                                        </div>
-                                    </div>
-                                </template>
-            </Column>
-            <Column field="total_sales" header="" class="overflow-wrap-anywhere">
-                <template #body="prop">
-                                    <div class="flex ">
-
-                                        <div class="product_desc ml-3">
-                                            <p><b> {{ prop.data.total_sales }}</b> Sold</p>
-                                        </div>
-                                    </div>
-                                </template>
-            </Column>
-            <template #empty>
-                                <div class="text-center py-3">
-                                    No records found.
-                                </div>
-                            </template>
-            </DataTable> -->
                     </template>
                 </Card>
 
@@ -347,7 +411,8 @@ const metrics = ref([]);
                     <template #content>
 
                         <div v-for="product in product_store.top_selling_brands" :key="product.id">
-                            <TileInfo :product="product" :baseUrl="base_url" :showRating="true" />
+
+                            <TileInfo :product="product" :baseUrl="product.image_urls" :showRating="true" />
                         </div>
 
                     </template>
@@ -402,12 +467,6 @@ const metrics = ref([]);
                 </Card>
             </div>
 
-
-
-
-
-
-
             <Card>
                 <template #title>
                     <div class="flex align-items-center gap-1">
@@ -418,7 +477,12 @@ const metrics = ref([]);
 
                 <template #content>
                     <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-10">
-                        <VendorSale :vendorData="product_store.top_selling_categories" />
+
+                        <VendorSale
+                            :data="product_store.top_selling_categories"
+                            :sampleLogos="root.assets?.category_images"
+                            type="category"
+                        />
                     </div>
 
                 </template>

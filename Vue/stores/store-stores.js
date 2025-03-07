@@ -342,7 +342,8 @@ export const useStoreStore = defineStore({
         searchCurrencies(event) {
             const query = event.query.toLowerCase();
             this.currency_suggestion_list = this.currencies_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
+                return item.name.toLowerCase().includes(query) &&
+                    (!this.item.default_currency || item.name !== this.item.default_currency.name);
             });
         },
 
@@ -470,7 +471,8 @@ export const useStoreStore = defineStore({
         searchLanguages(event) {
             const query = event.query.toLowerCase();
             this.language_suggestion_list = this.languages_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
+                return item.name.toLowerCase().includes(query)&&
+                    (!this.item.default_language || item.name !== this.item.default_language.name);
             });
         },
 
@@ -778,11 +780,12 @@ export const useStoreStore = defineStore({
                     break;
                 case 'trash':
                 case 'restore':
-                    this.item = data;
+                    // this.item = data;
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'save':
                     this.item = data;
+                    await this.getItem(data.id)
                     break;
                 case 'delete':
                     this.item = null;
