@@ -351,7 +351,7 @@ class Shipment extends VaahModel
         foreach ($search_array as $search_item){
             $query->where(function ($q1) use ($search_item) {
                 $q1->where('name', 'LIKE', '%' . $search_item . '%')
-                    ->orWhere('slug', 'LIKE', '%' . $search_item . '%')
+//                    ->orWhere('slug', 'LIKE', '%' . $search_item . '%')
                     ->orWhere('id', 'LIKE', $search_item . '%');
             });
         }
@@ -1225,9 +1225,6 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             ->get()
             ->keyBy('shipment_date');
 
-        // Total number of orders and shipped orders count
-        $total_orders = Order::count();
-        $overall_shipped_orders = ShipmentItem::distinct('vh_st_order_id')->count('vh_st_order_id');
         // Prepare data for the chart
         $shipped_orders_so_far = 0;
         $formatted_shipped_data = [];
@@ -1237,13 +1234,19 @@ $order_item_pairs = $orders->flatMap(function ($order) {
             // Get shipped orders and quantity for the current day
             $shipped_orders = $shipment_data[$date_string]->shipped_orders ?? 0;
             $shipped_quantity = $shipment_data[$date_string]->shipped_quantity ?? 0;
+
+            // Ignore data points where both shipped orders and shipped quantity are 0
+            if ($shipped_orders == 0 && $shipped_quantity == 0) {
+                continue;
+            }
+
             $shipped_orders_so_far += $shipped_orders;
 
             // Prepare chart data for shipped orders (Orders In Shipment)
-            $formatted_shipped_data[] = ['x' => $date_string, 'y' => $shipped_orders];  // Total shipped orders
+            $formatted_shipped_data[] = ['x' => $date_string, 'y' => $shipped_orders];
 
             // Prepare chart data for quantities shipped (Quantities Shipped)
-            $formatted_quantities_shipped_data[] = ['x' => $date_string, 'y' => $shipped_quantity];  // Total quantity shipped
+            $formatted_quantities_shipped_data[] = ['x' => $date_string, 'y' => $shipped_quantity];
         }
 
         return [
@@ -1253,11 +1256,12 @@ $order_item_pairs = $orders->flatMap(function ($order) {
                     ['name' => 'Quantities Shipped', 'data' => $formatted_quantities_shipped_data], // Quantities shipped
                 ],
                 'chart_options' => [
-                    'xaxis' => ['type' => 'datetime', 'categories' => $labels],
+                    'xaxis' => ['type' => 'datetime'],
                 ],
             ]
         ];
     }
+
 
     //----------------------------------------------------------
     public static function ordersShipmentItemsByDateRange($request)

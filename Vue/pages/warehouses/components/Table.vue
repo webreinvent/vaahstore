@@ -20,7 +20,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -48,33 +48,33 @@ const useVaah = vaah();
                      <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="warning"> {{prop.data.status.name}} </Badge>
+                            severity="warn"> {{prop.data.status.name}} </Badge>
                  </template>
              </Column>
 
                 <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
+                        v-if="store.isListView()"
                         style="width:150px;"
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
+                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
                     </template>
 
                 </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+            <Column field="is_active" v-if="store.isListView()"
                     style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
-                    <InputSwitch v-model.bool="prop.data.is_active"
+                    <ToggleSwitch v-model.bool="prop.data.is_active"
                                  data-testid="warehouses-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
                                  :disabled="store.assets.is_guest_impersonating"
                                  @input="store.toggleIsActive(prop.data)">
-                    </InputSwitch>
+                    </ToggleSwitch>
                 </template>
 
             </Column>
@@ -103,7 +103,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="warehouses-table-action-trash"
-                                v-if="store.isViewLarge()
+                                v-if="store.isListView()
                                       && !prop.data.deleted_at
                                       && !store.assets.is_guest_impersonating"
                                 @click="store.itemAction('trash', prop.data)"
@@ -113,7 +113,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="warehouses-table-action-restore"
-                                v-if="store.isViewLarge()
+                                v-if="store.isListView()
                                       && prop.data.deleted_at
                                       && !store.assets.is_guest_impersonating"
                                 @click="store.itemAction('restore', prop.data)"

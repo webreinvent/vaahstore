@@ -2,7 +2,9 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment-timezone/moment-timezone-utils";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+dayjs.extend(dayjsPluginUTC)
 import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Shipment';
@@ -89,6 +91,58 @@ export const useShipmentStore = defineStore({
 
     }),
     getters: {
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-full';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
 
     },
     actions: {
@@ -130,26 +184,38 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'shipments.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'shipments.form':
-                    this.view = 'small';
-                    this.list_view_width = 5;
-                    break;
-                case 'shipments.view':
-                    this.view = 'small';
-                    this.list_view_width = 5;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    this.show_filters = false;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'shipments.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     case 'shipments.form':
+            //         this.view = 'small';
+            //         this.list_view_width = 5;
+            //         break;
+            //     case 'shipments.view':
+            //         this.view = 'small';
+            //         this.list_view_width = 5;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         this.show_filters = false;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('shipments.view')
+                || route_name.includes('shipments.form')
+            ){
+                this.view = 'list-and-item';
             }
+
+            if(route_name.includes('shipments.filters')){
+                this.view = 'list-and-filters';
+            }
+
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -740,15 +806,15 @@ export const useShipmentStore = defineStore({
             this.$router.push({name: 'shipments.form', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -758,7 +824,7 @@ export const useShipmentStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1088,6 +1154,10 @@ export const useShipmentStore = defineStore({
         },
         //---------------------------------------------------------------------
         addOrdersToShipment () {
+            if(!this.item.orders || (this.item.orders && this.item.orders.length < 1)){
+                vaah().toastErrors(['Select an Order']);
+                return false;
+            }
             this.order_list_tables = this.item.orders.map(order => ({
                 name: order.user_name,
                 id:order.id,
@@ -1314,7 +1384,7 @@ export const useShipmentStore = defineStore({
                 if (!selected_date) {
                     continue;
                 }
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 const UTC_date = search_date.format('YYYY-MM-DD');
 
                 if (UTC_date) {
@@ -1358,19 +1428,28 @@ export const useShipmentStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        ordersShipmentByDateRangeAfter(data,res){
-            const series_data = data.chart_series.map(series => ({
+        ordersShipmentByDateRangeAfter(data, res) {
+            if (!data || !Array.isArray(data.chart_series)) {
+                return;
+            }
+
+            const seriesData = data.chart_series.map(series => ({
                 name: series.name,
+                type: series.name === "Orders In Shipment" ? "line" : "area",
                 data: Array.isArray(series.data) ? series.data : [],
             }));
 
-            this.updateChartSeries(series_data);
+            this.updateChartSeries(seriesData);
 
-            const updated_area_chart_options = {
-                ...data.chart_options,
+
+            const updatedChartOptions = {
+                chart: {
+                    type: "line",
+                    toolbar: { show: false }
+                },
                 stroke: {
-                    curve: 'smooth',
-                    width: 3,
+                    curve: "smooth",
+                    width: [3, 2] // Thicker line for Orders In Shipment, thinner for area chart
                 },
                 noData: {
                     text: 'Oops! No Data Available',
@@ -1383,60 +1462,63 @@ export const useShipmentStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },
-                title: {
+                }, title: {
                     text: 'Order Shipments Trends',
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
-                chart: {
-
-                    toolbar: {
-                        show: false,
-                    },
-                    background: '#ffffff',
-
+                fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shade: "light",
+                        type: "vertical",
+                        shadeIntensity: 0.4,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [100, 100, 100]
+                    }
+                },
+                colors: ["#008FFB", "#00E396"], // Blue for Orders In Shipment, Green for Quantities Shipped
+                xaxis: {
+                    type: "datetime",
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
                 },
                 yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                },
-                colors: ['#d4526e',  '#13d8aa',
-                ],
-                xaxis: {
-                    labels: {
-                        show: false,
-                    },
-                },
-                legend: {
-                    show: true,
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    floating: false,
-                    fontSize: '11px',
-
-                },
-                dataLabels: {
-                    enabled: false,
+                    title: { text: "Shipments Data" }
                 },
                 tooltip: {
                     enabled: true,
                     shared: true,
-                    style: { fontSize: '14px' },
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const ordersInShipment = series[0][dataPointIndex] ?? 0;
+                        const QuantitiesInShipment = series[1][dataPointIndex] ?? 0;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Orders In Shipment: <strong>${ordersInShipment}</strong></div>
+                    <div style="color: #00E396;">Quantities Shipped: <strong>${QuantitiesInShipment}</strong></div>
+                </div>
+            </div>`;
+                    }
                 },
-                grid: {
-                    show: false,
+                legend: {
+                    position: "bottom"
                 }
             };
 
-            this.updateChartOptions(updated_area_chart_options);
-        },
+            this.updateChartOptions(updatedChartOptions);
+        }
+        ,
         updateChartOptions(newOptions) {
             this.shipment_by_order_chart_options = newOptions;
         },
@@ -1471,36 +1553,30 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------------------------
         ordersShipmentItemsByDateRangeAfter(data,res){
-            const series_data = data.chart_series.map(series => ({
-                name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
-            }));
+            const series_data = [
+                {
+                    name: "Pending Shipment Quantity",
+                    data: data.chart_series[0].data,
+                },
+                {
+                    name: "Total Shipped Quantity",
+                    data: data.chart_series[1].data,
+                }
+            ];
 
             this.updateShipmentItemsChartSeries(series_data);
 
             const updated_area_chart_options = {
                 ...data.chart_options,
-                stroke: { curve: 'smooth', width: 4 },
+                stroke: { curve: 'smooth', width: 3 },
                 title: {
-                    text: 'Quantity Shipped Over Date Range',
+                    text: 'Shipment Quantities Over Date Range',
                     align: 'center',
-                    offsetY: 12,
+                    offsetY: 10,
                     style: {
                         fontSize: '16px',
                         fontWeight: 'bold',
                         color: '#263238'
-                    }
-                },
-                noData: {
-                    text: 'Oops! No Data Available',
-                    align: 'center',
-                    verticalAlign: 'middle',
-                    offsetX: 0,
-                    offsetY: 0,
-                    style: {
-                        color: '#FF0000',
-                        fontSize: '14px',
-                        fontFamily: undefined
                     }
                 },
                 chart: {
@@ -1508,38 +1584,50 @@ export const useShipmentStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#ffffff',
 
-                },
-                yaxis: {
-                    labels: {
-                        show: false,
-                    },
                 },
                 xaxis: {
                     labels: {
                         show: false,
                     },
                 },
+                yaxis: [
+                    {
+                        title: { text: "Pending Shipment Quantity" },
+                        labels: {
+                            formatter: (value) => value.toFixed(0),
+                        },
+                        min: Math.min(...data.chart_series[0].data.map(d => d.y)) - 10, // Dynamic min
+                        max: Math.max(...data.chart_series[0].data.map(d => d.y)) + 10, // Dynamic max
+                    },
+                    {
+                        opposite: true, // Place on the right side
+                        title: { text: "Total Shipped Quantity" },
+                        labels: {
+                            formatter: (value) => value.toFixed(0),
+                        },
+                        min: Math.min(...data.chart_series[1].data.map(d => d.y)) - 5,
+                        max: Math.max(...data.chart_series[1].data.map(d => d.y)) + 5,
+                    }
+                ],
                 legend: {
                     show: true,
                     position: 'bottom',
                     horizontalAlign: 'center',
-                    floating: false,
                     fontSize: '11px',
                 },
-
-                dataLabels: {
-                    enabled: false,
-                },
+                dataLabels: { enabled: false },
                 tooltip: {
                     enabled: true,
                     shared: true,
-                    style: { fontSize: '14px' },
-                },
-                grid: {
-                    show: false,
+                    y: {
+                        formatter: function (value) {
+                            return value.toLocaleString();
+                        }
+                    }
                 }
+,
+                grid: { show: false }
             };
 
             this.updateShipmentItemsChartOptions(updated_area_chart_options);
@@ -1589,7 +1677,6 @@ export const useShipmentStore = defineStore({
             const updated_bar_chart_options = {
                 ...data.chart_options, // Merge existing options
                 chart: {
-                    background: '#ffffff',
                     toolbar: {
                         show: false,
                     },
@@ -1606,11 +1693,12 @@ export const useShipmentStore = defineStore({
                         fontFamily: undefined
                     }
                 },
+                colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
                 dataLabels: {
                                     enabled: true,
                                     textAnchor: 'start',
                                     style: {
-                                        colors: ['#000'],
+                                        colors: ['#ffffff'],
                                     },
                                     formatter: function (val, opt) {
                                         const category = opt.w.config.xaxis.categories[opt.dataPointIndex] || 'Unknown';
@@ -1618,7 +1706,7 @@ export const useShipmentStore = defineStore({
                                     },
                                     offsetX: 0,
                                     dropShadow: {
-                                        enabled: false,
+                                        enabled: true,
                                     },
                                 },
                 plotOptions: {
@@ -1626,6 +1714,8 @@ export const useShipmentStore = defineStore({
                         barHeight: '80%',
                         distributed: true,
                         horizontal: true,
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
                         dataLabels: {
                             position: 'bottom',
                         },
@@ -1638,18 +1728,18 @@ export const useShipmentStore = defineStore({
                 },
                 title: {
                     text: 'Shipped Quantities Status',
-                    align: 'center',
+                    align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238',
                     },
                 },
 
                 subtitle: {
                     text: 'Status as DataLabels inside bars',
-                    align: 'center',
+                    align: 'left',
                 },
 
                 markers: {
@@ -1661,10 +1751,10 @@ export const useShipmentStore = defineStore({
                     },
                 },
                 tooltip: {
-                    theme: 'dark',
+                    theme: 'light',
                 },
                 legend: {
-                    show: false,
+                    show: true,
 
                 },
 

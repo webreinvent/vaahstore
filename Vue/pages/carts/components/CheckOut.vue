@@ -15,7 +15,7 @@ const base_url = ref('');
 
 onMounted(async () => {
     document.title = 'Carts - Check-out';
-
+    await store.loadAssets();
     base_url.value = root.ajax_url.replace('backend/store', '/');
 
     if (route.params && route.params.id) {
@@ -59,68 +59,71 @@ watchEffect(() => {
 
         <Button
             @click="store.cartDetails(route_params_id)"
-            class="p-button-sm"
+            size="small"
             label="Back"><i class="pi pi-arrow-left mr-1 "></i>Back
         </Button>
+        <b class="mr-1 ml-3" v-if="store.item ">
+            {{ store.item.user?.username }}-{{ store.item.user?.email }} ({{store.cart_item_at_checkout?.length}})
+        </b>
         <div class="flex gap-3 my-3">
 
             <div class="w-full">
                 <Accordion :multiple="true" :activeIndex="[0, 1]" class="w-full">
                     <AccordionTab v-if="store.cart_item_at_checkout && store.cart_item_at_checkout.length" :header="`Products (${store.cart_item_at_checkout.length})`" class="w-full">
 
-                    <div >
-                        <DataTable :value="store.cart_item_at_checkout"
-                                   dataKey="id"
+                        <div >
+                            <DataTable :value="store.cart_item_at_checkout"
+                                       dataKey="id"
 
-                                   class="p-datatable-sm p-datatable-hoverable-rows"
-                                   :nullSortOrder="-1"
-                                   v-model:selection="store.action.items"
-                                   stripedRows
-                                   responsiveLayout="scroll">
-                            <Column field="" header="" class="overflow-wrap-anywhere"
-                                    style="width:120px;">
-                                <template #body="prop">
-                                    <div class="flex mt-4">
-                                        <div class="product_img">
-                                            <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
-                                                <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
-                                                    <Image preview
-                                                           :src="base_url + '/' + imageUrl"
-                                                           alt="Error" class="shadow-4" width="64"/>
+                                       class="p-datatable-sm p-datatable-hoverable-rows"
+                                       :nullSortOrder="-1"
+                                       v-model:selection="store.action.items"
+                                       stripedRows
+                                       responsiveLayout="scroll">
+                                <Column field="" header="" class="overflow-wrap-anywhere"
+                                        style="width:120px;">
+                                    <template #body="prop">
+                                        <div class="flex mt-4">
+                                            <div class="product_img">
+                                                <div v-if="Array.isArray(prop.data.image_urls) && prop.data.image_urls.length > 0">
+                                                    <div v-for="(imageUrl, imgIndex) in prop.data.image_urls" :key="imgIndex">
+                                                        <Image preview
+                                                               :src="base_url + '/' + imageUrl"
+                                                               alt="Error" class="shadow-4" width="64"/>
+                                                    </div>
+                                                </div>
+                                                <div v-else>
+                                                    <Image  preview src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
+                                                            alt="Error" class="shadow-4" width="64"/>
                                                 </div>
                                             </div>
-                                            <div v-else>
-                                                <Image  preview src="https://m.media-amazon.com/images/I/81hyHSHK7FL._AC_AA180_.jpg"
-                                                     alt="Error" class="shadow-4" width="64"/>
+                                            <div class="product_desc ml-3">
+                                                <h4>{{
+                                                    prop.data.pivot.cart_product_variation ? prop.data.name + '-' + prop.data.pivot.cart_product_variation : prop.data.name
+                                                    }}</h4>
+                                                <p v-if="prop.data.pivot.quantity"><b>Qty:</b> {{ prop.data.pivot.quantity }}</p>
+                                                <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">
+                                                    <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price }}</p>
                                             </div>
                                         </div>
-                                        <div class="product_desc ml-3">
-                                            <h4>{{
-                                                    prop.data.pivot.cart_product_variation ? prop.data.name + '-' + prop.data.pivot.cart_product_variation : prop.data.name
-                                                }}</h4>
-                                            <p v-if="prop.data.pivot.quantity"><b>Qty:</b> {{ prop.data.pivot.quantity }}</p>
-                                            <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">
-                                                ₹{{ prop.data.pivot.price }}</p>
-                                        </div>
+                                    </template>
+                                </Column>
+                                <template #empty>
+                                    <div class="text-center py-3">
+                                        No records found.
                                     </div>
                                 </template>
-                            </Column>
-                            <template #empty>
-                                <div class="text-center py-3">
-                                    No records found.
-                                </div>
-                            </template>
 
-                        </DataTable>
+                            </DataTable>
 
                         </div>
                     </AccordionTab>
 
 
-                <AccordionTab :header="store.accordionHeader" v-if="(store && store.item && store.item_user && store.item_user_address && store.shipping_addresses && store.shipping_addresses.length===0) || store.show_new_address_tab">
-                    <div >
+                    <AccordionTab :header="store.accordionHeader" v-if="(store && store.item && store.item_user && store.item_user_address && store.shipping_addresses && store.shipping_addresses.length===0) || store.show_new_address_tab">
+                        <div >
 
-                    <VhField label="Country/Region">
+                            <VhField label="Country/Region">
                                 <AutoComplete v-model="store.item_user_address.country"
                                               value="id"
 
@@ -133,59 +136,59 @@ watchEffect(() => {
 
                             </VhField>
 
-                        <VhField label="Full Name ">
-                            <InputText class="w-full"
-                                       name="products-name"
-                                       data-testid="products-name"
-                                       placeholder="Enter Full Name "
-                                       v-model="store.item_user_address.name "/>
-                        </VhField>
+                            <VhField label="Full Name ">
+                                <InputText class="w-full"
+                                           name="products-name"
+                                           data-testid="products-name"
+                                           placeholder="Enter Full Name "
+                                           v-model="store.item_user_address.name "/>
+                            </VhField>
 
-                        <VhField label="Phone No.">
-                            <InputText class="w-full"
-                                       name="products-phone"
-                                       data-testid="products-phone"
-                                       placeholder="Enter Phone No."
-                                       v-model="store.item_user_address.phone"/>
-                        </VhField>
-                        <VhField label="Address">
-                            <InputText class="w-full"
-                                       name="cart-email"
-                                       data-testid="cart-email"
-                                       placeholder="Enter Address (House No, Building, Street, Area)*"
-                                       v-model="store.item_user_address.address_line_1"/>
-                        </VhField>
+                            <VhField label="Phone No.">
+                                <InputText class="w-full"
+                                           name="products-phone"
+                                           data-testid="products-phone"
+                                           placeholder="Enter Phone No."
+                                           v-model="store.item_user_address.phone"/>
+                            </VhField>
+                            <VhField label="Address">
+                                <InputText class="w-full"
+                                           name="cart-email"
+                                           data-testid="cart-email"
+                                           placeholder="Enter Address (House No, Building, Street, Area)*"
+                                           v-model="store.item_user_address.address_line_1"/>
+                            </VhField>
 
-                        <VhField label="PIN Code">
-                            <InputText class="w-full"
-                                       name="cart-pin_code"
-                                       data-testid="cart-pin_code"
-                                       placeholder="Enter Pin Code"
-                                       v-model="store.item_user_address.pin_code"/>
-                        </VhField>
+                            <VhField label="PIN Code">
+                                <InputText class="w-full"
+                                           name="cart-pin_code"
+                                           data-testid="cart-pin_code"
+                                           placeholder="Enter Pin Code"
+                                           v-model="store.item_user_address.pin_code"/>
+                            </VhField>
 
-                        <VhField label="City">
-                            <InputText class="w-full"
-                                       name="cart-city"
-                                       data-testid="cart-city"
-                                       placeholder="Enter City"
-                                       v-model="store.item_user_address.city"/>
-                        </VhField>
-                        <VhField label="State">
-                            <InputText class="w-full"
-                                       name="cart-address"
-                                       data-testid="cart-address"
-                                       placeholder="Enter State / Province / Region"
-                                       v-model="store.item_user_address.state"/>
-                        </VhField>
-                    </div>
-                    <div class="flex justify-content-end gap-2">
-                        <Button v-if="store.shipping_addresses.length >= 1" type="button" label="Close" severity="secondary" @click="store.removeTab(index)"></Button>
-                        <Button v-if="store.is_editing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
-                        <Button v-if="!store.is_editing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.show_tab_for_billing ? 'billing' : null)"></Button>
-                    </div>
-                </AccordionTab>
-                <AccordionTab header="Shipping Details " v-if="store && store.item && store.item_user  &&store.shipping_addresses && store.shipping_addresses.length >= 1">
+                            <VhField label="City">
+                                <InputText class="w-full"
+                                           name="cart-city"
+                                           data-testid="cart-city"
+                                           placeholder="Enter City"
+                                           v-model="store.item_user_address.city"/>
+                            </VhField>
+                            <VhField label="State">
+                                <InputText class="w-full"
+                                           name="cart-address"
+                                           data-testid="cart-address"
+                                           placeholder="Enter State / Province / Region"
+                                           v-model="store.item_user_address.state"/>
+                            </VhField>
+                        </div>
+                        <div class="flex justify-content-end gap-2">
+                            <Button v-if="store.shipping_addresses.length >= 1" type="button" label="Close" severity="secondary" @click="store.removeTab(index)"></Button>
+                            <Button v-if="store.is_editing" type="button" label="Update" @click="store.updateAddress(store.item_user_address,store.item_user)"></Button>
+                            <Button v-if="!store.is_editing" type="button" label="Save" @click="store.saveShippingAddress(store.item_user_address, store.item_user, store.show_tab_for_billing ? 'billing' : null)"></Button>
+                        </div>
+                    </AccordionTab>
+                    <AccordionTab header="Shipping Details " v-if="store && store.item && store.item_user  &&store.shipping_addresses && store.shipping_addresses.length >= 1">
                         <div>
                             <template v-for="(address, index) in store.displayedAddresses" :key="index">
                                 <Card :class="{ 'selected-card': store.isSelectedShippingAddress(address) }" @click="store.setSelectedShippingAddress(address)" class="mt-2" :pt="{ content: { class: 'py-0' } }">
@@ -203,8 +206,8 @@ watchEffect(() => {
                                         </div>
                                         <li class="p-2" v-if="store.isSelectedShippingAddress(address)">Cash On Delivery Available</li>
                                         <div   class="flex justify-content gap-2 mt-5">
-                                            <Button type="button" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
-                                            <Button type="button" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
+                                            <Button type="button" size="small" label="Remove" severity="secondary" @click="store.removeAddress(address)"></Button>
+                                            <Button type="button" size="small" label="Edit" @click="store.editAddress(address,store.item_user)"></Button>
                                         </div>
                                     </template>
                                 </Card>
@@ -259,9 +262,9 @@ watchEffect(() => {
                     <AccordionTab header="Payment">
                         <div class="flex flex-column px-4 gap-2 max-w-14rem">
                             <label for="payment_type" class="cursor-pointer flex align-items-center bg-gray-100 p-2 border-round">
-                                    <RadioButton v-model="store.cash_on_delivery" inputId="COD" name="COD" value="COD"/>
-                                    <span class="ml-2">Cash On Delivery</span>
-                                </label>
+                                <RadioButton v-model="store.cash_on_delivery" inputId="COD" name="COD" value="COD"/>
+                                <span class="ml-2">Cash On Delivery</span>
+                            </label>
                         </div>
                     </AccordionTab>
                 </Accordion>
@@ -275,7 +278,7 @@ watchEffect(() => {
                                 <b>Total MRP :</b>
                             </p>
                             <p class="m-0">
-                                ₹{{ store.total_mrp }}
+                                <span v-html="store.assets?.store_default_currency"></span>{{ store.total_mrp }}
                             </p>
                         </div>
                         <div class="flex justify-content-between">
@@ -288,18 +291,18 @@ watchEffect(() => {
                         </div>
                         <div class="flex justify-content-between">
                             <p class="m-0">
-                               <b>Tax :</b>
+                                <b>Tax :</b>
                             </p>
                             <p>
-                                ₹0
-                             </p>
+                                <span v-html="store.assets?.store_default_currency"></span>0
+                            </p>
                         </div>
                         <div class="flex justify-content-between">
                             <p class="m-0">
                                 <b>Discount On MRP:</b>
                             </p>
                             <p class="text-teal-500">
-                                -₹{{store.discount_on_order}}
+                                -<span v-html="store.assets?.store_default_currency"></span>{{store.discount_on_order}}
                             </p>
                         </div>
                         <div class="flex justify-content-between">
@@ -314,7 +317,7 @@ watchEffect(() => {
                                 <b>Total Amount :</b>
                             </p>
                             <p>
-                                <b>₹{{ store.total_mrp - 0 }}</b>
+                                <b><span v-html="store.assets?.store_default_currency"></span>{{ store.total_mrp - 0 }}</b>
                             </p>
                         </div>
 

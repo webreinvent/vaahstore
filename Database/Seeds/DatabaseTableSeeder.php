@@ -38,7 +38,6 @@ class DatabaseTableSeeder extends Seeder
         $seeder->run();
 
     }
-
     //--------------------------------------------------------------
 
     public function getListFromJson($json_file_name)
@@ -170,4 +169,6 @@ class DatabaseTableSeeder extends Seeder
         }
 
     }
+
+
 }

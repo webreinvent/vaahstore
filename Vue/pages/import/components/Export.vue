@@ -72,7 +72,7 @@ const handleSelection = (selected) => {
 
         </template>
         <template #footer>
-            <div class="grid grid-nogutter justify-content-between">
+            <div class="flex justify-content-between">
                 <Button label="Back" @click="store.toProducts()" icon="pi pi-angle-left" />
                 <Button
                     type="submit"

@@ -13,7 +13,7 @@ onMounted(async () => {
 
         await store.getOrderDetails(route.params.order_id);
     }
-
+    await store.loadAssets();
 
 });
 </script>
@@ -24,8 +24,8 @@ onMounted(async () => {
 
         <div class="flex gap-3 my-3">
             <div class="w-full">
-                <h1 class="text-center mb-3">Thank you for your purchase!</h1>
-                <p class="text-center">Your order will be delivered in 2 days!</p>
+                <h1 class="text-center font-bold text-xl mb-3">Thank you for your purchase!</h1>
+                <p class="text-center font-bold">Your order will be delivered in 2 days!</p>
 
                 <DataTable :value="store.ordered_product"
                            dataKey="id"
@@ -65,7 +65,7 @@ onMounted(async () => {
                             style="width:120px;">
                         <template #body="prop">
                             <p v-if="prop.data.pivot.price !== null && prop.data.pivot.price !== undefined">
-                                ₹{{ prop.data.pivot.price }}</p>
+                                <span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price }}</p>
                         </template>
                     </Column>
 
@@ -81,8 +81,8 @@ onMounted(async () => {
             </div>
             <div class="mx-auto max-w-2xl px-4 2xl:px-0">
                 <div class="flex justify-content-center  items-center">
-                    <Button @click="store.returnToProduct()" data-testid="order-details-to_product" label="Return To Shopping" class="w-full"/>
-                    <Button label="Track Your Order" data-testid="order-details-to_order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
+                    <Button @click="store.returnToProduct()" data-testid="order-details-to_product" size="small" label="Return To Shopping" class="w-full"/>
+                    <Button label="Track Your Order" size="small" data-testid="order-details-to_order" @click="store.toOrderView(store.order.id)" severity="secondary" outlined class="w-full"/>
                 </div>
                 <div class="flex flex-wrap justify-between">
 
@@ -106,7 +106,7 @@ onMounted(async () => {
                                     <p class="m-0">
                                         <b>Total Amount Paid :</b>
                                     </p>
-                                    <p class="m-0">₹{{store.order_paid_amount}}
+                                    <p class="m-0"><span v-html="store.assets?.store_default_currency"></span>{{store.order_paid_amount}}
 
                                     </p>
                                 </div>
@@ -117,7 +117,7 @@ onMounted(async () => {
                                         <b>Total MRP :</b>
                                     </p>
                                     <p class="m-0">
-                                        ₹{{ store.ordered_total_mrp }}
+                                        <span v-html="store.assets?.store_default_currency"></span>{{ store.ordered_total_mrp }}
                                     </p>
                                 </div>
 
@@ -126,7 +126,7 @@ onMounted(async () => {
                                         <b>Tax :</b>
                                     </p>
                                     <p>
-                                        ₹0
+                                        <span v-html="store.assets?.store_default_currency"></span>0
                                     </p>
                                 </div>
                                 <div class="flex justify-content-between">
@@ -134,14 +134,14 @@ onMounted(async () => {
                                         <b>Discount On MRP:</b>
                                     </p>
                                     <p class="text-teal-500">
-                                        -₹0
+                                        -<span v-html="store.assets?.store_default_currency"></span>0
                                     </p>
                                 </div>
                                 <div class="flex justify-content-between">
                                     <p class="m-0">
                                         <b>Coupon Discount :</b>
                                     </p>
-                                    <p>-₹0</p>
+                                    <p>-<span v-html="store.assets?.store_default_currency"></span>0</p>
                                 </div>
                                 <hr>
                                 <div class="flex justify-content-between">
@@ -149,7 +149,7 @@ onMounted(async () => {
                                         <b>Total Amount :</b>
                                     </p>
                                     <p>
-                                        <b>₹{{ store.ordered_total_mrp - 0 }}</b>
+                                        <b><span v-html="store.assets?.store_default_currency"></span>{{ store.ordered_total_mrp - 0 }}</b>
                                     </p>
                                 </div>
                             </template>

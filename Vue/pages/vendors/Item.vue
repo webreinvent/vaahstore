@@ -57,7 +57,7 @@ const permissions=store.assets.permissions;
 </script>
 <template>
 
-    <div class="col-6" >
+    <div>
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -360,7 +360,7 @@ const permissions=store.assets.permissions;
                                         <Badge v-else-if="store.item.status &&store.item.status.name == 'Rejected'"
                                                severity="danger"> {{store.item.status.name}} </Badge>
                                         <Badge v-else
-                                               severity="warning"> {{store.item.status.name}} </Badge>
+                                               severity="warn"> {{store.item.status.name}} </Badge>
                                     </td>
                                 </tr>
 

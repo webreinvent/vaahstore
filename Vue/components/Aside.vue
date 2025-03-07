@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref} from 'vue';
+import { reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Menu from 'primevue/menu';
 
@@ -18,7 +18,8 @@ const selected_page = ref({
     menuitem: ({ props }) => ({
         class: route.path === props.item.route ? 'p-focus' : ''
     }),
-    submenuheader: {class: 'sticky top-0 bg-white z-1 border-bottom-1 border-gray-200'}
+    list: { class: 'p-0' },
+    submenuheader: { class: 'sticky top-0 bg-white z-1 border-bottom-1 border-gray-200' }
 });
 
 const items = ref([
@@ -27,130 +28,127 @@ const items = ref([
         items: [
             {
                 label: 'Dashboard',
-                icon: 'fa-regular fa-building',
+                icon: 'material-symbols-light:dashboard-outline-rounded',
                 route: "/",
             },
             {
                 label: 'Stores',
-                icon: 'fa-regular fa-building',
+                icon: 'solar:shop-linear',
                 route: "/stores",
             },
             {
                 label: 'Carts',
-                icon: 'pi pi-shopping-cart',
+                icon: 'hugeicons:shopping-cart-01',
                 route: "/carts",
             },
             {
                 label: 'Orders',
-                icon: 'fa-regular fa-check-square',
+                icon: 'solar:box-outline',
                 route: "/orders"
             },
             {
                 label: 'Payments',
-                icon: 'pi pi-paypal',
+                icon: 'hugeicons:paypal',
                 route: "/payments"
             },
             {
                 label: 'Shipments',
-                icon: 'fa fa-truck',
+                icon: 'fluent:vehicle-truck-profile-24-regular',
                 route: "/shipments"
             },
             {
                 label: 'Store Payment Methods',
-                icon: 'fa-regular fa-credit-card',
+                icon: 'stash:wallet',
                 route: "/storepaymentmethods"
             },
             {
                 label: 'Vendors',
-                icon: 'fa-regular fa-handshake',
+                icon: 'uil:chat-bubble-user',
                 route: "/vendors",
             },
             {
                 label: 'Vendor Products',
-                icon: 'fa-regular fa-clone',
+                icon: 'mdi:package-variant-closed',
                 route: "/vendorproducts"
             },
             {
                 label: 'Products',
-                icon: 'fa-regular fa-clone',
+                icon: 'mdi:shopping-outline',
                 route: "/products"
             },
             {
                 label: 'Product Variations',
-                icon: 'fa-regular fa-clone',
+                icon: 'mdi:shape-outline',
                 route: "/productvariations"
             },
             {
                 label: 'Product Attributes',
-                icon: 'fa-regular fa-clone',
+                icon: 'mdi:tag-multiple-outline',
                 route: "/productattributes"
             },
             {
                 label: 'Product Medias',
-                icon: 'fa-regular fa-image',
+                icon: 'solar:gallery-linear',
                 route: "/productmedias"
             },
             {
                 label: 'Product Stocks',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'mdi:chart-bar',
                 route: "/productstocks"
             },
             {
                 label: 'Categories',
-                icon: 'fa-solid fa-list',
+                icon: 'hugeicons:menu-circle',
                 route: "/categories"
             },
             {
                 label: 'Brands',
-                icon: 'fa-regular fa-copyright',
+                icon: 'mage:tag',
                 route: "/brands"
             },
             {
                 label: 'Warehouses',
-                icon: 'fa-regular fa-building',
+                icon: 'hugeicons:warehouse',
                 route: "/warehouses"
             },
             {
                 label: 'Attributes',
-                icon: 'fa-regular fa-folder',
+                icon: 'mage:folder',
                 route: "/attributes"
             },
             {
                 label: 'Attributes Group',
-                icon: 'fa-regular fa-folder-closed',
+                icon: 'mdi:folder-multiple-outline',
                 route: "/attributesgroup"
             },
-
             {
                 label: 'Payment Methods',
-                icon: 'fa-regular fa-dollar',
+                icon: 'flowbite:dollar-outline',
                 route: "/paymentmethods"
             },
             {
                 label: 'Addresses',
-                icon: 'fa-regular fa-address-card',
+                icon: 'tabler:address-book',
                 route: "/addresses"
             },
             {
                 label: 'Wishlists',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'mdi:heart-outline',
                 route: "/wishlists"
             },
             {
                 label: 'Customers',
-                icon: 'fa-regular fa-chart-bar',
+                icon: 'mdi:account-outline',
                 route: "/customers"
             },
             {
                 label: 'Customer Groups',
-                icon: 'fa-regular fa-user',
+                icon: 'mdi:account-group-outline',
                 route: "/customergroups"
             },
-
-
             {
                 label: 'Settings',
-                icon: 'fas fas-spin fa-cog',
+                icon: 'mdi:cog-outline',
                 route: "/settings/general"
             },
         ]
@@ -158,19 +156,22 @@ const items = ref([
 ]);
 
 </script>
+
 <template>
-
-
-    <div v-if="height" class="border-round-2xl overflow-hidden shadow-1 sticky" style="top: 54px">
-        <Menu :model="items" :pt="selected_page"  class="w-full overflow-y-auto py-0" style="max-height: calc(100vh - 54px);" >
+    <div v-if="height" class="overflow-hidden rounded-lg sticky bg-transparent" style="top: 54px">
+        <Menu :model="items" :pt="selected_page"
+            class="w-full py-0 overflow-y-auto  scroll-bar !bg-transparent shadow-none !border-0"
+            style="max-height: calc(100vh - 53px);">
             <template #item="{ item, props }">
                 <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-                    <a v-ripple :href="href" v-bind="props.action" @click="navigate">
-                        <span :class="item.icon" />
+                    <a v-ripple :href="href" v-bind="props.action" @click="navigate" class="rounded-xl !p-1.5 text-sm font-normal mb-2 overflow-visible"
+                        :class="[route.path === item.route ? 'bg-blue-500 text-white ' : 'hover:bg-blue-500/10']">
+                        <!-- <span :class="item.icon" class="p-2 bg-white rounded-lg text-info-500 shadow-card" /> -->
+                            <Icon :icon="item.icon" class="size-7 p-0.5 rounded-lg bg-white text-info-500 shrink-0" :class="[route.path === item.route ? 'shadow-none' : 'shadow-card']" />
                         <span class="ml-2">{{ item.label }}</span>
                     </a>
                 </router-link>
-                <a v-else v-ripple :href="item.url" :target="item.target" :class="props.class">
+                <a v-else v-ripple :href="item.url" :target="item.target" :class="[props.class, 'hover:bg-gray-50']">
                     <span :class="item.icon" />
                     <span class="ml-2">{{ item.label }}</span>
                 </a>

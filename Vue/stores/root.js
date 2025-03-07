@@ -14,6 +14,12 @@ export const useRootStore = defineStore({
         assets_is_fetching: true,
         filter_end_date: null,
         filter_start_date: null,
+        datatable_pt:{
+            column:{
+                class: "py-[0.17rem] line-height-0"
+            },
+
+        }
     }),
     getters: {},
     actions: {

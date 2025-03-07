@@ -2,7 +2,10 @@ import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Warehouse';
@@ -83,8 +86,68 @@ export const useWarehouseStore = defineStore({
         current_list:[],
         warehouse_stock_bar_chart_options:{},
         warehouse_stock_bar_chart_series:[],
+        window_width: 0,
+        screen_size: null,
+        float_label_variants: 'on',
     }),
     getters: {
+
+        isMobile: (state) => {
+            return state.screen_size === 'small';
+        },
+
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
 
     },
     actions: {
@@ -100,6 +163,7 @@ export const useWarehouseStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            await this.setScreenSize();
 
             /**
              * Update query state with the query parameters of url
@@ -113,16 +177,17 @@ export const useWarehouseStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'warehouses.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+
+            this.view = 'list';
+
+            if(route_name.includes('warehouses.view')
+                || route_name.includes('warehouses.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('warehouses.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -538,9 +603,10 @@ export const useWarehouseStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
+
             }
         },
         //---------------------------------------------------------------------
@@ -725,9 +791,9 @@ export const useWarehouseStore = defineStore({
             this.$router.push({name: 'warehouses.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -747,7 +813,7 @@ export const useWarehouseStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -757,7 +823,7 @@ export const useWarehouseStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1084,7 +1150,7 @@ export const useWarehouseStore = defineStore({
                     continue ;
                 }
 
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if(UTC_date){
@@ -1176,53 +1242,52 @@ export const useWarehouseStore = defineStore({
             const updated_bar_chart_options = {
                 ...data.chart_options,
 
-
+                chart: {
+                    toolbar: {
+                        show: false,
+                    },
+                },
                 title: {
                     text: 'Stocks Available In Warehouse',
                     align: 'left',
                     offsetY: 12,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        color: '#263238',
-                    },
+                        fontSize: '14px',
+                        fontWeight: 'normal',
+                        color: '#263238'
+                    }
+                }, tooltip: {
+                    theme: 'light',
                 },
                 plotOptions: {
                     bar: {
                         barHeight: '80%',
                         distributed: true,
                         horizontal: true,
+                        borderRadius: 4,
+                        borderRadiusApplication: 'end',
                         dataLabels: {
                             position: 'bottom',
                         },
                     },
                 },
                 legend: {
-                    show: false,
+                    show: true,
+                },
+                markers: {
+                    size: 5,
+                    strokeColor: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    },
                 },
                 yaxis: {
                     labels: {
                         show: false,
                     },
-                },responsive: [
-                    {
-                        breakpoint: 1000,
-                        options: {
-                            plotOptions: {
-                                bar: {
-                                    horizontal: false
-                                }
-                            },
-                            legend: {
-                                position: "bottom"
-                            }
-                            ,
-                            dataLabels:{
-                                enabled: false,
-                            }
-                        }
-                    }
-                ],
+                },
+
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
@@ -1234,12 +1299,13 @@ export const useWarehouseStore = defineStore({
                         fontSize: '14px',
                         fontFamily: undefined
                     }
-                },fill: {
-                    colors: ['#0000FF',  '#5996f1']
                 },
+
+                    colors: ['#032c57' , '#0047AB','#0056D2','#7ca3f1','#3A7DFF','#81BFFF','#7CA3F1FF'],
+
                 dataLabels: {
-                    enabled: false,
-                    textAnchor: 'center',
+                    enabled: true,
+                    textAnchor: 'start',
                     style: {
                         colors: ['#ffffff'],
                     },
@@ -1249,7 +1315,7 @@ export const useWarehouseStore = defineStore({
                     },
                     offsetX: 0,
                     dropShadow: {
-                        enabled: false,
+                        enabled: true,
                     },
                 },
 
@@ -1268,6 +1334,27 @@ export const useWarehouseStore = defineStore({
         updateWarehouseStocksBarChartSeries(new_series) {
             this.warehouse_stock_bar_chart_series = [...new_series];
         },
+
+        //---------------------------------------------------------------------
+        setScreenSize() {
+            if (!window) {
+                return null;
+            }
+            this.window_width = window.innerWidth;
+
+            if (this.window_width < 1024) {
+                this.screen_size = 'small';
+            }
+
+            if (this.window_width >= 1024 && this.window_width <= 1280) {
+                this.screen_size = 'medium';
+            }
+
+            if (this.window_width > 1280) {
+                this.screen_size = 'large';
+            }
+
+        }
 
     },
 });

@@ -841,9 +841,8 @@ class Order extends VaahModel
             ->groupBy('order_status');
 
         if ($start_date && $end_date) {
-            $orders_statuses_count = $orders_statuses_count->whereBetween('updated_at', [$start_date, $end_date]);
+            $orders_statuses_count = $orders_statuses_count->whereBetween('created_at', [$start_date, $end_date]);
         }
-
         $order_status_counts_pie_chart_data = $orders_statuses_count->pluck('count', 'order_status')->toArray();
 
         return [
@@ -876,6 +875,21 @@ class Order extends VaahModel
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
 
+        $store_id = isset($inputs['store']['id']) ? (int)$inputs['store']['id'] : null;
+
+        // Fetch default currency symbol if store_id is provided
+        $currency_symbol = null;
+        if ($store_id) {
+            $store = Store::with('defaultCurrency')->find($store_id);
+        } else {
+            $store = Store::with('defaultCurrency')->where('is_default', 1)->first();
+        }
+
+        if ($store && $store->defaultCurrency) {
+            $currency_symbol = $store->defaultCurrency->symbol;
+        }
+
+
         $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
         $labels = [];
 
@@ -883,34 +897,36 @@ class Order extends VaahModel
             $labels[] = $date->format('Y-m-d');
         }
 
-
         $query = OrderItem::query();
 
+        // Apply store filter
+        if ($store_id) {
+            $query->whereHas('product', function ($q) use ($store_id) {
+                $q->where('vh_st_store_id', $store_id);
+            });
+        }
+
+        // Fetch sales data
         $sales_data = $query
             ->selectRaw('DATE(created_at) as date')
-            ->selectRaw('SUM(quantity * price) as total_sales');
-
-
-        if ($inputs['start_date'] && $inputs['end_date']) {
-            $sales_data = $sales_data->whereBetween('created_at', [$start_date, $end_date]);
-        }
-        $sales_data = $sales_data->groupBy('date')
+            ->selectRaw('SUM(quantity * price) as total_sales')
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->groupBy('date')
             ->orderBy('date')
             ->get();
+
+        // Format data for chart
         $total_sales_chart_data = [];
         foreach ($sales_data as $item) {
-            $date = Carbon::parse($item->date);
-
             $total_sales_chart_data[] = ['x' => $item->date, 'y' => (int)$item->total_sales];
         }
 
+        // Calculate overall sales & growth rate
         $overall_total_sales = $sales_data->sum('total_sales');
-        $first_sale =  reset($total_sales_chart_data)['y'] ?? 0;
+        $first_sale = reset($total_sales_chart_data)['y'] ?? 0;
         $last_sale = end($total_sales_chart_data)['y'] ?? 0;
 
-
         $growth_rate = 0;
-
         if ($first_sale > 0) {
             $growth_rate = (($last_sale - $first_sale) / $first_sale) * 100;
         } elseif ($first_sale === 0 && $last_sale > 0) {
@@ -928,17 +944,18 @@ class Order extends VaahModel
                     ],
                     'overall_total_sales' => $overall_total_sales,
                     'growth_rate' => $growth_rate,
+                    'currency_symbol' => $currency_symbol, // Include currency symbol
                 ],
                 'chart_options' => [
                     'xaxis' => [
                         'type' => 'datetime',
                         'categories' => $labels
                     ],
-
                 ],
             ],
         ];
     }
+
 
 
     //-------------------------------------------------
@@ -1034,6 +1051,7 @@ class Order extends VaahModel
         $inputs = $request->all();
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+        $store_id = isset($inputs['store']['id']) ? (int)$inputs['store']['id'] : null;
 
         $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
         $labels = [];
@@ -1041,40 +1059,42 @@ class Order extends VaahModel
         foreach ($period as $date) {
             $labels[] = $date->format('Y-m-d');
         }
+
+        // Initialize the query conditionally based on store_id
         $query = OrderPayment::query();
 
-        $orders_income = $query
-            ->selectRaw('DATE(created_at) as created_date')
-            ->selectRaw('SUM(payment_amount) as total_income');
-        if ($inputs['start_date'] && $inputs['end_date']) {
-            $orders_income = $orders_income->whereBetween('created_at', [$start_date, $end_date]);
+        if ($store_id) {
+            $query->whereHas('order.items.product', function ($q) use ($store_id) {
+                $q->where('vh_st_store_id', $store_id);
+            });
         }
-        $orders_income = $orders_income->groupBy('created_date')
+
+        // Apply date range filter
+        if (isset($inputs['start_date'], $inputs['end_date'])) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        // Fetch order payments data
+        $orders_income = $query
+            ->selectRaw('DATE(created_at) as created_date, SUM(payment_amount) as total_income')
+            ->groupBy('created_date')
             ->orderBy('created_date')
             ->get();
 
-        $time_series_data_income = [];
-        foreach ($orders_income as $item) {
-            $created_date = Carbon::parse($item->created_date);
+        // Format data for time series chart
+        $time_series_data_income = $orders_income->map(function ($item) {
+            return ['x' => $item->created_date, 'y' => $item->total_income];
+        })->toArray();
 
-            $time_series_data_income[] = ['x' => $item->created_date, 'y' => $item->total_income];
-        }
-
-
+        // Calculate overall income
         $overall_income = round($orders_income->sum('total_income'), 2);
 
-
+        // Calculate income growth rate
         $first_income = reset($time_series_data_income)['y'] ?? 0;
         $last_income = end($time_series_data_income)['y'] ?? 0;
+        $growth_rate = $first_income > 0 ? (($last_income - $first_income) / $first_income) * 100 : ($last_income > 0 ? 100 : 0);
 
-        $growth_rate = 0;
-
-        if ($first_income > 0) {
-            $growth_rate = (($last_income - $first_income) / $first_income) * 100;
-        } elseif ($first_income === 0 && $last_income > 0) {
-            $growth_rate = 100;
-        }
-
+        // Return response data
         return [
             'data' => [
                 'order_payments_chart_series' => [
@@ -1096,6 +1116,7 @@ class Order extends VaahModel
             ],
         ];
     }
+
     //-------------------------------------------------
 
     private static function appliedFilters($list, $request)

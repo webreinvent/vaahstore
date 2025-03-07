@@ -870,8 +870,8 @@ class Warehouse extends VaahModel
             ->selectRaw('SUM(quantity) as total_quantity')
             ->groupBy('vh_st_warehouse_id')
             ->whereBetween('created_at', [$start_date, $end_date])
-            ->orderBy('total_quantity', 'desc') // Sort in descending order to get the top
-            ->take(10)
+            ->orderBy('total_quantity', 'asc') // Sort in descending order to get the top
+            ->take(7)
             ->get();
 
         $chart_series = [];

@@ -121,7 +121,11 @@ function selectFile (data){
 
 }
 
+function removeFile(e){
 
+    // store.item[props.store_label] = null;
+
+}
 </script>
 
 <template>

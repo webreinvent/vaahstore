@@ -119,12 +119,32 @@ class Store extends VaahModel
     }
 
     //-------------------------------------------------
-    public function currenciesData(){
+    public function currencies()
+    {
         return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
             ->where('is_active', 1)
-            ->select(['vh_st_currencies.vh_st_store_id','vh_st_currencies.name',
-                'vh_st_currencies.code','vh_st_currencies.symbol','vh_st_currencies.is_default']);
+            ->where(function ($query) {
+                $query->where('is_default', 0)
+                    ->orWhereNull('is_default');
+            })
+            ->select(['vh_st_currencies.vh_st_store_id', 'vh_st_currencies.name',
+                'vh_st_currencies.code', 'vh_st_currencies.symbol', 'vh_st_currencies.is_default']);
     }
+
+
+    public function defaultCurrency()
+    {
+        return $this->hasOne(Currency::class, 'vh_st_store_id', 'id')
+            ->where('is_default', 1)
+            ->select([
+                'vh_st_currencies.vh_st_store_id',
+                'vh_st_currencies.name',
+                'vh_st_currencies.code',
+                'vh_st_currencies.symbol',
+                'vh_st_currencies.is_default'
+            ]);
+    }
+
 
     //-------------------------------------------------
     public function lingualData(){
@@ -284,46 +304,8 @@ class Store extends VaahModel
 
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
-
-        if(!empty($inputs['currencies']) && $item->is_multi_currency == 1) {
-            foreach ($inputs['currencies'] as $key => $value) {
-
-                $record = new Currency();
-                $record->vh_st_store_id = $item->id;
-                $record->name = $value['name'];
-
-                if (!empty($inputs['default_currency'])) {
-                    if ($inputs['default_currency']['name'] == $value['name']) {
-                        $record->is_default = 1;
-                    }
-                } else {
-                    $record->is_default = 0;
-                }
-
-                $record->is_active = 1;
-                $record->save();
-            }
-        }
-
-        if(!empty($inputs['languages']) && $item->is_multi_lingual == 1) {
-            foreach ($inputs['languages'] as $key => $value) {
-
-                $record = new Lingual();
-                $record->vh_st_store_id = $item->id;
-                $record->name = $value['name'];
-
-                if (!empty($inputs['default_language'])) {
-                    if ($inputs['default_language']['name'] == $value['name']) {
-                        $record->is_default = 1;
-                    }
-                } else {
-                    $record->is_default =0;
-                }
-
-                $record->is_active = 1;
-                $record->save();
-            }
-        }
+        self::updateCurrencies($item->id, $inputs);
+        self::updateLanguages($item->id, $inputs);
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
@@ -413,9 +395,9 @@ class Store extends VaahModel
                 'max:250'
             ],
             'currencies' => 'required_if:is_multi_currency,1',
-            'currency_default' => '',
+            'default_currency' => 'required',
             'languages' => 'required_if:is_multi_lingual,1',
-            'language_default' => '',
+            'default_language' => 'required',
             'allowed_ips.*' => 'ip',
         ],
             [
@@ -946,7 +928,7 @@ class Store extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currenciesData', 'lingualData'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'status', 'currencies', 'lingualData','defaultCurrency'])
             ->withTrashed()
             ->first();
 
@@ -957,24 +939,7 @@ class Store extends VaahModel
             return $response;
         }
 
-        $item->default_currency = null;
-        $item->currencies = [];
-        if ($item->currenciesData->isNotEmpty()){
 
-            $currency_default_record = $item->currenciesData()->where('is_default',1)
-                ->select('name',)->get();
-            if($currency_default_record->isNotEmpty()){
-
-                $item->default_currency = $currency_default_record[0];
-            }
-
-            $currencies = [];
-            foreach ($item->currenciesData as $key => $value) {
-                $currencies[$key]['name'] = $value['name'];
-            }
-            $item->currencies = $currencies;
-
-        }
 
         $item->default_language = null;
         $item->languages = [];
@@ -993,7 +958,6 @@ class Store extends VaahModel
             }
             $item->languages = $languages;
         }
-
         $response['success'] = true;
         $response['data'] = $item;
 
@@ -1047,49 +1011,83 @@ class Store extends VaahModel
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
-        if(!empty($inputs['currencies'])) {
-            Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
-            foreach ($inputs['currencies'] as $key => $v) {
-
-                Currency::updateOrInsert(
-                    ['vh_st_store_id' => $item->id, 'name' => $v['name']],
-                    ['is_active' => 1]
-                );
-
-            }
-
-            if (!empty($inputs['default_currency'])){
-                Currency::where(['vh_st_store_id' => $item->id, 'name' => $inputs['default_currency']['name'],
-                    'is_active' => 1])->update(['is_default' => 1]);
-            }
-        }else{
-            Currency::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
-        }
-
-        if(!empty($inputs['languages'])) {
-            Lingual::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
-
-            foreach ($inputs['languages'] as $key => $v) {
-
-                Lingual::updateOrInsert(
-                    ['vh_st_store_id' => $item->id, 'name' => $v['name']],
-                    ['is_active' => 1]
-                );
-
-            }
-
-            if (!empty($inputs['default_language'])){
-                Lingual::where(['vh_st_store_id' => $item->id, 'name' => $inputs['default_language']['name'],
-                    'is_active' => 1])->update(['is_default' => 1]);
-            }
-        }else{
-            Lingual::where('vh_st_store_id', $item->id)->update(['is_active' => 0, 'is_default' => 0]);
-        }
+        self::updateCurrencies($item->id, $inputs);
+        self::updateLanguages($item->id, $inputs);
 
         $response = self::getItem($item->id);
         $response['messages'][] = 'Saved successfully.';
         return $response;
 
+    }
+
+
+    private static function updateCurrencies($store_id, $inputs)
+    {
+        if (!empty($inputs['currencies'])) {
+            $currency_names = collect($inputs['currencies'])->pluck('name')->toArray();
+            Currency::where('vh_st_store_id', $store_id)
+                ->whereNotIn('name', $currency_names)
+                ->update(['is_active' => 0, 'is_default' => 0]);
+
+            foreach ($inputs['currencies'] as $currency) {
+                Currency::updateOrInsert(
+                    ['vh_st_store_id' => $store_id, 'name' => $currency['name']],
+                    [
+                        'is_active' => 1,
+                        'code' => $currency['code'] ?? null,
+                        'symbol' => $currency['symbol'] ?? null
+                    ]
+                );
+            }
+        } else {
+            Currency::where('vh_st_store_id', $store_id)->update(['is_active' => 0, 'is_default' => 0]);
+        }
+
+        if (!empty($inputs['default_currency'])) {
+            Currency::where('vh_st_store_id', $store_id)->update(['is_default' => 0]);
+            Currency::updateOrInsert(
+                ['vh_st_store_id' => $store_id, 'name' => $inputs['default_currency']['name']],
+                [
+                    'is_active' => 1,
+                    'is_default' => 1,
+                    'code' => $inputs['default_currency']['code'] ?? null,
+                    'symbol' => $inputs['default_currency']['symbol'] ?? null
+                ]
+            );
+        }
+    }
+
+    //-------------------------------------------------
+
+    private static function updateLanguages($store_id, $inputs)
+    {
+        if (!empty($inputs['languages'])) {
+            $language_names = collect($inputs['languages'])->pluck('name')->toArray();
+            Lingual::where('vh_st_store_id', $store_id)
+                ->whereNotIn('name', $language_names)
+                ->update(['is_active' => 0, 'is_default' => 0]);
+
+            foreach ($inputs['languages'] as $language) {
+                Lingual::updateOrInsert(
+                    ['vh_st_store_id' => $store_id, 'name' => $language['name']],
+                    ['is_active' => 1, 'code' => $language['code'] ?? null]
+                );
+            }
+        } else {
+            Lingual::where('vh_st_store_id', $store_id)->update(['is_active' => 0, 'is_default' => 0]);
+        }
+
+        if (!empty($inputs['default_language'])) {
+            Lingual::where('vh_st_store_id', $store_id)->update(['is_default' => 0]);
+            Lingual::updateOrInsert(
+                ['vh_st_store_id' => $store_id, 'name' => $inputs['default_language']['name']],
+                [
+                    'is_active' => 1,
+                    'is_default' => 1,
+                    'code' => $inputs['default_language']['code'] ?? null
+                ]
+            );
+        }
     }
     //-------------------------------------------------
     public static function deleteItem($request, $id)
@@ -1422,9 +1420,9 @@ class Store extends VaahModel
     {
         $item = self::where(['is_active' => 1, 'is_default' => 1])->first();
         if ($item) {
-            $item->currencies = $item->currenciesData;
+            $item->currencies = $item->currencies;
             $item->languages = $item->lingualData;
-            unset($item->currenciesData, $item->lingualData);
+            unset($item->currencies, $item->lingualData);
         }
 
         $response['success'] = (bool) $item;

@@ -2,7 +2,10 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment-timezone/moment-timezone-utils";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\AttributeGroup';
 
@@ -77,6 +80,58 @@ export const useAttributeGroupStore = defineStore({
         selected_attributes:null,
     }),
     getters: {
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
 
     },
     actions: {
@@ -110,16 +165,27 @@ export const useAttributeGroupStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'attributegroups.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'attributegroups.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('attributegroups.view')
+                || route_name.includes('attributegroups.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('attributegroups.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -500,10 +566,10 @@ export const useAttributeGroupStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
+                await this.itemAction('deactivate', item);
                 vaah().toastSuccess(['Action Was Successful']);
             } else{
-                await this.itemAction('deactivate', item);
+                await this.itemAction('activate', item);
                 vaah().toastSuccess(['Action Was Successful']);
             }
         },
@@ -707,9 +773,9 @@ export const useAttributeGroupStore = defineStore({
             this.$router.push({name: 'attributegroups.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -729,7 +795,7 @@ export const useAttributeGroupStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -739,7 +805,7 @@ export const useAttributeGroupStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1016,7 +1082,7 @@ export const useAttributeGroupStore = defineStore({
 
             const dates = this.selected_dates
                 .filter(selected_date => selected_date)
-                .map(selected_date => moment(selected_date).format('YYYY-MM-DD'));
+                .map(selected_date => dayjs(selected_date).format('YYYY-MM-DD'));
 
             if (dates.length === 2) {
                 this.query.filter.date = dates;

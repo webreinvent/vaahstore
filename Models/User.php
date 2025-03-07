@@ -200,7 +200,7 @@ class User extends UserBase
             $inputs['username'] = Str::slug($inputs['email']);
         }
 
-        $inputs['is_active'] = !empty($inputs['is_active']) && $inputs['is_active'] == 1 ? 1 : 0;
+        $inputs['is_active'] = isset($inputs['is_active']) && $inputs['is_active'] == 0 ? 0 : 1;
 
 
         $inputs['created_ip'] = request()->ip();
@@ -575,6 +575,7 @@ class User extends UserBase
 
 
 
+
     public static function fetchCustomerCountChartData(Request $request)
     {
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
@@ -591,9 +592,9 @@ class User extends UserBase
             ->selectRaw("DATE(created_at) as date")
             ->selectRaw("COUNT(*) as joined")
             ->selectRaw("
-            (SELECT COUNT(*) FROM vh_st_orders
-            WHERE vh_st_orders.vh_user_id = vh_users.id
-            AND vh_st_orders.created_at BETWEEN ? AND ?) as customer_order_activity",
+        (SELECT COUNT(*) FROM vh_st_orders
+        WHERE vh_st_orders.vh_user_id = vh_users.id
+        AND vh_st_orders.created_at BETWEEN ? AND ?) as customer_order_activity",
                 [$start_date, $end_date]
             )
             ->groupByRaw("DATE(created_at)")
@@ -602,23 +603,23 @@ class User extends UserBase
 
         // Initialize data array for the chart
         $data = [
-            ['name' => 'Total', 'data' => []],
+            // ['name' => 'Total', 'data' => []], // Commented out the "Total" series
             ['name' => 'Joined', 'data' => []],
             ['name' => 'Order Activity', 'data' => []],
         ];
-        $initial_customer_count =User::where('created_at', '<', $start_date)
-            ->count();
+
+        $initial_customer_count = User::where('created_at', '<', $start_date)->count();
         $cumulative_count = $initial_customer_count;
         $labels = [];
+
         foreach ($chart_data_query as $item) {
             $date = Carbon::parse($item->date);
             $labels[] = $date->format('Y-m-d');
 
             $cumulative_count += $item->joined;
-            $data[0]['data'][] = $cumulative_count;
 
-            $data[1]['data'][] = $item->joined;
-            $data[2]['data'][] = $item->customer_order_activity;
+            $data[0]['data'][] = $item->joined;
+            $data[1]['data'][] = $item->customer_order_activity;
         }
 
         // Get total orders using Eloquent
@@ -663,7 +664,6 @@ class User extends UserBase
                             ],
                         ],
                     ],
-
                 ],
                 'summary' => [
                     'total_customers' => $unique_customers_with_multiple_orders,

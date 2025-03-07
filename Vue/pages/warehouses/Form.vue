@@ -3,10 +3,12 @@ import {onMounted, ref, watch} from "vue";
 import { useWarehouseStore } from '../../stores/store-warehouses'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
+import { useRootStore } from '@/stores/root.js'
 import {useRoute} from 'vue-router';
 
 
 const store = useWarehouseStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -28,9 +30,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -133,25 +133,27 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
-                <VhField label="Name*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="warehouses-name"
                                data-testid="warehouses-name"
-                               placeholder="Enter Name"
                                @update:modelValue="store.watchItem"
                                v-model="store.item.name"/>
-                </VhField>
+                    <label for="warehouses-name">Name <span class="text-red-500">*</span></label>
 
-                <VhField label="Slug*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="warehouses-slug"
                                data-testid="warehouses-slug"
-                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
-                </VhField>
+                    <label for="warehouses-slug">Slug <span class="text-red-500">*</span></label>
+
+                </FloatLabel>
 
 
-                <VhField label="Vendor*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete
                         value="id"
                         v-model="store.item.vendor"
@@ -159,14 +161,15 @@ const toggleFormMenu = (event) => {
                         class="w-full"
                         :suggestions="store.vendor_suggestions"
                         @complete="store.searchActiveVendor($event)"
-                        placeholder="Select Vendor"
                         data-testid="warehouses-vendor"
                         name="warehouses-vendor"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
-                </VhField>
+                    <label for="warehouses-vendor">Select Vendor <span class="text-red-500">*</span></label>
 
-                <VhField label="Country*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.country"
                                   value="id"
                                   class="w-full"
@@ -174,53 +177,61 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.country_suggestions"
                                   @complete="store.searchCountry($event)"
                                   :dropdown="true"
-                                  placeholder="Select Country"
                                   forceSelection />
-                </VhField>
+                    <label for="warehouses-country">Select Country <span class="text-red-500">*</span></label>
 
-                <VhField label="State">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="warehouses-state"
                                data-testid="warehouses-state"
-                               placeholder="Enter State"
                                v-model="store.item.state"/>
-                </VhField>
+                    <label for="warehouses-state">Select State</label>
 
-                <VhField label="City">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="warehouses-city"
                                data-testid="warehouses-city"
-                               placeholder="Enter City"
                                v-model="store.item.city"/>
-                </VhField>
+                    <label for="warehouses-city">Select City</label>
 
-                <VhField label="Address 1*">
-                    <InputText class="w-full"
-                               name="warehouses-address_1"
-                               data-testid="warehouses-address_1"
-                               placeholder="Enter Address 1"
-                               v-model="store.item.address_1"/>
-                </VhField>
+                </FloatLabel>
 
-                <VhField label="Address 2">
-                    <InputText class="w-full"
-                               name="warehouses-address_2"
-                               data-testid="warehouses-address_2"
-                               placeholder="Enter Address 2"
-                               v-model="store.item.address_2"/>
-                </VhField>
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <Textarea rows="3" class="w-full"
+                              name="warehouses-address_1"
+                              data-testid="warehouses-address_1"
+                              v-model="store.item.address_1"/>
 
-                <VhField label="Postal Code">
+                    <label for="warehouses-address_1">Enter a Address Line 1 <span class="text-red-500">*</span> </label>
+
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <Textarea rows="3" class="w-full"
+                              name="warehouses-address_2"
+                              data-testid="warehouses-address_2"
+                              v-model="store.item.address_2"/>
+
+                    <label for="warehouses-address_2">Enter a Address Line 2 </label>
+
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputNumber id="number-input"
                                  name="warehouses-postal_code"
                                  :useGrouping="false"
                                  data-testid="warehouses-postal_code"
                                  v-model="store.item.postal_code"
-                                 placeholder="Enter Postal Code"
                                  class="w-full"/>
-                </VhField>
+                    <label for="warehouses-postal_code">Enter Postal Code </label>
 
-                <VhField label="Status*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete v-model="store.item.status"
                                   @change="store.setStatus($event)"
                                   value="id"
@@ -229,31 +240,34 @@ const toggleFormMenu = (event) => {
                                   :suggestions="store.status_suggestions"
                                   @complete="store.searchStatus($event)"
                                   :dropdown="true"
-                                  placeholder="Select Status"
                                   optionLabel="name"
                                   forceSelection />
-                </VhField>
+                    <label for="warehouses-taxonomy_status">Select Status <span class="text-red-500">*</span> </label>
 
-                <VhField label="Status notes">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Textarea v-model="store.item.status_notes"
                               data-testid="warehouses-taxonomy_status_notes"
                               :autoResize="true"
                               rows="3" class="w-full"
-                              placeholder="Enter Status Note"/>
-                </VhField>
+                              />
+                    <label for="warehouses-taxonomy_status_notes">Enter Status Note</label>
 
-                <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                </FloatLabel>
+
+                <div class="flex items-center gap-2 my-3" >
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="warehouses-active"
                                  data-testid="warehouses-active"
                                  v-model="store.item.is_active"/>
-                </VhField>
+                    <label for="addresses-active">Is Active</label>
+                </div>
 
             </div>
         </Panel>
 
-    </div>
 
 </template>

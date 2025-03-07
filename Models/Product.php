@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Vendor;
 use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\ProductAttribute;
-use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductPrice;
 use VaahCms\Modules\Store\Models\ProductStock;
 use WebReinvent\VaahCms\Models\VaahModel;
@@ -147,12 +147,17 @@ class Product extends VaahModel
     }
 
     //-------------------------------------------------
+    public  function productMedias()
+    {
+        return $this->hasMany(ProductMedia::class, 'vh_st_product_id', 'id');
+    }
+    //-------------------------------------------------
 
     public function brand()
     {
         return $this->hasOne(Brand::class,'id','vh_st_brand_id')
                ->withTrashed()
-               ->select('id','name','slug','is_default','deleted_at');
+               ->select('id','name','slug','is_default','image','deleted_at');
     }
     //-------------------------------------------------
 
@@ -166,10 +171,12 @@ class Product extends VaahModel
 
     public function store()
     {
-        return $this->belongsTo(Store::class,'vh_st_store_id','id')
+        return $this->belongsTo(Store::class, 'vh_st_store_id', 'id')
             ->withTrashed()
-            ->select('id','name','slug', 'is_default','deleted_at');
+            ->select('id', 'name', 'slug', 'is_default', 'deleted_at')
+            ->with('defaultCurrency');
     }
+
 
     //-------------------------------------------------
     public function status()
@@ -822,6 +829,7 @@ class Product extends VaahModel
         $exclude = request()->query('exclude', []);
         $user = null;
         $cart_records = 0;
+
         if ($user_id = session('vh_user_id')) {
             $user = User::find($user_id);
             if ($user) {
@@ -830,10 +838,15 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = ['brand', 'store', 'type', 'status', 'productVendors', 'productCategories'];
+        $relationships = [
+            'brand', 'store.defaultCurrency', 'type',
+            'productMedias.images:id,vh_st_product_media_id,url',
+            'status', 'productVendors', 'productCategories'
+        ];
+
         foreach ($include as $key => $value) {
             if ($value === 'true') {
-                $keys = explode(',', $key); // Split comma-separated values
+                $keys = explode(',', $key);
                 foreach ($keys as $relationship) {
                     $relationship = trim($relationship);
                     if (method_exists(self::class, $relationship)) {
@@ -842,7 +855,10 @@ class Product extends VaahModel
                 }
             }
         }
+
         $list = self::getSorted($request->filter)->with($relationships)->withCount('productVariations');
+
+        // Apply filters
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -850,10 +866,8 @@ class Product extends VaahModel
         $list->quantityFilter($request->filter);
         $list->productVariationFilter($request->filter);
         $list->vendorFilter($request->filter);
-        $list->storeFilter($request->filter);
         $list->brandFilter($request->filter);
         $list->dateFilter($request->filter);
-        $list->brandFilter($request->filter);
         $list->productTypeFilter($request->filter);
         $list->categoryFilter($request->filter);
         $list->priceFilter($request->filter);
@@ -862,31 +876,51 @@ class Product extends VaahModel
         $list->newArrivalsFilter($request->filter);
         $list->topSellingsFilter($request->filter);
 
+        // **Filter products by store slug to get product by store**
+        $store_slugs = request()->query('include', [])['stores'] ?? [];
+
+        if (!empty($store_slugs)) {
+            if (!is_array($store_slugs)) {
+                $store_slugs = json_decode($store_slugs, true);
+            }
+
+            if (is_array($store_slugs) && !empty($store_slugs)) {
+                $store_ids = Store::whereIn('slug', $store_slugs)->pluck('id')->toArray();
+
+                if (!empty($store_ids)) {
+                    $list->whereHas('store', function ($query) use ($store_ids) {
+                        $query->whereIn('id', $store_ids);
+                    });
+                }
+            }
+        } else {
+            $default_store_id = Store::where('is_default', true)->value('id');
+            $list->where('vh_st_store_id', $default_store_id);
+        }
+
         if ($request->has('ids')) {
-            $ids = json_decode($request->ids, true);  // Decode the JSON array
-            if (is_array($ids)) {
-                $list = $list->whereIn('id', $ids);
+            $ids = json_decode($request->ids, true);
+
+            if (is_array($ids) && !empty($ids)) {
+                $list->whereIn('id', $ids);
             }
         }
-
         $rows = config('vaahcms.per_page');
-
-        if($request->has('rows'))
-        {
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
-
         $list = $list->paginate($rows);
+
+        // Exclude unwanted keys
         $keys_to_exclude = [];
         foreach ($exclude as $key => $value) {
             if ($value === 'true') {
                 $keys_to_exclude = array_merge($keys_to_exclude, array_map('trim', explode(',', $key)));
             }
         }
-
         $keys_to_exclude = array_unique($keys_to_exclude);
-        foreach($list as $item) {
 
+        foreach ($list as $item) {
             $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
             $message = self::getVendorsListForPrduct($item->id)['message'];
             $item->is_attached_default_vendor = $message ? false : null;
@@ -903,23 +937,29 @@ class Product extends VaahModel
                 ];
             })->values();
 
-            $item->variations=$item->productVariations->pluck('id')->toArray();
+            $item->variations = $item->productVariations->pluck('id')->toArray();
+
             foreach ($keys_to_exclude as $single_key) {
                 if (isset($item[$single_key])) {
                     unset($item[$single_key]);
                 }
             }
+
             unset($item->productVariations);
         }
+
         $response['success'] = true;
         $response['data'] = $list;
         $response['active_cart_user'] = $user;
+
         if ($user) {
             $response['active_cart_user']['cart_records'] = $cart_records;
             $response['active_cart_user']['vh_st_cart_id'] = $cart->id;
         }
+
         return $response;
     }
+
 
     //-------------------------------------------------
     public static function updateList($request)
@@ -2735,42 +2775,47 @@ class Product extends VaahModel
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
 
+        $store_id = isset($request->store['id']) ? (int)$request->store['id'] : null;
+
         $query = OrderItem::query();
+
+        // Apply date range filter if required
         if ($apply_date_range) {
             $query->whereBetween('created_at', [$start_date, $end_date]);
         }
-        $rows = config('vaahcms.per_page');
 
+        if ($store_id) {
+            $query->whereHas('product', function ($q) use ($store_id) {
+                $q->where('vh_st_store_id', $store_id);
+            });
+        }
+
+        $rows = config('vaahcms.per_page');
         if ($request->has('rows')) {
             $rows = $request->rows;
         }
+
         $top_selling_products = $query
             ->select('vh_st_product_id')
             ->with(['product' => function ($q) {
                 $q->whereNull('deleted_at');
-                $q->with('medias','brand');
+                $q->with('medias', 'brand', 'store');
             }])
-            ->groupBy('vh_st_product_id')->paginate($rows);
-
-
+            ->groupBy('vh_st_product_id')
+            ->paginate($rows);
 
         $top_selling_products = $top_selling_products->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
             if (!$item->vh_st_product_id) {
                 return null;
             }
 
-
-
             $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
-
             if ($apply_date_range) {
                 $sales_query->whereBetween('created_at', [$start_date, $end_date]);
             }
 
             $total_sales = $sales_query->sum('quantity');
             $products = $item->product;
-
-
 
             if (!$products) {
                 return null;
@@ -2785,11 +2830,13 @@ class Product extends VaahModel
             // Fallback if no medias found in the relation: fetch directly from the ProductMedia model
             if ($product_media_ids->isEmpty()) {
                 $product_media_ids = ProductMedia::where('vh_st_product_id', $item->vh_st_product_id)
-                    ->pluck('id'); // Plucking media IDs directly
+                    ->pluck('id');
             }
 
             $image_urls = self::getImageUrls($product_media_ids);
             $brand = $products->brand;
+            $store = $products->store;
+
             return [
                 'id' => $products->id ?? null,
                 'name' => $products->name ?? null,
@@ -2800,6 +2847,11 @@ class Product extends VaahModel
                     'id' => $brand->id ?? null,
                     'name' => $brand->name ?? null,
                 ],
+                'store' => [
+                    'id' => $store->id ?? null,
+                    'name' => $store->name ?? null,
+                    'slug' => $store->slug ?? null,
+                ]
             ];
         })
             ->filter()
@@ -2808,11 +2860,13 @@ class Product extends VaahModel
         if ($apply_date_range) {
             $top_selling_products = $top_selling_products->take($limit);
         }
+
         return [
             'success' => true,
             'data' => $top_selling_products->values(),
         ];
     }
+
 
 
 
@@ -2831,7 +2885,15 @@ class Product extends VaahModel
             : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
 
+        // Get Store ID from request
+        $store_id = $request->store['id'] ?? null;
+
         $query = OrderItem::query()
+            ->whereHas('product', function ($q) use ($store_id) {
+                if ($store_id) {
+                    $q->where('vh_st_store_id', $store_id);
+                }
+            })
             ->with(['product.brand'])
             ->when($apply_date_range, function ($query) use ($start_date, $end_date) {
                 $query->whereBetween('created_at', [$start_date, $end_date]);
@@ -2847,6 +2909,7 @@ class Product extends VaahModel
                         'id' => $brand->id,
                         'name' => $brand->name,
                         'slug' => $brand->slug,
+                        'image_urls' => $brand->image ? [asset('image/uploads/brands/' . $brand->image)] : [],
                         'total_sales' => $total_sales,
                     ];
                 }
@@ -2855,12 +2918,13 @@ class Product extends VaahModel
             ->filter()
             ->sortByDesc('total_sales')
             ->take($limit);
+
         return [
             'success' => true,
             'data' => $query->values(),
         ];
-
     }
+
 
 
     //----------------------------------------------------------
@@ -2872,7 +2936,16 @@ class Product extends VaahModel
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
-        $query = OrderItem::query();
+
+        // Get Store ID from request
+        $store_id = $request->store['id'] ?? null;
+
+        $query = OrderItem::query()
+            ->whereHas('product', function ($q) use ($store_id) {
+                if ($store_id) {
+                    $q->where('vh_st_store_id', $store_id);
+                }
+            });
 
         if ($apply_date_range) {
             $query->whereBetween('created_at', [$start_date, $end_date]);
@@ -2911,11 +2984,13 @@ class Product extends VaahModel
                     'name' => $category->name,
                 ];
             });
+
         return [
             'success' => true,
             'data' => $top_categories->values(),
         ];
     }
+
 
 
 

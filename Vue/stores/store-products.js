@@ -2,8 +2,10 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment";
 import {useRootStore} from "./root";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+dayjs.extend(dayjsPluginUTC)
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Product';
 
@@ -30,6 +32,9 @@ let empty_states = {
             min_quantity:null,
             max_quantity:null,
             export_menu :[],
+        },
+        include: {
+            stores: [],
         },
     },
     action: {
@@ -144,12 +149,73 @@ export const useProductStore = defineStore({
             columns: [],
         },
         is_custom_meta_export:false,
+        window_width: 0,
+        screen_size: null,
+        selected_store_at_list: null,
+        default_store: null,
+        float_label_variants: 'on',
 
     }),
     getters: {
+        isMobile: (state) => {
+            return state.screen_size === 'small';
+        },
 
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
     },
     actions: {
+
 
         //---------------------------------------------------------------------
         searchTaxonomyProduct(event) {
@@ -268,6 +334,7 @@ export const useProductStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            await this.setScreenSize();
 
             /**
              * Update query state with the query parameters of url
@@ -313,23 +380,19 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
-            switch (route_name) {
-                case 'products.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'products.variation':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                case 'products.vendor':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+
+            this.view = 'list';
+
+            if(route_name.includes('products.view')
+                || route_name.includes('products.form')
+                || route_name.includes('products.variation')
+                || route_name.includes('products.vendor')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('products.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -934,6 +997,30 @@ export const useProductStore = defineStore({
                 options
             );
         },
+
+
+        async onStoreSelect(selected_store_at_list) {
+            let storeData = selected_store_at_list?.value;
+
+            if (storeData && storeData.slug) {
+                this.query = {
+                    ...this.query,
+                    include: {
+                        ...this.query.include,
+                        stores: [`${storeData.slug}`]
+                    }
+                };
+            } else {
+                this.query = {
+                    ...this.query,
+                    include: {
+                        ...this.query.include,
+                        stores: null
+                    }
+                };
+            }
+            await this.getList();
+        },
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
@@ -952,9 +1039,9 @@ export const useProductStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
-                this.topSellingProducts();
-                this.topSellingBrands();
-                this.topSellingCategories();
+                this.topSellingProducts(this.selected_store_at_list);
+                this.topSellingBrands(this.selected_store_at_list);
+                this.topSellingCategories(this.selected_store_at_list);
             }
         },
         viewCart(id){
@@ -977,7 +1064,9 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                if (this.categories_dropdown_data && this.categories_dropdown_data.length > 0) {
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                }
 
             }else{
                 this.$router.push({name: 'products.index'});
@@ -1350,9 +1439,9 @@ export const useProductStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -1521,13 +1610,16 @@ export const useProductStore = defineStore({
             this.selected_vendors = null;
             this.filter_selected_product_type = null;
             this.selected_dates = null;
+            this.selected_store_at_list = null;
             this.min_quantity = this.assets.min_quantity;
             this.max_quantity = this.assets.max_quantity;
             this.product_category_filter=null;
             this.quantity = null;
+            this.query = vaah().clone(empty_states.query);
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
+            await this.setDefaultStoreForProductList();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -1637,9 +1729,9 @@ export const useProductStore = defineStore({
             this.getCategories();
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -1659,7 +1751,7 @@ export const useProductStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -1669,7 +1761,7 @@ export const useProductStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1780,13 +1872,13 @@ export const useProductStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        this.confirmActivateAll();
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        this.confirmDeactivateAll();
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -1796,14 +1888,14 @@ export const useProductStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrashAll();
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestoreAll();
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -1812,7 +1904,7 @@ export const useProductStore = defineStore({
                     command: async () => {
                         this.confirmDeleteAll();
                     }
-                },
+                }
             ];
         },
         //---------------------------------------------------------------------
@@ -2035,8 +2127,8 @@ export const useProductStore = defineStore({
                     continue ;
                 }
 
-                let search_date = moment(selected_date)
-                var UTC_date = search_date.format('YYYY-MM-DD');
+                let search_date = dayjs(selected_date)
+                let UTC_date = search_date.format('YYYY-MM-DD');
 
                 if(UTC_date){
                     dates.push(UTC_date);
@@ -2406,10 +2498,10 @@ export const useProductStore = defineStore({
 
         checkDate()
         {
-            if (moment(this.item.available_at).isBefore(this.item.launch_date))
+            if (dayjs(this.item.available_at).isBefore(this.item.launch_date))
             {
                 this.item.available_at = null;
-                vaah().toastErrors(['Avaialble date should be after launch date']);
+                vaah().toastErrors(['Available date should be after launch date']);
 
             }
         },
@@ -2698,7 +2790,7 @@ export const useProductStore = defineStore({
         async toggleIsPreferred(vendor_item)
         {
 
-            const action = vendor_item.is_preferred ? 'preferred' : 'not-preferred';
+            const action = vendor_item.is_preferred ? 'not-preferred' : 'preferred';
             await this.vendorPreferredAction(action, vendor_item);
         },
         //---------------------------------------------------------------------
@@ -2774,12 +2866,13 @@ export const useProductStore = defineStore({
             return `${minPrice} - ${maxPrice}`;
         },
         //---------------------------------------------------------------------
-        async topSellingProducts() {
+        async topSellingProducts(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -2797,12 +2890,13 @@ export const useProductStore = defineStore({
             }
         },
 
-        async topSellingBrands() {
+        async topSellingBrands(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -2819,12 +2913,13 @@ export const useProductStore = defineStore({
                 this.top_selling_brands = data;
             }
         },
-        async topSellingCategories() {
+        async topSellingCategories(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -2968,6 +3063,55 @@ export const useProductStore = defineStore({
             }
 
         },
+
+        setScreenSize()
+        {
+            if(!window)
+            {
+                return null;
+            }
+            this.window_width = window.innerWidth;
+
+            if(this.window_width < 1024)
+            {
+                this.screen_size = 'small';
+            }
+
+            if(this.window_width >= 1024 && this.window_width <= 1280)
+            {
+                this.screen_size = 'medium';
+            }
+
+            if(this.window_width > 1280)
+            {
+                this.screen_size = 'large';
+            }
+        },
+        //---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
+        },
+        //---------------------------------------------------------------------
+
+        searchStoreForListQuery(event){
+            const query = event.query.toLowerCase();
+            this.filteredStores = this.active_stores.filter(store =>
+                store.name.toLowerCase().includes(query)
+            );
+        },
+        //---------------------------------------------------------------------
+
+        setDefaultStoreForProductList(){
+            this.default_store = this.active_stores.find(store => store.is_default === 1);
+            if (this.default_store) {
+                this.selected_store_at_list = this.default_store;
+            }
+        },
+        //---------------------------------------------------------------------
+
 
     }
 });

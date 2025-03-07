@@ -30,11 +30,19 @@ class VhStProductVariations extends Migration
             $table->boolean('in_stock')->nullable()->index();
             $table->boolean('has_media')->nullable()->index();
             $table->boolean('is_active')->nullable()->index();
+            $table->boolean('description')->nullable()->index();
+            $table->decimal('price', 10, 2)->nullable()->index();
+            $table->boolean('is_mail_sent')->nullable()->index();
+            $table->dateTime('low_stock_at')->nullable()->index();
+            $table->boolean('is_quantity_low')->nullable()->index();
 
             $table->string('status_notes')->nullable();
 
             //----common fields
             $table->text('meta')->nullable();
+            $table->string('meta_title')->nullable()->index();
+            $table->text('meta_description')->nullable();
+            $table->text('meta_keywords')->nullable();
             $table->integer('created_by')->nullable()->index();
             $table->integer('updated_by')->nullable()->index();
             $table->integer('deleted_by')->nullable()->index();

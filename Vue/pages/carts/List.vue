@@ -7,7 +7,7 @@ import {useRootStore} from '../../stores/root'
 
 import Actions from "./components/Actions.vue";
 import Table from "./components/Table.vue";
-import Filters from './components/Filters.vue'
+import Filters from './Filters.vue'
 
 const store = useCartStore();
 const root = useRootStore();
@@ -16,10 +16,17 @@ const route = useRoute();
 import { useConfirm } from "primevue/useconfirm";
 const confirm = useConfirm();
 
+function handleScreenResize() {
+    store.setScreenSize();
+}
+
+
 
 onMounted(async () => {
     document.title = 'Carts - Store';
     store.item = null;
+
+    window.addEventListener('resize', handleScreenResize);
     /**
      * call onLoad action when List view loads
      */
@@ -63,35 +70,48 @@ const toggleCreateMenu = (event) => {
 </script>
 <template>
 
-    <div class="grid" v-if="store.assets">
+    <div class="w-full" v-if="store.assets">
 
-        <div :class="route.params && route.params.id ? 'col-6' : 'col'">
-            <Panel class="is-small">
+        <div class="lg:flex lg:space-x-4 items-start">
+            <div v-if="store.getLeftColumnClasses"
+                 :class="store.getLeftColumnClasses"
 
-                <template class="p-1" #header>
+                 class="mb-4 lg:mb-0">
 
-                    <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Carts</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
+                <Panel>
+                    <template #header>
+
+                        <div class="w-full">
+                            <div class="flex items-center gap-2">
+                                <Icon icon="solar:cart-large-minimalistic-linear" width="20" height="20" class="text-gray-950"></Icon>
+
+                                <h1 class="text-gray-950 font-medium text-base">Carts</h1>
+                            </div>
+
+                            <div class="h-[1px] bg-gray-100 w-full mt-3"/>
                         </div>
 
-                    </div>
-
-                </template>
+                    </template>
                 <Actions/>
                 <Table/>
 
             </Panel>
         </div>
 
-         <Filters/>
 
-        <RouterView/>
+        <div v-if="store.getRightColumnClasses"
+             :class="store.getRightColumnClasses">
+
+            <RouterView/>
+
+        </div>
+        <!--/right-->
+
+
 
     </div>
+    </div>
+
 
 
 </template>

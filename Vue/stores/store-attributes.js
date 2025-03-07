@@ -2,7 +2,10 @@ import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment-timezone/moment-timezone-utils";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Attribute';
 
@@ -73,9 +76,69 @@ export const useAttributeStore = defineStore({
         form_menu_list: [],
         selected_dates:[],
         prev_list:[],
-        current_list:[]
+        current_list:[],
+        window_width: 0,
+        screen_size: null,
+        float_label_variants: 'on',
     }),
     getters: {
+
+        isMobile: (state) => {
+            return state.screen_size === 'small';
+        },
+
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
 
     },
     actions: {
@@ -91,6 +154,7 @@ export const useAttributeStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
+            await this.setScreenSize();
 
             /**
              * Update query state with the query parameters of url
@@ -104,16 +168,17 @@ export const useAttributeStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'attributes.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+
+            this.view = 'list';
+
+            if(route_name.includes('attributes.view')
+                || route_name.includes('attributes.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('attributes.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -566,9 +631,9 @@ export const useAttributeStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -659,7 +724,7 @@ export const useAttributeStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type='deactivate-all';
-            vaah().confirmDialogDeActivateAll(this.listAction);
+            vaah().confirmDialogDeactivateAll(this.listAction);
         },
         //---------------------------------------------------------------------
         async delayedSearch()
@@ -770,9 +835,9 @@ export const useAttributeStore = defineStore({
             this.$router.push({name: 'attributes.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -792,7 +857,7 @@ export const useAttributeStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -802,7 +867,7 @@ export const useAttributeStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1085,7 +1150,7 @@ export const useAttributeStore = defineStore({
                 if (!selected_date) {
                     continue;
                 }
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if (UTC_date) {
@@ -1094,6 +1159,31 @@ export const useAttributeStore = defineStore({
                 if (dates[0] != null && dates[1] != null) {
                     this.query.filter.date = dates;
                 }
+            }
+        },
+
+        //---------------------------------------------------------------------
+        setScreenSize()
+        {
+            if(!window)
+            {
+                return null;
+            }
+            this.window_width = window.innerWidth;
+
+            if(this.window_width < 1024)
+            {
+                this.screen_size = 'small';
+            }
+
+            if(this.window_width >= 1024 && this.window_width <= 1280)
+            {
+                this.screen_size = 'medium';
+            }
+
+            if(this.window_width > 1280)
+            {
+                this.screen_size = 'large';
             }
         },
         //---------------------------------------------------------------------

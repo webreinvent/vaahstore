@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Payment;
 use VaahCms\Modules\Store\Models\PaymentMethod;
+use VaahCms\Modules\Store\Models\Store;
 
 
 class PaymentsController extends Controller
@@ -32,6 +33,13 @@ class PaymentsController extends Controller
             $data['fillable']['except'] = Payment::getUnFillableColumns();
             $data['empty_item'] = Payment::getEmptyItem();
             $data['payment_methods'] = self::getPaymentMethods();
+            $currency_symbol = Store::where('is_default', 1)
+                ->with('defaultCurrency')
+                ->first()
+                ?->defaultCurrency?->symbol;
+
+            $data['store_default_currency'] = $currency_symbol;
+
             $data['actions'] = [];
 
             $response['success'] = true;

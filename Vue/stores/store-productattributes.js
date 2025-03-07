@@ -2,7 +2,10 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from 'moment';
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\ProductAttribute';
 
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
@@ -77,8 +80,68 @@ export const useProductAttributeStore = defineStore({
         prev_list:[],
         current_list:[],
         filter_default_product_variation : [],
+        window_width: 0,
+        screen_size: null,
+        float_label_variants: 'on',
     }),
         getters: {
+
+            isMobile: (state) => {
+                return state.screen_size === 'small';
+            },
+
+            getLeftColumnClasses: (state) => {
+                let classes = '';
+
+                if(state.isMobile
+                    && state.view !== 'list'
+                ){
+                    return null;
+                }
+
+                if(state.view === 'list')
+                {
+                    return 'lg:w-full';
+                }
+                if(state.view === 'list-and-item') {
+                    return 'lg:w-1/2';
+                }
+
+                if(state.view === 'list-and-filters') {
+                    return 'lg:w-2/3';
+                }
+
+            },
+
+            getRightColumnClasses: (state) => {
+                let classes = '';
+
+                if(state.isMobile
+                    && state.view !== 'list'
+                ){
+                    return 'w-full';
+                }
+
+                if(state.isMobile
+                    && (state.view === 'list-and-item'
+                        || state.view === 'list-and-filters')
+                ){
+                    return 'w-full';
+                }
+
+                if(state.view === 'list')
+                {
+                    return null;
+                }
+                if(state.view === 'list-and-item') {
+                    return 'lg:w-1/2';
+                }
+
+                if(state.view === 'list-and-filters') {
+                    return 'lg:w-1/3';
+                }
+
+            },
 
         },
         actions: {
@@ -94,6 +157,7 @@ export const useProductAttributeStore = defineStore({
                  * Update with view and list css column number
                  */
                 this.setViewAndWidth(route.name);
+                await this.setScreenSize();
 
                 /**
                  * Update query state with the query parameters of url
@@ -112,16 +176,17 @@ export const useProductAttributeStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'productattributes.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+
+            this.view = 'list';
+
+            if(route_name.includes('productattributes.view')
+                || route_name.includes('productattributes.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('productattributes.filters')){
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -302,7 +367,7 @@ export const useProductAttributeStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        
+
         async getAssets() {
 
             if(this.assets_is_fetching === true){
@@ -617,9 +682,9 @@ export const useProductAttributeStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -721,7 +786,6 @@ export const useProductAttributeStore = defineStore({
         {
             //remove reactivity from source object
             query = vaah().clone(query)
-            console.log(query);
             //create query string
             let query_string = qs.stringify(query, {
                 skipNulls: true,
@@ -814,10 +878,10 @@ export const useProductAttributeStore = defineStore({
             this.$router.push({name: 'productattributes.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
-        {
-            return this.view === 'large';
-        },
+            isListView()
+            {
+                return this.view === 'list';
+            },
         //---------------------------------------------------------------------
         getIdWidth()
         {
@@ -836,7 +900,7 @@ export const useProductAttributeStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -846,7 +910,7 @@ export const useProductAttributeStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1131,7 +1195,7 @@ export const useProductAttributeStore = defineStore({
                     continue ;
                 }
 
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if(UTC_date){
@@ -1152,7 +1216,31 @@ export const useProductAttributeStore = defineStore({
             updateDefaultProductVariation()
             {
                 this.query.filter.default_product_variation = this.filter_default_product_variation[0];
-            }
+            },
+            //---------------------------------------------------------------------
+            setScreenSize()
+            {
+                if(!window)
+                {
+                    return null;
+                }
+                this.window_width = window.innerWidth;
+
+                if(this.window_width < 1024)
+                {
+                    this.screen_size = 'small';
+                }
+
+                if(this.window_width >= 1024 && this.window_width <= 1280)
+                {
+                    this.screen_size = 'medium';
+                }
+
+                if(this.window_width > 1280)
+                {
+                    this.screen_size = 'large';
+                }
+            },
 
     }
 });

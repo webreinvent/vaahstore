@@ -1,13 +1,14 @@
 <script  setup>
 import {ref, reactive, watch, onMounted} from 'vue';
 import { useProductStore } from '../../../stores/store-products'
-import Filters from './Filters.vue'
+import Filters from '../Filters.vue'
 import Export from "../../import/components/Export.vue"
 const store = useProductStore();
 
 onMounted(async () => {
     store.getListSelectedMenu();
     store.getListBulkMenu();
+    store.setDefaultStoreForProductList();
 });
 
 //--------selected_menu_state
@@ -34,10 +35,10 @@ const toggleExportMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'" class="flex items-center">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -83,7 +84,7 @@ const toggleExportMenuState = (event) => {
                 >
 
                     <span :style="{fontSize :'11px',fontWeight:'600px' }">Export</span>
-                    <i class="pi pi-angle-down ml-1"></i>
+                    <Icon icon="qlementine-icons:export-16" width="14" height="14"  style="color: #7b7a7a" />
 
                 </Button>
                 <Menu ref="export_menu_state"
@@ -91,19 +92,33 @@ const toggleExportMenuState = (event) => {
                       :popup="true"
                       class="font-bold"
                 />
+                <div >
+                <FloatLabel :variant="store.float_label_variants"
+                           >
+                    <AutoComplete
+                        name="products-filter-store"
+                        data-testid="products-filter-store"
+                        v-model="store.selected_store_at_list"
+                        @change="store.onStoreSelect($event)"
+                        option-label = "name"
+                        dropdown
+                        style="height:30px"
+                        :complete-on-focus = "true"
+                        :suggestions="store.filteredStores"
+                        @complete="store.searchStoreForListQuery"
 
+
+
+                    />
+                    <label for="articles-name">Select Store</label>
+                </FloatLabel>
+                </div>
             </div>
             <!--/left-->
 
             <!--right-->
-            <div >
-
-
-                <div class="grid p-fluid">
-
-
-                    <div class="col-12">
-                        <div class="p-inputgroup ">
+            <div>
+                <InputGroup>
 
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
@@ -117,8 +132,11 @@ const toggleExportMenuState = (event) => {
                                     data-testid="products-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
+                                v-if="!store.isMobile"
+                                as="router-link"
+                                :to="`/products/filters`"
                                 type="button"
-                                class="p-button-sm"
+                                size="small"
                                 data-testid="products-actions-show-filters"
                                 @click="store.show_filters = true">
                                 Filters
@@ -133,19 +151,14 @@ const toggleExportMenuState = (event) => {
                                 label="Reset"
                                 @click="store.resetQuery()" />
 
-                        </div>
+                </InputGroup>
                     </div>
-
-
-                    <Filters/>
 
                 </div>
 
             </div>
             <!--/right-->
 
-        </div>
         <!--/actions-->
 
-    </div>
 </template>

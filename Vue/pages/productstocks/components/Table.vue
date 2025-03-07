@@ -9,18 +9,17 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list" style=" display: flex;flex-direction: column;justify-content: center; height: 100%;">
+    <div v-if="store?.list">
         <!--table-->
          <DataTable :value="store.list.data"
                    dataKey="id"
                    :rowClass="(rowData) => rowData.id === store.item?.id ? 'bg-blue-100' : ''"
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    v-model:selection="store.action.items"
-                   stripedRows
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
              <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
@@ -70,12 +69,10 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.quantity == 0"
-                            value="0"
-                            severity="danger"></Badge>
-                     <Badge v-else-if="prop.data.quantity > 0"
-                            :value="prop.data.quantity"
-                            severity="info"></Badge>
+                     <p class="text-center" v-if="prop.data.quantity == 0"
+                            >0</p>
+                     <p class="text-center" v-else-if="prop.data.quantity > 0"
+                            >{{prop.data.quantity}}</p>
                  </template>
 
              </Column>
@@ -84,28 +81,29 @@ const useVaah = vaah();
 
              <Column field="status" header="Status">
                  <template #body="prop">
-                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
+                     <Badge unstyled="true" class="!text-green-500 bg-[#0E9F6E1A]" v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="!prop.data.status"
-                            severity="primary"> null </Badge>
-                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
-                            severity="warning"> {{prop.data.status.name}} </Badge>
+                            unstyled="true"> null </Badge>
+                     <Badge class="!text-red-500 bg-[#E02424]/10 " v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
+                            unstyled="true"> {{prop.data.status.name}} </Badge>
+                     <Badge v-else class="!text-yellow-500 bg-[#E3A0081A]/10"
+                            unstyled="true"> {{prop.data.status.name}} </Badge>
                  </template>
              </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+            <Column field="is_active" v-if="store.isListView()"
                     style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
-                    <InputSwitch v-model.bool="prop.data.is_active"
+                    <ToggleSwitch v-model.bool="prop.data.is_active"
                                  data-testid="productstocks-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
-                                 class="p-inputswitch-sm"
+                                  size="small"
+                                  variant="success"
                                  @input="store.toggleIsActive(prop.data)">
-                    </InputSwitch>
+                    </ToggleSwitch>
                 </template>
 
             </Column>
@@ -115,9 +113,9 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-2 ">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny icon-button p-button-text"
                                 data-testid="productstocks-table-to-view"
                                 v-tooltip.top="'View'"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
@@ -125,7 +123,7 @@ const useVaah = vaah();
                                 icon="pi pi-eye" />
 
                         <Button v-if="store.assets.permissions.includes('can-update-module')"
-                                class="p-button-tiny p-button-text"
+                                class="p-button-tiny icon-button p-button-text"
                                 data-testid="productstocks-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
@@ -133,9 +131,9 @@ const useVaah = vaah();
                                 icon="pi pi-pencil" />
 
                         <Button
-                                class="p-button-tiny p-button-danger p-button-text"
+                                class="text-red-500 p-button-tiny icon-button p-button-text"
                                 data-testid="productstocks-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isListView() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -144,7 +142,7 @@ const useVaah = vaah();
                         <Button
                                 class="p-button-tiny p-button-success p-button-text"
                                 data-testid="productstocks-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isListView() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />

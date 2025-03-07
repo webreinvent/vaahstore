@@ -50,7 +50,7 @@ const openVendorPage = (id) => {
 </script>
 <template>
 
-    <div class="col-7" >
+    <div>
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -126,8 +126,15 @@ const openVendorPage = (id) => {
 
                 </Message>
 
-                <TabView >
-                    <TabPanel header="Shipment Details">
+                <Tabs >
+                    <TabList>
+                        <Tab value="0">Shipment Details</Tab>
+                        <Tab value="1">Shipment Items Detail</Tab>
+
+                    </TabList>
+
+                    <TabPanels>
+                    <TabPanel value="0">
                         <div class="p-datatable p-component p-datatable-responsive-scroll p-datatable-striped p-datatable-sm">
                             <table class="p-datatable-table overflow-wrap-anywhere">
                                 <tbody class="p-datatable-tbody">
@@ -192,7 +199,7 @@ const openVendorPage = (id) => {
                                                        severity="success"> {{store.item.status.name}} </Badge>
 
                                                 <Badge v-else
-                                                       severity="warning"> {{store.item.status?.name}}</Badge>
+                                                       severity="warn"> {{store.item.status?.name}}</Badge>
 
                                             </td>
                                         </tr>
@@ -212,7 +219,7 @@ const openVendorPage = (id) => {
 
                         </div>
                     </TabPanel>
-                    <TabPanel header="Shipment Items Detail">
+                    <TabPanel value="1">
 
 
 
@@ -230,14 +237,14 @@ const openVendorPage = (id) => {
 
                             <Column field="name" header="Order Item">
                                 <template #body="prop">
-                                    <div class="min-w-max">
+                                    <div class="">
                                     {{prop.data.product_variation?.name}}
                                     </div>
                                 </template>
                             </Column>
                             <Column  header="Vendor">
                                 <template #body="prop">
-                                    <div class="min-w-max">
+                                    <div class="">
                                         <span style="color: #1d4ed8;  cursor: pointer;" @click="store.redirectToVendor(prop.data)">
                                         <b>{{prop.data.vendor?.name}}</b>
                                     </span>
@@ -272,7 +279,8 @@ const openVendorPage = (id) => {
 
 
                     </TabPanel>
-                </TabView>
+                    </TabPanels>
+                </Tabs>
 
 
             </div>

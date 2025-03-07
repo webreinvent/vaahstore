@@ -2,7 +2,10 @@ import {toRaw, watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from 'moment';
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Store';
 
@@ -87,8 +90,68 @@ export const useStoreStore = defineStore({
         current_list:[],
         first_element: null,
         message:null,
+        window_width: 0,
+        screen_size: null,
+        float_label_variants: 'on',
     }),
-    getters: {},
+    getters: {
+        isMobile: (state) => {
+            return state.screen_size === 'small';
+        },
+
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+        },
+    },
     actions: {
         //---------------------------------------------------------------------
         async onLoad(route) {
@@ -101,7 +164,7 @@ export const useStoreStore = defineStore({
              * Update with view and list css column number
              */
             this.setViewAndWidth(route.name);
-
+            await this.setScreenSize();
             this.first_element = ((this.query.page - 1) * this.query.rows);
 
             /**
@@ -113,15 +176,15 @@ export const useStoreStore = defineStore({
         },
         //---------------------------------------------------------------------
         setViewAndWidth(route_name) {
-            switch (route_name) {
-                case 'stores.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
+            this.view = 'list';
+            if(route_name.includes('stores.view')
+                || route_name.includes('stores.form')
+            ){
+                this.view = 'list-and-item';
+            }
+
+            if(route_name.includes('stores.filters')) {
+                this.view = 'list-and-filters';
             }
         },
         //---------------------------------------------------------------------
@@ -178,7 +241,7 @@ export const useStoreStore = defineStore({
                     continue;
                 }
 
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if (UTC_date) {
@@ -279,7 +342,8 @@ export const useStoreStore = defineStore({
         searchCurrencies(event) {
             const query = event.query.toLowerCase();
             this.currency_suggestion_list = this.currencies_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
+                return item.name.toLowerCase().includes(query) &&
+                    (!this.item.default_currency || item.name !== this.item.default_currency.name);
             });
         },
 
@@ -407,7 +471,8 @@ export const useStoreStore = defineStore({
         searchLanguages(event) {
             const query = event.query.toLowerCase();
             this.language_suggestion_list = this.languages_list.filter(item => {
-                return item.name.toLowerCase().includes(query);
+                return item.name.toLowerCase().includes(query)&&
+                    (!this.item.default_language || item.name !== this.item.default_language.name);
             });
         },
 
@@ -715,11 +780,12 @@ export const useStoreStore = defineStore({
                     break;
                 case 'trash':
                 case 'restore':
-                    this.item = data;
+                    // this.item = data;
                     vaah().toastSuccess(['Action was successful']);
                     break;
                 case 'save':
                     this.item = data;
+                    await this.getItem(data.id)
                     break;
                 case 'delete':
                     this.item = null;
@@ -730,9 +796,10 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         async toggleIsActive(item) {
             if (item.is_active) {
-                await this.itemAction('activate', item);
-            } else {
                 await this.itemAction('deactivate', item);
+
+            } else {
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -918,8 +985,8 @@ export const useStoreStore = defineStore({
             this.$router.push({name: 'stores.form', params: {id: item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge() {
-            return this.view === 'large';
+        isListView() {
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth() {
@@ -936,7 +1003,7 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         getActionWidth() {
             let width = 100;
-            if (!this.isViewLarge()) {
+            if (!this.isListView()) {
                 width = 80;
             }
             return width + 'px';
@@ -944,7 +1011,7 @@ export const useStoreStore = defineStore({
         //---------------------------------------------------------------------
         getActionLabel() {
             let text = null;
-            if (this.isViewLarge()) {
+            if (this.isListView()) {
                 text = 'Actions';
             }
 
@@ -1220,7 +1287,31 @@ export const useStoreStore = defineStore({
             };
             this.$router.push({ name: 'stores.index', query: query });
 
-        }
+        },
+        //---------------------------------------------------------------------
+        setScreenSize()
+        {
+            if(!window)
+            {
+                return null;
+            }
+            this.window_width = window.innerWidth;
+
+            if(this.window_width < 1024)
+            {
+                this.screen_size = 'small';
+            }
+
+            if(this.window_width >= 1024 && this.window_width <= 1280)
+            {
+                this.screen_size = 'medium';
+            }
+
+            if(this.window_width > 1280)
+            {
+                this.screen_size = 'large';
+            }
+        },
         //---------------------------------------------------------------------
     }
 });

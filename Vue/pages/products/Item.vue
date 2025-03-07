@@ -3,11 +3,13 @@ import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import { useProductStore } from '../../stores/store-products'
+import { useRootStore } from '@/stores/root'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 import {useDialog} from "primevue/usedialog";
 import ProductCategories from "./components/ProductCategories.vue";
 const store = useProductStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -65,9 +67,8 @@ const openProductCategories = (categories,product) => {
 </script>
 <template>
 
-    <div class="col-6" >
 
-        <Panel class="is-small" v-if="store && store.item">
+        <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <Message severity="info" :closable="false" v-if="store.item.status_notes">
                 <pre style="word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.status_notes}}</pre>
@@ -164,7 +165,8 @@ const openProductCategories = (categories,product) => {
                             column === 'product_variation'|| column === 'vendors' || column === 'meta' || column === 'deleted_by'
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
                             || column === 'vh_st_store_id'|| column === 'product_variations' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
-                            || column === 'quantity' || column === `seo_title` || column === `seo_meta_description` || column === `seo_meta_keyword`">
+                            || column === 'quantity' || column === `seo_title` || column === `seo_meta_description` || column === `seo_meta_keyword`
+                            || column === 'variations'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">
@@ -242,7 +244,7 @@ const openProductCategories = (categories,product) => {
                                     <Badge v-if="store.item.status.slug == 'approved'" severity="success">
                                         {{store.item.status.name}}
                                     </Badge>
-                                    <Badge v-else-if="store.item.status.slug == 'pending'"  severity="warning">
+                                    <Badge v-else-if="store.item.status.slug == 'pending'"  severity="warn">
                                         {{store.item.status.name}}
                                     </Badge>
                                     <Badge v-else-if="store.item.status.slug == 'rejected'" @click="vaah().copy(value.name)" severity="danger">
@@ -440,7 +442,6 @@ const openProductCategories = (categories,product) => {
             </div>
         </Panel>
 
-    </div>
 
     <Dialog header="Meta Fields"
             v-model:visible="store.display_seo_modal"

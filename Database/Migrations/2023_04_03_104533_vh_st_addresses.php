@@ -24,6 +24,12 @@ class VhStaddresses extends Migration
 
                 $table->string('address_line_1')->nullable()->index();
                 $table->string('address_line_2')->nullable()->index();
+                $table->string('name')->nullable()->index();
+                $table->bigInteger('phone')->nullable()->index();
+                $table->string('pin_code')->nullable()->index();
+                $table->string('city')->nullable()->index();
+                $table->string('state')->nullable()->index();
+                $table->string('country')->nullable()->index();
 
                 //----common fields
                 $table->text('meta')->nullable();

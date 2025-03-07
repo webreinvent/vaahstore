@@ -11,6 +11,7 @@ const cart_products_stock_available = ref([]);
 const product_store = useProductStore();
 onMounted(async () => {
     document.title = 'Carts - Items';
+    await store.loadAssets();
     if (route.params && route.params.id) {
         await store.getItem(route.params.id);
     }
@@ -26,37 +27,34 @@ const allProductsOutOfStock = computed(() => {
 
 <template>
 
-    <div   v-if="store.list" class="bg-white">
+    <div   v-if="store.list" class="bg-gray-50">
         <div class="cart_detail">
-            <div class="flex flex-row justify-content-between">
-                <div >
+            <div class="flex flex-row justify-content-between bg-gray-100 py-3">
+                <div class="flex items-center gap-2">
                     <Button
                         @click="store.redirectToCart"
-                        class="p-button-sm"
+                        size="small"
                         label="Back">
                         <i class="pi pi-arrow-left mr-1"></i>Back
                     </Button>
-                    <b class="mr-1 ml-3" v-if="store.item ">
-                        {{ store.item.uuid }}   - {{ store.item.user?.email }} ({{store.cart_products?.length}})
-                    </b>
+                    <div class="mr-1 ml-3" v-if="store.item ">
+                        <span class="text-gray-950 text-base leading-5 font-semibold">{{ store.item.uuid }}-<span class="text-gray-400">{{ store.item.user?.email }}</span></span> 
+                        <!-- ({{store.cart_products?.length}}) -->
+                    </div>
 
                 </div>
                 <div class="">
 
                     <Button data-testid="carts-user-modal"
                             class="p-button-lg"
-                            v-if="!store.item.user"
+                            v-if="!store.item?.user"
                             v-tooltip.top="'Assign User'"
                             @click="store.openUserDialog(store.item)">
                         <i class="pi pi-user-plus mr-1"></i>
 
                     </Button>
                 </div>
-
-
-
             </div>
-
 
             <!--table-->
             <div v-if="store.item">
@@ -72,20 +70,20 @@ const allProductsOutOfStock = computed(() => {
                        responsiveLayout="scroll">
 
                 <Column selectionMode="multiple"
-                        v-if="store.isViewLarge()"
+                        v-if="store.isListView()"
                         headerStyle="width: 3em">
                 </Column>
 
-                <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
+                <Column field="id" header="ID" class="text-xs text-gray-400 leading-5 font-bold" :style="{width: '80px'}" :sortable="true">
                 </Column>
 
-                <Column field="product_name"  header="Product Name" class="overflow-wrap-anywhere" :style="{width: '400px'}">
+                <Column field="product_name"  header="Product Name" class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold" :style="{width: '400px'}">
                     <template #body="prop">
                         {{ prop.data.pivot.cart_product_variation ? prop.data.pivot.cart_product_variation : prop.data.name }}
                     </template>
                 </Column>
 
-                <Column  header="" class="overflow-wrap-anywhere" >
+                <Column  header="" class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold" >
                     <template #body="prop">
                         <div class=" w-full" v-if="prop.data.pivot.is_stock_available === 0">
                             <Badge   value="Out of Stock"severity="danger"></Badge>
@@ -96,7 +94,7 @@ const allProductsOutOfStock = computed(() => {
 
 
 
-                <Column field="product_quantity" header="Product Quantity" class="overflow-wrap-anywhere" >
+                <Column field="product_quantity" header="Product Quantity" class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold" >
                     <template #body="prop">
                         <div class="p-inputgroup w-8rem max-w-full" >
                             <InputNumber  v-model="prop.data.pivot.quantity"
@@ -118,23 +116,23 @@ const allProductsOutOfStock = computed(() => {
 
 
                 <Column field="product_price" header="Product Price"
-                        class="overflow-wrap-anywhere"
+                        class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold"
                         >
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>&#8377;{{ prop.data.pivot.price  }}</p>
+                            <p><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price  }}</p>
                         </div>
                     </template>
 
                 </Column>
                 <Column field="product_price" header="Amount"
-                        class="overflow-wrap-anywhere"
+                        class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold"
                         >
 
                     <template #body="prop">
                         <div class="flex align-items-center justify-content-between w-full">
-                            <p>&#8377;{{ prop.data.pivot.price * prop.data.pivot.quantity}}</p>
+                            <p><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.pivot.price * prop.data.pivot.quantity}}</p>
                         </div>
                     </template>
 
@@ -151,7 +149,9 @@ const allProductsOutOfStock = computed(() => {
                                     data-testid="orders-table-action-trash"
                                     v-tooltip.top="'Wishlist'"
                                     @click="store.addToWishList(prop.data.pivot,store.item.user)"
-                                    :icon="prop.data.pivot.is_wishlisted === 1 ? 'pi pi-heart-fill' : 'pi pi-heart'"/>
+                                    >
+                                    <Icon :icon="prop.data.pivot.is_wishlisted === 1 ? 'mingcute:heart-fill' : 'solar:heart-outline'" width="18" height="18" :class="prop.data.pivot.is_wishlisted === 1 ? 'text-[#F05252]' :' text-gray-500'" />
+                                </Button>
 
 
                             <Button class="p-button-tiny p-button-danger p-button-text"
@@ -175,15 +175,16 @@ const allProductsOutOfStock = computed(() => {
             </DataTable>
             </div>
             <div class="table_bottom ">
-                <p><b>Total Amount: </b>&#8377;{{ store.total_amount_at_detail_page }}</p>
+                <p><b>Total Amount: </b><span v-html="store.assets?.store_default_currency"></span>{{ store.total_amount_at_detail_page }}</p>
             </div>
             <div class="table_bottom">
                 <Button label="Check Out"
+                        size="small"
                         :disabled="allProductsOutOfStock"
-                        @click="store.checkOut(store.item.id)"
-                >Check Out
-                    <i class="pi pi-arrow-right ml-2"></i>
-                </Button>
+                        @click="store.checkOut(store.item.id)" class="font-bold text-sm text-gray-50 py-2 px-[10px] rounded-lg">
+                Proceed To Checkout
+                <Icon icon="lets-icons:arrow-right-light" width="18px" height="18px"  class="text-gray-50" />
+            </Button>
             </div>
         </div>
 
@@ -227,17 +228,17 @@ const allProductsOutOfStock = computed(() => {
 
 <style scoped>
 .cart_detail {
-    background: #fff;
+    /* background: #F6F7F9; */
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 8px;
+    /* padding: 8px; */
 }
 
-.table_bottom {
+/* .table_bottom {
     display: flex;
     justify-content: flex-end;
-}
+} */
 .filled-heart .pi pi-heart {
     background-color: red; /* Change this to your desired background color */
 }

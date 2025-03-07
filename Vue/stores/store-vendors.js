@@ -2,7 +2,10 @@ import {watch, toRaw} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Vendor';
@@ -110,6 +113,61 @@ export const useVendorStore = defineStore({
     }),
     getters: {
 
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+
+        },
+
     },
     actions: {
         //---------------------------------------------------------------------
@@ -119,12 +177,11 @@ export const useVendorStore = defineStore({
              * Set initial routes
              */
             this.route = route;
-
             /**
              * Update with view and list css column number
              */
             await this.getProductCount();
-            this.setViewAndWidth(route.name);
+            await this.setViewAndWidth(route.name);
             this.first_element = ((this.query.page - 1) * this.query.rows);
 
             if (route.query && route.query.filter && route.query.filter.date) {
@@ -142,21 +199,18 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'vendors.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'vendors.product':
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+            this.view = 'list';
+
+            if(route_name.includes('vendors.view')
+                || route_name.includes('vendors.form') || route_name.includes('vendors.product')|| route_name.includes('vendors.role')
+            ){
+                this.view = 'list-and-item';
             }
+
+            if(route_name.includes('vendors.filters')){
+                this.view = 'list-and-filters';
+            }
+
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -372,7 +426,7 @@ export const useVendorStore = defineStore({
                     continue ;
                 }
 
-                let search_date = moment(selected_date)
+                let search_date = dayjs(selected_date)
                 var UTC_date = search_date.format('YYYY-MM-DD');
 
                 if(UTC_date){
@@ -822,9 +876,9 @@ export const useVendorStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -894,20 +948,20 @@ export const useVendorStore = defineStore({
         confirmDeleteAll()
         {
             this.action.type = 'delete-all';
-            vaah().confirmDialogDeleteAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
 
         confirmTrashAll()
         {
             this.action.type = 'trash-all';
-            vaah().confirmDialogTrashAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
 
         confirmRestoreAll()
         {
             this.action.type = 'restore-all';
-            vaah().confirmDialogRestoreAll(this.listAction);
+            vaah().confirmDialogDelete(this.listAction);
         },
         //---------------------------------------------------------------------
 
@@ -921,7 +975,7 @@ export const useVendorStore = defineStore({
         confirmDeactivateAll()
         {
             this.action.type = 'deactivate-all';
-            vaah().confirmDialogDeactivateAll(this.listAction);
+            vaah().confirmDialog(this.listAction);
         },
 
         //---------------------------------------------------------------------
@@ -1073,9 +1127,9 @@ export const useVendorStore = defineStore({
             this.$router.push({name: 'vendors.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -1095,7 +1149,7 @@ export const useVendorStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -1105,7 +1159,7 @@ export const useVendorStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1198,13 +1252,13 @@ export const useVendorStore = defineStore({
                 {
                     label: 'Mark all as active',
                     command: async () => {
-                        this.confirmActivateAll();
+                        await this.confirmAction('activate-all','Mark all as active');
                     }
                 },
                 {
                     label: 'Mark all as inactive',
                     command: async () => {
-                        this.confirmDeactivateAll();
+                        await this.confirmAction('deactivate-all','Mark all as inactive');
                     }
                 },
                 {
@@ -1214,14 +1268,14 @@ export const useVendorStore = defineStore({
                     label: 'Trash All',
                     icon: 'pi pi-times',
                     command: async () => {
-                        this.confirmTrashAll();
+                        await this.confirmAction('trash-all','Trash All');
                     }
                 },
                 {
                     label: 'Restore All',
                     icon: 'pi pi-replay',
                     command: async () => {
-                        this.confirmRestoreAll();
+                        await this.confirmAction('restore-all','Restore All');
                     }
                 },
                 {
@@ -1796,13 +1850,14 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async topSellingVendorsData() {
+        async topSellingVendorsData(store=null) {
 
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1825,7 +1880,7 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async vendorSalesByRange() {
+        async vendorSalesByRange(store=null) {
 
 
             let params = {
@@ -1833,6 +1888,7 @@ export const useVendorStore = defineStore({
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1865,10 +1921,10 @@ export const useVendorStore = defineStore({
                 title: {
                     text: 'Vendor Sales Over Selected Date Range',
                     align: 'left',
-                    offsetY: 12,
+                    offsetY: 5,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
@@ -1877,7 +1933,6 @@ export const useVendorStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#ffffff',
 
                 },
 
@@ -1907,9 +1962,21 @@ export const useVendorStore = defineStore({
                     }
                 },
                 tooltip: {
-                    shared: false,
+                    shared: true,
 
-                }
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
             };
 
             this.updateChartOptions(updated_area_chart_options);
@@ -1951,11 +2018,18 @@ export const useVendorStore = defineStore({
             this.filter_all=null;
             this.topSellingVendorsData();
             this.vendorSalesByRange();
-        }
-
+        },
+//---------------------------------------------------------------------
+        confirmAction(action_type,action_header)
+        {
+            this.action.type = action_type;
+            vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
+                this.listAction,null,'p-button-primary');
+        },
 
     }
         //---------------------------------------------------------------------
+
 
 
 

@@ -2,7 +2,10 @@ import {toRaw,watch} from 'vue'
 import {acceptHMRUpdate, defineStore} from 'pinia'
 import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
-import moment from "moment";
+import dayjs from 'dayjs';
+import dayjsPluginUTC from 'dayjs-plugin-utc'
+
+dayjs.extend(dayjsPluginUTC)
 import {useRootStore} from "./root";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
@@ -101,6 +104,61 @@ export const useOrderStore = defineStore({
     }),
     getters: {
 
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-full';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+
+        },
+
     },
     actions: {
 
@@ -144,21 +202,33 @@ export const useOrderStore = defineStore({
 
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'orders.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'orders.view':
-                    this.view = 'small';
-                    this.list_view_width = 5;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'orders.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     case 'orders.view':
+            //         this.view = 'small';
+            //         this.list_view_width = 5;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('orders.view')
+                || route_name.includes('orders.form')
+            ){
+                this.view = 'list-and-item';
             }
+
+            if(route_name.includes('orders.filters')){
+                this.view = 'list-and-filters';
+            }
+
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -699,9 +769,9 @@ export const useOrderStore = defineStore({
             this.$router.push({name: 'orders.form', params:{id:item.id}})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getIdWidth()
@@ -721,7 +791,7 @@ export const useOrderStore = defineStore({
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -731,7 +801,7 @@ export const useOrderStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1096,13 +1166,12 @@ export const useOrderStore = defineStore({
                     text: 'Status Distribution',
                     align: 'left',
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },
@@ -1165,12 +1234,12 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------
 
 
-        async fetchSalesChartData() {
+        async fetchSalesChartData(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
-
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1189,112 +1258,122 @@ export const useOrderStore = defineStore({
             if (!data || !Array.isArray(data.chart_series?.orders_sales_chart_data)) {
                 return;
             }
+
             this.chart_series = data.chart_series;
             this.overall_sales = data.chart_series?.overall_total_sales;
             this.growth_rate = data.chart_series?.growth_rate;
+            this.default_currency_symbol = data.chart_series?.currency_symbol?? '';
+            // Store original sales values for tooltip
+            const originalDataMap = new Map();
+            data.chart_series.orders_sales_chart_data.forEach(series => {
+                series.data.forEach(point => {
+                    originalDataMap.set(point.x, point.y); // Store exact values
+                });
+            });
 
+            // Smooth the chart data for visualization
+            const smoothData = (dataPoints, windowSize = 3) => {
+                return dataPoints.map((point, index, arr) => {
+                    const start = Math.max(0, index - windowSize + 1);
+                    const subset = arr.slice(start, index + 1);
+                    const avg = subset.reduce((sum, p) => sum + p.y, 0) / subset.length;
+                    return { x: point.x, y: avg, originalY: point.y }; // Store original y-value
+                });
+            };
 
             const series_data = data.chart_series.orders_sales_chart_data.map(series => ({
                 name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
+                data: smoothData(series.data),  // Apply smoothing
             }));
             this.updateSalesChartSeries(series_data);
+
+            // Detect negative growth
             const isNegativeGrowth = this.growth_rate < 0;
-            const chartColor = isNegativeGrowth ? '#4e78e1' : '#00FF00';
+            const chartColor = isNegativeGrowth ? '#4e78e1' : '#4e78e1';
+
+            // Calculate Y-axis min/max for better scaling
+            const allValues = series_data.flatMap(s => s.data.map(d => d.y));
+            const minY = Math.min(...allValues) * 0.95; // Reduce 5% for better visualization
+            const maxY = Math.max(...allValues) * 1.05; // Increase 5% to avoid sharp deflection
 
             const updated_sales_chart_options = {
                 ...data.chart_options,
                 stroke: {
                     curve: 'smooth',
                     width: 2,
-
                 },
                 title: {
                     text: '',
-
+                },
+                fill: {
+                    type: ["gradient"],
+                    gradient: {
+                        shadeIntensity: 0.2,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.1,
+                        stops: [0, 80, 100],
+                    }
                 },
                 colors: [chartColor],
                 noData: {
                     text: 'Oops! No Data Available',
                     align: 'center',
                     verticalAlign: 'middle',
-                    offsetX: 0,
-                    offsetY: 0,
                     style: {
                         color: '#476baf',
                         fontSize: '14px',
-                        fontFamily: undefined
                     }
                 },
                 xaxis: {
                     type: 'datetime',
-
                     labels: {
                         show: false,
+                        format: 'dd MMM',
                     },
                     axisBorder: {
                         show: false,
                     },
-                },
-                yaxis: {
-                    labels: {
+                    axisTicks: {
                         show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                },
-                tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    y: {
-                        formatter: function (value) {
-                            if (value >= 1000) {
-                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
-                            }
-                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
-                        }
                     }
                 },
+                yaxis: {
+                    min: minY,
+                    max: maxY,
+                    labels: {
+                        show: false,
+                    },
+                    axisBorder: {
+                        show: false,
+                    },
+                },
+
+                tooltip: {
+                    x: {
+                        format: 'dd MMM yyyy',
+                    },
+                    y: {
+                        formatter: function (value, { dataPointIndex, w }) {
+                            const xValue = w.globals.seriesX[0][dataPointIndex]; // Get X (date)
+                            const exactSale = originalDataMap.get(xValue) || value; // Get exact Y value
+
+                            const formattedValue = exactSale >= 1000
+                                ? (exactSale / 1000).toFixed(2) + 'k'
+                                : exactSale;
+
+                            return `${this.default_currency_symbol}${formattedValue}`;
+                        }.bind(this)
+                    }
+                }
+
+                ,
 
                 chart: {
-                    background: '#f6f7f9',
                     toolbar: {
                         show: false,
                     },
-                    type:'area',
-                    // dropShadow: {
-                    //     enabled: true,
-                    //     color: '#000',
-                    //     top: 18,
-                    //     left: 7,
-                    //     blur: 20,
-                    //     opacity: 1
-                    // },
-                    // zoom: {
-                    //     type: 'x',
-                    //     enabled: true,
-                    //     autoScaleYaxis: true
-                    // },
-
+                    type: 'area',
                 },
-                // fill: {
-                //     type: 'gradient',
-                //     gradient: {
-                //         shadeIntensity: 1,
-                //         inverseColors: false,
-                //         opacityFrom: 1,
-                //         opacityTo: 0.9,
-                //         stops: [0, 90, 100]
-                //     },
-                // },
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-
                 dataLabels: {
                     enabled: false,
                 },
@@ -1304,23 +1383,19 @@ export const useOrderStore = defineStore({
                 legend: {
                     show: false
                 },
-
             };
 
             this.updateSalesChartOptions(updated_sales_chart_options);
-
-
-
         },
 
         //---------------------------------------------------
 
-        async fetchOrderPaymentsData() {
+        async fetchOrderPaymentsData(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
-
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1375,6 +1450,16 @@ export const useOrderStore = defineStore({
                         fontFamily: undefined
                     }
                 },
+                colors: ["#008FFB"],
+                fill: {
+                    type: ["gradient"],
+                    gradient: {
+                        shadeIntensity: 0,
+                        opacityFrom: 0.5,
+                        opacityTo: 0.05,
+                        stops: [50 , 80, 100]
+                    }
+                },
                 xaxis: {
                     type: 'datetime',
                     labels: {
@@ -1383,6 +1468,9 @@ export const useOrderStore = defineStore({
                     axisBorder: {
                         show: false,
                     },
+                    axisTicks: {
+                        show: false,
+                    }
                 },
                 yaxis: {
                     labels: {
@@ -1393,20 +1481,25 @@ export const useOrderStore = defineStore({
                     },
                 },
                 tooltip: {
-                    x: {
-                        format: 'MMM dd, yyyy'
-                    },
-                    y: {
-                        formatter: function (value) {
-                            if (value >= 1000) {
-                                return `<span style="font-weight: bold;">&#8377;${(value / 1000).toFixed(2)}k</span>`;
-                            }
-                            return `<span style="font-weight: bold;">&#8377;${value}</span>`;
-                        }
-                    }
-                },
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const value = series[seriesIndex][dataPointIndex] ?? 0;
+                        const formattedValue = value >= 1000 ? (value / 1000).toFixed(2) + 'k' : value;
+
+                        return `<div style="
+        background: #fff; padding: 12px; border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+        min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+        <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+        <div style="font-size: 14px; color: #008FFB;">
+            Amount: <strong>${this.default_currency_symbol}${formattedValue}</strong>
+        </div>
+        </div>`;
+                    }.bind(this)
+                }
+,
+
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },
@@ -1508,95 +1601,89 @@ export const useOrderStore = defineStore({
                 return;
             }
 
-            const series_data = data.chart_series.orders_count_bar_chart.map(series => ({
-                name: series.name,
-                data: Array.isArray(series.data) ? series.data : [],
-            }));
+            const series_data = [
+                {
+                    name: "Created",
+                    type: "line",
+                    data: data.chart_series.orders_count_bar_chart.find(s => s.name === "Created")?.data || []
+                },
+                {
+                    name: "Completed",
+                    type: "area",
+                    data: data.chart_series.orders_count_bar_chart.find(s => s.name === "Completed")?.data || []
+                }
+            ];
             const totals = {
                 total_orders: series_data.find(series => series.name === "Created")?.data.reduce((sum, item) => sum + item.y, 0) || 0,
                 completed_orders: series_data.find(series => series.name === "Completed")?.data.reduce((sum, item) => sum + item.y, 0) || 0
             };
             this.updateChartSeries(series_data);
 
-
             const updated_area_chart_options = {
-                ...data.chart_options, // Merge existing options
-                stroke: {
-                    curve: 'smooth',
-                    width: 2,
-                },
-
-                noData: {
-                    text: 'Oops! No Data Available',
-                    align: 'center',
-                    verticalAlign: 'middle',
-                    offsetX: 0,
-                    offsetY: 0,
-                    style: {
-                        color: '#FF0000',
-                        fontSize: '14px',
-                        fontFamily: undefined
-                    }
-                },
-                xaxis: {
-                    type: 'datetime',
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                },
-                yaxis: {
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                },
-                tooltip: {
-                    x: {
-                        format: 'MMMM d, yyyy'
-                    },
-                    shared: true,
-                },
-
+                ...data.chart_options,
                 chart: {
-                    background: '#fff',
-                    toolbar: {
-                        show: false,
-                    },
+                    type: "line",
+                    toolbar: { show: false },
                 },
-                toolbar: {
-                    show: false,
-                    offsetX: 0,
-                    offsetY: 40,
-                },
-
-                dataLabels: {
-                    enabled: false,
+                stroke: {
+                    curve: "smooth",
+                    width: [2, 3],
                 },
                 grid: {
                     show: false,
                 },
-
+                fill: {
+                    type: ["solid", "gradient"],
+                    gradient: {
+                        shade: "light",
+                        shadeIntensity: 0.4,
+                        inverseColors: false,
+                        opacityFrom: 0.5,  // Increased for more visibility
+                        opacityTo: 0.15,   // Adjusted to ensure shadow persists at the end
+                        stops: [20, 100, 100],
+                        type: "vertical"
+                    }
+                },
+                colors: ["#008FFB", "#00E396"], // Created (Blue - Line), Completed (Green - Area)
+                xaxis: {
+                    type: "datetime",
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                    axisTicks: {
+                        show: false,
+                    }
+                },
+                yaxis: {
+                    labels: { show: false },
+                    axisBorder: { show: false },
+                },
+                tooltip: {
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const date = w.globals.categoryLabels[dataPointIndex] || w.globals.labels[dataPointIndex];
+                        const createdCount = series[0][dataPointIndex] ?? 0;
+                        const completedCount = series[1][dataPointIndex] ?? 0;
+                        return `<div style="background: #fff; padding: 12px; border-radius: 50%;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); text-align: center;
+                min-width: 120px; border: 2px solid rgba(0, 0, 0, 0.05); font-family: Arial, sans-serif;">
+                <strong style="color: #333; font-size: 14px; display: block; margin-bottom: 5px;">${date}</strong>
+                <div style="font-size: 14px;">
+                    <div style="color: #008FFB;">Created: <strong>${createdCount}</strong></div>
+                    <div style="color: #00E396;">Completed: <strong>${completedCount}</strong></div>
+                </div>
+            </div>`;
+                    }
+                },
                 legend: {
                     show: true,
-                    position: 'bottom',
-                    horizontalAlign: 'left',
-                    fontSize: '14px',
-                    labels: {
-                        colors: '#000',
-                    },
-                    itemMargin: {
-                        horizontal: 10,
-                        vertical: 5
-                    },
-                    formatter: function (seriesName) {
-                        if (seriesName === 'Created') {
+                    position: "bottom",
+                    horizontalAlign: "left",
+                    fontSize: "14px",
+                    labels: { colors: "#000" },
+                    itemMargin: { horizontal: 10, vertical: 5 },
+                    formatter: function(seriesName) {
+                        if (seriesName === "Created") {
                             return `${seriesName}: ${totals.total_orders}`;
-                        } else if (seriesName === 'Completed') {
+                        } else if (seriesName === "Completed") {
                             return `${seriesName}: ${totals.completed_orders}`;
                         }
                         return seriesName;

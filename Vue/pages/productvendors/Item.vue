@@ -3,11 +3,12 @@ import {onMounted, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import { useProductVendorStore } from '../../stores/store-productvendors'
+import { useRootStore } from '@/stores/root'
 
 import VhViewRow from '../../vaahvue/vue-three/primeflex/VhViewRow.vue';
 const store = useProductVendorStore();
 const route = useRoute();
-
+const root = useRootStore();
 onMounted(async () => {
 
     /**
@@ -45,9 +46,7 @@ const toggleItemMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small" v-if="store && store.item">
+    <Panel :pt="root.panel_pt" v-if="store && store.item">
 
             <template class="p-1" #header>
 
@@ -164,11 +163,11 @@ const toggleItemMenu = (event) => {
                                     <b>Store</b>
                                 </td>
                                 <td colspan="2">
-                                    <div class="flex flex-wrap gap-2" v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
-                                        <div v-if="store.item.store_vendor_product.some(product => product.deleted_at === null)">
-                                            <div v-for="(product, index) in store.item.store_vendor_product" :key="index">
-                                                <Badge class="h-max max-w-full mb-1" v-if="product.deleted_at === null">
-                                                    {{ product.name }}
+                                    <div v-if="store.item.store_vendor_product && store.item.store_vendor_product.length > 0">
+                                        <div v-if="store.item.store_vendor_product.some(product => product.deleted_at === null)" class="flex flex-wrap gap-1" >
+                                            <div v-for="(store, index) in store.item.store_vendor_product" :key="index" >
+                                                <Badge class="h-max  mb-1" v-if="store.deleted_at === null">
+                                                    {{ store.name }}
                                                 </Badge>
                                             </div>
                                             <Badge class="h-max max-w-full" v-if="store.item.store_vendor_product.some(variation => variation.deleted_at !== null)" value="Trashed" severity="danger"></Badge>
@@ -253,6 +252,6 @@ const toggleItemMenu = (event) => {
             </div>
         </Panel>
 
-    </div>
+
 
 </template>

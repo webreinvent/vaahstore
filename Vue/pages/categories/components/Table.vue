@@ -9,7 +9,7 @@ const useVaah = vaah();
 
 <template>
 
-    <div v-if="store.list">
+    <div v-if="store?.list">
         <!--table-->
          <DataTable :value="store.list.data"
                    dataKey="id"
@@ -21,7 +21,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
@@ -55,28 +55,28 @@ const useVaah = vaah();
 
 
                 <Column field="updated_at" header="Updated"
-                        v-if="store.isViewLarge()"
+                        v-if="store.isListView()"
                         style="width:150px;"
                         :sortable="true">
 
                     <template #body="prop">
-                        {{useVaah.ago(prop.data.updated_at)}}
+                        {{useVaah.toLocalTimeShortFormat(prop.data.updated_at)}}
                     </template>
 
                 </Column>
 
-            <Column field="is_active" v-if="store.isViewLarge()"
+            <Column field="is_active" v-if="store.isListView()"
                     :sortable="true"
                     style="width:100px;"
                     header="Is Active">
 
                 <template #body="prop">
-                    <InputSwitch v-model.bool="prop.data.is_active"
+                    <ToggleSwitch v-model.bool="prop.data.is_active"
                                  data-testid="categories-table-is-active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
                                  @input="store.toggleIsActive(prop.data)">
-                    </InputSwitch>
+                    </ToggleSwitch>
                 </template>
 
             </Column>
@@ -102,7 +102,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="categories-table-action-trash"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at"
+                                v-if="store.isListView() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
@@ -110,7 +110,7 @@ const useVaah = vaah();
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="categories-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isListView() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />
