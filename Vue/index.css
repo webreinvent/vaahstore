@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.icon-button {
+    background: transparent !important;
+    border: none !important;
+}
+
+.quantity-button {
+    padding: 4px !important;
+    font-size: 8px !important;
+    border: none !important
+}
+
+/* DropDown Scrollbar Styling */
+.scroll-bar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  
+  .scroll-bar::-webkit-scrollbar-track {
+    background: none;
+    border-radius: 10px;
+  }
+  
+  .scroll-bar::-webkit-scrollbar-thumb {
+    background: #a8a8a8;
+    border-radius: 10px;
+  }
+  
+  /* Customize the thumb on hover */
+  .scroll-bar::-webkit-scrollbar-thumb:hover {
+    background: #858585;
+  }
+

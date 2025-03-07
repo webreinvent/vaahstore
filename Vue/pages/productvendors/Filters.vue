@@ -41,6 +41,7 @@ const root = useRootStore();
                                   option-label = "name"
                                   option-value = "name"
                                   multiple
+                                  :dropdown="true"
                                   :complete-on-focus = "true"
                                   :suggestions="store.filter_product_suggetion"
                                   @complete="store.getProduct($event)"
@@ -79,6 +80,7 @@ const root = useRootStore();
                           append-to="self"
                           data-testid="productvendors-filters-create_date_range"
                           placeholder="Select Data Range"
+                            showIcon
                 />
 
 

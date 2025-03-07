@@ -1,12 +1,14 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import { useStorePaymentMethodStore } from '../../stores/store-storepaymentmethods'
+import { useRootStore } from '@/stores/root.js'
 
 import VhField from './../../vaahvue/vue-three/primeflex/VhField.vue'
 import {useRoute} from 'vue-router';
 
 
 const store = useStorePaymentMethodStore();
+const root = useRootStore();
 const route = useRoute();
 
 onMounted(async () => {
@@ -28,9 +30,7 @@ const toggleFormMenu = (event) => {
 </script>
 <template>
 
-    <div class="col-6" >
-
-        <Panel class="is-small">
+    <Panel :pt="root.panel_pt">
 
             <template class="p-1" #header>
 
@@ -139,7 +139,7 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
                 <VhField label="Last Payment at*" >
-                    <Calendar tabindex="0"
+                    <DatePicker tabindex="0"
                               :showIcon="true"
                               name="storepaymentmethods-last_payment_at"
                               id="last_payment_at"
@@ -149,7 +149,7 @@ const toggleFormMenu = (event) => {
                               dateFormat="yy-mm-dd"
                               :showTime="true" :showSeconds="true"
                               placeholder="Select date"
-                              v-model="store.item.last_payment_at"></Calendar>
+                              v-model="store.item.last_payment_at"></DatePicker>
                 </VhField>
 
                 <VhField label="Status*">
@@ -179,7 +179,7 @@ const toggleFormMenu = (event) => {
 
 
                 <VhField label="Is Active">
-                    <InputSwitch v-bind:false-value="0"
+                    <ToggleSwitch v-bind:false-value="0"
                                  v-bind:true-value="1"
                                  class="p-inputswitch"
                                  name="storepaymentmethods-active"
@@ -189,7 +189,5 @@ const toggleFormMenu = (event) => {
 
             </div>
         </Panel>
-
-    </div>
 
 </template>

@@ -4,6 +4,7 @@ let routes_list= [];
 import List from '../pages/customergroups/List.vue'
 import Form from '../pages/customergroups/Form.vue'
 import Item from '../pages/customergroups/Item.vue'
+import Filters from '../pages/customergroups/Filters.vue'
 
 routes_list = {
 
@@ -23,7 +24,13 @@ routes_list = {
             name: 'customergroups.view',
             component: Item,
             props: true,
-        }
+        },
+        {
+            path: 'filters',
+            name: 'customergroups.filters',
+            component: Filters,
+            props: true,
+        },
     ]
 };
 

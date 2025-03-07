@@ -8,6 +8,7 @@ const store = useProductStore();
 onMounted(async () => {
     store.getListSelectedMenu();
     store.getListBulkMenu();
+    store.setDefaultStoreForProductList();
 });
 
 //--------selected_menu_state
@@ -37,7 +38,7 @@ const toggleExportMenuState = (event) => {
         <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'list'">
+            <div v-if="store.view === 'list'" class="flex items-center">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -83,7 +84,7 @@ const toggleExportMenuState = (event) => {
                 >
 
                     <span :style="{fontSize :'11px',fontWeight:'600px' }">Export</span>
-                    <i class="pi pi-angle-down ml-1"></i>
+                    <Icon icon="qlementine-icons:export-16" width="14" height="14"  style="color: #7b7a7a" />
 
                 </Button>
                 <Menu ref="export_menu_state"
@@ -91,7 +92,27 @@ const toggleExportMenuState = (event) => {
                       :popup="true"
                       class="font-bold"
                 />
+                <div >
+                <FloatLabel :variant="store.float_label_variants"
+                           >
+                    <AutoComplete
+                        name="products-filter-store"
+                        data-testid="products-filter-store"
+                        v-model="store.selected_store_at_list"
+                        @change="store.onStoreSelect($event)"
+                        option-label = "name"
+                        dropdown
+                        style="height:30px"
+                        :complete-on-focus = "true"
+                        :suggestions="store.filteredStores"
+                        @complete="store.searchStoreForListQuery"
 
+
+
+                    />
+                    <label for="articles-name">Select Store</label>
+                </FloatLabel>
+                </div>
             </div>
             <!--/left-->
 

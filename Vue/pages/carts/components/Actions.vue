@@ -31,10 +31,10 @@ const toggleBulkMenuState = (event) => {
     <div>
 
         <!--actions-->
-        <div :class="{'flex justify-content-between': store.isViewLarge()}" class="mt-2 mb-2">
+        <div :class="{'flex justify-content-between': store.isListView()}" class="mt-2 mb-2">
 
             <!--left-->
-            <div v-if="store.view === 'large'">
+            <div v-if="store.view === 'list'">
 
                 <!--selected_menu-->
                 <Button class="p-button-sm"
@@ -51,19 +51,26 @@ const toggleBulkMenuState = (event) => {
                       :model="store.list_selected_menu"
                       :popup="true" />
                 <!--/selected_menu-->
+                <Button
+                                    type="button"
+                                    @click="toggleBulkMenuState"
+                                    severity="danger" outlined
+                                    data-testid="carts-actions-bulk-menu"
+                                    aria-haspopup="true"
+                                    aria-controls="bulk_menu_state"
+                                    class="ml-1 p-button-sm">
+                                    <i class="pi pi-ellipsis-v"></i>
+                                </Button>
+                                <Menu ref="bulk_menu_state"
+                                      :model="store.list_bulk_menu"
+                                      :popup="true" />
 
             </div>
             <!--/left-->
 
             <!--right-->
             <div >
-
-
-                <div class="grid p-fluid">
-
-
-                    <div class="col-12">
-                        <div class="p-inputgroup ">
+                        <InputGroup>
 
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
@@ -77,8 +84,11 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="carts-actions-search-button"
                                     icon="pi pi-search"/>
                             <Button
+                                v-if="!store.isMobile"
+                                as="router-link"
+                                :to="`/carts/filters`"
                                 type="button"
-                                class="p-button-sm"
+                                size="small"
                                 :disabled="Object.keys(route.params).length"
                                 data-testid="carts-actions-show-filters"
                                 @click="store.show_filters = !store.show_filters">
@@ -90,36 +100,19 @@ const toggleBulkMenuState = (event) => {
                                 type="button"
                                 icon="pi pi-filter-slash"
                                 data-testid="carts-actions-reset-filters"
-                                class="p-button-sm"
+                                class="p-button-sm !gap-0"
                                 label="Reset"
                                 @click="store.resetQuery()" />
 
                                 <!--bulk_menu-->
-                                <Button
-                                    type="button"
-                                    @click="toggleBulkMenuState"
-                                    severity="danger" outlined
-                                    data-testid="carts-actions-bulk-menu"
-                                    aria-haspopup="true"
-                                    aria-controls="bulk_menu_state"
-                                    class="ml-1 p-button-sm">
-                                    <i class="pi pi-ellipsis-v"></i>
-                                </Button>
-                                <Menu ref="bulk_menu_state"
-                                      :model="store.list_bulk_menu"
-                                      :popup="true" />
+                                
                                 <!--/bulk_menu-->
 
-                        </div>
+                        </InputGroup>
                     </div>
 
                 </div>
 
             </div>
             <!--/right-->
-
-        </div>
-        <!--/actions-->
-
-    </div>
 </template>

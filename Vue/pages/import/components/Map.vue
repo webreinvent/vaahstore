@@ -9,7 +9,7 @@
                 <Column field="label" header="Data Columns" class="max-w-min">saas</Column>
                 <Column header="CSV Headers">
                     <template #body="slotProps">
-                        <Dropdown
+                        <Select
                             v-model="slotProps.data.csv_field_index"
                             :options="store.csv_fields"
                             :optionLabel="(option) => store.normaliseLabel(option.label)"
@@ -21,7 +21,7 @@
         </template>
 
         <template #footer>
-            <div class="grid grid-nogutter justify-content-between">
+            <div class="flex justify-content-between">
                 <Button label="Back" @click="store.prevPage()" icon="pi pi-angle-left" />
                 <Button label="Next" @click="nextPage()" icon="pi pi-angle-right" icon-pos="right" />
             </div>

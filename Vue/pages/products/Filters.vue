@@ -278,11 +278,12 @@ onMounted(async () => {
 
         <div>
             <b>Select Created Date:</b>
+            <br>
             <DatePicker v-model="store.selected_dates"
                       selectionMode="range"
-                        size="small"
                       placeholder="Choose Date Range"
-                      class="w-full" />
+                      class="w-full"
+                        showIcon/>
         </div>
 
         <Divider />

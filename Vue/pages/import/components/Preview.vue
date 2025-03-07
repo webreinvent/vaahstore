@@ -33,7 +33,7 @@
                 </div>
                 <div class="align-items-center flex">
                     <label class="ml-2  text-sm align-items-center"><b>Override Data</b></label>
-                    <InputSwitch
+                    <ToggleSwitch
                         v-model="store.is_override"
                         class="p-inputswitch-sm ml-1"
                          />
@@ -58,7 +58,7 @@
 
                         <template v-if="col.field==='is_active'" #body="{data}">
                             <div class="flex align-items-center">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch-sm"
                                          name="import-active"
@@ -74,7 +74,7 @@
 
                         <template v-if="col.field==='is_featured_on_home_page'" #body="{data}">
                             <div class="flex align-items-center">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch-sm"
                                          name="import-active"
@@ -91,7 +91,7 @@
                         <template v-if="col.field==='is_featured_on_category_page'" #body="{data}">
 
                             <div class="flex align-items-center">
-                            <InputSwitch v-bind:false-value="0"
+                            <ToggleSwitch v-bind:false-value="0"
                                          v-bind:true-value="1"
                                          class="p-inputswitch-sm"
                                          name="import-active"
@@ -121,7 +121,7 @@
                         <template v-if="col.field==='vh_st_store_id'" #body="{ data }">
                             <div class="flex align-items-center">
                                 <!-- Dropdown component -->
-                                <Dropdown
+                                <Select
                                     class="w-full"
                                     v-model="data.vh_st_store_id"
                                     :options="store.assets.stores"
@@ -147,7 +147,7 @@
 
                         <template v-if="col.field==='vh_st_brand_id'" #body="{data}">
                             <div class="flex align-items-center">
-                                <Dropdown class="w-full"
+                                <Select class="w-full"
                                           v-model="data.vh_st_brand_id"
                                           :options="store.assets.brands"
                                           optionLabel="name"
@@ -173,7 +173,7 @@
 
                         <template v-if="col.field==='taxonomy_id_product_status'" #body="{data}">
                             <div class="flex align-items-center">
-                                <Dropdown class="w-full"
+                                <Select class="w-full"
                                           v-model="data.taxonomy_id_product_status"
                                           :options="store.assets.taxonomy.status"
                                           optionLabel="name"
@@ -199,7 +199,7 @@
 
                         <template v-if="col.field==='taxonomy_id_product_type'" #body="{data}">
                             <div class="flex align-items-center">
-                                <Dropdown class="w-full"
+                                <Select class="w-full"
                                           v-model="data.taxonomy_id_product_type"
                                           :options="store.assets.taxonomy.types"
                                           optionLabel="name"
@@ -224,10 +224,10 @@
                         </template>
 
                         <template v-if="col.field==='available_at'" #body="{data}">
-                            <div class="flex align-items-center" style="width: 200px">
+                            <div class="flex align-items-center" >
 
 
-                                <Calendar tabindex="0"
+                                <DatePicker tabindex="0"
                                           :showIcon="true"
                                           class="w-full"
                                           name="preview-available_at"
@@ -238,7 +238,7 @@
                                           placeholder="Select date"
                                           v-model="data.available_at"
 
-                                ></Calendar>
+                                />
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
                                    @click="fillAvailableDate(data)"
@@ -248,8 +248,8 @@
                         </template>
 
                         <template v-if="col.field==='launch_at'" #body="{data}">
-                            <div class="flex align-items-center" style="width: 200px">
-                                <Calendar tabindex="0"
+                            <div class="flex align-items-center">
+                                <DatePicker tabindex="0"
                                           :showIcon="true"
                                           class="w-full"
                                           name="preview-launch_at"
@@ -260,7 +260,7 @@
                                           placeholder="Select date"
                                           v-model="data.launch_at"
 
-                                ></Calendar>
+                                />
                                 <i v-if="getRowIndex(data) === 0"
                                    class="pi pi-arrow-circle-down ml-2 cursor-pointer"
                                    @click="fillLaunchDate(data)"
@@ -297,7 +297,7 @@
         }
     }"
         >
-            <div class="grid grid-nogutter justify-content-between">
+            <div class="flex justify-content-between">
                 <Button label="Back" @click="store.prevPage()" icon="pi pi-angle-left" />
                 <Button
                         :disabled="!store.list.records.length"

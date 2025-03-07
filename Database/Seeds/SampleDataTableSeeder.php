@@ -7,6 +7,8 @@ use Faker\Factory as Faker;
 use Faker\Provider\ar_SA\Payment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use VaahCms\Modules\Store\Helpers\OrderStatusHelper;
 use VaahCms\Modules\Store\Models\Address;
@@ -88,8 +90,12 @@ class SampleDataTableSeeder extends Seeder
     {
         $faker = Faker::create();
 
-
         $statuses = Taxonomy::getTaxonomyByType('store-status')->pluck('id')->toArray();
+        $status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'store-status');
+            })
+            ->first();
         $currencies = vh_st_get_country_currencies();
         $languages = vh_st_get_country_languages();
 
@@ -103,37 +109,44 @@ class SampleDataTableSeeder extends Seeder
             $store->is_multi_currency = rand(0, 1);
             $store->is_multi_lingual = rand(0, 1);
             $store->is_multi_vendor = rand(0, 1);
-            $store->is_default = ($i === 0) ? 1 : 0;
-            $store->taxonomy_id_store_status = $statuses ? $statuses[array_rand($statuses)] : null;
+            $store->is_default =  0;
+            $store->taxonomy_id_store_status = $status ? $status->id : null;
             $store->status_notes = 'store Status';
-            $store->is_active = rand(0, 1);
+            $store->is_active = 1;
             $store->slug = Str::slug($store->name . '-' . Str::random(5));
             $store->allowed_ips = array_map(fn () => $faker->ipv4, range(1, 5));
             $store->save();
 
-            if ($store->is_multi_currency && count($currencies) > 1) {
+            if (count($currencies) > 1) {
                 $random_currencies = array_rand($currencies, min(2, count($currencies)));
+                $default_currency_index = $random_currencies[array_rand($random_currencies)]; // Pick one as default
                 foreach ((array) $random_currencies as $index) {
                     $currencies_to_insert[] = [
                         'vh_st_store_id' => $store->id,
                         'name' => $currencies[$index]['name'],
                         'is_active' => 1,
+                        'code' => $currencies[$index]['code'],
+                        'symbol' => $currencies[$index]['symbol'],
+                        'is_default' => ($index === $default_currency_index) ? 1 : 0,
                     ];
                 }
             }
 
-            if ($store->is_multi_lingual && count($languages) > 1) {
+            if (count($languages) > 1) {
                 $random_languages = array_rand($languages, min(2, count($languages)));
+                $default_language_index = $random_languages[array_rand($random_languages)];
                 foreach ((array) $random_languages as $index) {
                     $languages_to_insert[] = [
                         'vh_st_store_id' => $store->id,
                         'name' => $languages[$index]['name'],
                         'is_active' => 1,
+                        'is_default' => ($index === $default_language_index) ? 1 : 0,
                     ];
                 }
             }
         }
 
+        // Insert generated store data
         if (!empty($currencies_to_insert)) {
             Currency::insert($currencies_to_insert);
         }
@@ -141,7 +154,70 @@ class SampleDataTableSeeder extends Seeder
         if (!empty($languages_to_insert)) {
             Lingual::insert($languages_to_insert);
         }
+
+        // === Create Default Store ===
+        $default_store = new Store();
+        $default_store->name = 'Default Store';
+        $default_store->is_multi_currency = 1;
+        $default_store->is_multi_lingual = 1;
+        $default_store->is_multi_vendor = 1;
+        $default_store->is_default = 1;
+        $default_store->taxonomy_id_store_status = $status ? $status->id : null;
+        $default_store->status_notes = 'Default store Status';
+        $default_store->is_active = 1;
+        $default_store->slug = Str::slug('Default');
+        $default_store->save();
+
+        // Insert default store currencies
+        $filtered_currencies = array_values(array_filter($currencies, function ($currency) {
+            return in_array($currency['name'], ['US Dollar', 'Indian Rupee']);
+        }));
+
+        if ($default_store->is_multi_currency && count($filtered_currencies) > 0) {
+            $default_currencies_to_insert = [];
+
+            foreach ($filtered_currencies as $currency) {
+                $default_currencies_to_insert[] = [
+                    'vh_st_store_id' => $default_store->id,
+                    'name' => $currency['name'],
+                    'is_active' => 1,
+                    'code' => $currency['code'],
+                    'symbol' => $currency['symbol'],
+                    'is_default' => ($currency['name'] === 'US Dollar') ? 1 : 0, // Set US Dollar as default
+                ];
+            }
+
+            if (!empty($default_currencies_to_insert)) {
+                Currency::insert($default_currencies_to_insert);
+            }
+            // Insert default store languages (Random language default)
+            if (count($languages) > 1) {
+                $default_languages_to_insert = [];
+                $random_languages = array_rand($languages, min(2, count($languages))); // Pick two random languages
+
+                // Ensure $random_languages is always an array
+                $random_languages = is_array($random_languages) ? $random_languages : [$random_languages];
+
+                $default_language_index = $random_languages[array_rand($random_languages)]; // Pick one as default
+
+                foreach ($random_languages as $index) {
+                    $default_languages_to_insert[] = [
+                        'vh_st_store_id' => $default_store->id,
+                        'name' => $languages[$index]['name'],
+                        'code' => $languages[$index]['code'],
+                        'is_active' => 1,
+                        'is_default' => ($index === $default_language_index) ? 1 : 0, // One is default
+                    ];
+                }
+
+                if (!empty($default_languages_to_insert)) {
+                    Lingual::insert($default_languages_to_insert);
+                }
+            }
+
+        }
     }
+
     //---------------------------------------------------------------
 
     public function getListFromJson($json_file_name)
@@ -280,7 +356,11 @@ class SampleDataTableSeeder extends Seeder
         $brands = $this->getListFromJson("brands.json");
         $statuses = Taxonomy::getTaxonomyByType('brand-status')->pluck('id')->toArray();
         $active_user = auth()->user();
-
+        $brand_status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'brand-status');
+            })
+            ->first();
         foreach ($brands as $brand_data) {
             $brand = new Brand;
             $existing_brand = Brand::where('slug', $brand_data['slug'])->first();
@@ -290,7 +370,7 @@ class SampleDataTableSeeder extends Seeder
                 'is_default' => ($brand_data['name'] === 'Brand A') ? 1 : 0,
                 'registered_by' => $active_user->id,
                 'approved_by' => $active_user->id,
-                'taxonomy_id_brand_status' => $statuses ? $statuses[array_rand($statuses)] : null,
+                'taxonomy_id_brand_status' => $brand_status['id'],
                 'status_notes' => $brand_data['status_notes'],
                 'is_active' => $brand_data['is_active'] ? 1 : 0,
                 'slug' => Str::slug($brand_data['slug']),
@@ -412,7 +492,16 @@ class SampleDataTableSeeder extends Seeder
         $products = json_decode($jsonString, true);
         $image_path= null;
 
-
+        $brand_status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'brand-status');
+            })
+            ->first();
+        $variation_status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'product-variation-status');
+            })
+            ->first();
         foreach ($products as $product) {
 
             $existing_product = Product::where('name', $product['name'])->first();
@@ -428,17 +517,37 @@ class SampleDataTableSeeder extends Seeder
 
             // Assign a random active store
             $stores = Store::where('is_active', 1)->pluck('id')->toArray();
-            if (!empty($stores)) {
-                $inputs['vh_st_store_id'] = $stores[array_rand($stores)];
+            $default_store = Store::where('is_default', 1)->value('id');
+
+            if (!empty($stores) && $default_store) {
+                // 90% chance to pick the default store
+                $inputs['vh_st_store_id'] = (rand(1, 100) <= 90) ? $default_store : $stores[array_rand($stores)];
             }
 
+
             //Assign or create a brand
+            $image_url = $product['brand']['src'] ?? $product['defaultImage']['secureSrc'] ?? null;
+            $brand_image = self::uploadBrandImage($product['brand']['name'], $image_url);
+
             $brand = Brand::firstOrCreate(
                 ['name' => $product['brand']['name']],
-                ['slug' => Str::slug($product['brand']['name'])]
+                [
+                    'slug' => Str::slug($product['brand']['name']),
+                    'is_active' => 1,
+                    'taxonomy_id_brand_status' => $brand_status['id'],
+                    'image' => $brand_image ?? 'default.png',
+                ]
             );
+            $category = Category::firstOrCreate(
+                ['name' => $product['analytics']['masterCategory']],
+                [
+                    'slug' => Str::slug($product['analytics']['masterCategory']),
+                    'is_active' => 1,
+                    'parent_id' => null
+                ]
+            );
+
             $inputs['vh_st_brand_id'] = $brand->id;
-            $random_category = Category::whereNull('parent_id') ->where('is_active', 1)->inRandomOrder()->first();
             // Assign a random product status
             $taxonomy_status = Taxonomy::where('name', 'Approved')
                 ->whereHas('type', function ($query) {
@@ -479,13 +588,23 @@ class SampleDataTableSeeder extends Seeder
 
             // Save the product
             $product = Product::create($inputs);
-            $product->productCategories()->attach($random_category->id, ['vh_st_product_id' => $product->id]);
+            $random_categories = Category::where('id', '!=', $category->id)
+                ->whereNull('parent_id')
+                ->where('is_active', 1)
+                ->inRandomOrder()
+                ->limit(1)
+                ->pluck('id');
+
+            if ($random_categories){
+                $category_ids = array_merge([$category->id], $random_categories->toArray());
+                $product->productCategories()->attach($category_ids, ['vh_st_product_id' => $product->id]);
+            }
             $json_file_variants = __DIR__ . DIRECTORY_SEPARATOR . "./json/attributes.json";
             $jsonString = file_get_contents($json_file_variants);
             $attributes = json_decode($jsonString, true);
 
             // Create variations
-            self::createProductVariations($product, $attributes);
+            self::createProductVariations($product, $attributes,$variation_status['id']);
 
 
             $Product_media = new ProductMedia();
@@ -508,13 +627,39 @@ class SampleDataTableSeeder extends Seeder
             self::saveProductImages($Product_media, $inputs, $image_path);
         }
     }
+
+    public static function uploadBrandImage($brand_name, $image_url)
+    {
+        if (!empty($image_url)) {
+            $directory = public_path('image/uploads/brands');
+            $file_name = Str::slug($brand_name) . '.jpg'; // Static filename per brand (avoiding timestamp)
+
+            // Check if the brand image already exists
+            if (File::exists($directory . '/' . $file_name)) {
+                return $file_name; // Return existing image path
+            }
+
+            // Ensure the directory exists
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0777, true, true);
+            }
+
+            // Download the image and save it
+            $image_contents = Http::get($image_url)->body();
+            File::put($directory . '/' . $file_name, $image_contents);
+
+            return $file_name; // Save relative path in DB
+        }
+
+        return null;
+    }
     //---------------------------------------------------------------
 
-    public static function createProductVariations($product, $attributes)
+    public static function createProductVariations($product, $attributes,$status_id)
     {
         $faker = Factory::create();
 
-        $variation_attributes = ['color', 'size'];
+        $variation_attributes = ['color', 'gender'];
 
         $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
             return in_array($key, $variation_attributes);
@@ -542,7 +687,8 @@ class SampleDataTableSeeder extends Seeder
                 'name' => $variation_name,
                 'slug' => $variation_slug,
                 'quantity' => 0,
-                'price' => $faker->randomFloat(2, 10, 100),
+                'taxonomy_id_variation_status' => $status_id,
+                'price' => $faker->randomFloat(2, 20, 35),
                 'is_active' => 1,
             ]);
         }
@@ -591,17 +737,22 @@ class SampleDataTableSeeder extends Seeder
 
         for ($i = 0; $i < 100; $i++) {
             // Fetch a random store that has active products
-            $store = Store::whereHas('products', function ($query) {
-                $query->where('is_active', 1);
-            })->inRandomOrder()->first();
+            $store = Store::where('is_default', 1)
+                ->first();
 
+//            dd($store);
             if (!$store) {
                 // If no store is found, continue to the next iteration
                 continue;
             }
 
             // Fetch random active product IDs from the store
-            $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
+//            $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
+            $product_ids = Product::where('vh_st_store_id', $store->id)
+                ->where('is_active', 1)
+                ->pluck('id')
+                ->toArray();
+//            dd($product_ids);
             if (empty($product_ids)) {
                 continue; // If no products, skip this iteration
             }
@@ -640,14 +791,22 @@ class SampleDataTableSeeder extends Seeder
     public function seedVendors()
     {
         $faker = Faker::create();
-        $store_ids = Store::pluck('id')->toArray();
+        $default_store_id = Store::where('is_default', 1)->value('id');
+
+        // Get all store IDs (excluding default store for the 10% cases)
+        $store_ids = Store::where('is_active', 1)->pluck('id')->toArray();
         $active_user = auth()->user();
         $statuses = Taxonomy::getTaxonomyByType('vendor-status')->pluck('id')->toArray();
 
         for ($i = 0; $i < 50; $i++) {
             $item = new Vendor;
             $item->name =$faker->name;
-            $item->vh_st_store_id = $store_ids ? $store_ids[array_rand($store_ids)] : null;
+            if (rand(1, 100) <= 90) {
+                $item->vh_st_store_id = $default_store_id;
+            } else {
+                // 10% chance, assign to a random store
+                $item->vh_st_store_id = $store_ids[array_rand($store_ids)];
+            }
 
             $item->owned_by = $active_user->id;
             $item->registered_at = null;
@@ -739,10 +898,13 @@ class SampleDataTableSeeder extends Seeder
             })
             ->first();
 
+
         $valid_products = Product::whereHas('productVendors')
             ->with('productVariations', 'productVendors')
-            ->take(rand(1, 10))
-            ->get();
+            ->get()
+            ->shuffle()
+            ->take(rand(1, 10));
+
 
         $user_addresses = StoreUser::where('id', $order->vh_user_id)
             ->with('addresses')
@@ -1142,7 +1304,7 @@ class SampleDataTableSeeder extends Seeder
                         if ($order->user) {
                             $order->user_name = $order->user->username;
                             $order->payable_amount = $order->amount - $order->paid;
-                            $order->pay_amount = rand(0, $order->amount);
+                            $order->pay_amount = rand(20, 35);
 
                             $inputs['amount'] = $order->pay_amount;
 

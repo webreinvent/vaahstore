@@ -19,7 +19,8 @@ onMounted(async () => {
         store.toList();
         return false;
     }
-
+    store.assets_is_fetching=true;
+    store.getAssets();
     /**
      * Fetch the record from the database
      */
@@ -42,12 +43,11 @@ watchEffect(() => {
         store.order_filter_key= '';
     }
 });
-const selectedTabIndex = ref(route.query && route.query.filter && route.query.filter.order ? 1 : 0);
 
 </script>
 <template>
 
-    <div class="col-7" >
+    <div>
 
         <Panel class="is-small" v-if="store && store.item">
 
@@ -125,8 +125,15 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                     </div>
 
                 </Message>
-                <TabView :activeIndex="selectedTabIndex">
-                    <TabPanel header="Payment Details">
+                <Tabs value="0" >
+
+                    <TabList>
+                        <Tab value="0">Payment Details</Tab>
+                        <Tab value="1">Orders Payment Details ({{ store.item?.order_payments?.length || 0 }})</Tab>
+
+                    </TabList>
+                    <TabPanels>
+                    <TabPanel value="0">
 
                         <Message severity="info" :closable="false" v-if="store.item.notes">
                             <pre style="font-family: Inter, ui-sans-serif, system-ui; word-break:break-word;overflow-wrap:break-word;word-wrap:break-word;white-space:pre-wrap;">{{store.item.notes}}</pre>
@@ -164,7 +171,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                                     <td><b>Payment  Amount</b></td>
                                     <td  colspan="2" >
                                         <span class="word-overflow">
-                                       &#8377; {{store.payment_amount}}</span>
+                                       <span v-html="store.assets?.store_default_currency"></span> {{store.payment_amount}}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -254,7 +261,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                 </div>
                     </TabPanel>
-                    <TabPanel :header="`Orders Payment Details (${store.item?.order_payments?.length})`" >
+                    <TabPanel  value="1">
                         <InputText class="" v-model="store.order_filter_key" placeholder="Search By Order" />
                 <div class="mt-4" v-if="store.item && store.item.order_payments">
                 <DataTable :value="store.filteredOrders"
@@ -289,7 +296,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                         <template #body="prop">
                             <div class="justify-content-end flex min-w-max">
-                                &#8377; {{(prop.data.order.amount).toFixed(2)}}
+                                <span v-html="store.assets?.store_default_currency"></span> {{(prop.data.order.amount).toFixed(2)}}
                             </div>
 
                         </template>
@@ -301,7 +308,7 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
 
                         <template #body="prop">
                             <div class="justify-content-end flex min-w-max">
-                                &#8377;  {{prop.data.payable_amount}}
+                                <span v-html="store.assets?.store_default_currency"></span> {{prop.data.payable_amount}}
                             </div>
                         </template>
 
@@ -314,10 +321,10 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                             <div class="justify-content-end flex">
                             <span v-if="prop.data.payment_amount == 0"
                                    class="min-w-max"
-                                   >&#8377;{{ prop.data.payment_amount }}</span>
+                                   ><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.payment_amount }}</span>
                             <span v-else-if="prop.data.payment_amount > 0"
                                    :value="prop.data.payment_amount" class="min-w-max"
-                                   severity="secondary">&#8377;{{prop.data.payment_amount}}</span>
+                                   severity="secondary"><span v-html="store.assets?.store_default_currency"></span>{{prop.data.payment_amount}}</span>
                             </div>
                         </template>
 
@@ -328,10 +335,10 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                             <div class="justify-content-end flex">
                             <span  v-if="prop.data.remaining_payable_amount == 0"
                                    value="0"
-                                  >&#8377;{{ prop.data.remaining_payable_amount }}</span>
+                                  ><span v-html="store.assets?.store_default_currency"></span>{{ prop.data.remaining_payable_amount }}</span>
                             <span class="min-w-max" v-else-if="prop.data.remaining_payable_amount > 0"
 
-                                   severity="warning">&#8377;{{prop.data.remaining_payable_amount}}</span>
+                                   severity="warn"><span v-html="store.assets?.store_default_currency"></span>{{prop.data.remaining_payable_amount}}</span>
                             </div>
                         </template>
 
@@ -369,7 +376,9 @@ const selectedTabIndex = ref(route.query && route.query.filter && route.query.fi
                 </DataTable>
                 </div>
                     </TabPanel>
-                </TabView>
+
+                    </TabPanels>
+                </Tabs>
             </div>
         </Panel>
 

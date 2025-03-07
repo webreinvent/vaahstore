@@ -89,7 +89,63 @@ export const usePaymentStore = defineStore({
             } else {
                 return this.item.order_payments;
             }
-        }
+        },
+
+        getLeftColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return null;
+            }
+
+            if(state.view === 'list')
+            {
+                return 'lg:w-full';
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-1/2';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-2/3';
+            }
+
+
+        },
+
+        getRightColumnClasses: (state) => {
+            let classes = '';
+
+            if(state.isMobile
+                && state.view !== 'list'
+            ){
+                return 'w-full';
+            }
+
+            if(state.isMobile
+                && (state.view === 'list-and-item'
+                    || state.view === 'list-and-filters')
+            ){
+                return 'w-full';
+            }
+
+            if(state.view === 'list')
+            {
+                return null;
+            }
+            if(state.view === 'list-and-item') {
+                return 'lg:w-full';
+            }
+
+            if(state.view === 'list-and-filters') {
+                return 'lg:w-1/3';
+            }
+
+
+        },
+
     },
     actions: {
 
@@ -125,22 +181,34 @@ export const usePaymentStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            switch(route_name)
-            {
-                case 'payments.index':
-                    this.view = 'large';
-                    this.list_view_width = 12;
-                    break;
-                case 'payments.view':
-                    this.view = 'small';
-                    this.list_view_width = 5;
-                    break;
-                default:
-                    this.view = 'small';
-                    this.list_view_width = 6;
-                    this.show_filters = false;
-                    break
+            // switch(route_name)
+            // {
+            //     case 'payments.index':
+            //         this.view = 'large';
+            //         this.list_view_width = 12;
+            //         break;
+            //     case 'payments.view':
+            //         this.view = 'small';
+            //         this.list_view_width = 5;
+            //         break;
+            //     default:
+            //         this.view = 'small';
+            //         this.list_view_width = 6;
+            //         this.show_filters = false;
+            //         break
+            // }
+            this.view = 'list';
+
+            if(route_name.includes('payments.view')
+                || route_name.includes('payments.form')
+            ){
+                this.view = 'list-and-item';
             }
+
+            if(route_name.includes('payments.filters')){
+                this.view = 'list-and-filters';
+            }
+
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -687,15 +755,15 @@ export const usePaymentStore = defineStore({
             this.$router.push({name: 'payments.form', params:{id:item.id},query:this.query})
         },
         //---------------------------------------------------------------------
-        isViewLarge()
+        isListView()
         {
-            return this.view === 'large';
+            return this.view === 'list';
         },
         //---------------------------------------------------------------------
         getActionWidth()
         {
             let width = 100;
-            if(!this.isViewLarge())
+            if(!this.isListView())
             {
                 width = 80;
             }
@@ -705,7 +773,7 @@ export const usePaymentStore = defineStore({
         getActionLabel()
         {
             let text = null;
-            if(this.isViewLarge())
+            if(this.isListView())
             {
                 text = 'Actions';
             }
@@ -1167,20 +1235,18 @@ export const usePaymentStore = defineStore({
                 ...data.chart_options,
                 title: {
                     text: 'Payment Methods',
+                    offsetY: 12,
                     align: 'left',
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
                 chart: {
-                    background: '#fff',
                     toolbar: {
                         show: false,
                     },
-                },fill: {
-                    type: 'gradient',
                 },
                 legend: {
                     position: 'right',
@@ -1204,8 +1270,7 @@ export const usePaymentStore = defineStore({
                                 show: false,
                                 name: {
                                     show: true,
-                                    fontSize: '14px',
-                                    fontWeight: 'bold',
+                                    
                                     color: '#263238',
                                 },
                                 value: {

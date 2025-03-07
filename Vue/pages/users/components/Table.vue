@@ -20,7 +20,7 @@ const useVaah = vaah();
                    responsiveLayout="scroll"
         >
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em"
             />
 
@@ -62,14 +62,14 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column v-if="store.isViewLarge()"
+            <Column v-if="store.isListView()"
                     field="is_active"
                     header="Is Active"
                     :sortable="false"
                     style="width:100px;"
             >
                 <template #body="prop">
-                    <InputSwitch v-model.bool="prop.data.is_active"
+                    <ToggleSwitch v-model.bool="prop.data.is_active"
                                  v-bind:false-value="0"  v-bind:true-value="1"
                                  class="p-inputswitch-sm"
                                  :disabled="!store.assets.permissions.includes('can-update-module')"
@@ -104,7 +104,7 @@ const useVaah = vaah();
                                 />
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
-                                v-if="store.isViewLarge() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isListView() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash"
@@ -112,7 +112,7 @@ const useVaah = vaah();
                         />
 
                         <Button class="p-button-tiny p-button-success p-button-text"
-                                v-if="store.isViewLarge() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
+                                v-if="store.isListView() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay"

@@ -55,21 +55,19 @@ const useVaah = vaah();
 
              <Column field="add_price" header="Add Price" :sortable="false">
                  <template #body="prop">
-                     <div class="p-inputgroup flex-1">
-            <span class="p-inputgroup-addon"
+                     <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-6">
+            <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                   v-tooltip.top="'Total Variations'"
                   @click="prop.data.product?.product_variations_for_vendor_product?.length && store.toViewProductVariations(prop.data.product)"
                   :class="{ 'cursor-pointer': prop.data.product?.product_variations_for_vendor_product?.length }">
                 <b>{{ prop.data.product?.product_variations_for_vendor_product?.length || 0 }}</b>
             </span>
-                         <Button class="p-button-tiny"
+                         <Button :pt="{ icon: { class: '!text-[8px]' } }"
+                                 icon="pi pi-plus" class="quantity-button !rounded"
                                  v-tooltip.top="'Add Price Item'"
-                                 icon="pi pi-plus" severity="info"
-                                 style="cursor: pointer;"
+                                 severity="info"
                                  @click="store.toProductPrice(prop.data)"
-                                 :disabled="$route.path.includes('price') && prop.data.id===store.item?.id">
-                             <i class="pi pi-plus" style="color: white"></i>
-                         </Button>
+                                 :disabled="$route.path.includes('price') && prop.data.id===store.item?.id" />
                      </div>
                  </template>
              </Column>
@@ -79,7 +77,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup flex-1">
                          <div v-tooltip.top="'Variations Price Range'">
                              <Badge severity="info" v-if="prop.data && Array.isArray(prop.data.product_price_range)&& prop.data.product_price_range.length > 0">
-                                 {{ prop.data.product_price_range.join(' - ') }}
+                                 <span v-html="prop.data.product?.store.default_currency.symbol"></span>{{ prop.data.product_price_range.join(' - ') }}
                              </Badge>
                              <Badge severity="danger" v-else>
                                  Not Available
@@ -88,6 +86,7 @@ const useVaah = vaah();
                      </div>
                  </template>
              </Column>
+
 
 
 
@@ -113,12 +112,12 @@ const useVaah = vaah();
                      :sortable="true">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
+                     <Badge unstyled="true" class="!text-green-500 bg-[#0E9F6E1A]" v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
+                     <Badge unstyled="true"  class="!text-red-500 bg-[#E02424]/10 " v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="prop.data.status && prop.data.status.name == 'Pending'"
-                            severity="warning"> {{prop.data.status.name}}</Badge>
+                     <Badge  unstyled="true" class="!text-yellow-500 bg-[##E3A0081A]/10" v-else-if="prop.data.status && prop.data.status.name == 'Pending'"
+                            severity="warn"> {{prop.data.status.name}}</Badge>
                  </template>
 
              </Column>
@@ -156,9 +155,9 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-2">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="productvendors-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
@@ -166,14 +165,14 @@ const useVaah = vaah();
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
-                                class="p-button-tiny p-button-text"
+                                class="p-button-tiny p-button-text icon-button"
                                 data-testid="productvendors-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny p-button-danger p-button-text icon-button text-red-500"
                                 data-testid="productvendors-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
@@ -181,7 +180,7 @@ const useVaah = vaah();
                                 icon="pi pi-trash" />
 
 
-                        <Button class="p-button-tiny p-button-success p-button-text"
+                        <Button class="p-button-tiny p-button-success p-button-text icon-button"
                                 data-testid="productvendors-table-action-restore"
                                 v-if="store.isListView() && prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"

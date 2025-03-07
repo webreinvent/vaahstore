@@ -39,8 +39,6 @@ onMounted(async () => {
 
             </template>
 
-<!--        <Sidebar v-model:visible="store.show_filters"-->
-<!--                 position="right" class="relative">-->
 
             <VhFieldVertical >
                 <template #label>
@@ -53,6 +51,7 @@ onMounted(async () => {
                               @change = "store.addSelectedProduct()"
                               option-label = "name"
                               multiple
+                              :dropdown="true"
                               :complete-on-focus = "true"
                               :suggestions="store.search_products"
                               @complete="store.searchProduct($event)"
@@ -127,7 +126,8 @@ onMounted(async () => {
                           @date-select="store.setDateRange"
                           placeholder="Choose date range"
                           :manualInput="false"
-                            class="w-full"/>
+                            class="w-full"
+                            showIcon/>
 
             </VhFieldVertical >
 
@@ -230,7 +230,6 @@ onMounted(async () => {
             </VhFieldVertical>
 
 
-<!--        </Sidebar>-->
 
         </Panel>
 

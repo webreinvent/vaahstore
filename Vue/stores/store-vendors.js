@@ -158,7 +158,7 @@ export const useVendorStore = defineStore({
                 return null;
             }
             if(state.view === 'list-and-item') {
-                return 'lg:w-full';
+                return 'lg:w-1/2';
             }
 
             if(state.view === 'list-and-filters') {
@@ -199,36 +199,18 @@ export const useVendorStore = defineStore({
         //---------------------------------------------------------------------
         setViewAndWidth(route_name)
         {
-            // switch(route_name)
-            // {
-            //     case 'vendors.index':
-            //         this.view = 'large';
-            //         this.list_view_width = 12;
-            //         break;
-            //     case 'vendors.product':
-            //         this.view = 'small';
-            //         this.list_view_width = 6;
-            //         break;
-            //     default:
-            //         this.view = 'small';
-            //         this.list_view_width = 6;
-            //         break
-            // }
             this.view = 'list';
 
             if(route_name.includes('vendors.view')
-                || route_name.includes('vendors.form')
+                || route_name.includes('vendors.form') || route_name.includes('vendors.product')|| route_name.includes('vendors.role')
             ){
                 this.view = 'list-and-item';
             }
 
-            if(route_name.includes('vendors.filters') || route_name.includes('vendors.product') || route_name.includes('vendors.role')){
+            if(route_name.includes('vendors.filters')){
                 this.view = 'list-and-filters';
             }
 
-            if(route_name.includes('vendors.reports')){
-                this.view = 'list-and-reports';
-            }
         },
         //---------------------------------------------------------------------
         async updateQueryFromUrl(route)
@@ -894,9 +876,9 @@ export const useVendorStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -1868,13 +1850,14 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async topSellingVendorsData() {
+        async topSellingVendorsData(store=null) {
 
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1897,7 +1880,7 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async vendorSalesByRange() {
+        async vendorSalesByRange(store=null) {
 
 
             let params = {
@@ -1905,6 +1888,7 @@ export const useVendorStore = defineStore({
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -1937,10 +1921,10 @@ export const useVendorStore = defineStore({
                 title: {
                     text: 'Vendor Sales Over Selected Date Range',
                     align: 'left',
-                    offsetY: 12,
+                    offsetY: 5,
                     style: {
-                        fontSize: '16px',
-                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        fontWeight: 'normal',
                         color: '#263238'
                     }
                 },
@@ -1949,7 +1933,6 @@ export const useVendorStore = defineStore({
                     toolbar: {
                         show: false,
                     },
-                    background: '#f6f7f9',
 
                 },
 
@@ -1981,7 +1964,19 @@ export const useVendorStore = defineStore({
                 tooltip: {
                     shared: true,
 
-                }
+                },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
             };
 
             this.updateChartOptions(updated_area_chart_options);

@@ -131,25 +131,27 @@ const toggleFormMenu = (event) => {
                 </Message>
 
 
-                <VhField label="Name*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="products-name"
                                data-testid="products-name"
                                @update:modelValue="store.watchItem"
-                               placeholder="Enter Name"
                                v-model="store.item.name"/>
-                </VhField>
+                    <label for="products-name">Name <span class="text-red-500">*</span></label>
 
-                <VhField label="Slug*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="products-slug"
                                data-testid="products-slug"
-                               placeholder="Enter Slug"
                                v-model="store.item.slug"/>
-                </VhField>
+                    <label for="products-slug">Slug <span class="text-red-500">*</span></label>
+
+                </FloatLabel>
 
 
-                <VhField label="Store*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
 
                     <AutoComplete
                         value="id"
@@ -158,7 +160,6 @@ const toggleFormMenu = (event) => {
                         class="w-full"
                         :suggestions="store.filtered_stores"
                         @complete="store.searchStore"
-                        placeholder="Select Store"
                         data-testid="products-store"
                         name="products-store"
                         :dropdown="true"
@@ -178,9 +179,11 @@ const toggleFormMenu = (event) => {
                                                 }">
                     </AutoComplete>
 
-                </VhField>
+                    <label for="products-store">Store <span class="text-red-500">*</span></label>
 
-                <VhField label="Brand">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
 
                     <AutoComplete
                         value="id"
@@ -189,7 +192,6 @@ const toggleFormMenu = (event) => {
                         class="w-full"
                         :suggestions="store.filtered_brands"
                         @complete="store.searchBrand"
-                        placeholder="Select Brand"
                         data-testid="products-brand"
                         name="products-brand"
                         :dropdown="true"
@@ -210,22 +212,25 @@ const toggleFormMenu = (event) => {
                     >
                     </AutoComplete>
 
-                </VhField>
-                <VhField label="Categories">
+                    <label for="products-brand">Select Brand</label>
+
+                </FloatLabel>
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <TreeSelect
                         v-model="store.item.categories"
                         :options="store.categories_dropdown_data"
                         selectionMode="multiple"
                         display="chip"
-                        placeholder="Select Category"
                         :show-count="true"
                         data-testid="product-categories"
                         @change="store.setParentId()"
                         class=" w-full" />
 
-                </VhField>
+                    <label for="products-categories">Select Category</label>
 
-                <VhField label="Type*">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
 
                     <AutoComplete
                         value="id"
@@ -236,30 +241,30 @@ const toggleFormMenu = (event) => {
                         name="products-type"
                         :suggestions="store.type_suggestion"
                         @complete="store.searchTaxonomyProduct($event)"
-                        placeholder="Select Type"
                         :dropdown="true" optionLabel="name" forceSelection>
                     </AutoComplete>
 
-                </VhField>
+                    <label for="products-type">Select Type <span class="text-red-500">*</span></label>
 
-                <VhField label="Launch Date">
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <DatePicker tabindex="0"
                               :showIcon="true"
-                            size="small"
                               name="brands-registered_at"
                               id="registered_at"
                               value="registered_at"
                               data-testid="brands-registered_at"
                               dateFormat="yy-mm-dd"
-                              placeholder="Select date"
                               v-model="store.item.launch_at"
-                    ></DatePicker>
-                </VhField>
+                    />
+                    <label for="brands-registered_at">Select Date </label>
+
+                </FloatLabel>
 
                 <VhField label="Availablity Date">
                     <DatePicker tabindex="0"
                               :showIcon="true"
-                            size="small"
                               name="brands-registered_at"
                               id="registered_at"
                               value="registered_at"
@@ -272,23 +277,25 @@ const toggleFormMenu = (event) => {
                 </VhField>
 
 
-                <VhField label="Featured on Home page">
+                <div class="flex items-center gap-2 my-3" >
                     <ToggleSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
                         name="products-is-home-featured"
                         data-testid="products-is-home-featured"
                         v-model="store.item.is_featured_on_home_page"/>
-                </VhField>
+                    <label for="products-is-home-featured">Featured on Home page</label>
+                </div>
 
-                <VhField label="Featured on Category page">
+                <div class="flex items-center gap-2 my-3" >
                     <ToggleSwitch
                         v-bind:false-value="0"
                         v-bind:true-value="1"
                         name="products-is-category-featured"
                         data-testid="products-is-category-featured"
                         v-model="store.item.is_featured_on_category_page"/>
-                </VhField>
+                    <label for="products-is-category-featured">Featured on Category page</label>
+                </div>
 
 
 
@@ -339,38 +346,38 @@ const toggleFormMenu = (event) => {
                     </Editor>
                 </VhField>
 
-                <VhField label="Seo Title">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <InputText class="w-full"
                                name="products-seo-title"
                                data-testid="products-seo-title"
-                               placeholder="Enter Seo Title"
                                v-model="store.item.seo_title"/>
-                </VhField>
+                    <label for="products-seo_title">Enter Seo Title</label>
+                </FloatLabel>
 
-                <VhField label="Seo Description">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Textarea class="w-full"
                               name="products-seo-description"
                               data-testid="products-seo-description"
-                              placeholder="Enter Seo Description"
                               rows="3" cols="30"
                               v-model="store.item.seo_meta_description"
                     />
-                </VhField>
+                    <label for="products-seo-description">Enter Seo Description</label>
+                </FloatLabel>
 
 
-                <VhField label="Seo Keywords">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <Chips class="w-full"
                            style="display:flex;flex-wrap:wrap;width:100%"
                            name="products-seo-meta-keywords"
                            data-testid="products-seo-meta-keywords"
-                           placeholder="Enter Seo Meta keywords"
                            v-model="store.item.seo_meta_keyword"
                            separator=","
                             />
 
-                </VhField>
+                    <label for="products-seo-meta-keywords">Enter Seo Meta keywords</label>
+                </FloatLabel>
 
-                <VhField label="Status*">
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
                     <AutoComplete
                         value="id"
                         v-model="store.item.status"
@@ -379,20 +386,20 @@ const toggleFormMenu = (event) => {
                         name="products-status"
                         :suggestions="store.filtered_status"
                         @complete="store.searchStatus($event)"
-                        placeholder="Select Status"
+
                         :dropdown="true" optionLabel="name"
                         data-testid="products-status"
                         forceSelection>
                     </AutoComplete>
-                </VhField>
-
-                <VhField label="Status Notes">
-                    <Textarea rows="3" class="w-full"
-                              placeholder="Enter a Status Note"
+                    <label for="products-status">Select Status <span class="text-red-500">*</span></label>
+                </FloatLabel>
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <Textarea  rows="5" cols="30" class="w-full"
                               name="products-status_notes"
                               data-testid="products-status_notes"
                               v-model="store.item.status_notes"/>
-                </VhField>
+                    <label for="products-status_notes">Enter a Status Note</label>
+                </FloatLabel>
 
                 <VhField label="Is Active">
                     <ToggleSwitch v-bind:false-value="0"

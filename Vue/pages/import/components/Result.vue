@@ -45,21 +45,20 @@
             </DataTable>
         </template>
         <template #footer>
-            <div class="grid grid-nogutter justify-content-between mt-2">
-                <div class="flex">
-                    <Button
-                        label="Restart"
-                        class="p-button-success"
-                        @click="store.restart()"
-                        icon="pi pi-refresh"
-                        icon-pos="left"
-                    />
-                    <Button
-                        class="ml-2"
-                        label="Back to Products"
-                        @click="store.toProducts()"
-                        icon="pi pi-angle-left" />
-                </div>
+            <div class="flex justify-content-between mt-2">
+                <Button
+                    class="ml-2"
+                    label="Back to Products"
+                    @click="store.toProducts()"
+                    icon="pi pi-angle-left" />
+                <Button
+                    label="Restart"
+                    class="p-button-success"
+                    @click="store.restart()"
+                    icon="pi pi-refresh"
+                    icon-pos="left"
+                />
+
 
             </div>
         </template>

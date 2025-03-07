@@ -20,10 +20,18 @@ class VhStVendors extends Migration
             $table->integer('vh_st_store_id')->nullable()->index();
             $table->string('name')->nullable()->index();
             $table->string('slug')->nullable()->index();
-
+            $table->string('country_code')->nullable();
+            $table->bigInteger('phone_number')->nullable();
+            $table->string('email')->nullable()->index();
+            $table->text('address')->nullable();
+            $table->integer('taxonomy_id_vendor_business_type')->nullable();
+            $table->string('business_document_type')->nullable();
+            $table->string('business_document_detail')->nullable();
+            $table->string('business_document_file')->nullable();
+            $table->integer('years_in_business')->nullable()->index();
+            $table->text('services_offered')->nullable();
             $table->integer('owned_by')->nullable()->index();
             $table->dateTime('registered_at')->nullable();
-
             $table->boolean('auto_approve_products')->nullable();
 
             $table->integer('approved_by')->nullable();

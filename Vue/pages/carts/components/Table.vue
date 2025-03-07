@@ -23,15 +23,15 @@ const useVaah = vaah();
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
-                    v-if="store.isViewLarge()"
+                    v-if="store.isListView()"
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
+            <Column field="id" header="ID" class="text-xs text-gray-400 leading-5 font-bold" :style="{width: '80px'}" :sortable="true">
             </Column>
 
             <Column field="user" header="User Name"
-                    class="overflow-wrap-anywhere"
+                    class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold"
                     :sortable="true">
 
                 <template #body="prop">
@@ -45,24 +45,19 @@ const useVaah = vaah();
             </Column>
 
              <Column field="user" header="Email Address"
-                     class="overflow-wrap-anywhere"
-                     :sortable="true">
+                     class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold"
+                     :sortable="true" >
                  <template #body="prop">
                      <span v-if="!prop.data.user?.email">N/A</span>
 
                      <span v-else>
-                         <Button class="p-button-tiny p-button-text p-0 mr-2"
-                                 data-testid="taxonomies-table-to-edit"
-                                 v-tooltip.top="'Copy Email'"
-                                 @click="useVaah.copy(prop.data.user?.email)"
-                                 icon="pi pi-copy"
-                         />{{ prop.data.user?.email }}</span>
+                         {{ prop.data.user?.email }}</span>
                  </template>
 
              </Column>
 
              <Column field="user" header="Phone Number"
-                     class="overflow-wrap-anywhere"
+                     class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold"
                      :sortable="true">
 
                  <template #body="prop">
@@ -75,34 +70,37 @@ const useVaah = vaah();
              </Column>
 
              <Column field="products_count" header="Products Inside"
-                     class="overflow-wrap-anywhere"
+                     class="overflow-wrap-anywhere text-xs text-gray-400 leading-5 font-bold"
                      :sortable="true"></Column>
-             
+
             <Column field="Actions" style="width:150px;"
                     :style="{width: store.getActionWidth() }"
                     header="Actions">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup flex items-center gap-3">
                         <Button
                             :disabled="prop.data.vh_user_id !== null && prop.data.user !== null"
-                            class="p-button-tiny p-button-text"
+                            class="p-button-tiny p-button-text p-0"
                             data-testid="products-table-to-view"
                             v-tooltip.top="'Assign User'"
-                            @click="store.openUserDialog(prop.data)"
-                            icon="pi pi-user-plus"
-                        />
+                            :pt="{root: {class: '!bg-none !p-0'}}"
+                            @click="store.openUserDialog(prop.data)">
+                        <Icon icon="icons8:add-user" width="18px" height="18px" :class="prop.data.vh_user_id !== null && prop.data.user !== null ? 'text-[#D7D9E0]' : 'text-[#6C768B]'" />
+                       </Button>
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text p-0"
                                 data-testid="carts-table-to-view"
                                 v-tooltip.top="'Cart Details'"
-                                @click="store.cartDetails(prop.data)"
-                                icon="pi pi-fast-forward" />
+                            :pt="{root: {class: '!bg-none !p-0'}}"
+                                @click="store.cartDetails(prop.data)">
+                                <Icon icon="lets-icons:arrow-right-light" width="20px" height="20px"  style="color: #1958F7" />
+                        </Button>
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 data-testid="products-table-action-restore"
-                                v-if="store.isViewLarge() && prop.data.deleted_at"
+                                v-if="store.isListView() && prop.data.deleted_at"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
                                 icon="pi pi-replay" />

@@ -33,6 +33,9 @@ let empty_states = {
             max_quantity:null,
             export_menu :[],
         },
+        include: {
+            stores: [],
+        },
     },
     action: {
         type: null,
@@ -148,6 +151,8 @@ export const useProductStore = defineStore({
         is_custom_meta_export:false,
         window_width: 0,
         screen_size: null,
+        selected_store_at_list: null,
+        default_store: null,
         float_label_variants: 'on',
 
     }),
@@ -992,6 +997,30 @@ export const useProductStore = defineStore({
                 options
             );
         },
+
+
+        async onStoreSelect(selected_store_at_list) {
+            let storeData = selected_store_at_list?.value;
+
+            if (storeData && storeData.slug) {
+                this.query = {
+                    ...this.query,
+                    include: {
+                        ...this.query.include,
+                        stores: [`${storeData.slug}`]
+                    }
+                };
+            } else {
+                this.query = {
+                    ...this.query,
+                    include: {
+                        ...this.query.include,
+                        stores: null
+                    }
+                };
+            }
+            await this.getList();
+        },
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
@@ -1010,9 +1039,9 @@ export const useProductStore = defineStore({
             {
                 this.list = data;
                 this.query.rows=data.per_page;
-                this.topSellingProducts();
-                this.topSellingBrands();
-                this.topSellingCategories();
+                this.topSellingProducts(this.selected_store_at_list);
+                this.topSellingBrands(this.selected_store_at_list);
+                this.topSellingCategories(this.selected_store_at_list);
             }
         },
         viewCart(id){
@@ -1035,7 +1064,9 @@ export const useProductStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                if (this.categories_dropdown_data && this.categories_dropdown_data.length > 0) {
+                    this.item.categories = this.convertToTreeSelectData(data.product_categories);
+                }
 
             }else{
                 this.$router.push({name: 'products.index'});
@@ -1408,9 +1439,9 @@ export const useProductStore = defineStore({
         {
             if(item.is_active)
             {
-                await this.itemAction('activate', item);
-            } else{
                 await this.itemAction('deactivate', item);
+            } else{
+                await this.itemAction('activate', item);
             }
         },
         //---------------------------------------------------------------------
@@ -1579,13 +1610,16 @@ export const useProductStore = defineStore({
             this.selected_vendors = null;
             this.filter_selected_product_type = null;
             this.selected_dates = null;
+            this.selected_store_at_list = null;
             this.min_quantity = this.assets.min_quantity;
             this.max_quantity = this.assets.max_quantity;
             this.product_category_filter=null;
             this.quantity = null;
+            this.query = vaah().clone(empty_states.query);
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
+            await this.setDefaultStoreForProductList();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -2756,7 +2790,7 @@ export const useProductStore = defineStore({
         async toggleIsPreferred(vendor_item)
         {
 
-            const action = vendor_item.is_preferred ? 'preferred' : 'not-preferred';
+            const action = vendor_item.is_preferred ? 'not-preferred' : 'preferred';
             await this.vendorPreferredAction(action, vendor_item);
         },
         //---------------------------------------------------------------------
@@ -2832,12 +2866,13 @@ export const useProductStore = defineStore({
             return `${minPrice} - ${maxPrice}`;
         },
         //---------------------------------------------------------------------
-        async topSellingProducts() {
+        async topSellingProducts(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -2855,12 +2890,13 @@ export const useProductStore = defineStore({
             }
         },
 
-        async topSellingBrands() {
+        async topSellingBrands(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -2877,12 +2913,13 @@ export const useProductStore = defineStore({
                 this.top_selling_brands = data;
             }
         },
-        async topSellingCategories() {
+        async topSellingCategories(store=null) {
             let params = {
 
                 start_date: useRootStore().filter_start_date ?? null,
                 end_date: useRootStore().filter_end_date ?? null,
                 filter_all: this.filter_all ?? null,
+                store: store ?? null,
             }
             let options = {
                 params: params,
@@ -3057,6 +3094,24 @@ export const useProductStore = defineStore({
             vaah().confirmDialog(action_header,'Are you sure you want to do this action?',
                 this.listAction,null,'p-button-primary');
         },
+        //---------------------------------------------------------------------
+
+        searchStoreForListQuery(event){
+            const query = event.query.toLowerCase();
+            this.filteredStores = this.active_stores.filter(store =>
+                store.name.toLowerCase().includes(query)
+            );
+        },
+        //---------------------------------------------------------------------
+
+        setDefaultStoreForProductList(){
+            this.default_store = this.active_stores.find(store => store.is_default === 1);
+            if (this.default_store) {
+                this.selected_store_at_list = this.default_store;
+            }
+        },
+        //---------------------------------------------------------------------
+
 
     }
 });
