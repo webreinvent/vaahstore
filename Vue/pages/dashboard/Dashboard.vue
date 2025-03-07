@@ -467,12 +467,6 @@ const onStoreSelect = async (selectedStore) => {
                 </Card>
             </div>
 
-
-
-
-
-
-
             <Card>
                 <template #title>
                     <div class="flex align-items-center gap-1">
