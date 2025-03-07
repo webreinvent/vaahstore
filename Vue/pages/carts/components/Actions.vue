@@ -51,6 +51,19 @@ const toggleBulkMenuState = (event) => {
                       :model="store.list_selected_menu"
                       :popup="true" />
                 <!--/selected_menu-->
+                <Button
+                                    type="button"
+                                    @click="toggleBulkMenuState"
+                                    severity="danger" outlined
+                                    data-testid="carts-actions-bulk-menu"
+                                    aria-haspopup="true"
+                                    aria-controls="bulk_menu_state"
+                                    class="ml-1 p-button-sm">
+                                    <i class="pi pi-ellipsis-v"></i>
+                                </Button>
+                                <Menu ref="bulk_menu_state"
+                                      :model="store.list_bulk_menu"
+                                      :popup="true" />
 
             </div>
             <!--/left-->
@@ -87,24 +100,12 @@ const toggleBulkMenuState = (event) => {
                                 type="button"
                                 icon="pi pi-filter-slash"
                                 data-testid="carts-actions-reset-filters"
-                                class="p-button-sm"
+                                class="p-button-sm !gap-0"
                                 label="Reset"
                                 @click="store.resetQuery()" />
 
                                 <!--bulk_menu-->
-                                <Button
-                                    type="button"
-                                    @click="toggleBulkMenuState"
-                                    severity="danger" outlined
-                                    data-testid="carts-actions-bulk-menu"
-                                    aria-haspopup="true"
-                                    aria-controls="bulk_menu_state"
-                                    class="ml-1 p-button-sm">
-                                    <i class="pi pi-ellipsis-v"></i>
-                                </Button>
-                                <Menu ref="bulk_menu_state"
-                                      :model="store.list_bulk_menu"
-                                      :popup="true" />
+                                
                                 <!--/bulk_menu-->
 
                         </InputGroup>

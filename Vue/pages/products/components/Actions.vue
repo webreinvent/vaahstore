@@ -84,7 +84,7 @@ const toggleExportMenuState = (event) => {
                 >
 
                     <span :style="{fontSize :'11px',fontWeight:'600px' }">Export</span>
-                    <Icon icon="qlementine-icons:export-16" width="16" height="16"  style="color: #7b7a7a" />
+                    <Icon icon="qlementine-icons:export-16" width="14" height="14"  style="color: #7b7a7a" />
 
                 </Button>
                 <Menu ref="export_menu_state"

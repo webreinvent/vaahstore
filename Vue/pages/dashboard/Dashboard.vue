@@ -379,7 +379,7 @@ const onStoreSelect = async (selectedStore) => {
                     <template #title>
                         <div class="flex align-items-center gap-1">
                             <Icon icon="uil:chat-bubble-user" width="20" height="20"></Icon>
-                            <h2 class="text-sm">Top Vendors By Sale</h2 class="text-sm">
+                            <h2 class="text-sm">Top Vendors By Sale</h2>
 
                         </div>
                     </template>

@@ -1921,7 +1921,7 @@ export const useVendorStore = defineStore({
                 title: {
                     text: 'Vendor Sales Over Selected Date Range',
                     align: 'left',
-                    offsetY: 12,
+                    offsetY: 5,
                     style: {
                         fontSize: '14px',
                         fontWeight: 'normal',

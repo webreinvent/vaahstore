@@ -13,3 +13,24 @@
     border: none !important
 }
 
+/* DropDown Scrollbar Styling */
+.scroll-bar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  
+  .scroll-bar::-webkit-scrollbar-track {
+    background: none;
+    border-radius: 10px;
+  }
+  
+  .scroll-bar::-webkit-scrollbar-thumb {
+    background: #a8a8a8;
+    border-radius: 10px;
+  }
+  
+  /* Customize the thumb on hover */
+  .scroll-bar::-webkit-scrollbar-thumb:hover {
+    background: #858585;
+  }
+
