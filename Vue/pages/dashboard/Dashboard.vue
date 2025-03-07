@@ -132,7 +132,6 @@ const today = ref(new Date());
 
 const onStoreSelect = async (selectedStore) => {
     store.selected_store_at_dashboard = selectedStore.value;
-    console.log("Selected Store:", store.selected_store_at_dashboard);
 
     await Promise.all([
         orders_store.fetchSalesChartData(store.selected_store_at_dashboard),
