@@ -2,10 +2,12 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Traits\ApiAuthUser;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use VaahCms\Modules\Store\Models\PaymentMethod;
 use Faker\Factory;
@@ -20,7 +22,7 @@ class Order extends VaahModel
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
-
+    use ApiAuthUser;
     //-------------------------------------------------
     protected $table = 'vh_st_orders';
     //-------------------------------------------------
@@ -33,7 +35,7 @@ class Order extends VaahModel
     protected $fillable = [
         'uuid',
         'order_shipment_status',
-        'vh_user_id','order_status',
+        'vh_user_id','vh_store_id','order_status',
         'vh_st_payment_method_id','taxonomy_id_payment_status',
         'delivery_fee','taxes','discount',
         'paid','is_paid',
@@ -53,7 +55,59 @@ class Order extends VaahModel
 
     //-------------------------------------------------
     protected $appends = [
+        'currency'
     ];
+    //-------------------------------------------------
+
+    public function getCurrencyAttribute()
+    {
+        $currency = $this->store->currency ?? null;
+        unset($this->store);
+        return $currency;
+    }
+    //-------------------------------------------------
+
+    public function getDeliveryFeeAttribute($value)
+    {
+        return $this->convertCurrency($value);
+    }
+    //-------------------------------------------------
+
+    public function getTaxesAttribute($value)
+    {
+        return $this->convertCurrency($value);
+    }
+    //-------------------------------------------------
+
+    public function getDiscountAttribute($value)
+    {
+        return $this->convertCurrency($value);
+    }
+    //-------------------------------------------------
+
+    public function getPaidAttribute($value)
+    {
+        return $this->convertCurrency($value);
+    }
+    //-------------------------------------------------
+
+    public function getAmountAttribute($value)
+    {
+        return $this->convertCurrency($value);
+    }
+    //-------------------------------------------------
+
+    public function getPayableAttribute($value)
+    {
+        return $this->convertCurrency($value);
+    }
+    //-------------------------------------------------
+
+    protected function convertCurrency($value)
+    {
+        $rate = $this->currency['rate'] ?? 1;
+        return round($value * $rate, 2);
+    }
 
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
@@ -158,6 +212,11 @@ class Order extends VaahModel
     }
 
     //-------------------------------------------------
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'vh_st_store_id')->select('id','name');
+    }
+    //-------------------------------------------------
 
     public function status()
     {
@@ -183,10 +242,18 @@ class Order extends VaahModel
     }
 
     //-------------------------------------------------
+    public function shipments()
+    {
+        return $this->hasMany(ShipmentItem::class, 'vh_st_order_id');
+    }
+
+
+    //-------------------------------------------------
     public function orderPayments()
     {
         return $this->hasMany(OrderPayment::class, 'vh_st_order_id');
     }
+    //-------------------------------------------------
 
     public function deletedByUser()
     {
@@ -230,7 +297,10 @@ class Order extends VaahModel
     //-------------------------------------------------
     public function scopeFindByIdOrUuid($query, $value)
     {
-        return $query->where('id', $value)->orWhere('uuid', $value);
+        if (is_numeric($value)) {
+            return $query->where('id', $value);
+        }
+        return $query->where('uuid', $value);
     }
 
     //-------------------------------------------------
@@ -331,11 +401,41 @@ class Order extends VaahModel
         });
 
     }
-
     //-------------------------------------------------
     public static function getList($request)
     {
-        $list = self::getSorted($request->filter)->with('status', 'paymentMethod', 'user', 'orderPaymentStatus')->withCount('items');
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
+        $relationships = [
+            'status',
+            'paymentMethod',
+            'user',
+            'orderPaymentStatus'
+        ];
+        $active_auth_user_id = self::getApiAuthUserId();
+
+
+        $additional_relationships = collect($include)
+            ->filter(fn($value) => $value === 'true')
+            ->keys()
+            ->flatMap(fn($key) => explode(',', $key))
+            ->map(fn($relation) => trim($relation))
+            ->filter(fn($relation) => method_exists(self::class, $relation))
+            ->unique()
+            ->toArray();
+
+        $relationships = array_merge($relationships, $additional_relationships);
+
+        $list = self::getSorted($request->filter)->with($relationships)
+            ->withCount('items');
+        if ($selected_store_id){
+            $list->where('vh_st_store_id', $selected_store_id);
+        }
+        if ($active_auth_user_id) {
+            $list->where('vh_user_id', $active_auth_user_id);
+        }
         $list->isActiveFilter($request->filter);
         $list->paymentStatusFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -348,7 +448,19 @@ class Order extends VaahModel
         }
 
         $list = $list->paginate($rows);
+        $keys_to_exclude = collect($exclude)
+            ->filter(fn($value) => $value === 'true')
+            ->keys()
+            ->flatMap(fn($key) => explode(',', $key))
+            ->map(fn($key) => trim($key))
+            ->unique()
+            ->toArray();
 
+        foreach ($list as $item) {
+            foreach ($keys_to_exclude as $key) {
+                unset($item[$key]);
+            }
+        }
         $response['success'] = true;
         $response['data'] = $list;
 
@@ -558,31 +670,215 @@ class Order extends VaahModel
         return $response;
     }
 
+
+
     //-------------------------------------------------
-    public static function getItem($id)
+
+
+
+    public static function getItem($request,$id)
     {
+        $active_auth_user_id = (new self())->getApiAuthUserId();
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
+        $includes = request()->query('include', []);
+        $includes = array_filter($includes, fn($v) => filter_var($v, FILTER_VALIDATE_BOOLEAN));
 
-        $item = self::with(['createdByUser', 'updatedByUser', 'deletedByUser', 'user', 'status', 'paymentMethod', 'orderPaymentStatus',
-            'payments.createdByUser'
-        ])
-            ->withCount('items')
-            ->withTrashed()
-            ->findByIdOrUuid($id)
-            ->first();
+        $excludes_raw = request()->query('exclude', []);
+        $excludes = collect($excludes_raw)
+            ->filter(fn($value) => filter_var($value, FILTER_VALIDATE_BOOLEAN))
+            ->keys()
+            ->flatMap(fn($key) => collect(explode(',', $key))->mapWithKeys(fn($k) => [trim($k) => true]))
+            ->all();
 
+        // Base relationships
+        $relationships = ['items', 'user','orderPaymentStatus'];
 
-        if (!$item) {
-            $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: ' . $id;
-            return $response;
+        $include_map = [
+            'payments' => ['payments.paymentMethod'],
+            'shipments' => ['shipments.orderItem', 'shipments.shipment.status'],
+            'user' => ['user'],
+        ];
+
+        $valid_keys = array_intersect(
+            array_keys($includes),
+            array_diff(array_keys($include_map), array_keys($excludes))
+        );
+
+        foreach ($valid_keys as $key) {
+            $relationships = array_merge($relationships, $include_map[$key]);
         }
 
 
-        $response['success'] = true;
-        $response['data'] = $item;
+        $relationships = array_filter($relationships, function ($relation) use ($excludes) {
+            return !(
+                (isset($excludes['status']) && $relation === 'orderPaymentStatus') ||
+                isset($excludes[$relation])
+            );
+        });
 
-        return $response;
+        $order = self::with($relationships)
+            ->where('vh_st_store_id', $selected_store_id)
+            ->findByIdOrUuid($id)
+            ->withCount('payments')
+            ->withCount(['shipments as shipments_count' => function (Builder $query) {
+                $query->select(\DB::raw('COUNT(DISTINCT vh_st_shipment_id)'));
+            }])
+            ->first();
 
+        if (!$order) {
+            return [
+                'success' => false,
+                'message' => 'Record not found with ID: ' . $id,
+                'data' => null,
+            ];
+        }
+        if ($active_auth_user_id && $order->vh_user_id !== $active_auth_user_id) {
+            return [
+                'success' => false,
+                'message' => 'You are not authorized to access this order.',
+                
+            ];
+        }
+
+        if (empty($excludes['shipping_address'])) {
+            $order->shipping_address = Address::find($order->items->first()?->vh_shipping_address_id);
+        }
+
+        if (empty($excludes['billing_address'])) {
+            $order->billing_address = Address::find($order->items->first()?->vh_billing_address_id);
+        }
+        $order->load('items.shipmentItems');
+        $total_order_items = $order->items->count();
+        $total_order_quantity = $order->items->sum('quantity');
+        $total_shipped_quantity = $order->items->sum(function ($item) {
+            return $item->shipmentItems->sum('quantity');
+        });
+
+        $shipped_items_count = $order->items->filter(function ($item) {
+            return $item->shipmentItems->sum('quantity') > 0;
+        })->count();
+
+        if (empty($excludes['items'])) {
+            $order->setRelation('items', $order->items->map(function ($item) {
+                $total_shipment_quantity = ShipmentItem::where('vh_st_order_item_id', $item->id)->sum('quantity');
+                return [
+                    'id' => $item->id,
+                    'vh_st_vendor_id' => $item->vh_st_vendor_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'total_shipment_quantity' => (int) $total_shipment_quantity,
+                    'is_invoice_available' => $item->is_invoice_available,
+                    'invoice_url' => $item->invoice_url,
+                    'tracking' => $item->tracking,
+                    'ordered_product' => $item->ordered_product,
+                ];
+            }));
+        } else {
+            $order->setRelation('items', collect());
+        }
+
+        if (!empty($includes['shipments']) && empty($excludes['shipments'])) {
+            $grouped_shipments = [];
+
+            $order->shipments
+                ->groupBy('vh_st_shipment_id')
+                ->each(function ($group) use (&$grouped_shipments) {
+                    $shipment_id = $group->first()->vh_st_shipment_id;
+
+                    $shipment = Shipment::with('status')->find($shipment_id);
+                    if ($shipment) {
+                        $items = $group->map(function ($item) {
+                            $order_item = OrderItem::with(['product', 'productVariation'])->find($item->vh_st_order_item_id);
+                            return [
+                                'order_item_id' => $item->vh_st_order_item_id,
+                                'shipment_quantity' => $item->quantity,
+                                'pending' => $item->pending,
+                                'ordered_product' => $order_item?->ordered_product,
+                            ];
+                        });
+
+                        $grouped_shipments[] = [
+                            'id' => $shipment->id,
+                            'created_at' => $shipment->created_at,
+                            'updated_at' => $shipment->updated_at,
+                            'status' => $shipment->status ? [
+                                'id' => $shipment->status->id,
+                                'name' => $shipment->status->name,
+                                'slug' => $shipment->status->slug,
+                            ] : null,
+                            'tracking_url' => $shipment->tracking_url,
+                            'tracking_key' => $shipment->tracking_key,
+                            'tracking_value' => $shipment->tracking_value,
+                            'items' => $items,
+                        ];
+                    }
+                });
+
+            $order->setRelation('shipments', collect($grouped_shipments));
+        }
+
+        $order_data = $order->toArray();
+        if (!empty($order_data['currency']['rate'])&& $order_data['currency']['rate'] != 1) {
+            self::applySelectedCurrencyRate($order_data);
+        }
+
+        $order_data['total_order_items'] = $total_order_items;
+        $order_data['shipped_items_count'] = $shipped_items_count;
+        $order_data['total_quantity'] = $total_order_quantity;
+        $order_data['total_shipped_quantity'] = $total_shipped_quantity;
+        foreach (array_keys($excludes) as $exclude_key) {
+            unset($order_data[$exclude_key]);
+        }
+
+        return [
+            'success' => true,
+            'data' => $order_data,
+        ];
+    }
+    //-------------------------------------------------
+
+    public static function applySelectedCurrencyRate(array &$order_data): void
+    {
+        if (empty($order_data['currency']['rate'])) {
+            return;
+        }
+
+        $rate = $order_data['currency']['rate'];
+
+        if (!empty($order_data['items'])) {
+            foreach ($order_data['items'] as &$item) {
+                if (isset($item['price'])) {
+                    self::applyCurrencyRate($item['price'], $rate);
+                }
+            }
+            unset($item);
+        }
+
+        if (!empty($order_data['payments'])) {
+            foreach ($order_data['payments'] as &$payment) {
+                if (isset($payment['amount'])) {
+                    self::applyCurrencyRate($payment['amount'], $rate);
+                }
+
+                if (!empty($payment['pivot'])) {
+                    foreach (['payment_amount', 'payable_amount', 'remaining_payable_amount'] as $pivot_field) {
+                        if (isset($payment['pivot'][$pivot_field])) {
+                            self::applyCurrencyRate($payment['pivot'][$pivot_field], $rate);
+                        }
+                    }
+                }
+            }
+            unset($payment);
+        }
+    }
+    //-------------------------------------------------
+
+    public static function applyCurrencyRate(&$value, $rate)
+    {
+        if (isset($value)) {
+            $value = round($value * $rate, 2);
+        }
     }
 
     //-------------------------------------------------
@@ -835,9 +1131,11 @@ class Order extends VaahModel
         $inputs = $request->all();
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : null;
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : null;
-
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
         $orders_statuses_count = self::select('order_status')
             ->selectRaw('COUNT(*) as count')
+            ->where('vh_st_store_id', $selected_store_id)
             ->groupBy('order_status');
 
         if ($start_date && $end_date) {
@@ -875,19 +1173,14 @@ class Order extends VaahModel
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
 
-        $store_id = isset($inputs['store']['id']) ? (int)$inputs['store']['id'] : null;
 
-        // Fetch default currency symbol if store_id is provided
-        $currency_symbol = null;
-        if ($store_id) {
-            $store = Store::with('defaultCurrency')->find($store_id);
-        } else {
-            $store = Store::with('defaultCurrency')->where('is_default', 1)->first();
-        }
+        $selected_store_id = $request->input('selected_store')
+            ?? Store::where('is_default', 1)->value('id');
 
-        if ($store && $store->defaultCurrency) {
-            $currency_symbol = $store->defaultCurrency->symbol;
-        }
+        $store = Store::with('defaultCurrency')->find($selected_store_id);
+        $currency_symbol = $store && $store->defaultCurrency
+            ? $store->defaultCurrency->symbol
+            : null;
 
 
         $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
@@ -897,17 +1190,10 @@ class Order extends VaahModel
             $labels[] = $date->format('Y-m-d');
         }
 
-        $query = OrderItem::query();
-
-        // Apply store filter
-        if ($store_id) {
-            $query->whereHas('product', function ($q) use ($store_id) {
-                $q->where('vh_st_store_id', $store_id);
-            });
-        }
-
-        // Fetch sales data
-        $sales_data = $query
+        $sales_data = OrderItem::query()
+            ->whereHas('order', function ($q) use ($selected_store_id) {
+                $q->where('vh_st_store_id', $selected_store_id);
+            })
             ->selectRaw('DATE(created_at) as date')
             ->selectRaw('SUM(quantity * price) as total_sales')
             ->whereBetween('created_at', [$start_date, $end_date])
@@ -968,7 +1254,8 @@ class Order extends VaahModel
 
         $start_date = Carbon::parse($inputs['start_date'] ?? Carbon::now())->startOfDay();
         $end_date = Carbon::parse($inputs['end_date'] ?? Carbon::now())->endOfDay();
-
+        $selected_store_id = $request->input('selected_store')
+            ?? Store::where('is_default', 1)->value('id');
         // Generate labels for x-axis (each day in the range)
         $labels = [];
         foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
@@ -976,7 +1263,8 @@ class Order extends VaahModel
         }
 
         // Get filtered orders
-        $list = Order::query();
+        $list = Order::query()
+            ->where('vh_st_store_id', $selected_store_id);
         $filtered_data = self::appliedFilters($list, $request); // Applying filters
 
         // Query for daily breakdown (Chart Data)
@@ -1051,7 +1339,10 @@ class Order extends VaahModel
         $inputs = $request->all();
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
-        $store_id = isset($inputs['store']['id']) ? (int)$inputs['store']['id'] : null;
+        $selected_store_id = $request->input('selected_store')
+            ?? Store::where('is_default', 1)->value('id');
+
+
 
         $period = new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date);
         $labels = [];
@@ -1062,10 +1353,9 @@ class Order extends VaahModel
 
         // Initialize the query conditionally based on store_id
         $query = OrderPayment::query();
-
-        if ($store_id) {
-            $query->whereHas('order.items.product', function ($q) use ($store_id) {
-                $q->where('vh_st_store_id', $store_id);
+        if ($selected_store_id) {
+            $query->whereHas('order', function ($q) use ($selected_store_id) {
+                $q->where('vh_st_store_id', $selected_store_id);
             });
         }
 

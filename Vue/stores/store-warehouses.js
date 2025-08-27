@@ -1208,19 +1208,14 @@ export const useWarehouseStore = defineStore({
         },
         //---------------------------------------------------
 
-        async warehouseStockInBarChart() {
-
-
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-
-            }
+        async warehouseStockInBarChart(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/warehouse-stocks-bar-chart-data',
                 this.warehouseStockInBarChartAfter,

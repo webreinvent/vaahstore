@@ -1,22 +1,22 @@
 <script setup>
-import { useProductStore } from "../../stores/store-products";
-import { useRootStore } from "../../stores/root";
-import { useRoute } from "vue-router";
 import { computed, onMounted, ref } from "vue";
-import { useOrderStore } from "../../stores/store-orders";
-import { useDashboardStore } from "../../stores/store-dashboard";
-
-const customers_store = useUserStore();
+import { useRoute } from "vue-router";
 import TileInfo from "../../components/TileInfo.vue";
 import Charts from "../../components/Charts.vue";
-import {useUserStore} from "../../stores/store-users";
-import {useVendorStore} from "../../stores/store-vendors";
-import {useShipmentStore} from "../../stores/store-shipments";
-import {useWarehouseStore} from "../../stores/store-warehouses";
-import {usePaymentStore} from "../../stores/store-payments";
-import {useProductStockStore} from "../../stores/store-productstocks";
-import {useSettingStore} from "../../stores/store-settings";
 import VendorSale from "../../components/VendorSale.vue";
+import { useProductStore } from "../../stores/store-products";
+import { useRootStore } from "../../stores/root";
+import { useOrderStore } from "../../stores/store-orders";
+import { useDashboardStore } from "../../stores/store-dashboard";
+import { useUserStore } from "../../stores/store-users";
+import { useVendorStore } from "../../stores/store-vendors";
+import { useShipmentStore } from "../../stores/store-shipments";
+import { useWarehouseStore } from "../../stores/store-warehouses";
+import { usePaymentStore } from "../../stores/store-payments";
+import { useProductStockStore } from "../../stores/store-productstocks";
+import { useSettingStore } from "../../stores/store-settings";
+
+const customers_store = useUserStore();
 const orders_store = useOrderStore();
 const settings_store = useSettingStore();
 const product_store = useProductStore();
@@ -32,46 +32,62 @@ const base_url = ref('');
 
 onMounted(async () => {
     document.title = 'VaahStore-Dashboard';
+
     base_url.value = root.ajax_url.replace('backend/store', '/');
     await orders_store.watchStates();
     root.assets_is_fetching=true;
-    await root.getAssets();
     await settings_store.getAssets();
     await store.getAssets();
     await product_store.getAssets();
     await settings_store.getList();
-    store.setDefaultStoreForAtDashboard();
 
 
-    await orders_store.fetchOrdersChartData();
-    await orders_store.fetchSalesChartData(store.default_store);
-    await product_stock_store.getStocksChartData();
-    await product_store.topSellingProducts(store.default_store);
-    await product_store.topSellingBrands(store.default_store);
-    await product_store.topSellingCategories(store.default_store);
-    await customers_store.fetchCustomerCountChartData();
+
+    await orders_store.fetchOrdersChartData(root.selected_store_at_sidebar?.id);
+    await orders_store.fetchSalesChartData(root.selected_store_at_sidebar?.id);
+    await product_stock_store.getStocksChartData(root.selected_store_at_sidebar?.id);
+    await product_store.topSellingProducts(root.selected_store_at_sidebar);
+    await product_store.topSellingBrands(root.selected_store_at_sidebar);
+    await product_store.topSellingCategories(root.selected_store_at_sidebar);
+    await customers_store.fetchCustomerCountChartData(root.selected_store_at_sidebar?.id);
+    updateCustomerMetrics();
 
 
-    const formatCurrency = (value) => {
-        if (value == null) return 'Loading...';
+    await vendor_store.topSellingVendorsData(root.selected_store_at_sidebar?.id);
 
-        if (value >= 1000) {
-            return `&#8377;${(value / 1000).toFixed(2)}k`;
-        }
 
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(value);
-    };
+    await orders_store.fetchOrdersCountChartData(root.selected_store_at_sidebar?.id);
+    await orders_store.fetchOrderPaymentsData(root.selected_store_at_sidebar?.id);
 
-    const formatLargeNumber = (value) => {
-        if (value == null) return 'Loading...';
-        return value >= 1000 ? `${(value / 1000).toFixed(2)}k` : value;
-    };
+    await vendor_store.vendorSalesByRange(root.selected_store_at_sidebar?.id);
 
+    await shipment_store.ordersShipmentByDateRange(root.selected_store_at_sidebar?.id);
+    await shipment_store.shipmentItemsByStatusBarChart(root.selected_store_at_sidebar?.id);
+    await warehouse_store.warehouseStockInBarChart(root.selected_store_at_sidebar?.id);
+    await payment_store.paymentMethodsPieChartData(root.selected_store_at_sidebar?.id);
+
+
+});
+
+const quick_filter_menu_state = ref();
+const toggleQuickFilterState = (event) => {
+    quick_filter_menu_state.value.toggle(event);
+};
+const metrics = ref([]);
+const formatCurrency = (value) => {
+    if (value == null) return 'Loading...';
+    const symbol = root.selected_store_at_sidebar?.currency?.symbol || '';
+    if (value >= 1000) {
+        return `${symbol}${(value / 1000).toFixed(2)}k`;
+    }
+
+    return `${symbol}${value.toFixed(2)}`;
+};
+const formatLargeNumber = (value) => {
+    if (value == null) return 'Loading...';
+    return value >= 1000 ? `${(value / 1000).toFixed(2)}k` : value;
+};
+const updateCustomerMetrics = () => {
     metrics.value = [
         {
             label: `<i class="pi pi-users text-2xl mr-2"></i><b>Active Customers</b>`,
@@ -98,30 +114,7 @@ onMounted(async () => {
                 : 'Loading...'
         }
     ];
-
-    await vendor_store.topSellingVendorsData(store.default_store);
-
-
-    await orders_store.fetchOrdersCountChartData();
-    await orders_store.fetchOrderPaymentsData(store.default_store);
-    await orders_store.fetchOrdersChartData();
-
-    await vendor_store.vendorSalesByRange(store.default_store);
-
-    await shipment_store.ordersShipmentByDateRange();
-    await shipment_store.shipmentItemsByStatusBarChart();
-    await warehouse_store.warehouseStockInBarChart();
-    await payment_store.paymentMethodsPieChartData();
-
-
-});
-
-const quick_filter_menu_state = ref();
-const toggleQuickFilterState = (event) => {
-    quick_filter_menu_state.value.toggle(event);
 };
-const metrics = ref([]);
-
 
 
 
@@ -132,19 +125,28 @@ const handleDateChangeRound = (newDate, date_type) => {
 }
 const today = ref(new Date());
 
-const onStoreSelect = async (selectedStore) => {
-    store.selected_store_at_dashboard = selectedStore.value;
-
+root.initWatchStoreChange(route, store, async () => {
+    // store.selected_store_at_dashboard = selectedStore.value;
+//No redundant await inside Promise.all.
     await Promise.all([
-        orders_store.fetchSalesChartData(store.selected_store_at_dashboard),
-        vendor_store.topSellingVendorsData(store.selected_store_at_dashboard),
-        vendor_store.vendorSalesByRange(store.selected_store_at_dashboard),
-        orders_store.fetchOrderPaymentsData(store.selected_store_at_dashboard),
-        product_store.topSellingProducts(store.selected_store_at_dashboard),
-        product_store.topSellingBrands(store.selected_store_at_dashboard),
-        product_store.topSellingCategories(store.selected_store_at_dashboard),
+         customers_store.fetchCustomerCountChartData(root.selected_store_at_sidebar?.id),
+        updateCustomerMetrics(),
+        orders_store.fetchSalesChartData(root.selected_store_at_sidebar?.id),
+        orders_store.fetchOrdersChartData(root.selected_store_at_sidebar?.id),
+        orders_store.fetchOrdersCountChartData(root.selected_store_at_sidebar?.id),
+         payment_store.paymentMethodsPieChartData(root.selected_store_at_sidebar?.id),
+         product_stock_store.getStocksChartData(root.selected_store_at_sidebar?.id),
+        vendor_store.topSellingVendorsData(root.selected_store_at_sidebar?.id),
+        vendor_store.vendorSalesByRange(root.selected_store_at_sidebar?.id),
+        orders_store.fetchOrderPaymentsData(root.selected_store_at_sidebar?.id),
+        product_store.topSellingProducts(root.selected_store_at_sidebar?.id),
+        product_store.topSellingBrands(root.selected_store_at_sidebar?.id),
+        product_store.topSellingCategories(root.selected_store_at_sidebar?.id),
+         shipment_store.shipmentItemsByStatusBarChart(root.selected_store_at_sidebar?.id),
+         shipment_store.ordersShipmentByDateRange(root.selected_store_at_sidebar?.id),
+         warehouse_store.warehouseStockInBarChart(root.selected_store_at_sidebar?.id),
     ]);
-};
+});
 
 
 </script>
@@ -201,27 +203,7 @@ const onStoreSelect = async (selectedStore) => {
             </div>
         </div>
 
-        <div class="mt-5">
-            <FloatLabel :variant="product_store.float_label_variants"
-            >
-                <AutoComplete
-                    name="products-filter-store"
-                    data-testid="products-filter-store"
-                    v-model="store.selected_store_at_dashboard"
-                    @change="onStoreSelect($event)"
-                    option-label = "name"
-                    dropdown
-                    style="height:30px"
-                    :complete-on-focus = "true"
-                    :suggestions="store.filtered_stores"
-                    @complete="store.searchStoreForListQuery"
 
-
-
-                />{{this.selected_store_at_dashboard}}
-                <label for="articles-name">Store By:</label>
-            </FloatLabel>
-        </div>
     </div>
 
     </div>
@@ -270,7 +252,7 @@ const onStoreSelect = async (selectedStore) => {
                         <span class="text-sm"> Overall Sales</span>
                         <span class="rounded-full bg-gray-200 size-1 mx-1"></span>
                         <span class="text-xs">
-                        <span v-html="orders_store.default_currency_symbol"></span>
+                        <span v-html="root.selected_store_at_sidebar?.currency?.symbol"></span>
                         {{
                             orders_store.overall_sales && orders_store.overall_sales > 0
                                 ? orders_store.overall_sales.toLocaleString()
@@ -315,7 +297,7 @@ const onStoreSelect = async (selectedStore) => {
                         <span class="text-sm"> Payment Recieved</span>
                         <span class="rounded-full bg-gray-200 size-1 mx-1"></span>
                         <span class="text-xs">
-                            <span v-html="orders_store.default_currency_symbol"></span>{{
+                            <span v-html="root.selected_store_at_sidebar?.currency?.symbol"></span>{{
                                 orders_store.overall_income && !isNaN(orders_store.overall_income) ?
                                     orders_store.overall_income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                                     :
@@ -387,8 +369,8 @@ const onStoreSelect = async (selectedStore) => {
 
                     <template #content>
                         <div class="!grid grid-cols-3 gap-x-2 gap-y-8 pb-12">
-
-                            <VendorSale :data="product_store.top_selling_categories"
+<!--{{vendor_store.top_selling_vendors}}-->
+                            <VendorSale :data="vendor_store.top_selling_vendors"
                                         :sampleLogos="root.assets?.vendor_images"
                                         type="vendor" />
 

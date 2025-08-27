@@ -83,7 +83,7 @@ function () {
     /**
      * warehouses stocks stats by date range
      */
-    Route::post('/charts/warehouse-stocks-bar-chart-data', 'WarehousesController@warehouseStockInBarChart')
+    Route::get('/charts/warehouse-stocks-bar-chart-data', 'WarehousesController@warehouseStockInBarChart')
         ->name('vh.backend.store.warehouses.chart.stocks');
 
 });

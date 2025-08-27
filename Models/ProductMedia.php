@@ -203,7 +203,16 @@ class ProductMedia extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+        $store_id = $inputs['vh_st_store_id'] ?? null;
         $product_id = $inputs['vh_st_product_id'];
+        $ownership_check = Product::validateVendorAndProductToStore(
+            $store_id,
+            $product_id ?? null,
+        );
+
+        if (!$ownership_check['success']) {
+            return $ownership_check;
+        }
         $variation_lists = $inputs['product_variation'];
         if (empty($variation_lists)) {
             $product_media_ids = self::where('vh_st_product_id', $product_id)->withTrashed()->pluck('id')->toArray();
@@ -452,7 +461,27 @@ class ProductMedia extends VaahModel
 
     }
     //-------------------------------------------------
+    public function scopeFilterBySelectedStore($query)
+    {
+        $selected_store = request('selected_store');
 
+        if ($selected_store) {
+            $store = Store::where(function ($q) use ($selected_store) {
+                $q->where('id', $selected_store)
+                    ->orWhere('slug', $selected_store);
+            })->first();
+
+            if ($store) {
+                $query->whereHas('product', function ($q) use ($store) {
+                    $q->whereHas('store', function ($sq) use ($store) {
+                        $sq->where('vh_st_stores.id', $store->id);
+                    });
+                });
+            }
+        }
+
+        return $query;
+    }
 
     public static function getList($request)
     {
@@ -465,6 +494,7 @@ class ProductMedia extends VaahModel
         $list->productFilter($request->filter);
         $list->dateFilter($request->filter);
         $list->mediaTypeFilter($request->filter);
+        $list->filterBySelectedStore($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -808,9 +838,20 @@ class ProductMedia extends VaahModel
             //create thumbnail if image
             if($data['type'] == 'image')
             {
-                $image = \Image::make($data['full_path'])->fit(180, 101, function ($constraint) {
+                $image = \Image::make($data['full_path'])->resize(180, null, function ($constraint) {
                     $constraint->aspectRatio();
+                    $constraint->upsize();
                 });
+                $webp_name = pathinfo($data['full_path'], PATHINFO_FILENAME).'.webp';
+                $webp_path = $request->folder_path.'/'.$webp_name;
+                Storage::put($webp_path, (string) $image->encode('webp', 85));
+
+                $data['webp_name'] = $webp_name;
+                $data['webp_size'] = Storage::size($webp_path);
+
+                if (substr($webp_path, 0, 6) =='public') {
+                    $data['url_webp'] = 'storage'.substr($webp_path, 6);
+                }
                 $name_details = pathinfo($data['full_path']);
                 $thumbnail_name = $name_details['filename'].'-thumbnail.'.$name_details['extension'];
                 $thumbnail_path = $request->folder_path.'/'.$thumbnail_name;

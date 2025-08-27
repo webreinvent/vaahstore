@@ -55,7 +55,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
     await store.getListCreateMenu();
 });
 
@@ -82,7 +84,7 @@ const permissions=store.assets ? store.assets.permissions : 0;
             </div>
             <div>
                 <Button @click="store.viewCart(store.cart_id)" class="line-height-1 mr-2" label="View Cart" link />
-<!--                <Button @click="store.disableActiveCart()">X</Button>-->
+                <Button @click="store.disableActiveCart()">X</Button>
             </div>
         </div>
     </Message>
@@ -101,21 +103,19 @@ const permissions=store.assets ? store.assets.permissions : 0;
                 <Panel :pt="root.panel_pt">
                     <template #header>
 
-                        <div class="flex flex-row">
-                            <div>
+                        <div class="flex flex-row items-center gap-2">
+                                <Icon icon="streamline:ai-generate-variation-spark" width="18" height="18" class="text-gray-950"></Icon>
                                 <b class="mr-1">Products Variations</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
-                            </div>
-
+                            <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0">
+                                {{store.list.total}}
+                            </p>
                         </div>
 
                     </template>
 
                 <template #icons>
 
-                    <div class="p-inputgroup">
+                    <div class="flex gap-1">
 
                     <Button data-testid="productvariations-list-create"
                             class="p-button-sm"
@@ -153,10 +153,14 @@ const permissions=store.assets ? store.assets.permissions : 0;
 
                 </template>
 
-                <Actions/>
+                <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
 
-                <Table/>
-
+                <Card>
+                    <template #content>
+                        <Actions/>
+                        <Table/>
+                    </template>
+                </Card>
             </Panel>
         </div>
             <div v-if="store.getRightColumnClasses"

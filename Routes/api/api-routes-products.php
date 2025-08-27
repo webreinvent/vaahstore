@@ -3,6 +3,9 @@
 /*
  * API url will be: <base-url>/api/store/products
  */
+
+use VaahCms\Modules\Store\Http\Controllers\Backend\CartsController;
+
 Route::group(
     [
         'prefix' => 'store/products',
@@ -10,6 +13,22 @@ Route::group(
         'namespace' => 'Backend',
     ],
 function () {
+    /**
+     * Top Selling products
+     */
+    Route::get('/top-selling', 'ProductsController@topSellingProducts')
+        ->name('vh.backend.store.products.charts.top_selling_products');
+    /**
+     * Top Brands By product sales
+     */
+    Route::get('/top-brands', 'ProductsController@topSellingBrands')
+        ->name('vh.backend.store.products.charts.top_selling_brands');
+    /**
+     * Top Categories By product sales
+     */
+    Route::get('/top-categories', 'ProductsController@topSellingCategories')
+        ->name('vh.backend.store.products.charts.top_selling_categories');
+    Route::get('/search', 'ProductsController@searchProducts');
 
     /**
      * Get Assets
@@ -19,7 +38,7 @@ function () {
     /**
      * Get List
      */
-    Route::get('/', 'ProductsController@getList')
+    Route::get('/', 'ProductsController@getListWithSearch')
         ->name('vh.backend.store.api.products.list');
     /**
      * Update List
@@ -102,23 +121,8 @@ function () {
     Route::post('/{id}/generate-variations', 'ProductsController@generateVariation')
         ->name('vh.backend.store.products.generate.variations');
 
-
-
     /**
-     * Top Selling products
+     * Get variation details by attribute selction with avaialable combinations
      */
-    Route::get('/top-sellings', 'ProductsController@topSellingProducts')
-        ->name('vh.backend.store.products.charts.top_selling_products');
-
-    /**
-     * Top Brands By product sales
-     */
-    Route::get('/top-brands', 'ProductsController@topSellingBrands')
-        ->name('vh.backend.store.products.charts.top_selling_brands');
-
-    /**
-     * Top Categories By product sales
-     */
-    Route::get('/top-categories', 'ProductsController@topSellingCategories')
-        ->name('vh.backend.store.products.charts.top_selling_categories');
+    Route::get('/{id}/variation', 'ProductsController@getAvailableCombinationsWithVariation');
 });

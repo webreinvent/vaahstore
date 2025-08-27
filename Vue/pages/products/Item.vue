@@ -166,7 +166,8 @@ const openProductCategories = (categories,product) => {
                             || column === 'status_notes' || column === 'vh_cms_content_form_field_id' || column === 'taxonomy_id_product_type'
                             || column === 'vh_st_store_id'|| column === 'product_variations' || column === 'vh_st_brand_id'|| column === 'taxonomy_id_product_status' || column === 'details'
                             || column === 'quantity' || column === `seo_title` || column === `seo_meta_description` || column === `seo_meta_keyword`
-                            || column === 'variations'">
+                            || column === 'variations'|| column === 'vendor_product_data'|| column === 'price'|| column === 'media'|| column === 'grouped_attributes'|| column === 'wishlist_ids'
+                            || column === 'product_vendors_count'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">

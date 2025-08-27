@@ -49,7 +49,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
 
     await store.getListCreateMenu();
 
@@ -81,11 +83,11 @@ const toggleCreateMenu = (event) => {
                     <template #header>
 
                         <div class="flex flex-row">
-                            <div>
+                            <div class="flex items-center">
                                 <b class="mr-1">Warehouses</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
+                                <p v-if="store.list && store.list.total > 0" class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"
+                                >{{store.list.total}}
+                                </p>
                             </div>
 
                         </div>
@@ -112,7 +114,7 @@ const toggleCreateMenu = (event) => {
 
                 <template #icons>
 
-                    <div class="p-inputgroup">
+                    <div class="flex gap-2">
 
                     <Button data-testid="warehouses-list-create"
                             class="p-button-sm"
@@ -150,10 +152,13 @@ const toggleCreateMenu = (event) => {
                     </div>
 
                 </template>
-
+                    <Card>
+                    <template #content>
                 <Actions/>
 
                 <Table/>
+                    </template>
+                    </Card>
 
             </Panel>
         </div>

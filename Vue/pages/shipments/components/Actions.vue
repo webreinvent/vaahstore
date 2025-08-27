@@ -52,6 +52,22 @@ const toggleBulkMenuState = (event) => {
                       :popup="true" />
                 <!--/selected_menu-->
 
+                 <!--bulk_menu-->
+                 <Button
+                    type="button"
+                    @click="toggleBulkMenuState"
+                    severity="danger" outlined
+                    data-testid="shipments-actions-bulk-menu"
+                    aria-haspopup="true"
+                    aria-controls="bulk_menu_state"
+                    class="ml-1 p-button-sm">
+                    <i class="pi pi-ellipsis-v"></i>
+                </Button>
+                <Menu ref="bulk_menu_state"
+                        :model="store.list_bulk_menu"
+                        :popup="true" />
+                <!--/bulk_menu-->
+
             </div>
             <!--/left-->
 
@@ -59,12 +75,12 @@ const toggleBulkMenuState = (event) => {
             <div >
 
 
-                <div class="grid p-fluid">
+<!--                <div class="grid p-fluid">-->
 
 
-                    <div class="col-12">
-                        <div class="p-inputgroup ">
-
+<!--                    <div class="col-12">-->
+                        <div class="flex gap-1">
+                            <div class="w-1/2">
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
                                        class="p-inputtext-sm"
@@ -72,6 +88,7 @@ const toggleBulkMenuState = (event) => {
                                        @keyup.13="store.delayedSearch()"
                                        data-testid="shipments-actions-search"
                                        placeholder="Search"/>
+                                </div>
                             <Button @click="store.delayedSearch()"
                                     class="p-button-sm"
                                     data-testid="shipments-actions-search-button"
@@ -89,11 +106,9 @@ const toggleBulkMenuState = (event) => {
 
                             <Button
                                 type="button"
-                                icon="pi pi-filter-slash"
                                 data-testid="shipments-actions-reset-filters"
                                 class="p-button-sm"
-                                label="Reset"
-                                @click="store.resetQuery()" />
+                                @click="store.resetQuery()">Reset <Icon icon="mingcute:filter-line" width="14" height="14" style="color: #7b7a7a" /></Button>
 
                                 <!--bulk_menu-->
                                 <Button
@@ -103,7 +118,7 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="shipments-actions-bulk-menu"
                                     aria-haspopup="true"
                                     aria-controls="bulk_menu_state"
-                                    class="ml-1 p-button-sm">
+                                    class=" p-button-sm">
                                     <i class="pi pi-ellipsis-v"></i>
                                 </Button>
                                 <Menu ref="bulk_menu_state"
@@ -111,8 +126,8 @@ const toggleBulkMenuState = (event) => {
                                       :popup="true" />
                                 <!--/bulk_menu-->
 
-                        </div>
-                    </div>
+<!--                        </div>-->
+<!--                    </div>-->
 
                 </div>
 

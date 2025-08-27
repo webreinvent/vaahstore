@@ -24,7 +24,27 @@ class User extends UserBase
             'deleted_by',
         ];
     }
+    //----------------------------------------------------------
 
+    protected $appends = [
+        'cart_uuid','cart_products_count',
+    ];
+    //----------------------------------------------------------
+
+    protected $hidden = [
+        'cart','password'
+    ];
+    //----------------------------------------------------------
+
+    public function getCartUuidAttribute()
+    {
+        return $this->cart?->uuid ?? null;
+    }
+    //----------------------------------------------------------
+    public function getCartProductsCountAttribute()
+    {
+        return $this->cart?->cart_products_count ?? 0;
+    }
     //----------------------------------------------------------
 
     public function customerGroups()
@@ -40,6 +60,18 @@ class User extends UserBase
         return $this->hasMany(Address::class,
             'vh_user_id','id'
         );
+    }
+    //----------------------------------------------------------
+
+    public function wishlists()
+    {
+        return $this->belongsToMany(Wishlist::class, 'vh_st_user_wishlists', 'vh_user_id', 'vh_st_wishlist_id');
+    }
+
+    //----------------------------------------------------------
+    public function cart()
+    {
+        return $this->hasOne(Cart::class, 'vh_user_id', 'id');
     }
     //----------------------------------------------------------
     public function scopeCustomerGroupFilter($query, $filter)
@@ -147,34 +179,11 @@ class User extends UserBase
 
 
         $inputs = $request->all();
-
-        $rules = [
-            'email' => 'required|email|max:150',
-            'first_name' => 'required|max:150',
-            'password' => 'required',
-            'username' => 'required|max:150',
-        ];
-
-        $messages = [
-            'email.required' => 'The Email field is required',
-            'email.email' => 'The Email must be a valid email address',
-            'email.max' => 'The Email field may not be greater than :max characters',
-            'first_name.required' => 'The First Name field is required',
-            'first_name.max' => 'The First Name field may not be greater than :max characters',
-            'password.required' => 'The Password field is required',
-            'username.required' => 'The Username field is required',
-            'username.max' => 'The Username field may not be greater than :max characters',
-        ];
-
-        $validator = \Validator::make($inputs, $rules, $messages);
-
-        if ($validator->fails()) {
-            $errors = errorsToArray($validator->errors());
-            return [
-                'success' => false,
-                'errors' => $errors,
-            ];
+        $validation = self::validation($inputs);
+        if (!$validation['success']) {
+            return $validation;
         }
+
 
         // check if already exist
         $user = self::withTrashed()->where('email',$inputs['email'])->first();
@@ -212,7 +221,21 @@ class User extends UserBase
         Role::syncRolesWithUsers();
         $registered_role = Role::where('slug', 'customer')->first();
         $registered_role?->users()->updateExistingPivot($reg, ['is_active' => 1]);
+        $wishlist_names = [
+            ['name' => 'Save For Later', 'slug' => 'save-for-later'],
+            ['name' => 'My List', 'slug' => 'my-list']
+        ];
 
+        foreach ($wishlist_names as $wishlist_data) {
+            // Check if the wishlist already exists
+            $wishlist = Wishlist::firstOrCreate([
+                'name' => $wishlist_data['name'],
+                'slug' => $wishlist_data['slug']
+            ]);
+
+            // Attach the wishlist to the user
+            $reg->wishlists()->attach($wishlist);
+        }
         $response['success'] = true;
         $response['data']['item'] = $reg;
         $response['messages'][] = trans('vaahcms-general.saved_successfully');
@@ -301,13 +324,7 @@ class User extends UserBase
                     $item->customerGroups()->detach();
                 }
 
-                $wishlist_items = Wishlist::where('vh_user_id', $item['id'])->withTrashed()->get();
-
-                if ($wishlist_items) {
-                    foreach ($wishlist_items as $wishlist_item) {
-                        $wishlist_item->forceDelete();
-                    }
-                }
+                self::deleteUserWishlistsAndProducts($item);
 
 
                 $item->roles()->detach();
@@ -323,6 +340,26 @@ class User extends UserBase
         }
 
         return $response;
+    }
+    //----------------------------------------------------------
+
+    public static function getItem($id,$excluded_columns = [], $type=null)
+    {
+        $item = self::where('id', $id)->with(['createdByUser',
+            'updatedByUser', 'deletedByUser'])
+            ->withTrashed();
+
+        if(!$item)
+        {
+            $response['success'] = false;
+            $response['errors'][] = trans('vaahcms-general.record_not_found_with_id').': '.$id;
+            return $response;
+        }
+        $item = $item->first();
+        $response['success'] = true;
+        $response['data'] = $item;
+        return $response;
+
     }
     //----------------------------------------------------------
     public static function listAction($request, $type): array
@@ -374,26 +411,19 @@ class User extends UserBase
                 break;
             case 'delete-all':
                 \DB::statement('SET FOREIGN_KEY_CHECKS=0');
-                $items_id = self::whereHas('activeRoles', function ($query) {
+                $items = self::whereHas('activeRoles', function ($query) {
                     $query->where('slug', 'customer');
                 })->withTrashed()->get();
 
-                foreach($items_id as $item_id)
+                foreach($items as $item)
                 {
-
-                    $wishlist_items = Wishlist::where('vh_user_id', $item_id->id)->withTrashed()->get();
-
-                    if ($wishlist_items) {
-                        foreach ($wishlist_items as $wishlist_item) {
-                            $wishlist_item->forceDelete();
-                        }
-                    }
+                    self::deleteUserWishlistsAndProducts($item);
                 }
 
-                $items_id->each(function ($item_id) {
+                $items->each(function ($item_id) {
                     $item_id->customerGroups()->detach();
                 });
-                $list->whereIn('id', $items_id->pluck('id'))->forceDelete();
+                $list->whereIn('id', $items->pluck('id'))->forceDelete();
                 \DB::statement('SET FOREIGN_KEY_CHECKS=1');
                 break;
 
@@ -548,14 +578,24 @@ class User extends UserBase
         {
             $item->customerGroups()->detach();
         }
+        $user_wishlists = $item->wishlists()->withTrashed()->get();
+        foreach ($user_wishlists as $wishlist) {
+            $wishlist->users()->detach($id);
 
-        $wishlist_items = Wishlist::where('vh_user_id' , $id)->withTrashed()->get();
+            $user_wishlist = UserWishlist::where([
+                'vh_user_id' => $id,
+                'vh_st_wishlist_id' => $wishlist->id,
+            ])->first();
 
+            if ($user_wishlist) {
+                $user_wishlist->products()->detach();
+                $user_wishlist->forceDelete();
+            }
 
-        if($wishlist_items)
-        {
-            foreach ($wishlist_items as $wishlist_item) {
-                $wishlist_item->forceDelete();
+            // If no more users linked to this wishlist, delete the wishlist
+            $remaining_user_count = UserWishlist::where('vh_st_wishlist_id', $wishlist->id)->count();
+            if ($remaining_user_count === 0 && !Wishlist::isReservedNameOrSlug($wishlist->name)) {
+                $wishlist->forceDelete();
             }
         }
 
@@ -580,7 +620,8 @@ class User extends UserBase
     {
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
         // Get all customers with the role "customer"
         $list = User::whereHas('activeRoles', function ($query) {
             $query->where('slug', 'customer');
@@ -589,17 +630,20 @@ class User extends UserBase
         // Get chart data query using Eloquent
         $chart_data_query = $list
             ->whereBetween('created_at', [$start_date, $end_date])
-            ->selectRaw("DATE(created_at) as date")
-            ->selectRaw("COUNT(*) as joined")
             ->selectRaw("
-        (SELECT COUNT(*) FROM vh_st_orders
-        WHERE vh_st_orders.vh_user_id = vh_users.id
-        AND vh_st_orders.created_at BETWEEN ? AND ?) as customer_order_activity",
-                [$start_date, $end_date]
-            )
+        DATE(created_at) as date,
+        COUNT(*) as joined,
+        (
+            SELECT COUNT(*) FROM vh_st_orders
+            WHERE vh_st_orders.vh_user_id = vh_users.id
+            AND vh_st_orders.created_at BETWEEN ? AND ?
+            AND vh_st_orders.vh_st_store_id = ?
+        ) as customer_order_activity
+    ", [$start_date, $end_date, $selected_store_id])
             ->groupByRaw("DATE(created_at)")
             ->orderByRaw("DATE(created_at) ASC")
             ->get();
+
 
         // Initialize data array for the chart
         $data = [
@@ -623,20 +667,21 @@ class User extends UserBase
         }
 
         // Get total orders using Eloquent
-        $total_orders = Order::whereBetween('created_at', [$start_date, $end_date])->count();
+        $total_orders_query = Order::whereBetween('created_at', [$start_date, $end_date])
+            ->where('vh_st_store_id', $selected_store_id);
 
-        // Get the total number of unique customers who have placed orders using Eloquent
-        $unique_customers_with_multiple_orders = Order::whereBetween('created_at', [$start_date, $end_date])
+        $total_orders = $total_orders_query->count();
+
+        $unique_customers_with_multiple_orders = (clone $total_orders_query)
             ->distinct('vh_user_id')
             ->count('vh_user_id');
+        $total_order_value = (clone $total_orders_query)->sum('payable');
 
         // Calculate the average orders per customer
         $avg_orders_per_customer = $unique_customers_with_multiple_orders > 0
             ? round($total_orders / $unique_customers_with_multiple_orders, 2)
             : 0;
 
-        // Get total order value using Eloquent
-        $total_order_value = Order::whereBetween('created_at', [$start_date, $end_date])->sum('payable');
 
         // Calculate average order value
         $average_order_value = $total_orders > 0
@@ -679,7 +724,279 @@ class User extends UserBase
 
 
     //----------------------------------------------------------
+    public static function deleteUserWishlistsAndProducts($user)
+    {
+        if (!$user) {
+            return;
+        }
 
+        $user_wishlists = $user->wishlists()->withTrashed()->get();
 
+        foreach ($user_wishlists as $wishlist) {
+            $user_wishlist = UserWishlist::where([
+                'vh_user_id' => $user->id,
+                'vh_st_wishlist_id' => $wishlist->id,
+            ])->first();
+
+            if ($user_wishlist) {
+                // Delete pivot data with products
+                //  $user_wishlist->products()->detach();
+                DB::table('vh_st_user_wishlist_products')
+                    ->where('vh_st_user_wishlist_id', $user_wishlist->id)
+                    ->delete();
+
+                $user_wishlist->forceDelete();
+            }
+
+            // If no more users linked to this wishlist, delete it (if not reserved)
+            $remaining = UserWishlist::where('vh_st_wishlist_id', $wishlist->id)->count();
+            if ($remaining === 0 && !Wishlist::isReservedNameOrSlug($wishlist->name)) {
+                $wishlist->forceDelete();
+            }
+        }
+    }
+    //----------------------------------------------------------
+
+    public static function updateAuthUserProfile(Request $request, $id)
+    {
+        $inputs = $request->only([
+            'email', 'first_name', 'last_name','username', 'phone'
+        ]);
+
+        $validate = self::profileValidation($inputs);
+
+        if(isset($validate['success']) && !$validate['success'])
+        {
+            return $validate;
+        }
+
+        if(isset($inputs['phone']))
+        {
+            $rules['phone'] = 'integer';
+
+            $validator = \Validator::make( $request->all(), $rules);
+            if ( $validator->fails() ) {
+
+                $errors             = errorsToArray($validator->errors());
+                $response['success']  = false;
+                $response['errors'] = $errors;
+                return $response;
+            }
+        }
+        $item = self::withTrashed()->find($id);
+        if (!$item) {
+            return [
+                'success' => false,
+                'errors' => [trans('vaahcms-user.registration_not_found')]
+            ];
+        }
+
+        if (!empty($inputs['email'])) {
+            $existing_user = self::where('id', '!=', $item->id)
+                ->where('email', $inputs['email'])
+                ->withTrashed()
+                ->first();
+
+            if ($existing_user) {
+                return [
+                    'success' => false,
+                    'errors' => [trans('vaahcms-user.email_already_registered')]
+                ];
+            }
+        }
+        $inputs = array_filter($inputs, function ($value) {
+            return $value !== null && $value !== '';
+        });
+
+        $item->fill($inputs);
+        $item->save();
+
+        $response['success'] = true;
+        $response['messages'][] = trans('vaahcms-general.saved');
+        $response['data'] = $item;
+
+        return $response;
+    }
+    //----------------------------------------------------------
+
+    public static function profileValidation($inputs)
+    {
+        $rules = array(
+
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                'max:50',
+            ],
+
+            'first_name' => [
+                'nullable',
+                'string',
+                'min:1',
+                'max:20',
+                "regex:/^[A-Za-zÀ-ÿ' -]{1,50}$/",
+            ],
+            'last_name' => [
+                'nullable',
+                'string',
+                'min:1',
+                'max:20',
+                "regex:/^[A-Za-zÀ-ÿ' -]{1,50}$/",
+            ],
+            'phone' => 'nullable|regex:/^\d{10,15}$/',
+        );
+        $messages = [
+            'email.email'          => 'Email must be a valid email address.',
+            'email.min'            => 'Email must be at least :min characters.',
+            'email.max'            => 'Email may not exceed :max characters.',
+
+            // First Name
+            'first_name.min'       => 'First name must be at least :min character.',
+            'first_name.max'       => 'First name may not exceed :max characters.',
+            'first_name.regex'     => 'First name can only contain letters, spaces, hyphens or apostrophes.',
+
+            // Last Name
+            'last_name.min'        => 'Last name must be at least :min character.',
+            'last_name.max'        => 'Last name may not exceed :max characters.',
+            'last_name.regex'      => 'Last name can only contain letters, spaces, hyphens or apostrophes.',
+            // Phone
+            'phone.regex'          => 'Phone must be between 10 and 15 digits.',
+        ];
+
+        if(isset($inputs['username']))
+        {
+            $rules['username'] = [
+                'required',
+                'string',
+                'min:3',
+                'max:20',
+                'regex:/^[A-Za-z][A-Za-z0-9._]{2,19}$/'
+            ];
+        }
+
+        if (array_key_exists('username', $inputs)) {
+            $rules['username'] = [
+                'required',
+                'string',
+                'min:3',
+                'max:20',
+                'regex:/^[A-Za-z][A-Za-z0-9._]{2,19}$/',
+            ];
+
+            $messages = array_merge($messages, [
+                'username.required' => 'Username is required.',
+                'username.min'      => 'Username must be at least :min characters.',
+                'username.max'      => 'Username may not exceed :max characters.',
+                'username.regex'    => 'Username must start with a letter and contain only letters, numbers, dots or underscores.',
+            ]);
+        }
+
+        $validator = \Validator::make($inputs,$rules,$messages);
+
+        if ( $validator->fails() ) {
+
+            $errors             = errorsToArray($validator->errors());
+            $response['success']  = false;
+            $response['errors'] = $errors;
+            return $response;
+        }
+
+    }
+    //----------------------------------------------------------
+
+    public static function validation($inputs)
+    {
+        $rules = validator($inputs, [
+            'first_name' => [
+                'required',
+                'string',
+                'min:1',
+                'max:20',
+                "regex:/^[A-Za-zÀ-ÿ' -]{1,50}$/",
+            ],
+            'last_name' => [
+                'nullable',
+                'string',
+                'min:1',
+                'max:20',
+                "regex:/^[A-Za-zÀ-ÿ' -]{1,50}$/",
+            ],
+
+            'username' => [
+                'nullable',
+                'string',
+                'min:3',
+                'max:20',
+                'regex:/^[A-Za-z][A-Za-z0-9._]{2,19}$/'
+            ],
+
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:50',
+            ],
+
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'max:64',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,64}$/'
+            ],
+
+            'phone' => 'nullable|regex:/^\d{10,15}$/',
+        ],
+            [
+                // Email
+                'email.required'       => 'Email is required.',
+                'email.email'          => 'Email must be a valid email address.',
+                'email.min'            => 'Email must be at least :min characters.',
+                'email.max'            => 'Email may not exceed :max characters.',
+
+                // First Name
+                'first_name.required'  => 'First name is required.',
+                'first_name.min'       => 'First name must be at least :min character.',
+                'first_name.max'       => 'First name may not exceed :max characters.',
+                'first_name.regex'     => 'First name can only contain letters, spaces, hyphens or apostrophes.',
+
+                // Last Name
+                'last_name.min'        => 'Last name must be at least :min character.',
+                'last_name.max'        => 'Last name may not exceed :max characters.',
+                'last_name.regex'      => 'Last name can only contain letters, spaces, hyphens or apostrophes.',
+
+                // Username
+                'username.min'         => 'Username must be at least :min characters.',
+                'username.max'         => 'Username may not exceed :max characters.',
+                'username.regex'       => 'Username must start with a letter and contain only letters, numbers, dots or underscores.',
+
+                // Password
+                'password.required' => 'The Password field is required.',
+                'password.string' => 'The Password must be a string.',
+                'password.min' => 'The Password must be at least :min characters.',
+                'password.regex' => 'The Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&#).',
+                'password.confirmed' => 'The Password confirmation does not match.',
+
+                // Phone
+                'phone.regex'          => 'Phone must be between 10 and 15 digits.',
+            ]
+        );
+
+        if($rules->fails()){
+            return [
+                'success' => false,
+                'errors' => $rules->errors()->all()
+            ];
+        }
+        $rules = $rules->validated();
+
+        return [
+            'success' => true,
+            'data' => $rules
+        ];
+
+    }
+    //----------------------------------------------------------
 
 }

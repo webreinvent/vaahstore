@@ -367,7 +367,6 @@ export const useUserStore = defineStore({
             let options = {
                 query: vaah().clone(this.query)
             };
-            await this.updateUrlQueryString(this.query);
             await vaah().ajax(
                 this.ajax_url,
                 await this.afterGetList,
@@ -1373,16 +1372,14 @@ export const useUserStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async fetchCustomerCountChartData() {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-            }
+        async fetchCustomerCountChartData(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/data',
                 this.fetchCustomerCountChartDataAfter,

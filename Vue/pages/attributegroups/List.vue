@@ -85,7 +85,7 @@ const toggleCreateMenu = (event) => {
 
                     <template #icons>
 
-                        <div class="p-inputgroup">
+                        <div class="flex gap-1">
 
                             <Button data-testid="attributegroups-list-create"
                                     class="p-button-sm"
@@ -122,10 +122,13 @@ const toggleCreateMenu = (event) => {
                         </div>
 
                     </template>
-
+                    <Card>
+                        <template #content>
                     <Actions/>
 
                     <Table/>
+                        </template>
+                    </Card>
 
                 </Panel>
             </div>

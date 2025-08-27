@@ -135,7 +135,7 @@ const toggleItemMenu = (event) => {
                         <template v-if="column === 'created_by' || column === 'updated_by'|| column === 'user'||
                                 column === 'status'|| column === 'whishlist_type' || column ==='deleted_by' ||
                                 column === 'meta' || column === 'taxonomy_id_whishlists_types' || column === 'products'
-                                || column === 'status_notes' || column === 'slug' || column === 'vh_user_id'">
+                                || column === 'status_notes' || column === 'slug' || column === 'vh_user_id'|| column === 'user_wishlist_products'">
                         </template>
 
                         <template v-else-if="column === 'id' || column === 'uuid'">

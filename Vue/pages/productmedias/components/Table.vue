@@ -69,13 +69,13 @@ const useVaah = vaah();
 
              <Column field="status" header="Status">
                  <template #body="prop">
-                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
+                     <Badge unstyled="true" class="!text-green-500 bg-[#0E9F6E1A]" v-if="prop.data.status && prop.data.status.slug == 'approved'"
+                            > {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="!prop.data.status"
                             severity="primary"> null </Badge>
-                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
+                     <Badge unstyled="true"  class="!text-red-500 bg-[#E02424]/10 " v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
+                            > {{prop.data.status.name}} </Badge>
+                     <Badge v-else unstyled="true" class="!text-yellow-500 bg-[##E3A0081A]/10"
                             severity="warn"> {{prop.data.status.name}} </Badge>
                  </template>
              </Column>
@@ -104,9 +104,9 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-1">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="productmedias-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
@@ -114,14 +114,14 @@ const useVaah = vaah();
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
-                            class="p-button-tiny p-button-text"
+                            class="p-button-tiny p-button-text icon-button"
                                 data-testid="productmedias-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny p-button-danger p-button-text icon-button text-red-500"
                                 data-testid="productmedias-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"

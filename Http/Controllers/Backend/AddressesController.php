@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Address;
+use VaahCms\Modules\Store\Traits\HasTransformer;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
 use WebReinvent\VaahCms\Models\Permission;
@@ -10,7 +11,7 @@ use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 class AddressesController extends Controller
 {
-
+    use HasTransformer;
 
     //----------------------------------------------------------
     public function __construct()
@@ -59,7 +60,13 @@ class AddressesController extends Controller
     public function getList(Request $request)
     {
         try{
-            return Address::getList($request);
+            $address= Address::getList($request);
+            $transformer = $this->getTransformer();
+            if ($transformer) {
+                return $transformer::addressGetList($address);
+            }
+
+            return $address;
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;

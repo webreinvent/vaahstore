@@ -28,6 +28,7 @@ let empty_states = {
             media_status:null,
             attributes:null
         },
+        selected_store:null,
     },
     action: {
         type: null,
@@ -563,7 +564,7 @@ export const useProductMediaStore = defineStore({
             {
                 item = this.item;
             }
-
+            item.vh_st_store_id = this.query.selected_store;
             this.form.action = type;
             let ajax_url = this.ajax_url;
 

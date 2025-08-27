@@ -151,7 +151,7 @@ watch(() => store && store.item && store.item.name, (item_name) => {
                         <template #empty class="flex">
                             <p v-if="!store.item.image">Drag and drop files here to upload.</p>
                             <p v-if="store.item.image">
-                                <img class="w-5 h-4rem" :src="`image/uploads/brands/`+store.item.image"/>
+                                <img class="w-5 h-4rem" :src="`storage/brands/`+store.item.image"/>
                                 <i class="pi pi-times text-2xl font-bold cursor-pointer text-red-500 ml-2" @click="store.clearimage"></i>
 
                             </p>

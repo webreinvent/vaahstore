@@ -5,6 +5,8 @@ use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Payment;
 use VaahCms\Modules\Store\Models\PaymentMethod;
 use VaahCms\Modules\Store\Models\Store;
+use VaahCms\Modules\Store\Services\PayPalService;
+use VaahCms\Modules\Store\Services\StripeService;
 
 
 class PaymentsController extends Controller
@@ -12,11 +14,38 @@ class PaymentsController extends Controller
 
 
     //----------------------------------------------------------
-    public function __construct()
+    protected $paypal_service;
+    protected $stripe_service;
+    //----------------------------------------------------------
+
+    public function __construct(PaypalService $paypal_service,StripeService $stripe_service)
     {
-
+        $this->paypal_service = $paypal_service;
+        $this->stripe_service = $stripe_service;
     }
+    //----------------------------------------------------------
 
+    public function createOrder(Request $request)
+    {
+        return $this->paypal_service->createOrder($request);
+    }
+    //----------------------------------------------------------
+
+    public function captureOrder($id)
+    {
+        return $this->paypal_service->captureOrder($id);
+    }
+    //----------------------------------------------------------
+    public function createPaymentIntent(Request $request)
+    {
+        return $this->stripe_service->createPaymentIntent($request);
+    }
+    //----------------------------------------------------------
+
+    public function confirmPayment(Request $request)
+    {
+        return $this->stripe_service->confirmPayment($request);
+    }
     //----------------------------------------------------------
 
     public function getAssets(Request $request)
@@ -305,6 +334,37 @@ class PaymentsController extends Controller
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
+        }
+    }
+    // This keeps your publishable key out of your source code and allows for easy changes without redeploying frontend code.
+    public function getStripeKey(Request $request)
+    {
+        try {
+
+            if (!auth()->check()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['Unauthorized: Login required.']
+                ]);
+            }
+
+            $key = config('services.stripe.key');
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'key' => $key
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $response = [];
+            $response['status'] = 'failed';
+            if (env('APP_DEBUG')) {
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else {
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
         }
     }
     //----------------------------------------------------------

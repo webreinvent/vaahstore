@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 use WebReinvent\VaahCms\Entities\User;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
@@ -21,6 +22,21 @@ class ProductMediaImage extends VaahModel
         'updated_at',
         'deleted_at'
     ];
+
+    public function getWebpUrlAttribute()
+    {
+        if (!$this->url) {
+            return null;
+        }
+        $path = str_replace('storage/', 'public/', $this->url);
+        $webp_path = preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $path);
+        if (Storage::exists($webp_path)) {
+            return ltrim(Storage::url($webp_path), '/');
+        }
+        return null;
+    }
+
+
     //-------------------------------------------------
     protected $fillable = [
         'id',
@@ -44,7 +60,8 @@ class ProductMediaImage extends VaahModel
     ];
 
     //-------------------------------------------------
-    protected $appends  = [
+    protected $appends = [
+        'webp_url'
     ];
     //-------------------------------------------------
     public static function deleteImages($items_id){

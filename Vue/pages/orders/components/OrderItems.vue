@@ -40,7 +40,7 @@ const useVaah = vaah()
             >
                 <template #body="prop">
 
-                    {{prop.data.product?.name  + '-' +prop.data.product_variation?.name}}
+                    {{prop.data.product_variation?.name}}
                 </template>
             </Column>
 

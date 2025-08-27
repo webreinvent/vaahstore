@@ -3,8 +3,10 @@
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use Intervention\Image\Facades\Image;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -29,6 +31,10 @@ class Category extends VaahModel
         'uuid',
         'name',
         'slug',
+        'image_path',
+        'meta_description',
+        'meta_title',
+        'meta_keywords',
         'parent_id',
         'is_active',
         'created_by',
@@ -41,9 +47,23 @@ class Category extends VaahModel
     ];
 
     //-------------------------------------------------
-    protected $appends = [
+    protected $casts =[
+        'meta_keywords'=>'array',
+    ];
+    //-------------------------------------------------
+    protected $appends = ['media'
     ];
 
+    //-------------------------------------------------
+    public function getMediaAttribute()
+    {
+        if (!$this->image_path) {
+            return [];
+        }
+        return [
+            'webp_url' => $this->image_path,
+        ];
+    }
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
     {
@@ -126,6 +146,15 @@ class Category extends VaahModel
         return $this->belongsTo(self::class, 'parent_id', 'id');
     }
     //-------------------------------------------------
+    public function products()
+    {
+        return $this->belongsToMany(
+            Product::class,
+            'vh_st_product_categories',
+            'vh_st_category_id',
+            'vh_st_product_id'
+        );
+    }
 
     //-------------------------------------------------
     public function getTableColumns()
@@ -193,6 +222,7 @@ class Category extends VaahModel
 
         $item = new self();
         $item->fill($inputs);
+
         $item->slug = Str::slug($inputs['slug']);
         $item->save();
 
@@ -557,29 +587,38 @@ class Category extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-    public static function getItem($id)
+    public static function getItem($identifier)
     {
-
-        $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','parentCategory.subCategories'])
+        $item = self::with([
+            'createdByUser',
+            'updatedByUser',
+            'deletedByUser',
+            'parentCategory.subCategories',
+        ])
             ->withTrashed()
+            ->when(is_numeric($identifier), function ($query) use ($identifier) {
+                $query->where('id', $identifier);
+            }, function ($query) use ($identifier) {
+                $query->where('slug', $identifier);
+            })
             ->first();
 
-        if(!$item)
-        {
-            $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
-            return $response;
+        if (!$item) {
+            return [
+                'success' => false,
+                'errors' => ['Record not found with identifier: ' . $identifier],
+            ];
         }
-        $response['success'] = true;
-        $response['data'] = $item;
-        $response['data']['parent_category_name'] = $item->parentCategory?->name;
 
+        $data = $item->toArray();
+        $data['parent_category_name'] = $item->parentCategory?->name;
 
-
-        return $response;
-
+        return [
+            'success' => true,
+            'data' => $data,
+        ];
     }
+
 
 
 
@@ -634,6 +673,16 @@ class Category extends VaahModel
                         'success' => false,
                         'errors' => ["Cannot move the category under its own child category."]
                     ];
+                }
+            }
+        }
+        //  Delete old image if new one is provided and it's different
+        if (!empty($inputs['image_path']) && $inputs['image_path'] !== $item->image_path) {
+            if (!empty($item->image_path)) {
+                // Convert public path to storage path
+                $storagePath = str_replace('storage/', 'public/', $item->image_path);
+                if (Storage::exists($storagePath)) {
+                    Storage::delete($storagePath);
                 }
             }
         }
@@ -730,11 +779,28 @@ class Category extends VaahModel
     {
 
         $rules = array(
-            'name' => 'required|max:150',
-            'slug' => 'required|max:150',
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'meta_title' => 'nullable|max:100',
+            'meta_description' => 'nullable|max:100',
+            'meta_keywords' => 'nullable|array|max:15',
+            'meta_keywords.*' => 'max:100',
         );
 
-        $validator = \Validator::make($inputs, $rules);
+        $custom_messages = array(
+            'name.required' => 'The Name field is required.',
+            'name.min' => 'The Name field must be at least :min characters.',
+            'name.max' => 'The Name field must not exceed :max characters.',
+            'slug.required' => 'The Slug field is required.',
+            'slug.min' => 'The Slug field must be at least :min characters.',
+            'slug.max' => 'The Slug field must not exceed :max characters.',
+            'meta_title.max' => 'The Meta Title field must not exceed :max characters.',
+            'meta_description.max' => 'The Meta Description field must not exceed :max characters.',
+            'meta_keywords.max' => 'The Meta Keywords field must not have more than :max items.',
+            'meta_keywords.*' => 'The Meta Keyword field may not have greater than :max characters',
+        );
+
+        $validator = \Validator::make($inputs, $rules,$custom_messages);
         if ($validator->fails()) {
             $messages = $validator->errors();
             $response['success'] = false;
@@ -860,7 +926,32 @@ class Category extends VaahModel
         ];
     }
 
+    public static function uploadImage($request)
+    {
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $timestamp = time();
+            $webp_name = $timestamp . '.webp';
 
+            $image = Image::make($file)->encode('webp', 90);
+            Storage::put("public/brands/{$webp_name}", (string) $image);
+
+            // Generate the full storage path (public URL path)
+            $image_path = 'storage/brands/' . $webp_name;
+            return [
+                'success' => true,
+                'data' => [
+                    'image_path' => $image_path,
+                ],
+            ];
+
+        }
+
+        return [
+            'success' => false,
+            'message' => 'No image provided.',
+        ];
+    }
 
     //-------------------------------------------------
     //-------------------------------------------------

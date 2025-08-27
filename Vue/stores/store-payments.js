@@ -20,6 +20,7 @@ let empty_states = {
             trashed: null,
             sort: null,
         },
+        selected_store:null
     },
     action: {
         type: null,
@@ -1039,10 +1040,12 @@ export const usePaymentStore = defineStore({
         //---------------------------------------------------------------------
 
         async searchOrders(event){
-            const query = event;
             const options = {
-                params: query,
-                method: 'post',
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
 
             await vaah().ajax(
@@ -1208,18 +1211,14 @@ export const usePaymentStore = defineStore({
         },
         //---------------------------------------------------
 
-        async paymentMethodsPieChartData() {
-
-
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-            }
+        async paymentMethodsPieChartData(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/payment-methods-pie-chart-data',
                 this.paymentMethodsPieChartDataAfter,
@@ -1248,6 +1247,18 @@ export const usePaymentStore = defineStore({
                         show: false,
                     },
                 },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 legend: {
                     position: 'right',
                     horizontalAlign: 'center',
@@ -1270,7 +1281,7 @@ export const usePaymentStore = defineStore({
                                 show: false,
                                 name: {
                                     show: true,
-                                    
+
                                     color: '#263238',
                                 },
                                 value: {

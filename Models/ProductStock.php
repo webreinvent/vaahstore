@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -173,7 +174,17 @@ class ProductStock extends VaahModel
         }
 
         $inputs = $request->all();
+        $store_id = $inputs['vh_st_store_id'] ?? null;
+        $ownership_check = Product::validateVendorAndProductToStore(
+            $store_id,
+            $inputs['product']['id'] ?? null,
+            $inputs['vendor']['id'] ?? null,
 
+        );
+
+        if (!$ownership_check['success']) {
+            return $ownership_check;
+        }
         // check if stock already exist for this variation
 
         $conditions = [
@@ -386,6 +397,18 @@ class ProductStock extends VaahModel
 
         return $query;
     }
+    public function scopeFilterBySelectedStore( $query)
+    {
+        $selected_store = request('selected_store');
+
+        if ($selected_store) {
+            $query->whereHas('vendor', function ($q) use ($selected_store) {
+                $q->where('vh_st_store_id', $selected_store);
+            });
+        }
+        return $query;
+    }
+
 
     //-------------------------------------------------
     public static function getList($request)
@@ -402,6 +425,7 @@ class ProductStock extends VaahModel
         $list->dateFilter($request->filter);
         $list->quantityFilter($request->filter);
         $list->stockFilter($request->filter);
+        $list->filterBySelectedStore($request->filter);
         $rows = config('vaahcms.per_page');
 
         if($request->has('rows'))
@@ -980,18 +1004,29 @@ if ($product_variation) {
     }
 
     //-------------------------------------------------
-    public static function searchVendor($request){
+    public static function searchVendor($request)
+    {
+        $vendor = Vendor::select('id', 'name', 'slug', 'is_default')
+            ->where('is_active', 1);
 
-        $vendor = Vendor::select('id', 'name','slug','is_default')->where('is_active',1);
         if ($request->has('query') && $request->input('query')) {
-            $vendor->where('name', 'LIKE', '%' . $request->input('query') . '%');
+            $vendor->where('name', 'like', '%' . $request->input('query') . '%');
         }
-        $vendor = $vendor->limit(10)->get();
-        $response['success'] = true;
-        $response['data'] = $vendor;
-        return $response;
 
+        if ($request->filled('selected_store')) {
+            $vendor->whereHas('store', function ($q) use ($request) {
+                $q->where('id', $request->input('selected_store'));
+            });
+        }
+
+        $vendor = $vendor->limit(10)->get();
+
+        return [
+            'success' => true,
+            'data' => $vendor,
+        ];
     }
+
     //-------------------------------------------------
     public static function searchProduct($request){
         $vendor_id = $request->input('vendor_id');
@@ -1367,22 +1402,42 @@ if ($product_variation) {
     {
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $selected_store_id = $request->input('selected_store') ?? Store::where('is_default', 1)->value('id');
+        $limit = $request->input('limit', 10);
 
-        $highest_stocks = self::where('quantity', '>', 10)
+        // Eager load all necessary relationships in one go
+        $with_relation = [
+            'product:id,name,slug,vh_st_store_id',
+            'productVariation:id,name,slug,vh_st_product_id',
+            'productVariation.medias:id,vh_st_product_id',
+            'vendor:id,name,slug,vh_st_store_id',
+        ];
+
+        $stock_base_query = self::with($with_relation)
             ->whereBetween('updated_at', [$start_date, $end_date])
-            ->orderBy('quantity', 'desc')
-            ->take(1)
-            ->with(['product','product.medias', 'productVariation', 'vendor', 'productVariation.medias'])
+            ->whereHas('product', function ($query) use ($selected_store_id) {
+                $query->where('vh_st_store_id', $selected_store_id);
+            })
+            ->whereHas('vendor', function ($query) use ($selected_store_id) {
+                $query->where('vh_st_store_id', $selected_store_id);
+            });
+
+        // Get all stocks in one query for sum
+        $all_stocks = (clone $stock_base_query)->sum('quantity');
+
+        // Get highest and lowest stocks
+        $highest_stocks = (clone $stock_base_query)
+            ->where('quantity', '>', 10)
+            ->orderByDesc('quantity')
+            ->take($limit)
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
-        $lowest_stocks = self::whereBetween('quantity', [0, 10])
-            ->whereBetween('updated_at', [$start_date, $end_date])
+        $lowest_stocks = (clone $stock_base_query)
+            ->whereBetween('quantity', [0, 10])
             ->orderBy('quantity', 'asc')
-            ->take(1)
-            ->with(['product','product.medias', 'productVariation', 'vendor', 'productVariation.medias'])
+            ->take($limit)
             ->get(['id', 'quantity', 'vh_st_product_id', 'vh_st_vendor_id', 'vh_st_product_variation_id']);
 
-        $all_stocks = self::whereBetween('updated_at', [$start_date, $end_date])->sum('quantity');
 
         $map_stocks = function ($stocks) use ($all_stocks) {
 
@@ -1397,7 +1452,6 @@ if ($product_variation) {
                 }
 
                 $image_urls = self::getImageUrls($product_media_ids);
-
                 $stock_percentage = $all_stocks > 0 ? ($stock->quantity / $all_stocks) * 100 : 0;
 
                 return (object)[

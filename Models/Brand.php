@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use Faker\Factory;
 use WebReinvent\VaahCms\Models\TaxonomyType;
@@ -61,10 +63,38 @@ class Brand extends VaahModel
     protected $fill_except = [
 
     ];
+    protected $hidden = ['products'];
 
     //-------------------------------------------------
-    protected $appends = [
-    ];
+    protected $appends = [ 'store_count','store_ids','media'];
+    //-------------------------------------------------
+
+    public function getStoreIdsAttribute()
+    {
+        return $this->products
+            ->filter(fn($product) => $product->store && $product->store->id)
+            ->pluck('store.id')
+            ->unique()
+            ->values()
+            ->all();
+    }
+    //-------------------------------------------------
+
+    public function getStoreCountAttribute()
+    {
+        return count($this->store_ids);
+    }
+    //-------------------------------------------------
+
+    public function getMediaAttribute()
+    {
+        if (!$this->image) {
+            return [];
+        }
+        return [
+            'webp_url' => Storage::url('brands/' . $this->image),
+        ];
+    }
 
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
@@ -440,7 +470,7 @@ class Brand extends VaahModel
         }
 
         $list = $list->with(['registeredByUser','status',
-            'approvedByUser','products.store'])
+            'approvedByUser'])
             ->paginate($rows);
 
         $response['success'] = true;
@@ -657,18 +687,29 @@ class Brand extends VaahModel
         return $response;
     }
     //-------------------------------------------------
-    public static function getItem($id)
+    public static function getItem($identifier)
     {
 
-        $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','registeredByUser','status','approvedByUser'])
+        $item = self::with([
+            'createdByUser',
+            'updatedByUser',
+            'deletedByUser',
+            'registeredByUser',
+            'status',
+            'approvedByUser',
+        ])
             ->withTrashed()
+            ->when(is_numeric($identifier), function ($query) use ($identifier) {
+                $query->where('id', $identifier);
+            }, function ($query) use ($identifier) {
+                $query->where('slug', $identifier);
+            })
             ->first();
 
         if(!$item)
         {
             $response['success'] = false;
-            $response['errors'][] = 'Record not found with ID: '.$id;
+            $response['errors'][] = 'Record not found with ID: '.$identifier;
             return $response;
         }
         $response['success'] = true;
@@ -1026,17 +1067,23 @@ class Brand extends VaahModel
     //-------------------------------------------------
 
 
-    public static function uploadImage($request){
-
-        if($request->hasFile('image')){
+    public static function uploadImage($request)
+    {
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $file_name = time().'.' .$file->getClientOriginalExtension();
-            $file->move(public_path('image/uploads/brands'), $file_name);
-            $response['image_name'] = $file_name;
-            return $response;
-        }
-    }
+            $timestamp = time();
+            $webp_name = $timestamp . '.webp';
 
+            $image = Image::make($file)->encode('webp', 90);
+            Storage::put("public/brands/{$webp_name}", (string) $image);
+
+            return [
+                'image_name' =>  $webp_name,
+            ];
+        }
+
+        return null;
+    }
     //-------------------------------------------------
 
 

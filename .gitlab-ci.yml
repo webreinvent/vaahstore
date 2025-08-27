@@ -1,15 +1,17 @@
 stages:
   - features
   - develop
-  - production
+  - staging
 
 deploy_features:
   stage: features
   variables:
-    SSH_USERNAME: $TEST_DEV_GETDEMO_USERNAME
+    SSH_USERNAME: $GETDEMO_81VI_USERNAME
+    SSH_PASSWORD: $GETDEMO_81VI_PASSWORD
     PROJECT_NAME: store-dev
-    FTP_IP: $DEMO_FTP_IP
-    DOMAIN: $DEMO_DOMAIN
+    FOLDER: $GITLAB_USER_LOGIN
+    FTP_IP: 185.180.220.235
+    DOMAIN: 81.vi.getdemo.dev
 
     PROJECT_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN
     MODULE_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$GITLAB_USER_LOGIN/VaahCms/Modules/Store
@@ -24,7 +26,7 @@ deploy_features:
     - echo "Gitlab User = $GITLAB_USER_LOGIN"
     - echo "Project Path = $PROJECT_PATH"
     - echo "FTP Path = $FTP_UPLOAD_PATH"
-    - git ftp push --auto-init --user $TEST_DEV_GETDEMO_USERNAME --passwd $TEST_DEV_GETDEMO_PASSWORD $FTP_UPLOAD_PATH
+    - git ftp push --auto-init --user $SSH_USERNAME --passwd $SSH_PASSWORD $FTP_UPLOAD_PATH
     - whoami
     - pwd
     - cd $PROJECT_PATH
@@ -32,20 +34,27 @@ deploy_features:
     - rm -rf store-dev
     - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
     - rm -rf /store-dev/.git
-    #- rm -rf /store-dev/././.git
     - find ./ -type d -name .git -prune -exec rm -rf {} +
     - cp -r ./store-dev/.  ./
     - pwd
-    - composer update --ignore-platform-reqs
+    - cp .env.$GITLAB_USER_LOGIN .env.$GITLAB_USER_LOGIN-backup
+    - mv .env.$GITLAB_USER_LOGIN-backup .env
+    - composer install --ignore-platform-reqs
     - php artisan down
-    #- mv .env.develop-backup .env
+    - php artisan migrate
     - php artisan cache:clear
     - php artisan config:cache
     - php artisan view:clear
     - php artisan storage:link
+    #- nohup php artisan queue:listen --queue=high,medium,low,default --env=develop --timeout=1800 &
+    #- nohup php artisan schedule:work --env=develop &
     - chmod -R 777 $PROJECT_STORAGE_PATH
-    - chmod -R 777 $VAAHCMS_PUBLIC_PATH
-    - echo $VAAHCMS_PUBLIC_PATH
+    - chmod -R 755 $VAAHCMS_PUBLIC_PATH
+    - pm2 del store-develop-queues --silent || true
+    - pm2 del store-develop-scheduler --silent || true
+    - pm2 start "ea-php artisan queue:listen --queue=high,medium,low,default --env=develop --timeout=1800" --name store-develop-queues
+    - pm2 start "ea-php artisan schedule:work --env=develop" --name store-develop-scheduler
+    - pm2 save
     - rm $VAAHCMS_CONFIG_PATH
     #===== PROTECT ENV FILES
     - chmod 640 $PROJECT_PATH/.env
@@ -59,19 +68,19 @@ deploy_features:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
 
   tags:
-    - test.dev.getdemo.dev
+    - 81.vi.getdemo.dev
 
 
 
 deploy_develop:
   stage: develop
   variables:
-    SSH_USERNAME: $V7DEV_GETDEMO_USERNAME
-    SSH_PASSWORD: $V7DEV_GETDEMO_PASSWORD
+    SSH_USERNAME: $GETDEMO_81VI_USERNAME
+    SSH_PASSWORD: $GETDEMO_81VI_PASSWORD
     PROJECT_NAME: store-dev
     FOLDER: develop
-    FTP_IP: 185.132.179.197
-    DOMAIN: v7.dev.getdemo.dev
+    FTP_IP: 185.180.220.235
+    DOMAIN: 81.vi.getdemo.dev
 
     PROJECT_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$FOLDER
     MODULE_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$FOLDER/VaahCms/Modules/Store
@@ -98,7 +107,7 @@ deploy_develop:
     - pwd
     - cp .env.develop .env.develop-backup
     - mv .env.develop-backup .env
-    - composer update --ignore-platform-reqs
+    - composer install --ignore-platform-reqs
     - php artisan down
     - php artisan migrate
     - php artisan cache:clear
@@ -126,5 +135,72 @@ deploy_develop:
     - develop
 
   tags:
-    - v7.dev.getdemo.dev
+    - 81.vi.getdemo.dev
+
+
+
+deploy_staging:
+  stage: staging
+  variables:
+    SSH_USERNAME: $GETDEMO_81VI_USERNAME
+    SSH_PASSWORD: $GETDEMO_81VI_PASSWORD
+    PROJECT_NAME: store-dev
+    FOLDER: staging
+    FTP_IP: 185.180.220.235
+    DOMAIN: 81.vi.getdemo.dev
+
+    PROJECT_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$FOLDER
+    MODULE_PATH: /home/$SSH_USERNAME/public_html/$PROJECT_NAME/$FOLDER/VaahCms/Modules/Store
+    PROJECT_STORAGE_PATH: $PROJECT_PATH/storage
+    VAAHCMS_PUBLIC_PATH: $PROJECT_PATH/public
+    VAAHCMS_CONFIG_PATH: $PROJECT_PATH/bootstrap/cache/config.php
+    FTP_UPLOAD_PATH: ftp://$FTP_IP/public_html/$PROJECT_NAME/$FOLDER/VaahCms/Modules/Store
+    PROJECT_URL: https://$DOMAIN/$PROJECT_NAME/$FOLDER/public
+
+  script:
+    - echo "Gitlab User = $GITLAB_USER_LOGIN"
+    - echo "Project Path = $PROJECT_PATH"
+    - echo "FTP Path = $FTP_UPLOAD_PATH"
+    - git ftp push --auto-init --user $SSH_USERNAME --passwd $SSH_PASSWORD $FTP_UPLOAD_PATH
+    - whoami
+    - pwd
+    - cd $PROJECT_PATH
+    - pwd
+    - rm -rf store-dev
+    - git clone -b develop https://gitlab-ci-token:${CI_JOB_TOKEN}@git6.webreinvent.com/vaah/store-dev.git
+    - rm -rf /store-dev/.git
+    - find ./ -type d -name .git -prune -exec rm -rf {} +
+    - cp -r ./store-dev/.  ./
+    - pwd
+    - cp .env.staging .env.staging-backup
+    - mv .env.staging-backup .env
+    - composer install --ignore-platform-reqs
+    - php artisan down
+    - php artisan migrate
+    - php artisan cache:clear
+    - php artisan config:cache
+    - php artisan view:clear
+    - php artisan storage:link
+    #- nohup php artisan queue:listen --queue=high,medium,low,default --env=staging --timeout=1800 &
+    #- nohup php artisan schedule:work --env=staging &
+    - chmod -R 777 $PROJECT_STORAGE_PATH
+    - chmod -R 777 $VAAHCMS_PUBLIC_PATH
+    - pm2 del store-staging-queues --silent || true
+    - pm2 del store-staging-scheduler --silent || true
+    - pm2 start "ea-php artisan queue:listen --queue=high,medium,low,default --env=staging --timeout=1800" --name store-staging-queues
+    - pm2 start "ea-php artisan schedule:work --env=staging" --name store-staging-scheduler
+    - pm2 save
+    - rm $VAAHCMS_CONFIG_PATH
+    #===== PROTECT ENV FILES
+    - chmod 640 $PROJECT_PATH/.env
+    - find $PROJECT_PATH/. -name ".env.*" | xargs chmod 640
+    - php artisan up
+    - echo "Visit following url:"
+    - echo $PROJECT_URL
+
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^staging\/\d+\.\d+\.\d+(-rc\d+)?$/'
+
+  tags:
+    - 81.vi.getdemo.dev
 

@@ -30,10 +30,10 @@ const permissions=store.assets.permissions;
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
+            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true" class="font-bold text-xs text-gray-400">
             </Column>
 
-            <Column field="name" header="Name"
+            <Column field="name" header="Name" class="font-bold text-xs text-gray-400"
                     :sortable="true">
 
                 <template #body="prop">
@@ -51,7 +51,7 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-            <Column field="store.name" header="Store"
+            <Column field="store.name" header="Store" class="font-bold text-xs text-gray-400"
                     :sortable="true">
 
 
@@ -66,16 +66,16 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-            <Column field="product" header="Product"
+            <Column field="product" header="Product" class="font-bold text-xs text-gray-400"
                     :sortable="false">
 
                 <template #body="prop">
                     <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-6">
                         <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                               v-tooltip.top="'View Products'"
-                              v-if="(prop.data.vendor_products && prop.data.vendor_products.length)&& !prop.data.is_default"
+                              v-if="(prop.data.vendor_products_count && prop.data.vendor_products_count!==0)&& !prop.data.is_default"
                             @click="store.toViewProducts(prop.data)">
-                               <b>{{prop.data.vendor_products.length}}</b>
+                               <b>{{prop.data.vendor_products_count}}</b>
                         </span>
                         <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                               v-tooltip.top="'All Products'"
@@ -109,7 +109,7 @@ const permissions=store.assets.permissions;
 
 
 
-            <Column field="vendor" header="Vendor User"
+            <Column field="vendor" header="Vendor User" class="font-bold text-xs text-gray-400"
                     :sortable="false">
                 <template #body="prop">
                     <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-0  ">
@@ -137,7 +137,7 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-            <Column field="status.name" header="Status"
+            <Column field="status.name" header="Status" class="font-bold text-xs text-gray-400"
                     v-if="store.isListView()"
                     :sortable="true">
                 <template #body="prop">
@@ -145,13 +145,13 @@ const permissions=store.assets.permissions;
                           > {{prop.data.status.name}} </Badge>
                     <Badge unstyled="true"  class="!text-red-500 bg-[#E02424]/10 " v-else-if="prop.data.status && prop.data.status.name == 'Rejected'"
                            severity="danger"> {{prop.data.status.name}} </Badge>
-                    <Badge v-else unstyled="true" class="!text-yellow-500 bg-[##E3A0081A]/10"
+                    <Badge v-else unstyled="true" class="!text-yellow-500 bg-[#E3A0081A]/10"
                            severity="warn"> {{prop.data.status.name}} </Badge>
                 </template>
 
             </Column>
 
-            <Column field="owned_by_user.name" header="Owned By"
+            <Column field="owned_by_user.name" header="Owned By" class="font-bold text-xs text-gray-400"
                     v-if="store.isListView()"
                     :sortable="true">
 
@@ -166,7 +166,7 @@ const permissions=store.assets.permissions;
             </Column>
 
 
-            <Column field="updated_at" header="Updated"
+            <Column field="updated_at" header="Updated" class="font-bold text-xs text-gray-400"
                     v-if="store.isListView()"
                     style="width:150px;"
                     :sortable="true">
@@ -177,7 +177,7 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-            <Column field="is_active" v-if="store.isListView()"
+            <Column field="is_active" v-if="store.isListView()" class="font-bold text-xs text-gray-400"
                     style="width:100px;"
                     header="Is Active">
 
@@ -193,7 +193,7 @@ const permissions=store.assets.permissions;
 
             </Column>
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions" style="width:150px;" class="font-bold text-xs text-gray-400"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 

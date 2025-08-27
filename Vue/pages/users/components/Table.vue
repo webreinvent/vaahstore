@@ -24,9 +24,9 @@ const useVaah = vaah();
                     headerStyle="width: 3em"
             />
 
-            <Column field="id" header="ID" :style="{ width: store.getIdWidth() }" :sortable="true" />
+            <Column field="id" header="ID" :style="{ width: store.getIdWidth() }" :sortable="true" class="font-bold text-xs text-gray-400" />
 
-            <Column field="name" header="Name"
+            <Column field="name" header="Name" class="font-bold text-xs text-gray-400"
                     :sortable="true" style="word-break: break-word;"
             >
                 <template #body="prop">
@@ -38,7 +38,7 @@ const useVaah = vaah();
                 </template>
             </Column>
 
-            <Column field="email" header="Email"
+            <Column field="email" header="Email" class="font-bold text-xs text-gray-400"
                     :sortable="true" style="word-break: break-word;"
             >
                 <template #body="prop">
@@ -46,23 +46,23 @@ const useVaah = vaah();
                 </template>
             </Column>
 
-            <Column field="customer_groups" header="Groups"
+            <Column field="customer_groups" header="Groups" class="font-bold text-xs text-gray-400"
             >
                 <template #body="prop">
                     <div class="p-inputgroup">
                         <span v-if="prop.data.customer_groups && prop.data.customer_groups.length" class="p-inputgroup-addon cursor-pointer"
                               @click="store.toViewCustomerGroups(prop.data)" v-tooltip.top="'View Customer Groups'">
-                              <Badge severity="success">{{prop.data.customer_groups.length}}</Badge>
+                              <Badge severity="success" class="!bg-green-100 !text-green-600">{{prop.data.customer_groups.length}}</Badge>
                         </span>
-                        <span class="p-inputgroup-addon" v-else>
-                             <Badge severity="success">0</Badge>
+                        <span class="p-inputgroup-addon p-2" v-else>
+                             <Badge severity="success" class="!bg-green-100 !text-green-600">0</Badge>
                          </span>
                     </div>
                 </template>
 
             </Column>
 
-            <Column v-if="store.isListView()"
+            <Column v-if="store.isListView()" class="font-bold text-xs text-gray-400"
                     field="is_active"
                     header="Is Active"
                     :sortable="false"
@@ -79,12 +79,12 @@ const useVaah = vaah();
                 </template>
             </Column>
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions" style="width:150px;" class="font-bold text-xs text-gray-400"
                     :style="{ width: store.getActionWidth() }"
                     :header="store.getActionLabel()"
             >
                 <template #body="prop" >
-                    <div class="p-inputgroup">
+                    <div class="p-inputgroup items-center gap-2">
 
                         <Button class="p-button-tiny p-button-text"
                                 v-tooltip.top="'View'"
@@ -92,7 +92,15 @@ const useVaah = vaah();
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 icon="pi pi-eye"
                                 data-testid="users-list_data_view"
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="tabler:eye"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
                                 />
+                            </Button>
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
                             class="p-button-tiny p-button-text"
@@ -101,7 +109,15 @@ const useVaah = vaah();
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 icon="pi pi-pencil"
                                 data-testid="users-list_data_edit"
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="mdi:pencil-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
                                 />
+                            </Button>
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 v-if="store.isListView() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
@@ -109,7 +125,15 @@ const useVaah = vaah();
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash"
                                 data-testid="users-list_data_trash"
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                        >
+                        <Icon
+                            icon="mdi:trash-can-outline"
+                            width="20"
+                            height="20"
+                            class="text-[#E02424]"
                         />
+                    </Button>
 
                         <Button class="p-button-tiny p-button-success p-button-text"
                                 v-if="store.isListView() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"

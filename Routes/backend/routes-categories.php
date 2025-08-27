@@ -80,5 +80,6 @@ function () {
         ->name('vh.backend.store.categories.search.filtered-category');
 
     //---------------------------------------------------------
-
+    Route::post('image/upload', [CategoriesController::class, 'imageUploads'])
+        ->name('vh.backend.store.brands.image.upload');
 });

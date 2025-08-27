@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use VaahCms\Modules\Store\Http\Controllers\Api\AuthController;
+use VaahCms\Modules\Store\Http\Controllers\Backend\PaymentsController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,7 +33,15 @@ Route::group(
 
         Route::post( '/sign-out', 'AuthController@authSignOut' )->middleware('auth:sanctum');
 
+
         Route::post('/sign-up', 'AuthController@signUp');
+        Route::get('/stripe/publishable-key',[PaymentsController::class, 'getStripeKey']);
+        Route::post('/create-paypal-order', [PaymentsController::class, 'createOrder']);
+        Route::get('/capture-paypal-order/{id}', [PaymentsController::class, 'captureOrder']);
+
+        Route::post('/stripe/payment-intent', [PaymentsController::class, 'createPaymentIntent']);
+        Route::post('/stripe/confirm-payment', [PaymentsController::class, 'confirmPayment']);
+        Route::post( '/refresh-token', 'AuthController@refreshToken' );
     });
 
 include_once __DIR__."/api/api-routes-stores.php";

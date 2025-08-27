@@ -1,5 +1,6 @@
 <?php namespace VaahCms\Modules\Store\Http\Controllers\Backend;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use VaahCms\Modules\Store\Models\Order;
@@ -10,12 +11,13 @@ use VaahCms\Modules\Store\Models\Product;
 use VaahCms\Modules\Store\Models\ProductVariation;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\Vendor;
+use VaahCms\Modules\Store\Traits\HasTransformer;
 use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Entities\User;
 class OrdersController extends Controller
 {
 
-
+    use HasTransformer;
     //----------------------------------------------------------
     public function __construct()
     {
@@ -352,7 +354,7 @@ class OrdersController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Order::getItem($id);
+            return Order::getItem($request,$id);
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -365,6 +367,7 @@ class OrdersController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
     //----------------------------------------------------------
     public function updateItem(Request $request,$id)
     {
@@ -394,7 +397,7 @@ class OrdersController extends Controller
                 $response['errors'][] = $e->getMessage();
                 $response['hint'] = $e->getTrace();
             } else{
-                $response['errors'][] = 'Something went wrong.';
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
             return $response;
         }
@@ -506,4 +509,35 @@ class OrdersController extends Controller
             return $response;
         }
     }
+    //----------------------------------------------------------
+
+    public function downloadInvoice(Request $request, $id)
+    {
+        $response = Order::getItem($request, $id);
+
+        if (!$response || !isset($response['data'])) {
+            return response()->json([
+                'success' => false,
+                'errors' => ['Order not found.'],
+            ]);
+        }
+
+        $order = json_decode(json_encode($response['data']));
+
+        // Fallbacks for missing user or uuid
+        $first_name = $order->user->first_name ?? 'order';
+        $uuid = $order->uuid ?? ' ';
+        $file_name = "{$first_name}_order_{$uuid}.pdf";
+
+        $pdf = Pdf::loadView('store::pdf.order', compact('order'));
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="'.$file_name.'"');
+    }
+
+
+
+
+
 }

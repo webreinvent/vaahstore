@@ -26,6 +26,8 @@ use VaahCms\Modules\Store\Models\OrderItem;
 use VaahCms\Modules\Store\Models\PaymentMethod;
 use VaahCms\Modules\Store\Models\Payment as OrderPayment;
 use VaahCms\Modules\Store\Models\Product;
+use VaahCms\Modules\Store\Models\ProductAttribute;
+use VaahCms\Modules\Store\Models\ProductAttributeValue;
 use VaahCms\Modules\Store\Models\ProductMedia;
 use VaahCms\Modules\Store\Models\ProductMediaImage;
 use VaahCms\Modules\Store\Models\ProductStock;
@@ -580,9 +582,21 @@ class SampleDataTableSeeder extends Seeder
                     $image_contents = file_get_contents($image_url);
                     Storage::disk('public')->put($image_path, $image_contents); // Save the image in storage
 
+                    // Save as webp
+                    $webp_name = $inputs['slug'] . '.webp';
+                    $webp_path = 'media/' . $webp_name;
+                    $full_jpg_path = storage_path('app/public/' . $image_path);
+                    $full_webp_path = storage_path('app/public/' . $webp_path);
 
+                    if (function_exists('imagecreatefromjpeg') && function_exists('imagewebp')) {
+                        $img = @imagecreatefromjpeg($full_jpg_path);
+                        if ($img !== false) {
+                            imagewebp($img, $full_webp_path, 80);
+                            imagedestroy($img);
+                        }
+                    }
                 } catch (\Exception $e) {
-                    \Log::error("Failed to download image: " . $e->getMessage());
+                    \Log::error("Failed to download or convert image: " . $e->getMessage());
                 }
             }
 
@@ -631,58 +645,80 @@ class SampleDataTableSeeder extends Seeder
     public static function uploadBrandImage($brand_name, $image_url)
     {
         if (!empty($image_url)) {
-            $directory = public_path('image/uploads/brands');
-            $file_name = Str::slug($brand_name) . '.jpg'; // Static filename per brand (avoiding timestamp)
+            $webp_name = Str::slug($brand_name) . '.webp';
+            $storage_path = "public/brands/{$webp_name}";
 
-            // Check if the brand image already exists
-            if (File::exists($directory . '/' . $file_name)) {
-                return $file_name; // Return existing image path
+            if (Storage::exists($storage_path)) {
+                return $webp_name;
             }
 
-            // Ensure the directory exists
-            if (!File::exists($directory)) {
-                File::makeDirectory($directory, 0777, true, true);
-            }
-
-            // Download the image and save it
             $image_contents = Http::get($image_url)->body();
-            File::put($directory . '/' . $file_name, $image_contents);
 
-            return $file_name; // Save relative path in DB
+            $image = @imagecreatefromstring($image_contents);
+            if ($image === false) {
+                return null;
+            }
+
+            if (!imageistruecolor($image)) {
+                $true_color = imagecreatetruecolor(imagesx($image), imagesy($image));
+                imagecopy($true_color, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+                imagedestroy($image);
+                $image = $true_color;
+            }
+
+            ob_start();
+            imagewebp($image, null, 80);
+            $webp_data = ob_get_clean();
+            imagedestroy($image);
+
+            Storage::put($storage_path, $webp_data);
+
+            return $webp_name;
         }
 
         return null;
     }
     //---------------------------------------------------------------
 
-    public static function createProductVariations($product, $attributes,$status_id)
+    public static function createProductVariations($product, $attributes, $status_id)
     {
         $faker = Factory::create();
 
-        $variation_attributes = ['color', 'gender'];
-
-        $filtered_attributes = array_filter($attributes, function($key) use ($variation_attributes) {
-            return in_array($key, $variation_attributes);
-        }, ARRAY_FILTER_USE_KEY);
-
-        // Generate combinations of selected attributes and their values
-        $attribute_combinations = [];
-
-        foreach ($filtered_attributes as $attribute_key => $attribute) {
-            foreach ($attribute['values'] as $value) {
-                $attribute_combinations[$attribute_key][] = $value;
-            }
+        // Only process if both color and size exist
+        if (!isset($attributes['color'], $attributes['size'])) {
+            return;
         }
 
-        // Generate variations by combining values from each attribute
-        $combinations = self::combineAttributes($attribute_combinations);
+        $color_attr = $attributes['color'];
+        $size_attr = $attributes['size'];
 
-        // Create product variations for each combination
-        foreach ($combinations as $combination) {
-            $variation_name = $product->name . ' - ' . implode('/', $combination);
-            $variation_slug = Str::slug($product->name . ' ' . implode(' ', $combination));
+        // Fetch attribute models
+        $color_model = Attribute::where('slug', $color_attr['slug'])->first();
+        $size_model = Attribute::where('slug', $size_attr['slug'])->first();
+        if (!$color_model || !$size_model) return;
 
-            ProductVariation::firstOrCreate([
+        // Fetch attribute value models
+        $color_value_models = AttributeValue::where('vh_st_attribute_id', $color_model->id)->get()->keyBy('value');
+        $size_value_models = AttributeValue::where('vh_st_attribute_id', $size_model->id)->get()->keyBy('value');
+
+        // Generate all possible pairs, then randomly pick 6-8
+        $pairs = [];
+        foreach ($color_attr['values'] as $color) {
+            foreach ($size_attr['values'] as $size) {
+                $pairs[] = [$color, $size];
+            }
+        }
+        shuffle($pairs);
+        $pairs = array_slice($pairs, 0, rand(6, 8)); // Pick 6-8 random pairs
+
+        $is_first = true;
+        foreach ($pairs as $pair) {
+            [$color, $size] = $pair;
+            $variation_name = $product->name . ' - ' . $color . '/' . $size;
+            $variation_slug = Str::slug($product->name . ' ' . $color . ' ' . $size);
+
+            // Create the product variation
+            $variation = ProductVariation::create([
                 'vh_st_product_id' => $product->id,
                 'name' => $variation_name,
                 'slug' => $variation_slug,
@@ -690,7 +726,43 @@ class SampleDataTableSeeder extends Seeder
                 'taxonomy_id_variation_status' => $status_id,
                 'price' => $faker->randomFloat(2, 20, 35),
                 'is_active' => 1,
+                'is_default' => $is_first ? 1 : 0,
             ]);
+            $is_first = false;
+
+            // Create product attribute for color
+            $color_attr_id = \DB::table('vh_st_product_attributes')->insertGetId([
+                'vh_st_product_variation_id' => $variation->id,
+                'vh_st_attribute_id' => $color_model->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            if (isset($color_value_models[$color])) {
+                \DB::table('vh_st_product_attribute_values')->insert([
+                    'vh_st_product_attribute_id' => $color_attr_id,
+                    'vh_st_attribute_value_id' => $color_value_models[$color]->id,
+                    'value' => $color,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Create product attribute for size
+            $size_attr_id = \DB::table('vh_st_product_attributes')->insertGetId([
+                'vh_st_product_variation_id' => $variation->id,
+                'vh_st_attribute_id' => $size_model->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            if (isset($size_value_models[$size])) {
+                \DB::table('vh_st_product_attribute_values')->insert([
+                    'vh_st_product_attribute_id' => $size_attr_id,
+                    'vh_st_attribute_value_id' => $size_value_models[$size]->id,
+                    'value' => $size,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
     }
     //---------------------------------------------------------------
@@ -713,76 +785,47 @@ class SampleDataTableSeeder extends Seeder
     }
     //---------------------------------------------------------------
 
-    public static function combineAttributes($attributes)
-    {
-        $result = [[]];
 
-        foreach ($attributes as $attribute_values) {
-            $new_result = [];
-            foreach ($result as $combination) {
-                foreach ($attribute_values as $value) {
-                    $new_result[] = array_merge($combination, [$value]);
-                }
-            }
-            $result = $new_result;
-        }
-
-        return $result;
-    }
     //---------------------------------------------------------------
 
     public function seedVendorProducts()
     {
+        $store = Store::where('is_default', 1)->first();
+        if (!$store) {
+            return;
+        }
+        $product_ids = Product::where('vh_st_store_id', $store->id)
+            ->where('is_active', 1)
+            ->pluck('id')
+            ->toArray();
+        if (empty($product_ids)) {
+            return; // If no products, exit early
+        }
+        // Fetch all vendor IDs and status IDs
+        $vendor_ids =Vendor::where('vh_st_store_id', $store->id)
+            ->where('is_active', 1)
+            ->pluck('id')
+            ->toArray();;
+        $status_ids = Taxonomy::getTaxonomyByType('product-vendor-status')->pluck('id')->toArray();
 
+        if (empty($vendor_ids) || empty($status_ids)) {
+            return; // Exit if no vendors or statuses
+        }
 
+        // Get the currently authenticated user
+        $active_user = optional(auth()->user());
         for ($i = 0; $i < 100; $i++) {
-            // Fetch a random store that has active products
-            $store = Store::where('is_default', 1)
-                ->first();
-
-//            dd($store);
-            if (!$store) {
-                // If no store is found, continue to the next iteration
-                continue;
-            }
-
-            // Fetch random active product IDs from the store
-//            $product_ids = $store->products()->where('is_active', 1)->pluck('id')->toArray();
-            $product_ids = Product::where('vh_st_store_id', $store->id)
-                ->where('is_active', 1)
-                ->pluck('id')
-                ->toArray();
-//            dd($product_ids);
-            if (empty($product_ids)) {
-                continue; // If no products, skip this iteration
-            }
-
-            // Fetch all vendor IDs and status IDs
-            $vendor_ids = Vendor::pluck('id')->toArray();
-            $status_ids = Taxonomy::getTaxonomyByType('product-vendor-status')->pluck('id')->toArray();
-
-            if (empty($vendor_ids) || empty($status_ids)) {
-                continue; // Skip if no vendors or statuses
-            }
-
-            // Get the currently authenticated user
-            $active_user = optional(auth()->user());
-
             // Create a new ProductVendor record
             $vendor_product = new ProductVendor();
             $vendor_product->vh_st_vendor_id = $vendor_ids[array_rand($vendor_ids)];
             $vendor_product->vh_st_product_id = $product_ids[array_rand($product_ids)];
+            $vendor_product->vh_st_store_id = $store->id;
             $vendor_product->taxonomy_id_product_vendor_status = $status_ids[array_rand($status_ids)];
             $vendor_product->added_by = $active_user->id ?? null;
             $vendor_product->is_active = 1;
             $vendor_product->created_at = now();
             $vendor_product->updated_at = now();
             $vendor_product->save();
-
-            // Attach the store to the vendor product
-            if ($vendor_product->vh_st_vendor_id && $store->id) {
-                $vendor_product->storeVendorProduct()->attach($store->id);
-            }
         }
 
     }
@@ -831,7 +874,7 @@ class SampleDataTableSeeder extends Seeder
         $order_payment_status_ids = Taxonomy::whereHas('type', function ($query) {
             $query->where('slug', 'order-payment-status');
         })->pluck('id')->toArray();
-
+        $default_store_id = Store::where('is_default', 1)->value('id');
         $start_date = Carbon::now()->subMonths(1)->startOfMonth(); // Start from beginning of last month
         $end_date = Carbon::now()->endOfMonth(); // End of current month
 
@@ -861,6 +904,9 @@ class SampleDataTableSeeder extends Seeder
                 $inputs['paid'] = $is_completed ? rand(50, 500) : 0;
                 $inputs['is_paid'] = $is_completed ? 1 : 0;
                 $inputs['is_active'] = 1;
+                if (rand(1, 100) <= 90) {
+                    $inputs['vh_st_store_id'] = $default_store_id;
+                }
 
                 // Ensure created_at is within the current day in the loop
                 $created_at = $date->copy()->setTime(rand(0, 23), rand(0, 59), rand(0, 59));
@@ -876,7 +922,7 @@ class SampleDataTableSeeder extends Seeder
                 }
 
                 // Create the order items for the created order
-                $this->createOrderItem($order);
+                $this->createOrderItem($order, $inputs['vh_st_store_id'] ?? null);
             }
         }}
 
@@ -884,7 +930,7 @@ class SampleDataTableSeeder extends Seeder
 
 
 
-    public static function createOrderItem(Order $order)
+    public static function createOrderItem(Order $order, $store_id = null)
     {
         $order_items_types = Taxonomy::inRandomOrder()
             ->whereHas('type', function ($query) {
@@ -899,7 +945,11 @@ class SampleDataTableSeeder extends Seeder
             ->first();
 
 
-        $valid_products = Product::whereHas('productVendors')
+        $valid_products = Product::whereHas('productVendors', function ($query) use ($store_id) {
+            if ($store_id) {
+                $query->where('vh_st_store_id', $store_id);
+            }
+        })
             ->with('productVariations', 'productVendors')
             ->get()
             ->shuffle()
