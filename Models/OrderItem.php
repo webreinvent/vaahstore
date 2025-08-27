@@ -33,8 +33,52 @@ class OrderItem extends VaahModel
     ];
 
     //-------------------------------------------------
-    protected $appends = [
-    ];
+    protected $appends = ['ordered_product'];
+    protected $hidden = ['product','productVariation'];
+
+
+    public function getOrderedProductAttribute()
+    {
+
+        $product = $this->getRelationValue('product');
+        $vendor = $this->getRelationValue('vendor');
+        if ($product && $this->productVariation) {
+            $variation = $this->productVariation;
+
+            $resolved_variation = Product::getResolvedVariationWithVendor($product->id,$vendor,$variation);
+            if ($resolved_variation) {
+                $product_variation = $resolved_variation;
+            }
+
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'quantity' => $this->quantity,
+                'slug' => $product->slug,
+                'media' => $product->media,
+                'grouped_attributes' => $product->grouped_attributes,
+                'product_variation' => $product_variation,
+                // it can be remove
+                'vendor' => $vendor ? [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name,
+                    'slug' => $vendor->slug,
+                    'email' => $vendor->email,
+                    'phone_number' => $vendor->phone_number,
+                    'business_type' => $vendor->business_type,
+                ] : null,
+                'brand' => $product->brand ? [
+                    'id' => $product->brand->id,
+                    'name' => $product->brand->name,
+                    'slug' => $product->brand->slug,
+                    'media' => $product->brand->media,
+                ] : null,
+            ];
+        }
+
+        return null;
+    }
 
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
@@ -85,7 +129,7 @@ class OrderItem extends VaahModel
     //-------------------------------------------------
     public function product()
     {
-        return $this->hasOne(Product::class,'id','vh_st_product_id')->select('id','name', 'slug','vh_st_brand_id');
+        return $this->hasOne(Product::class,'id','vh_st_product_id');
     }
     //-------------------------------------------------
     public function vendor()
@@ -102,9 +146,14 @@ class OrderItem extends VaahModel
     //-------------------------------------------------
     public function ProductVariation()
     {
-        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id')->select('id','name','slug');
+        return $this->hasOne(ProductVariation::class,'id','vh_st_product_variation_id');
     }
+    //-------------------------------------------------
 
+    public function shipmentItems()
+    {
+        return $this->hasMany(ShipmentItem::class, 'vh_st_order_item_id');
+    }
     //-------------------------------------------------
     public function getTableColumns()
     {

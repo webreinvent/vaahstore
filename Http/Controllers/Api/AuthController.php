@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use WebReinvent\VaahCms\Models\User;
 
@@ -22,8 +23,10 @@ class AuthController  extends Controller
     {
         try {
             $response = User::sendLoginOtp($request, 'can-login-in-backend');
-            $status_code = $response['success'] ? 200 :  422;
-            return response()->json($response, $status_code);
+            if (isset($response['data'])) {
+                $response['data'] = null;
+            }
+            return response()->json($response);
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -34,7 +37,7 @@ class AuthController  extends Controller
             } else {
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
-            return response()->json($response, 500);
+            return response()->json($response);
         }
     }
 
@@ -44,10 +47,11 @@ class AuthController  extends Controller
     {
         try {
             $response = User::sendResetPasswordEmail($request, 'can-login-in-backend');
+            if (isset($response['data']) && $response['data'] === []) {
+                $response['data'] = null;
+            }
 
-            $status_code = $response['success'] ? 200 : 422;
-
-            return response()->json($response, $status_code);
+            return response()->json($response);
 
         } catch (\Exception $e) {
             $response = [];
@@ -60,7 +64,7 @@ class AuthController  extends Controller
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
 
-            return response()->json($response, 500);
+            return response()->json($response);
         }
     }
 
@@ -70,9 +74,10 @@ class AuthController  extends Controller
     {
         try {
             $response = User::resetPassword($request);
-
-            $status_code = $response['success'] ? 200 :  422;
-            return response()->json($response, $status_code);
+            if (isset($response['data'])) {
+                $response['data'] = null;
+            }
+            return response()->json($response);
 
         }  catch (\Exception $e) {
             $response = [];
@@ -83,7 +88,7 @@ class AuthController  extends Controller
             } else {
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
-            return response()->json($response, 500);
+            return response()->json($response);
         }
     }
     //------------------------------------------------
@@ -101,14 +106,14 @@ class AuthController  extends Controller
                 $response = [
                     'success' => true,
                     'message' => ['Logout successfully.'],
-                    'data' => [],
+                    'data' => null,
                 ];
             } else {
                 $response = [
                     'success' => false,
                     'message' => ['No user is currently logged in.'],
                 ];
-                return response()->json($response, 404);
+                return response()->json($response);
             }
             return response()->json($response);
         } catch (\Exception $e) {
@@ -122,7 +127,7 @@ class AuthController  extends Controller
                 $response['errors'][] = [trans("vaahcms-general.something_went_wrong")];
             }
 
-            return response()->json($response, 500);
+            return response()->json($response);
         }
     }
 
@@ -144,18 +149,9 @@ class AuthController  extends Controller
                 $token = $user->createToken('VaahStore')->plainTextToken;
 
                 $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
-
-                return response()->json([
-                    'success' => true,
-                    'data' => [
-                        'item' => array_merge($user->toArray(), [
-                            'api_token' => $token,
-                            'expires_at' => $expiration->toDateTimeString(),
-                        ]),
-                    ],
-                ],201);
+                return self::generateAuthResponse($user,$request,'Saved successfully.');
             }
-            return response()->json($response,422);
+            return response()->json($response);
         } catch (\Exception $e) {
             $response = [];
             $response['success'] = false;
@@ -167,7 +163,7 @@ class AuthController  extends Controller
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
             }
 
-            return response()->json($response, 500);
+            return response()->json($response);
         }
     }
     //-----------------------------------------------------------------------
@@ -184,7 +180,7 @@ class AuthController  extends Controller
                 return response()->json([
                     'success' => false,
                     'errors' => $validator->errors()->all(),
-                ], 422);
+                ]);
             }
 
             $user = self::findUser($request);
@@ -192,7 +188,7 @@ class AuthController  extends Controller
                 return response()->json([
                     'success' => false,
                     'errors' => ['Invalid credentials'],
-                ], 401);
+                ]);
             }
 
             if ($request->authentication_type === 'otp') {
@@ -210,7 +206,7 @@ class AuthController  extends Controller
             } else {
                 $response['errors'][] = [trans("vaahcms-general.something_went_wrong")];
             }
-            return response()->json($response, 500);
+            return response()->json($response);
         }
     }
     //-----------------------------------------------------------------------
@@ -266,39 +262,61 @@ class AuthController  extends Controller
     protected static function handleStandardLogin($user, $request)
     {
         if (Hash::check($request->authentication_value, $user->password)) {
-            return self::generateAuthResponse($user, $request);
+            return self::generateAuthResponse($user, $request, 'SignIn Successfully.');
         }
 
         return response()->json([
             'success' => false,
             'errors' => ['The password you entered is incorrect.'],
-        ], 401);
+        ]);
     }
     //-----------------------------------------------------------------------
 
-    protected static function generateAuthResponse($user, $request)
+    protected static function generateAuthResponse($user, $request,$message = null)
     {
         $max_sessions = 5;
         if ($user->tokens()->count() >= $max_sessions) {
             $user->tokens()->oldest()->first()->delete();
         }
 
-        $expiration = Carbon::now()->addDays(2);
+        $expiration = $request->remember_me ? Carbon::now()->addDays(7) : Carbon::now()->addDays(2);
 
         $token = $user->createToken('VaahStore')->plainTextToken;
         $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
 
         $user->makeVisible('api_token');
-
-        return response()->json([
+        $data = [
+            'email' => $user->email,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'phone' => $user->phone,
+            'display_name' => $user->display_name,
+            'username' => $user->username,
+            'is_active' => $user->is_active,
+            'created_ip' => $user->created_ip,
+            'updated_by' => $user->updated_by,
+            'updated_at' => $user->updated_at,
+            'created_by' => $user->created_by,
+            'uuid' => $user->uuid,
+            'created_at' => $user->created_at,
+            'id' => $user->id,
+            'avatar' => $user->avatar,
+            'name' => $user->name,
+            'cart_uuid' => $user->cart_uuid,
+            'cart_products_count' => $user->cart_products_count,
+            'api_token' => $token,
+            'expires_at' => $expiration->toDateTimeString(),
+        ];
+        $response = [
             'success' => true,
-            'data' => [
-                'item' => array_merge($user->toArray(), [
-                    'api_token' => $token,
-                    'expires_at' => $expiration->toDateTimeString(),
-                ]),
-            ],
-        ]);
+        ];
+        if ($message) {
+            $response['messages'] = [$message];
+        }
+        $response['data'] = $data;
+
+        return $response;
+
     }
     //-----------------------------------------------------------------------
 
@@ -307,41 +325,71 @@ class AuthController  extends Controller
         if (Hash::check(trim($request->authentication_value), $user->login_otp)) {
             Auth::login($user);
 
-            $max_sessions = 5;
-            if ($user->tokens()->count() >= $max_sessions) {
-                $user->tokens()->oldest()->first()->delete();
-            }
-
-            $expiration = Carbon::now()->addDays(2);
-
-            $token = $user->createToken('VaahStore')->plainTextToken;
-
-            $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
-
             $user->update([
                 'login_otp' => null,
                 'last_login_at' => now(),
                 'last_login_ip' => $request->ip(),
             ]);
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'item' => array_merge($user->toArray(), [
-                        'api_token' => $token,
-                        'expires_at' => $expiration->toDateTimeString(),
-                    ]),
-                ],
-            ]);
+            return self::generateAuthResponse($user,$request, 'SignIn Successfully.');
         }
 
         return response()->json([
             'success' => false,
             'errors' => ['The OTP you entered is invalid.'],
-        ], 401);
+        ]);
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
 
+    public function refreshToken(Request $request)
+    {
+        $current_token = $request->bearerToken();
+
+        if (!$current_token) {
+            return response()->json(['success' => false, 'errors' => ['No token provided.']]);
+        }
+
+        // Find the token record directly
+        $access_token = PersonalAccessToken::findToken($current_token);
+
+        if (!$access_token) {
+            return response()->json(['success' => false, 'errors' => ['Your session has expired because you logged in on another device.']]);
+        }
+
+        $user = $access_token->tokenable;
+
+        // Check if expired
+        if ($access_token->expires_at && now()->greaterThanOrEqualTo($access_token->expires_at)) {
+            $access_token->delete();
+
+            // Generate new token
+            $expiration = $request->boolean('remember_me')
+                ? now()->addDays(7)
+                : now()->addDays(2);
+
+            $new_token = $user->createToken('VaahStore')->plainTextToken;
+            $user->tokens()->latest()->first()->update(['expires_at' => $expiration]);
+
+            return response()->json([
+                'success' => true,
+                'messages' => ['Token refreshed successfully.'],
+                'data' => [
+                    'api_token' => $new_token,
+                    'expires_at' => $expiration->toDateTimeString(),
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'messages' => ['Token is still valid.'],
+            'data' => [
+                'api_token' => $current_token,
+                'expires_at' => $access_token->expires_at?->toDateTimeString(),
+            ]
+        ]);
+    }
+    //-----------------------------------------------------------------------
 
 }

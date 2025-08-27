@@ -195,7 +195,7 @@ const props = defineProps({
 
             <td colspan="2" v-if="value">
                 <Image
-                    :src="`image/uploads/brands/`+value"
+                    :src="`storage/brands/`+value"
                     preview
                     alt="Image"
                     width="70"/>

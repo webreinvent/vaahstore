@@ -14,14 +14,14 @@ class VhStwhishlists extends Migration
     public function up()
     {
 
-        if (!Schema::hasTable('vh_st_whishlists')) {
-            Schema::create('vh_st_whishlists', function (Blueprint $table) {
+        if (!Schema::hasTable('vh_st_wishlists')) {
+            Schema::create('vh_st_wishlists', function (Blueprint $table) {
                 $table->bigIncrements('id')->unsigned();
                 $table->uuid('uuid')->nullable()->index();
                 $table->string('name')->nullable()->index();
                 $table->string('slug')->nullable()->index();
                 $table->boolean('type')->nullable()->index();
-                $table->integer('vh_user_id')->nullable()->index();
+
                 $table->integer('taxonomy_id_whishlists_status')->nullable()->index();
                 $table->integer('taxonomy_id_whishlists_types')->nullable()->index();
 
@@ -53,6 +53,6 @@ class VhStwhishlists extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('vh_st_whishlists');
+        Schema::dropIfExists('vh_st_wishlists');
     }
 }

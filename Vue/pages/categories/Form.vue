@@ -27,7 +27,18 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
+const src = ref(null);
 
+function onFileSelect(event) {
+    const file = event.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        src.value = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
 </script>
 <template>
 
@@ -162,6 +173,66 @@ const toggleFormMenu = (event) => {
                                    v-model="store.item.slug" required/>
                         <div class="required-field hidden"></div>
                     <label for="categories-slug">Enter Slug<span class="text-red-500">*</span></label>
+                </FloatLabel>
+
+
+
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <FileUpload
+                        name="image"
+                        ref="upload_refs"
+                        :custom-upload="true"
+                        data-testid="categories-media"
+                        @uploader="store.upload"
+                        :multiple="false"
+
+                        accept=".jpeg,.jpg,.png,"
+                        :maxFileSize="root.assets?.max_file_size"
+                        :pt="{
+                                    root: {style: {maxHeight: '300px', overflowY: 'scroll'} }
+                                }"
+
+
+                    >
+                        <template #empty class="flex">
+                            <p v-if="!store.item.image_path">Drag and drop files here to upload.</p>
+                            <p v-if="store.item.image_path">
+                                <img class="w-3 h-8rem" :src="store.item.image_path"/>
+                                <i class="pi pi-times text-2xl font-bold cursor-pointer text-red-500 ml-2" @click="store.clearimage"></i>
+
+                            </p>
+
+
+                        </template>
+                    </FileUpload>
+
+                </FloatLabel>
+
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <InputText class="w-full"
+                               name="brands-slug"
+                               data-testid="categories-meta_title"
+                               v-model="store.item.meta_title"/>
+                    <label for="categories-slug">Enter Meta Title</label>
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <Textarea rows="3" class="w-full"
+                              name="brands-meta_description"
+                              data-testid="categories-meta_description"
+                              :autoResize="true"
+                              v-model="store.item.meta_description"/>
+                    <label for="categories-slug">Enter Meta Description</label>
+                </FloatLabel>
+
+                <FloatLabel class="my-3" :variant="store.float_label_variants">
+                    <Chips class="w-full"
+                           v-model="store.item.meta_keywords"
+                           placeholder="Enter Meta keyword"
+                           separator=","  />
+                    <label for="categories-slug">Enter Meta keyword</label>
                 </FloatLabel>
 
                 <div class="flex items-center gap-2 my-3" >

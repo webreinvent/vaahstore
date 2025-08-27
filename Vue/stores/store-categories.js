@@ -606,7 +606,6 @@ export const useCategoryStore = defineStore({
                         this.item = data;
                         this.item.parent_category = this.convertCategoryToTreeSelectData(data.parent_category);
                     }
-                    vaah().toastSuccess(['Action Was Successful']);
                     break;
                 case 'delete':
                     this.item = null;
@@ -1235,6 +1234,35 @@ export const useCategoryStore = defineStore({
                 this.screen_size = 'large';
             }
         },
+        //---------------------------------------------------------------------
+
+        handleFileSelect(event) {
+            this.item.image = event.files[0];
+        },
+        async upload(event) {
+            const formData = new FormData();
+            formData.append('image', event.files[0]);
+
+            let options = {
+                params: formData,
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json'
+                }
+            };
+
+            await vaah().ajax(
+                this.ajax_url + '/image/upload',
+                this.afterUploadImage,
+                options
+            );
+        },
+        afterUploadImage(data,res){
+            this.item.image_path=data.image_path;
+        },
+        clearimage(){
+            this.item.image_path = null;
+        }
         //---------------------------------------------------------------------
     }
 });

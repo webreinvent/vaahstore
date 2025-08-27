@@ -86,20 +86,20 @@ const toggleCreateMenu = (event) => {
 
                     <template #icons>
 
-                        <div class="p-inputgroup">
+                        <div class=" gap-2 flex">
 
                             <Button data-testid="brands-list-create"
                                     class="p-button-sm"
                                     @click="store.toForm()"
                                     :disabled="!store.assets.permissions.includes('can-update-module')">
-                                <i class="pi pi-plus mr-1"></i>
+                                <Icon class="-mr-1" icon="ph:plus-light" width="16" height="16"  style="color: #7b7a7a" />
                                 Create
                             </Button>
 
                             <Button data-testid="brands-list-reload"
                                     class="p-button-sm"
                                     @click="store.reload()">
-                                <i class="pi pi-refresh mr-1"></i>
+                                <Icon class="mx-1"  icon="famicons:reload-sharp" width="16" height="16"  style="color: #7b7a7a" />
                             </Button>
 
                             <!--form_menu-->
@@ -124,9 +124,13 @@ const toggleCreateMenu = (event) => {
 
                     </template>
 
+                    <Card>
+                        <template #content>
                     <Actions/>
 
                     <Table/>
+                        </template>
+                    </Card>
 
                 </Panel>
             </div>

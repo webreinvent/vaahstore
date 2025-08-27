@@ -74,7 +74,7 @@ function () {
      * Search orders
      */
     //---------------------------------------------------------
-    Route::post('/search/orders', [ShipmentsController::class, 'searchOrders'])
+    Route::get('/search/orders', [ShipmentsController::class, 'searchOrders'])
         ->name('vh.backend.store.shipments.search.orders');
 
     /**
@@ -104,18 +104,18 @@ function () {
     /**
      * Fetch Shipment Orders Details Count By date range
      */
-    Route::post('/charts/orders-shipments-by-range', [ShipmentsController::class,'ordersShipmentByDateRange'])
+    Route::get('/charts/orders-shipments-by-range', [ShipmentsController::class,'ordersShipmentByDateRange'])
         ->name('vh.backend.store.shipments.charts.order_details_counts');
 
     /**
      * Fetch Shipment Items Details Count By date range
      */
-    Route::post('/charts/shipment-items-by-range', [ShipmentsController::class,'ordersShipmentItemsByDateRange'])
+    Route::get('/charts/shipment-items-by-range', [ShipmentsController::class,'ordersShipmentItemsByDateRange'])
         ->name('vh.backend.store.shipments.charts.items_details_counts');
 
     /**
      * Fetch Shipment Items by status By date range
      */
-    Route::post('/charts/shipment-items-by-status', [ShipmentsController::class,'shipmentItemsByStatusBarChart'])
+    Route::get('/charts/shipment-items-by-status', [ShipmentsController::class,'shipmentItemsByStatusBarChart'])
         ->name('vh.backend.store.shipments.charts.items_status_details');
 });

@@ -24,6 +24,11 @@ const toggleFormMenu = (event) => {
     form_menu.value.toggle(event);
 };
 //--------/form_menu
+watch(() => store.query.selected_store, async (val) => {
+    if (val) {
+        store.toList();
+    }
+});
 
 </script>
 <template>
@@ -84,7 +89,7 @@ const toggleFormMenu = (event) => {
             <div v-if="store.product_variation_list.length > 0 " class="grid align-items-center ">
                 <div class="col-5">
                     <div class="flex w-full mb-1">
-                        <InputNumber v-model="store.item.all_price" inputId="integeronly" class="p-inputtext-sm w-full"
+                        <InputNumber v-model="store.item.all_price" inputId="integeronly" class="p-inputtext-sm p-0 w-full"
                                      placeholder="Enter Price"
                         />
                         <Button class="min-w-max" @click="store.fillAllPrices">Fill All </Button>
@@ -101,10 +106,9 @@ const toggleFormMenu = (event) => {
                     <div v-if="store.product_variation_list && store.product_variation_list.length > 0">
                     <DataTable :value="store.product_variation_list"
                                dataKey="id"
-                               paginator
-                               :rows="20"
-                               :rowsPerPageOptions="[5, 10, 20, 50]"
-                               class="p-datatable-sm p-datatable-hoverable-rows"
+
+                               class=""
+                               scrollable scrollHeight="500px"
                                stripedRows
                                responsiveLayout="scroll">
 
@@ -114,7 +118,10 @@ const toggleFormMenu = (event) => {
                             </template>
                         </Column>
 
-                        <Column field="price" header="Price">
+                        <Column field="price" header="">
+                            <template #header>
+                                <span v-html="`Price (${root.selected_store_at_sidebar?.default_currency?.symbol || ''})`"></span>
+                            </template>
                             <template #body="props">
                                 <InputNumber
                                     :placeholder="'Enter Price '"
@@ -122,7 +129,7 @@ const toggleFormMenu = (event) => {
                                     :name="'productprices-amount-' + props.index"
                                     v-model="props.data.amount"
                                     mode="decimal"
-                                    class="p-inputtext-sm h-2rem m-1"
+                                    class=" h-2rem"
                                     :data-testid="'productprices-amount-' + props.index"
                                 />
                             </template>

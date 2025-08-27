@@ -80,21 +80,20 @@ const toggleCreateMenu = (event) => {
                 <Panel :pt="root.panel_pt">
                     <template #header>
 
-                        <div class="flex flex-row">
-                            <div>
-                                <b class="mr-1">Products Attributes</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
-                            </div>
+                        <div class="flex flex-row items-center gap-2">
+                            <Icon icon="streamline:ai-generate-variation-spark" width="18" height="18" class="text-gray-950"></Icon>
 
+                                <b class="mr-1">Products Attributes</b>
+                                <!-- <Badge v-if="store.list && store.list.total > 0"
+                                       :value="store.list.total">
+                                </Badge> -->
                         </div>
 
                     </template>
 
                 <template #icons>
 
-                    <div class="p-inputgroup">
+                    <div class="flex gap-1">
 
                     <Button data-testid="productattributes-list-create"
                             class="p-button-sm"
@@ -131,10 +130,14 @@ const toggleCreateMenu = (event) => {
                     </div>
 
                 </template>
-
+                    <Card>
+                    <template #content>
                 <Actions/>
 
                 <Table/>
+                    </template>
+                    </Card>
+
 
             </Panel>
         </div>

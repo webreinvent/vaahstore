@@ -1,6 +1,7 @@
 <?php
 
 use VaahCms\Modules\Store\Http\Controllers\Backend\CartsController;
+use VaahCms\Modules\Store\Http\Controllers\Backend\PaymentsController;
 
 Route::group(
     [
@@ -124,4 +125,13 @@ function () {
      */
     Route::post('/{uuid}/user', [CartsController::class, 'AddUserToCart'])
         ->name('vh.backend.store.api.carts.add.user');
+    Route::get('/stripe/publishable-key',[PaymentsController::class, 'getStripeKey']);
+    Route::post('/create-paypal-order', [PaymentsController::class, 'createOrder']);
+    Route::get('/capture-paypal-order/{id}', [PaymentsController::class, 'captureOrder']);
+
+
+//    Route::post('/stripe/webhook', [PaymentsController::class, 'webhook']); // Stripe calls this
+    Route::post('/stripe/payment-intent', [PaymentsController::class, 'createPaymentIntent']);
+
+    Route::post('/stripe/confirm-payment', [PaymentsController::class, 'confirmPayment']);
 });

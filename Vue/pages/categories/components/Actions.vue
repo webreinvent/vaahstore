@@ -56,11 +56,11 @@ const toggleBulkMenuState = (event) => {
             <!--/left-->
 
             <!--right-->
-            <div >
+            <div class="flex justify-between gap-1">
 
 
-                <InputGroup>
-
+<!--                <InputGroup>-->
+                            <div class="w-1/2">
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
                                        class="p-inputtext-sm"
@@ -68,6 +68,7 @@ const toggleBulkMenuState = (event) => {
                                        @keyup.13="store.delayedSearch()"
                                        data-testid="categories-actions-search"
                                        placeholder="Search"/>
+                                </div>
                             <Button @click="store.delayedSearch()"
                                     class="p-button-sm"
                                     data-testid="categories-actions-search-button"
@@ -100,7 +101,7 @@ const toggleBulkMenuState = (event) => {
                                     data-testid="categories-actions-bulk-menu"
                                     aria-haspopup="true"
                                     aria-controls="bulk_menu_state"
-                                    class="ml-1 p-button-sm">
+                                    class=" p-button-sm">
                                     <i class="pi pi-ellipsis-v"></i>
                                 </Button>
                                 <Menu ref="bulk_menu_state"
@@ -108,7 +109,7 @@ const toggleBulkMenuState = (event) => {
                                       :popup="true" />
                                 <!--/bulk_menu-->
 
-                </InputGroup>
+<!--                </InputGroup>-->
             </div>
 
             </div>

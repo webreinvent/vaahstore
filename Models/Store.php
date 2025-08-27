@@ -5,7 +5,9 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Services\CurrencyConverterService;
 use WebReinvent\VaahCms\Models\Taxonomy;
 use WebReinvent\VaahCms\Models\TaxonomyType;
 use Faker\Factory;
@@ -47,9 +49,53 @@ class Store extends VaahModel
 
     //-------------------------------------------------
 
-    protected $appends = [
-    ];
+    protected $appends = ['languages','currency'];
+    protected $hidden = ['lingualData'];
+    public function getCurrencyAttribute(): ?array
+    {
+        $currency_code = request('currency');
 
+        $base_currency_code = $this->defaultCurrency->code ?? null;
+        $store_currency_codes = $this->currencies->pluck('code')->toArray();
+        $store_currency_symbols = $this->currencies->pluck('symbol', 'code')->toArray();
+
+        if (!$base_currency_code) {
+            return null;
+        }
+
+        $convert_to_currency = ($currency_code && in_array($currency_code, $store_currency_codes))
+            ? $currency_code
+            : $base_currency_code;
+
+        if ($convert_to_currency === $base_currency_code) {
+            return [
+                'code' => $convert_to_currency,
+                'symbol' => $store_currency_symbols[$convert_to_currency] ?? null,
+                'rate' => 1,
+            ];
+        }
+
+        $conversion_rates = Cache::remember('conversion_rates_USD', now()->addDay(), function () {
+            return (new CurrencyConverterService())->fetchAllRates('USD');
+        });
+
+        $rate_to = $conversion_rates[$convert_to_currency] ?? null;
+        $rate_from = $conversion_rates[$base_currency_code] ?? null;
+
+        $conversion_rate = ($rate_to && $rate_from) ? $rate_to / $rate_from : 1;
+
+        return [
+            'code' => $convert_to_currency,
+            'symbol' => $store_currency_symbols[$convert_to_currency] ?? null,
+            'rate' => round($conversion_rate, 2),
+        ];
+    }
+
+    //--------------------------------------------------
+    public function getLanguagesAttribute()
+    {
+        return $this->lingualData;
+    }
     //--------------------------------------------------
 
     protected $casts =[
@@ -123,10 +169,6 @@ class Store extends VaahModel
     {
         return $this->hasMany(Currency::class, 'vh_st_store_id', 'id')
             ->where('is_active', 1)
-            ->where(function ($query) {
-                $query->where('is_default', 0)
-                    ->orWhereNull('is_default');
-            })
             ->select(['vh_st_currencies.vh_st_store_id', 'vh_st_currencies.name',
                 'vh_st_currencies.code', 'vh_st_currencies.symbol', 'vh_st_currencies.is_default']);
     }
@@ -144,13 +186,25 @@ class Store extends VaahModel
                 'vh_st_currencies.is_default'
             ]);
     }
+    //-------------------------------------------------
 
+    public function defaultLanguage()
+    {
+        return $this->hasOne(Lingual::class, 'vh_st_store_id', 'id')
+            ->where('is_default', 1)
+            ->select([
+                'vh_st_lingual.vh_st_store_id',
+                'vh_st_lingual.name',
+                'vh_st_lingual.code',
+                'vh_st_lingual.is_default'
+            ]);
+    }
 
     //-------------------------------------------------
     public function lingualData(){
         return $this->hasMany(Lingual::class, 'vh_st_store_id', 'id')
             ->where('is_active', 1)
-            ->select(['vh_st_lingual.vh_st_store_id','vh_st_lingual.name','vh_st_lingual.is_default']);
+            ->select(['vh_st_lingual.vh_st_store_id','vh_st_lingual.name','vh_st_lingual.code','vh_st_lingual.is_default']);
     }
 
     //-------------------------------------------------
@@ -659,7 +713,7 @@ class Store extends VaahModel
         $default_store = self::where('is_default', 1)->first();
 
         // Fetch all records based on the filters
-        $list = self::getSorted($request->filter)->with('status');
+        $list = self::getSorted($request->filter)->with('status','currencies','defaultLanguage');
         if ($request->has('filter')) {
             $list->isActiveFilter($request->filter);
             $list->trashedFilter($request->filter);

@@ -126,7 +126,7 @@ const openVendorPage = (id) => {
 
                 </Message>
 
-                <Tabs >
+                <Tabs value="0">
                     <TabList>
                         <Tab value="0">Shipment Details</Tab>
                         <Tab value="1">Shipment Items Detail</Tab>
@@ -238,7 +238,7 @@ const openVendorPage = (id) => {
                             <Column field="name" header="Order Item">
                                 <template #body="prop">
                                     <div class="">
-                                    {{prop.data.product_variation?.name}}
+                                    {{prop.data.ordered_product.variation?.name}}
                                     </div>
                                 </template>
                             </Column>

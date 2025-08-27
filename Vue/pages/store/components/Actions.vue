@@ -36,6 +36,7 @@ const toggleBulkMenuState = (event) => {
             <div v-if="store.view === 'large'">
 
                 <!--selected_menu-->
+
                 <Button
                     type="button"
                     @click="toggleSelectedMenuState"

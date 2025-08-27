@@ -41,13 +41,13 @@ const useVaah = vaah();
 
              <Column field="status" header="Status">
                  <template #body="prop">
-                     <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
+                     <Badge class="!text-green-500 bg-[#0E9F6E1A]" unstyled="true" v-if="prop.data.status && prop.data.status.slug == 'approved'"
                             severity="success"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else-if="!prop.data.status"
+                     <Badge unstyled="true" v-else-if="!prop.data.status"
                             severity="primary"> null </Badge>
-                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
+                     <Badge class="!text-red-500 bg-[#E02424]/10 " unstyled="true" v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
                             severity="danger"> {{prop.data.status.name}} </Badge>
-                     <Badge v-else
+                     <Badge class="!text-yellow-500 bg-[#E3A0081A]/10" unstyled="true" v-else
                             severity="warn"> {{prop.data.status.name}} </Badge>
                  </template>
              </Column>
@@ -84,16 +84,16 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-1">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="warehouses-table-to-view"
                                 v-tooltip.top="'View'"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="warehouses-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
@@ -101,7 +101,7 @@ const useVaah = vaah();
                                 v-if="!store.assets.is_guest_impersonating"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="text-red-500 p-button-tiny p-button-danger p-button-text icon-button"
                                 data-testid="warehouses-table-action-trash"
                                 v-if="store.isListView()
                                       && !prop.data.deleted_at

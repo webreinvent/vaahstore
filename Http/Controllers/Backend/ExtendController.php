@@ -54,4 +54,15 @@ class ExtendController extends Controller
     }
     //----------------------------------------------------------
 
+    public function getNotificationActions()
+    {
+
+        $response['success'] = true;
+        $response['data'] = [
+            ['name' => 'https://nuxtstore-frontend-develop.vercel.getdemo.dev/auth/reset-password?#!PARAM:RESET_PASSWORD_CODE!#'],
+        ];
+        return $response;
+    }
+    //----------------------------------------------------------
+
 }

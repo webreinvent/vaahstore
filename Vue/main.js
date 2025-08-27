@@ -95,6 +95,15 @@ app.use(PrimeVue, {
             bodyrow: {
                 class: '!bg-transparent'
             },
+            header: {
+                class: '!bg-transparent'
+            },
+            headerRow: {
+                class: '!bg-transparent'
+            },
+            headercell: {
+                class: '!bg-transparent'
+            }
         },
         paginator: {
             first: {
@@ -120,7 +129,10 @@ app.use(PrimeVue, {
             },
             current: {
                 class: "!border-blue-500 !bg-blue-500/10"
-            }
+            },
+            pcPaginator: {
+                class: '!bg-transparent !border-0'
+            },
         },
         button: {
             root: {
@@ -129,11 +141,11 @@ app.use(PrimeVue, {
         },
         badge: {
             root: {
-                class: "py-1 px-2 font-bold rounded-full text-[8px] leading-4"
+                class: " py-1 px-2 font-bold rounded-full text-[8px] leading-4"
             }
         },
         card: {
-            root: {class: '!shadow-card bg-gray-50'},
+            root: {class: '!shadow-card !bg-gray-50 '},
             body: {class: 'px-2 pt-3 pb-0 gap-0'},
             content: {class: 'p-0'},
             title: {class: '!text-gray-500 font-normal p-0 mb-2 !border-b-0 ml-2'}
@@ -143,8 +155,8 @@ app.use(PrimeVue, {
         },
         panel:{
             root:{class:'!border-0 !bg-transparent'},
-            header: {class: '!p-2 !border-0 !bg-transparent'},
-            content:{class: "!p-2 !border-0 !bg-transparent shadow-[0px 2px 16px 0px #D7D9E0CC]"},
+            header: {class: '!p-0 !border-0 !bg-transparent'},
+            content:{class: "!p-0 !border-0 !bg-transparent shadow-[0px 2px 16px 0px #D7D9E0CC]"},
             contentContainer: {class: "border-0 !bg-transparent shadow-[0px 2px 16px 0px #D7D9E0CC]"}
         },
         accordion: {
@@ -320,12 +332,15 @@ import Drawer from 'primevue/drawer';
 
 app.component('Drawer', Drawer);
 
+import Password from 'primevue/password';
 
+app.component('Password', Password);
 import DynamicDialog from 'primevue/dynamicdialog';
 
 app.component('DynamicDialog', DynamicDialog);
-
-
+import Avatar from 'primevue/avatar';
+import AvatarGroup from 'primevue/avatargroup';
+app.component('Avatar', Avatar);
 app.mount('#appStore')
 
 

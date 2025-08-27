@@ -108,7 +108,8 @@ const toggleFormMenu = (event) => {
 
 
             <div v-if="store.item" class="pt-2">
-
+<!--{{store.item.user}}-->
+                <div v-if="!store.item.id">
                 <VhField label="User*">
                     <AutoComplete
                         value="id"
@@ -139,7 +140,7 @@ const toggleFormMenu = (event) => {
                         >
                     </AutoComplete>
                 </VhField>
-
+                </div>
                 <VhField label="Name*">
                     <InputText class="w-full"
                                placeholder="Enter Name"

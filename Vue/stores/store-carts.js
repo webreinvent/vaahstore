@@ -19,6 +19,7 @@ let empty_states = {
             trashed: null,
             sort: null,
         },
+        selected_store:null,
     },
     action: {
         type: null,
@@ -96,6 +97,7 @@ export const useCartStore = defineStore({
         window_width: 0,
         screen_size: null,
         float_label_variants: 'on',
+        paypal_order_resolver:null,
     }),
     getters: {
 
@@ -401,12 +403,15 @@ export const useCartStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async getItem(id) {
-
+        async getItem(id,selected_store=null) {
+            let options = {
+                query: {}
+            };
+            options.query.selected_store = selected_store || this.query?.selected_store;
             if(id){
                 await vaah().ajax(
                     ajax_url+'/'+id,
-                    this.getItemAfter
+                    this.getItemAfter,options
                 );
             }
         },
@@ -901,12 +906,17 @@ export const useCartStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        async getCartItemDetailsAtCheckout(id) {
+        async getCartItemDetailsAtCheckout(id,selected_store=null) {
             if(id){
+                let options = {
+                    query: {}
+                };
+                options.query.selected_store = selected_store || this.query?.selected_store;
                 await this.loadAssets();
                 await vaah().ajax(
                     ajax_url+'/'+ id+'/checkout',
-                    this.getCartItemDetailsAtCheckoutAfter
+                    this.getCartItemDetailsAtCheckoutAfter,
+                    options
                 );
             }
         },
@@ -914,12 +924,12 @@ export const useCartStore = defineStore({
 
         async getCartItemDetailsAtCheckoutAfter(data, res) {
             if (data) {
-                if (data.product_details.length === 0) {
+                if (data.products.length === 0) {
                     this.$router.push({ name: 'carts.index', query: this.query });
                     return;
                 }
 
-                this.cart_item_at_checkout = data.product_details;
+                this.cart_item_at_checkout = data.products;
                 this.item_user = data.user;
                 this.total_mrp = data.total_mrp;
                 this.item_user_address = vaah().clone(this.assets.item_user_address);
@@ -936,7 +946,7 @@ export const useCartStore = defineStore({
                     const defaultBillingAddress = data.user_billing_addresses.find(address => address.is_default === 1);
                     this.user_billing_address = defaultBillingAddress || data.user_billing_addresses[Math.floor(Math.random() * data.user_billing_addresses.length)];
                 }
-                this.$router.push({name: 'carts.check_out',params:{id:this.item.id},query:this.query})
+                this.$router.push({name: 'carts.check_out',params:{id:this.item?.id},query:this.query})
             }
 
 
@@ -1192,15 +1202,17 @@ export const useCartStore = defineStore({
 
 
         async addToWishList(item,user){
+            const is_wishlisted = item.is_wishlisted === 1 || item.is_wishlisted === true;
             const query = {
                 item_detail:item,
                 user_detail:user,
+                type: is_wishlisted ? 'delete' : 'add',
+                selected_store_id: this.query?.selected_store,
             };
             const options = {
                 params: query,
                 method: 'post',
             };
-
             await vaah().ajax(
                 this.ajax_url+'/add-to-wishlist',
                 this.addToWishListAfter,
@@ -1303,6 +1315,50 @@ export const useCartStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
+        async createPaypalOrder(orderParams) {
+            const options = {
+                method: 'post',
+                params: {
+                    order_details: orderParams
+                }
+            };
+            await vaah().ajax(
+                this.ajax_url + '/create-paypal-order',
+                this.createPaypalOrderAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        createPaypalOrderAfter(data, res) {
+            if (data && data.id && this.paypal_order_resolver) {
+                this.paypal_order_resolver(data.id);
+                this.paypal_order_resolver = null;
+            } else {
+                if (this.paypalOrderRejecter) {
+                    this.paypalOrderRejecter('Failed to create PayPal order.');
+                    this.paypalOrderRejecter = null;
+                }
+            }
+        },
+        //---------------------------------------------------------------------
+
+        async capturePaypalOrder(orderID) {
+            await vaah().ajax(
+                this.ajax_url + '/capture-paypal-order/' + orderID,
+                this.capturePaypalOrderAfter,
+                { method: 'get' }
+            );
+        },
+        //---------------------------------------------------------------------
+
+        capturePaypalOrderAfter(data, res) {
+            if (data) {
+                this.orderConfirmation(data);
+            }
+        }
+        //---------------------------------------------------------------------
+
 
 
     }

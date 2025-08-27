@@ -67,26 +67,14 @@ const openProductCategories = (categories,product) => {
 
             </Column>
 
-             <Column field="store.name" header="Store"
-                     :sortable="true">
-                 <template #body="prop">
-                     <Badge v-if="prop.data && prop.data.store && prop.data.store.deleted_at"
-                            value="Trashed"
-                            severity="danger"></Badge>
-                     <span>
-                        <div style="word-break: break-word;" v-if="prop.data && prop.data.store">
-                            {{ prop.data.store.name }}</div>
-                         </span>
-                 </template>
 
-             </Column>
 
              <Column field="quantity" header="Quantity" v-if="store.isListView()" :sortable="true">
                  <template #body="prop">
-                     <template v-if="prop.data && prop.data.product_price_range">
-                         <p class="text-center" v-if="prop.data.product_price_range.quantity"
+                     <template v-if="prop.data && prop.data.vendor_product_data ">
+                         <p class="text-center" v-if="prop.data.vendor_product_data .quantity"
 
-                                >{{prop.data.product_price_range.quantity}}</p>
+                                >{{prop.data.vendor_product_data .quantity}}</p>
                          <p class="text-center" v-else-if="prop.data.quantity == 0 || prop.data.quantity === null"
 
                          >0</p>
@@ -106,11 +94,11 @@ const openProductCategories = (categories,product) => {
             <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                   v-tooltip.top="'View Vendors'"
                   @click="store.openVendorsPanel(prop.data)">
-                <b v-if="prop.data && prop.data.is_attached_default_vendor === false">
-                    {{ prop.data.product_vendors.length + 1 }}
+                <b v-if="prop.data && prop.data.is_default_vendor_attached === true">
+                    {{ prop.data.product_vendors_count + 1 }}
                 </b>
                 <b v-else>
-                    {{ prop.data ? prop.data.product_vendors.length : 0 }}
+                    {{ prop.data ? prop.data.product_vendors_count : 0 }}
                 </b>
             </span>
                          <Button :pt="{ icon: { class: '!text-[8px]' } }"  icon="pi pi-plus" class="quantity-button !rounded" severity="info" v-if="!prop.data.deleted_at"
@@ -127,26 +115,28 @@ const openProductCategories = (categories,product) => {
                       v-if="store.isListView()">
 
                  <template #body="prop">
-                     <Badge v-if="prop.data && prop.data.product_price_range && prop.data.product_price_range.deleted_at"
+                     <Badge v-if="prop.data && prop.data.vendor_product_data  && prop.data.vendor_product_data .deleted_at"
                             value="Trashed"
                             severity="danger"></Badge>
                      <span>
-                        <div style="word-break: break-word;" v-if="prop.data && prop.data.product_price_range.selected_vendor">
-                            {{ prop.data.product_price_range.selected_vendor.name }}</div>
+                        <div style="word-break: break-word;" v-if="prop.data && prop.data.vendor_product_data .selected_vendor">
+                            {{ prop.data.vendor_product_data .selected_vendor.name }}</div>
                          </span>
                  </template>
              </Column>
 
+
              <Column field="price range" header="Price Range">
                  <template #body="prop">
-       <span v-if="prop.data && Array.isArray(prop.data.product_price_range.price_range) && prop.data.product_price_range.price_range.length > 0">
-            <span v-html="prop.data.store.default_currency?.symbol"></span>  {{ prop.data.product_price_range.price_range.join(' - ') }}
+        <span v-if="prop.data && Array.isArray(prop.data.vendor_product_data.price_range) && prop.data.vendor_product_data.price_range.length > 0">
+            <span v-html="prop.data.store.currency?.symbol"></span> {{ prop.data.vendor_product_data.price_range.join(' - ') }}
         </span>
                      <span v-else>
-            <span v-html="prop.data.store.default_currency?.symbol"></span> 0
+            <span v-html="prop.data.store.currency?.symbol"></span> 0
         </span>
                  </template>
              </Column>
+
 
              <Column field="variations" header="Variations"
                      :sortable="false">

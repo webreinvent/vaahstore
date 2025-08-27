@@ -327,8 +327,9 @@ class WishlistsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-                return $response;
+
             }
+            return $response;
         }
     }
 
@@ -347,10 +348,63 @@ class WishlistsController extends Controller
                 $response['hint'] = $e->getTrace();
             } else{
                 $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function updateUserWishlistProducts(Request $request,$id)
+    {
+        try{
+            return Wishlist::updateUserWishlistProducts($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
                 return $response;
             }
         }
     }
+    public function getWishlistUsers(Request $request,$id)
+    {
+        try{
+            return Wishlist::getWishlistUsers($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
 
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function moveWishlistToCart(Request $request,$id)
+    {
+        try{
+            return Wishlist::moveWishlistToCart($request,$id);
+        }catch (\Exception $e){
+            $response = [];
+            $response['status'] = 'failed';
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
 
 }

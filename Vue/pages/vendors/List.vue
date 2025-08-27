@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, watch,reactive, ref} from "vue";
 import {useRoute} from 'vue-router';
 
 import {useVendorStore} from '../../stores/store-vendors'
@@ -17,7 +17,15 @@ import {useConfirm} from "primevue/useconfirm";
 
 const confirm = useConfirm();
 
-
+// watch(() => route.query.selected_store, async (newVal, oldVal) => {
+//     if (newVal && newVal !== oldVal) {
+//
+//         // Update the store state with the new selected_store ID
+//         store.query.selected_store = newVal;
+//         // Optionally trigger the getList method to fetch new data for the selected store
+//         await store.getList();
+//     }
+// }, { immediate: true });
 onMounted(async () => {
     document.title = 'Vendors - Store';
     /**
@@ -47,7 +55,10 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    // await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
     store.getQuickFilterMenu();
     await store.getListCreateMenu();
 });
@@ -84,17 +95,19 @@ function toggleDatasetVisibility(index) {
 
                     <template class="p-1" #header>
 
-                        <div class="flex flex-row">
-                            <div>
+                        <div class="flex flex-row items-center gap-2">
+                                <Icon icon="icon-park-outline:people-top-card" width="24" height="24" class="text-gray-950"></Icon>
                                 <b class="mr-1">Vendors</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
-                            </div>
+                            <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0">
+                                {{store.list.total}}
+                            </p>
 
                         </div>
 
                     </template>
+
+                    <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
+
                         <div class="flex gap-3"  v-if=" store.isListView()">
                             <Card class="min-w-max">
                                 <template #title>
@@ -220,7 +233,7 @@ function toggleDatasetVisibility(index) {
                         </div>
                     <template #icons>
 
-                        <div class="p-inputgroup">
+                        <div class="flex gap-1">
 
                             <Button data-testid="vendors-list-create"
                                     class="p-button-sm"

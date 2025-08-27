@@ -1,5 +1,7 @@
 import {defineStore, acceptHMRUpdate} from 'pinia';
 import {vaah} from "../vaahvue/pinia/vaah";
+import {toRaw,watch} from "vue";
+import {useRoute} from "vue-router";
 let base_url = document.getElementsByTagName('base')[0].getAttribute("href");
 let ajax_url = base_url + "/store";
 
@@ -19,7 +21,13 @@ export const useRootStore = defineStore({
                 class: "py-[0.17rem] line-height-0"
             },
 
-        }
+        },
+        stores:null,
+        selected_store_at_sidebar:null,
+        query: {
+            selected_store: null,
+
+        },
     }),
     getters: {},
     actions: {
@@ -35,14 +43,27 @@ export const useRootStore = defineStore({
         },
 
         //---------------------------------------------------------------------
-        afterGetAssets(data, res)
+        async afterGetAssets(data, res)
         {
+
             if(data)
             {
+                // alert('as')
                 this.assets = data;
-
+                this.stores = await data.stores;
+                this.selected_store_at_sidebar = data.selected_store_at_sidebar ?? data.default_store;
+                this.default_store = data.default_store;
                 const chartDate = data.charts_data_filtered_by;
+
                 this.updatedChartsDateFilter(chartDate);
+                if (!this.default_store?.id) {
+                    await this.$router.push({ query: {} });
+
+                }
+                const default_store_id = this.default_store?.id;
+
+                this.$router.push({ query: { selected_store: default_store_id } });
+
             }
         },
         async updatedChartsDateFilter(chart_date) {
@@ -98,7 +119,49 @@ export const useRootStore = defineStore({
         hideProgress()
         {
             this.show_progress_bar = false;
+        },
+
+        //---------------------------------------------------------------------
+
+        async setStore(event) {
+            let store = toRaw(event.value);
+            this.vh_st_store_id = store.id;
+            this.$router.push({ query: { selected_store: this.vh_st_store_id } });
+        },
+        //---------------------------------------------------------------------
+
+        initWatchStoreChange(route, store, callback) {  // Accepting 'route' and 'store' as parameters
+            if (!route) {
+                return;
+            }
+
+            watch(() => route.query.selected_store, async (newVal, oldVal) => {
+
+                // If the query is not provided (null, undefined, or empty), handle it separately
+                if (!newVal) {
+
+                    if (callback && typeof callback === 'function') {
+                        await callback();
+                    }
+
+                    return;
+                }
+
+                if (newVal !== oldVal) {
+                    this.query.selected_store = newVal;
+
+                    if (store && store.query) {
+                        store.query.selected_store = newVal;
+                    }
+
+                    if (callback && typeof callback === 'function') {
+                        await callback();
+                    }
+                }
+
+            }, { immediate: true });
         }
+
 
     }
 })

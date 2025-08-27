@@ -27,6 +27,7 @@ let empty_states = {
             vendor_status:null,
             product:null,
         },
+        selected_store:null
     },
     action: {
         type: null,
@@ -1524,10 +1525,12 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
         async searchProduct(event) {
-            const query = event;
             const options = {
-                params: query,
-                method: 'post',
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
 
             await vaah().ajax(
@@ -1551,7 +1554,7 @@ export const useVendorStore = defineStore({
         async attachProducts(item)
         {
             const query = {
-
+                selected_store: this.query.selected_store,
                 products : this.item.products,
             };
 
@@ -1850,19 +1853,16 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async topSellingVendorsData(store=null) {
+        async topSellingVendorsData(selected_store_id=null) {
 
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-                filter_all: this.filter_all ?? null,
-                store: store ?? null,
-            }
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    filter_all: this.filter_all ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
 
             await vaah().ajax(
                 this.ajax_url + '/charts/vendors-by-sales',
@@ -1880,20 +1880,17 @@ export const useVendorStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        async vendorSalesByRange(store=null) {
+        async vendorSalesByRange(selected_store_id=null) {
 
 
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-                filter_all: this.filter_all ?? null,
-                store: store ?? null,
-            }
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    filter_all: this.filter_all ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/sales-by-range',
                 this.vendorSalesByRangeAfter,

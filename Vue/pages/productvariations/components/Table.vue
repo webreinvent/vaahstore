@@ -85,7 +85,7 @@ const route = useRoute();
                     :sortable="true">
 
                 <template #body="prop">
-                    <span v-html="prop.data.product?.store.default_currency.symbol"></span>{{prop.data.price}}
+                    <span v-html="prop.data.currency?.symbol"></span> {{prop.data.price}}
                 </template>
 
             </Column>
@@ -147,19 +147,29 @@ const route = useRoute();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup items-center gap-2">
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="products-table-to-view"
                                 v-tooltip.top="'Add To Cart'"
                                 @click="store.addToCart(prop.data)"
-                                icon="pi pi-shopping-cart" />
+                                icon="pi pi-shopping-cart"
+                                :pt="{ root: { class: '!bg-none !p-0 text-gray-400' } }"
+                                />
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="productvariations-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
-                                icon="pi pi-eye" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="tabler:eye"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
                                 class="p-button-tiny p-button-text"
@@ -167,7 +177,15 @@ const route = useRoute();
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
-                                icon="pi pi-pencil" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="mdi:pencil-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="productvariations-table-action-trash"
@@ -175,7 +193,16 @@ const route = useRoute();
                                 @click="store.itemAction('trash', prop.data)"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
                                 v-tooltip.top="'Trash'"
-                                icon="pi pi-trash" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="mdi:trash-can-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-[#E02424]"
+                                />
+                            </Button>
+
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"

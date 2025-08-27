@@ -137,6 +137,35 @@ const toggleFormMenu = (event) => {
 
                 </Message>
 
+    <!--                <VhField label="Store*">
+                        <AutoComplete
+                            data-testid="productvendors-stores"
+                            v-model="store.item.store"
+                            optionLabel="name"
+
+                            :dropdown="true"
+                            :complete-on-focus = "true"
+                            :pt="{
+                                          token: {
+                                            class: 'max-w-full'
+                                          },
+                                          removeTokenIcon: {
+                                              class: 'min-w-max'
+                                          },
+                                          item: { style: {
+                                                        textWrap: 'wrap'
+                                                    }  },
+                                           panel: { class: 'w-16rem ' }
+                                      }"
+                            :suggestions="store.active_stores"
+                            @complete="store.searchActiveStores($event)"
+                            placeholder="Select Stores "
+                            @change="store.setStores($event)"
+                            class="w-full "
+
+                        />
+                    </VhField>-->
+<!--{{store.item.vendor}}-->
                 <VhField label="Vendor*" >
                     <div class="p-inputgroup">
                     <AutoComplete
@@ -159,35 +188,6 @@ const toggleFormMenu = (event) => {
                     </AutoComplete>
                     <Button v-tooltip.left="'Vendor will be able to manage store'" icon="pi pi-info-circle" />
                     </div>
-                </VhField>
-
-                <VhField label="Store*">
-                        <AutoComplete
-                            data-testid="productvendors-stores"
-                            v-model="store.item.store_vendor_product"
-                            optionLabel="name"
-                            multiple
-                            :dropdown="true"
-                            :complete-on-focus = "true"
-                            :pt="{
-                                      token: {
-                                        class: 'max-w-full'
-                                      },
-                                      removeTokenIcon: {
-                                          class: 'min-w-max'
-                                      },
-                                      item: { style: {
-                                                    textWrap: 'wrap'
-                                                }  },
-                                       panel: { class: 'w-16rem ' }
-                                  }"
-                            :suggestions="store.active_stores"
-                            @complete="store.searchActiveStores($event)"
-                            placeholder="Select Stores "
-                            @change="store.setStores($event)"
-                            class="w-full "
-
-                        />
                 </VhField>
 
                 <VhField label="Product*" >

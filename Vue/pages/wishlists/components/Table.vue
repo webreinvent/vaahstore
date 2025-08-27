@@ -26,10 +26,13 @@ const useVaah = vaah();
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
+            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true"
+            class="font-bold text-xs text-gray-400"
+            >
             </Column>
 
              <Column field="name" header="Name"
+             class="font-bold text-xs text-gray-400"
                      :sortable="true">
                  <template #body="prop">
                      <template v-if="prop.data.is_default == 1">
@@ -43,46 +46,39 @@ const useVaah = vaah();
                      </template>
                      <Button class="p-button-tiny p-button-text p-0 mr-2"
                              data-testid="taxonomies-table-to-edit"
-
+                             :pt="{root: {class: '!bg-none !p-0'}}"
                              icon="pi pi-copy"
                              @click="useVaah.copy(prop.data.user?.email)"
                      > {{ prop.data.user?.email }}</Button>
+                     <Button :disabled="$route.path.includes('product') && prop.data.id === (store.item && store.item.id)"
+                             icon="pi pi-plus" severity="info"
+                             v-if="['Save For Later', 'My List'].includes(prop.data.name) && !prop.data.deleted_at"
+                             v-tooltip.top="'Add user'"
+                             @click="store.toProduct(prop.data)"
+                             :pt="{ icon: { class: '!text-[8px]' } }"
+                             class="quantity-button !rounded"
+                     />
                  </template>
 
              </Column>
 
-             <Column field="product" header="Product">
+
+             <Column field="user.name" header="Users"
+                     :sortable="true"
+                     class="font-bold text-xs text-gray-400"
+             >
 
                  <template #body="prop">
-                     <div class="p-inputgroup">
-                         <span
-                             v-if="prop.data.products && prop.data.products.length"
-                             class="p-inputgroup-addon cursor-pointer"
-                             v-tooltip.top="'View Products'"
-                               @click="store.toProduct(prop.data)">
-                             <b>{{prop.data.products.length}}</b>
-                         </span>
-                         <span class="p-inputgroup-addon" v-else>
-                             <b>{{prop.data.products.length}}</b>
-                         </span>
-                         <Button :disabled="$route.path.includes('product') && prop.data.id === (store.item && store.item.id)"
-                                 icon="pi pi-plus" severity="info" v-if="!prop.data.deleted_at"
-                                 v-tooltip.top="'Add Products'"
-                                 @click="store.toProduct(prop.data)" />
-                     </div>
+
+                     <Button @click="store.userWishlistProducts(prop.data)"
+                         v-tooltip.top="'View User Products'" rounded severity="info"
+                             :label="`${prop.data.users_count ?? 0}`"
+                         size="large" />
                  </template>
 
              </Column>
-
-             <Column field="user.name" header="User"
-                     :sortable="true">
-
-                 <template #body="prop">{{prop.data.user.name}}</template>
-
-             </Column>
-
-             <Column field="type" header="Is Sharable">
-
+             <Column field="type" header="Is Sharable" class="font-bold text-xs text-gray-400"
+             >
                  <template #body="prop">
                      <span v-if="prop.data.type === 0" style="padding-left: 5px;">
                        No
@@ -97,6 +93,7 @@ const useVaah = vaah();
                 <Column field="updated_at" header="Updated"
                         v-if="store.isListView()"
                         style="width:150px;"
+                        class="font-bold text-xs text-gray-400"
                         :sortable="true">
 
                     <template #body="prop">
@@ -105,18 +102,27 @@ const useVaah = vaah();
 
                 </Column>
             <Column field="actions" style="width:150px;"
+                    class="font-bold text-xs text-gray-400"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup items-center gap-2">
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="wishlists-table-to-view"
                                 v-tooltip.top="'View'"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 @click="store.toView(prop.data)"
-                                icon="pi pi-eye" />
+                                :pt="{root: {class: '!bg-none !p-0'}}"
+                                >
+                                <Icon
+                                    icon="tabler:eye"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button v-if="store.assets.permissions.includes('can-update-module')"
                                 class="p-button-tiny p-button-text"
@@ -124,14 +130,30 @@ const useVaah = vaah();
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 @click="store.toEdit(prop.data)"
-                                icon="pi pi-pencil" />
+                                :pt="{root: {class: '!bg-none !p-0'}}"
+                                >
+                                <Icon
+                                    icon="mdi:pencil-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="wishlists-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
-                                icon="pi pi-trash" />
+                                :pt="{root: {class: '!bg-none !p-0'}}"
+                                >
+                                <Icon
+                                    icon="mdi:trash-can-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-[#E02424]"
+                                />
+                            </Button>
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"
@@ -139,6 +161,7 @@ const useVaah = vaah();
                                 v-if="store.isListView() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module') "
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
+                                :pt="{root: {class: '!bg-none !p-0'}}"
                                 icon="pi pi-replay" />
 
                         <Button class="p-button-tiny p-button-text p-button-icon-only" data-testid="wishlists-table-action-share"
@@ -146,7 +169,10 @@ const useVaah = vaah();
                                 :disabled="!prop.data.type || (prop.data.products && prop.data.products.length === 0)"
                                 v-if="store.assets.permissions.includes('can-update-module')"
                                 @click="useVaah.copy(`${store.assets.urls.public}/${prop.data.id}/product`)"
-                                icon="pi pi-copy" />
+                                :pt="{root: {class: '!bg-none !p-0'}}"
+                                >
+                                <Icon icon="prime:copy" width="20" height="20" class="text-gray-500" />
+                            </Button>
 
                     </div>
 

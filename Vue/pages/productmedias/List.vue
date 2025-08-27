@@ -45,7 +45,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
 
     await store.getListCreateMenu();
 
@@ -72,11 +74,16 @@ const toggleCreateMenu = (event) => {
                     <template class="p-1" #header>
 
                         <div class="flex flex-row">
-                            <div >
-                                <b class="mr-1">Product Medias</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
+                            <div class="flex items-center gap-2">
+                                <div>
+                                    <Icon icon="bx:basket" width="18" height="18"  style="color: #111113" />
+                                </div>
+                                <div class="flex items-center mt-1">
+                                    <b class="mr-1">Product Medias</b>
+                                    <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0"
+                                    >{{store.list.total}}
+                                    </p>
+                                </div>
                             </div>
 
                         </div>
@@ -85,20 +92,55 @@ const toggleCreateMenu = (event) => {
 
                     <template #icons>
 
-                        <div class="p-inputgroup">
+<!--                        <div class="p-inputgroup">-->
 
+<!--                            <Button data-testid="productmedias-list-create"-->
+<!--                                    class="p-button-sm"-->
+<!--                                    :disabled="!store.assets.permissions.includes('can-update-module')"-->
+<!--                                    @click="store.toForm()">-->
+<!--                                <i class="pi pi-plus mr-1"></i>-->
+<!--                                Create-->
+<!--                            </Button>-->
+
+<!--                            <Button data-testid="productmedias-list-reload"-->
+<!--                                    class="p-button-sm"-->
+<!--                                    @click="store.reload()">-->
+<!--                                <i class="pi pi-refresh mr-1"></i>-->
+<!--                            </Button>-->
+
+<!--                            &lt;!&ndash;form_menu&ndash;&gt;-->
+
+<!--                            <Button v-if="root.assets && root.assets.module-->
+<!--                                                && root.assets.module.is_dev"-->
+<!--                                    type="button"-->
+<!--                                    @click="toggleCreateMenu"-->
+<!--                                    class="p-button-sm"-->
+<!--                                    :disabled="!store.assets.permissions.includes('can-update-module')"-->
+<!--                                    data-testid="productmedias-create-menu"-->
+<!--                                    icon="pi pi-angle-down"-->
+<!--                                    aria-haspopup="true"/>-->
+
+<!--                            <Menu ref="create_menu"-->
+<!--                                  :model="store.list_create_menu"-->
+<!--                                  :popup="true" />-->
+
+<!--                            &lt;!&ndash;/form_menu&ndash;&gt;-->
+
+<!--                        </div>-->
+
+                        <div class=" gap-2 flex">
                             <Button data-testid="productmedias-list-create"
-                                    class="p-button-sm"
+                                    size="small"
                                     :disabled="!store.assets.permissions.includes('can-update-module')"
                                     @click="store.toForm()">
-                                <i class="pi pi-plus mr-1"></i>
+                                <Icon class="-mr-1" icon="ph:plus-light" width="16" height="16"  style="color: #7b7a7a" />
                                 Create
                             </Button>
 
                             <Button data-testid="productmedias-list-reload"
-                                    class="p-button-sm"
+                                    size="small"
                                     @click="store.reload()">
-                                <i class="pi pi-refresh mr-1"></i>
+                                <Icon class="mx-1"  icon="famicons:reload-sharp" width="16" height="16"  style="color: #7b7a7a" />
                             </Button>
 
                             <!--form_menu-->
@@ -116,17 +158,17 @@ const toggleCreateMenu = (event) => {
                             <Menu ref="create_menu"
                                   :model="store.list_create_menu"
                                   :popup="true" />
-
-                            <!--/form_menu-->
-
                         </div>
 
                     </template>
 
+                    <Card>
+                        <template #content>
                     <Actions/>
 
                     <Table/>
-
+                        </template>
+                    </Card>
                 </Panel>
             </div>
 

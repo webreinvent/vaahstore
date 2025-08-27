@@ -78,11 +78,17 @@ const toggleCreateMenu = (event) => {
                     <template #header>
 
                     <div class="flex flex-row">
-                        <div >
-                            <b class="mr-1">Categories</b>
-                            <Badge v-if="store.list && store.list.total > 0"
-                                   :value="store.list.total">
-                            </Badge>
+
+                        <div class="flex items-center gap-2">
+                            <div>
+                                <Icon icon="bx:basket" width="18" height="18"  style="color: #111113" />
+                            </div>
+                            <div class="flex items-center mt-1">
+                                <b class="mr-1">Categories</b>
+                                <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0"
+                                       >{{store.list.total}}
+                                </p>
+                            </div>
                         </div>
 
                     </div>
@@ -91,19 +97,20 @@ const toggleCreateMenu = (event) => {
 
                 <template #icons>
 
-                    <InputGroup>
+<!--                    <InputGroup>-->
+                    <div class=" gap-2 flex">
 
                     <Button data-testid="categories-list-create"
                             size="small"
                             @click="store.toForm()">
-                        <i class="pi pi-plus mr-1"></i>
+                        <Icon class="-mr-1" icon="ph:plus-light" width="16" height="16"  style="color: #7b7a7a" />
                         Create
                     </Button>
 
                     <Button data-testid="categories-list-reload"
                             size="small"
                             @click="store.reload()">
-                        <i class="pi pi-refresh mr-1"></i>
+                        <Icon class="mx-1"  icon="famicons:reload-sharp" width="16" height="16"  style="color: #7b7a7a" />
                     </Button>
 
                     <!--form_menu-->
@@ -120,16 +127,21 @@ const toggleCreateMenu = (event) => {
                     <Menu ref="create_menu"
                           :model="store.list_create_menu"
                           :popup="true" />
+                    </div>
 
                     <!--/form_menu-->
 
-                    </InputGroup>
+<!--                    </InputGroup>-->
 
                 </template>
 
+                    <Card>
+                        <template #content>
                 <Actions/>
 
                 <Table/>
+                        </template>
+                    </Card>
 
             </Panel>
         </div>

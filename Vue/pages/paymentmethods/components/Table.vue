@@ -23,10 +23,10 @@ const useVaah = vaah();
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
+            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true" class="font-bold text-xs text-gray-400">
             </Column>
 
-            <Column field="name" header="Name"
+            <Column field="name" header="Name" class="font-bold text-xs text-gray-400"
                     :sortable="true">
 
                 <template #body="prop">
@@ -39,7 +39,7 @@ const useVaah = vaah();
             </Column>
 
 
-                <Column field="updated_at" header="Updated"
+                <Column field="updated_at" header="Updated" class="font-bold text-xs text-gray-400"
                         v-if="store.isListView()"
                         style="width:150px;"
                         :sortable="true">
@@ -50,7 +50,7 @@ const useVaah = vaah();
 
                 </Column>
 
-            <Column field="is_active" v-if="store.isListView()"
+            <Column field="is_active" v-if="store.isListView()" class="font-bold text-xs text-gray-400"
                     :sortable="true"
                     style="width:100px;"
                     header="Is Active">
@@ -66,31 +66,52 @@ const useVaah = vaah();
 
             </Column>
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions" style="width:150px;" class="font-bold text-xs text-gray-400"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup items-center gap-2">
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="paymentmethods-table-to-view"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
-                                icon="pi pi-eye" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }">
+                                <Icon
+                                    icon="tabler:eye"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="paymentmethods-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
-                                icon="pi pi-pencil" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }">
+                                <Icon
+                                    icon="mdi:pencil-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="paymentmethods-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
-                                icon="pi pi-trash" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }">
+                                <Icon
+                                    icon="mdi:trash-can-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-[#E02424]"
+                                />
+                            </Button>
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"

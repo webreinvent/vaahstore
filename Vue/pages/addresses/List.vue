@@ -77,24 +77,22 @@ const toggleCreateMenu = (event) => {
 
                  class="mb-4 lg:mb-0">
 
-                <Panel :pt="root.panel_pt">
+                <Panel>
                     <template #header>
 
-                        <div class="flex flex-row">
-                            <div>
+                        <div class="flex flex-row items-center gap-2">
+                            <Icon icon="fa6-regular:address-card" width="20" height="20" class="text-gray-800"/>
                                 <b class="mr-1">Addresses</b>
-                                <Badge v-if="store.list && store.list.total > 0"
+                                <!-- <Badge v-if="store.list && store.list.total > 0"
                                        :value="store.list.total">
-                                </Badge>
-                            </div>
-
+                                </Badge> -->
                         </div>
 
                     </template>
 
                 <template #icons>
 
-                    <div class="p-inputgroup">
+                    <div class="flex gap-1">
 
                     <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                             data-testid="addresses-list-create"
@@ -132,10 +130,14 @@ const toggleCreateMenu = (event) => {
 
                 </template>
 
-                <Actions/>
-
-                <Table/>
-
+                <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2" ></div>
+                
+                <Card>
+                    <template #content>
+                        <Actions/>
+                        <Table/>
+                    </template>
+                </Card>
             </Panel>
         </div>
             <div v-if="store.getRightColumnClasses"

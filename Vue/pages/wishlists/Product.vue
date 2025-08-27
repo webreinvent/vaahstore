@@ -84,22 +84,23 @@ const toggleSelectedMenuState = (event) => {
                 <div v-if="store.user_error_message && store.user_error_message.length > 0">
                     <Message severity="error" v-for="(item) in store.user_error_message">{{item}}</Message>
                 </div>
+                <div >
 
-                <!--                dropdown to select product -->
-                <div class="flex flex-wrap gap-4 pb-2 p-1">
-                    <div class="col-10">
+                <VhField label="User*">
                         <AutoComplete
-                            name="wishlists-product-search"
-                            data-testid="wishlists-product-search"
-                            v-model="store.selected_product"
-                            option-label = "name"
-                            :dropdown="true"
-                            :complete-on-focus = "true"
-                            :suggestions="store.product_suggestion"
-                            @complete="store.searchProduct($event)"
-                            placeholder="Search Product"
+                            value="id"
+                            v-model="store.item.user"
+
                             class="w-full"
-                            style="height:35px;"
+                            :suggestions="store.user_suggestion"
+                            @complete="store.searchUsers($event)"
+                            placeholder="Select User"
+                            data-testid="wishlists-user"
+                            name="wishlists-user"
+                            :dropdown="true"
+                            optionLabel="username"
+                            forceSelection
+
                             :pt="{
                           token: {
                                     class: 'max-w-full'
@@ -112,9 +113,43 @@ const toggleSelectedMenuState = (event) => {
                                 textWrap: 'wrap'
                                 }  },
                           panel: { class: 'w-16rem ' }
-                            }">
+                            }"
+                        >
                         </AutoComplete>
-                    </div>
+                    </VhField>
+                    <VhField label="Product*">
+                    <AutoComplete
+                        name="wishlists-product-search"
+                        data-testid="wishlists-product-search"
+                        v-model="store.selected_product"
+                        option-label = "name"
+                        :dropdown="true"
+                        :complete-on-focus = "true"
+                        :suggestions="store.product_suggestion"
+                        @complete="store.searchProduct($event)"
+                        placeholder="Search Product"
+                        class="w-full"
+                        style="height:35px;"
+                        :pt="{
+                          token: {
+                                    class: 'max-w-full'
+                                  },
+                          removeTokenIcon: {
+                                    class: 'min-w-max'
+                          },
+                          item: { style:
+                                {
+                                textWrap: 'wrap'
+                                }  },
+                          panel: { class: 'w-16rem ' }
+                            }">
+                    </AutoComplete>
+                    </VhField>
+                </div>
+
+                <!--                dropdown to select product -->
+                <div class="flex flex-wrap gap-4 pb-2 p-1">
+
 
                     <div class="p-2">
                         <Button v-if="store.selected_product"
@@ -148,26 +183,26 @@ const toggleSelectedMenuState = (event) => {
                 </div>
 
                 <!--added vendor's list-->
-                <div class="col-12"
-                     v-if="store.item.products && store.item.products.length > 0">
+                <div class="col-12" v-if="store.item.products?.length">
                     <table class="table col-12 table-scroll table-striped">
                         <thead>
                         <tr>
                             <th class="col-1">
                                 <Checkbox v-model="store.select_all_product"
-                                          :binary="true" @click="store.selectAllProduct()" />
+                                          :binary="true"
+                                          @click="store.selectAllProduct()" />
                             </th>
                             <th scope="col">Product Name</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody id="scroll-horizontal" class="pt-1">
-                        <tr v-for="(item, index) in store.item.products">
-                            <th class="col-1"><Checkbox v-model="item['is_selected']" :binary="true" /></th>
+                        <tr v-for="(item, index) in store.item.products" >
+                            <td class="col-1">
+                                <Checkbox v-model="item.is_selected" :binary="true" />
+                            </td>
                             <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                <div>
-                                    <InputText v-model="item['product']['name']" class="w-full" style="height:30px;" disabled/>
-                                </div>
+                                <InputText v-model="item.name" class="w-full" style="height:30px;" disabled />
                             </td>
                             <td style="display:flex;justify-content:center;">
                                 <Button label="Remove"
@@ -179,7 +214,6 @@ const toggleSelectedMenuState = (event) => {
                         </tr>
                         </tbody>
                     </table>
-
                 </div>
 
             </div>

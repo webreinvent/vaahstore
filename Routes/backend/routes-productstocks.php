@@ -146,6 +146,6 @@ function () {
     /**
      * stock stats within date range
      */
-    Route::post('/charts/stocks-data', 'ProductStocksController@getStocksChartData')
+    Route::get('/charts/stocks-data', 'ProductStocksController@getStocksChartData')
         ->name('vh.backend.store.productstocks.charts.stocks_stats');
 });

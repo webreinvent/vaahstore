@@ -72,9 +72,9 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="gap-1 flex">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="attributes-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
@@ -82,14 +82,14 @@ const useVaah = vaah();
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
-                            class="p-button-tiny p-button-text"
+                            class="p-button-tiny p-button-text icon-button"
                                 data-testid="attributes-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="p-button-tiny p-button-danger p-button-text icon-button text-red-500"
                                 data-testid="attributes-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at &&store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"

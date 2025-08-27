@@ -95,6 +95,6 @@ Route::group(
         /**
          * Fetch Users Count Area Chart Data
          */
-        Route::post('/charts/data', 'UsersController@fetchCustomerCountChartData')
+        Route::get('/charts/data', 'UsersController@fetchCustomerCountChartData')
             ->name('vh.backend.store.users.count_chart_data');
     });

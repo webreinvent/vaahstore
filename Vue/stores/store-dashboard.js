@@ -41,18 +41,7 @@ export const useDashboardStore = defineStore({
             }
         },
         //---------------------------------------------------------------------
-        searchStoreForListQuery(event){
-            const query = event.query.toLowerCase();
-            this.filtered_stores = this.stores.filter(store =>
-                store.name.toLowerCase().includes(query)
-            );
-        },
-        setDefaultStoreForAtDashboard(){
-            this.default_store = this.stores.find(store => store.is_default === 1);
-            if (this.default_store) {
-                this.selected_store_at_dashboard = this.default_store;
-            }
-        },
+
     }
 });
 

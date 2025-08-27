@@ -27,6 +27,7 @@ let empty_states = {
             users : null,
             products : null,
         },
+        selected_store:null,
     },
     action: {
         type: null,
@@ -87,6 +88,10 @@ export const useWishlistStore = defineStore({
         selected_users : null,
         filter_selected_products : null,
         default_message:null,
+        wishlist_list:null,
+        user_wishlist_products:null,
+        wishlist_user_rows:null,
+        wishlist_list_total:null,
     }),
     getters: {
         getLeftColumnClasses: (state) => {
@@ -102,6 +107,11 @@ export const useWishlistStore = defineStore({
             {
                 return 'lg:w-full';
             }
+
+            if(state.view === 'list-and-wishlist') {
+                return null;
+            }
+
             if(state.view === 'list-and-item') {
                 return 'lg:w-1/2';
             }
@@ -123,8 +133,12 @@ export const useWishlistStore = defineStore({
 
             if(state.isMobile
                 && (state.view === 'list-and-item'
-                    || state.view === 'list-and-filters')
+                    || state.view === 'list-and-filters' || state.view === 'list-and-wishlist')
             ){
+                return 'w-full';
+            }
+
+            if((state.view === 'list-and-wishlist')){
                 return 'w-full';
             }
 
@@ -269,6 +283,10 @@ export const useWishlistStore = defineStore({
             //         break
             // }
             this.view = 'list';
+
+            if(route_name.includes('wishlists.user_products')){
+                this.view = 'list-and-wishlist';
+            }
 
             if(route_name.includes('wishlists.view')
                 || route_name.includes('wishlists.form')
@@ -421,9 +439,15 @@ export const useWishlistStore = defineStore({
 
         async getItem(id) {
             if(id){
+                let options = {
+                    query: {
+                        selected_store: this.query.selected_store
+                    }
+                };
                 await vaah().ajax(
                     ajax_url+'/'+id,
-                    this.getItemAfter
+                    this.getItemAfter,
+                    options
                 );
             }
         },
@@ -433,6 +457,7 @@ export const useWishlistStore = defineStore({
             if(data)
             {
                 this.item = data;
+                // this.item.users=data.user_wishlists;
             }else{
                 this.$router.push({name: 'wishlists.index'});
             }
@@ -938,6 +963,7 @@ export const useWishlistStore = defineStore({
         //---------------------------------------------------------------------
         toList()
         {   this.select_all_product = false;
+            this.search_term = '';
             this.item = vaah().clone(this.assets.empty_item);
             this.$router.push({name: 'wishlists.index'})
         },
@@ -1349,13 +1375,19 @@ export const useWishlistStore = defineStore({
             this.selected_product = null;
             this.$router.push({name: 'wishlists.products', params:{id:item.id}})
         },
-
+        userWishlistProducts(item)
+        {
+            this.selected_product = null;
+            this.$router.push({name: 'wishlists.user_products', params:{id:item.id}})
+        },
         //---------------------------------------------------------------------
         async searchProduct(event) {
-            const query = event;
             const options = {
-                params: query,
-                method: 'post',
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
 
             await vaah().ajax(
@@ -1381,26 +1413,24 @@ export const useWishlistStore = defineStore({
         },
         //---------------------------------------------------------------------
         addProduct() {
-
             if (!this.item.products) {
-                this.item.products = []; // Initialize the products array if it's undefined
+                this.item.products = [];
             }
-            const exist = this.item.products.some(item => item.product.id === this.selected_product.id);
 
-           if(!exist)
-           {
-               const new_product = {
-                   product: this.selected_product,
-                   is_selected: false,
-               };
-               this.item.products.push(new_product);
-               this.selected_product = null;
-           }
-           else {
-               this.showUserErrorMessage(['This product is already present'], 4000);
-           }
+            const exist = this.item.products.some(item => item.id === this.selected_product.id);
 
+            if (!exist) {
+                const new_product = {
+                    ...this.selected_product,
+                    is_selected: false
+                };
+                this.item.products.push(new_product);
+                this.selected_product = null;
+            } else {
+                this.showUserErrorMessage(['This product is already present'], 4000);
+            }
         },
+
 
         //---------------------------------------------------------------------
         showUserErrorMessage(message, time = 2500){
@@ -1411,10 +1441,7 @@ export const useWishlistStore = defineStore({
         },
         //---------------------------------------------------------------------
         async removeProduct(product) {
-            this.item.products = this.item.products.filter(function (item) {
-                return item['product']['id'] != product['product']['id']
-            })
-
+            this.item.products = this.item.products.filter(item => item.id !== product.id);
         },
 
         //---------------------------------------------------------------------
@@ -1430,6 +1457,7 @@ export const useWishlistStore = defineStore({
             }
         },
 
+
         //---------------------------------------------------------------------
         async removeAllProduct()
         {
@@ -1439,28 +1467,18 @@ export const useWishlistStore = defineStore({
 
         //---------------------------------------------------------------------
         async bulkRemoveProduct() {
-
             let selected_products = this.item.products.filter(product => product.is_selected);
-            let temp = null;
-            this.select_all_product = false;
-            temp = this.item.products.filter((item) => {
-                return item['is_selected'] === false;
-            });
 
             if (selected_products.length === 0) {
                 vaah().toastErrors(['Select a product']);
-                return false;
+                return;
             }
 
-            else if (temp.length === this.item.products.length) {
-                this.item.products = [];
-            }
-            else {
+            this.item.products = this.item.products.filter(item => !item.is_selected);
 
-                this.item.products = temp;
-            }
-
+            this.select_all_product = false;
         },
+
 
         //---------------------------------------------------------------------
 
@@ -1564,6 +1582,89 @@ export const useWishlistStore = defineStore({
             if (data) {
                 this.selected_users = data;
             }
+        },
+
+        //---------------------------------------------------------------------
+
+        async updateUserWishlistProducts(selectedUserIndex, wishlistId, productData, action = 'add')
+
+        {
+            if (!productData || !productData.id || selectedUserIndex === null) return;
+            const user_id = this.user_wishlist_products[selectedUserIndex].id;
+            const payload = {
+                vh_user_id: user_id,
+                products: [
+                    {
+                        id: productData.id,
+                        vh_st_product_variation_id: productData.vh_st_product_variation_id || null
+                    }
+                ],
+                action:action,
+            };
+            const options = {
+                params: payload,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/'+wishlistId+ '/products',
+                this.addProductsToWishlistAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        addProductsToWishlistAfter(data,res){
+           if (data){
+               this.getItem(data.id);
+               this.getWishlistUsers(data.id);
+               this.selected_product=null;
+           }
+        },
+
+        //---------------------------------------------------------------------
+
+        async wishlistUserPaginate(event,id) {
+            this.wishlist_page = event.page + 1;
+            await this.getWishlistUsers(id);
+        },
+        //---------------------------------------------------------------------
+
+        async getWishlistUsers(wishlist_id, page = 1)
+        {
+
+
+            const payload = {
+                page:this.wishlist_page,
+                per_page: null,
+                q: this.search_term,
+                selected_store: null // optionally add selected_store
+            };
+            const options = {
+                params: payload,
+                method: 'post',
+            };
+            await vaah().ajax(
+                this.ajax_url+'/'+wishlist_id+ '/user-products',
+                this.getWishlistUsersAfter,
+                options
+            );
+        },
+        //---------------------------------------------------------------------
+
+        getWishlistUsersAfter(data,res){
+            if (data){
+                this.wishlist_list=data;
+                this.user_wishlist_products=data.data;
+                this.wishlist_user_rows=data.per_page;
+                this.wishlist_list_total=data.total;
+
+            }
+        },
+        //---------------------------------------------------------------------
+
+        async resetSearchTerm(wishlist_id){
+            this.search_term = ''; // Clear search term
+            await this.getWishlistUsers(wishlist_id);
         },
 
         //--------------------------------------------------------------------

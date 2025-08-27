@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Faker\Factory;
 use VaahCms\Modules\Store\Models\StoreUser;
+use VaahCms\Modules\Store\Traits\ApiAuthUser;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -20,7 +21,7 @@ class Address extends VaahModel
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
-
+    use ApiAuthUser;
     //-------------------------------------------------
     protected $table = 'vh_st_addresses';
     //-------------------------------------------------
@@ -33,6 +34,7 @@ class Address extends VaahModel
     protected $fillable = [
         'uuid',
         'vh_user_id',
+        'name',
         'taxonomy_id_address_types',
         'taxonomy_id_address_status',
         'address_line_1','phone', 'city','country', 'state','pin_code',
@@ -216,16 +218,13 @@ class Address extends VaahModel
         }
 
         //remove previous default address
-        if(($inputs['is_default']) == 1)
-        {
-            $user = StoreUser::find($user_id);
-            $previous_default_address = $user->addresses()->where('is_default',1)->first();
-            if($previous_default_address)
-            {
-                $previous_default_address->is_default = 0;
-                $previous_default_address->save();
-            }
-            $item->is_default=1;
+        if (isset($inputs['is_default']) && $inputs['is_default'] == 1) {
+            $user->addresses()
+                ->where('is_default', 1)
+                ->where('taxonomy_id_address_types', $inputs['taxonomy_id_address_types'])
+                ->update(['is_default' => 0]);
+
+            $item->is_default = 1;
         }
         $item->save();
 
@@ -325,20 +324,21 @@ class Address extends VaahModel
 
     public function scopeAddressTypeFilter($query, $filter)
     {
-        if(!isset($filter['address_type'])
-            || is_null($filter['address_type'])
-            || $filter['address_type'] === 'null'
-        )
-        {
+        if (
+            !isset($filter['address_type']) ||
+            is_null($filter['address_type']) ||
+            $filter['address_type'] === 'null'
+        ) {
             return $query;
         }
 
-        $address_type = $filter['address_type'];
+        $address_types = (array) $filter['address_type'];
 
-        return $query->whereHas('addressType', function ($query) use ($address_type) {
-            $query->where('slug', $address_type);
+        return $query->whereHas('addressType', function ($query) use ($address_types) {
+            $query->whereIn('slug', $address_types);
         });
     }
+
 
     //-------------------------------------------------
 
@@ -390,8 +390,17 @@ class Address extends VaahModel
 
     public static function getList($request)
     {
-        $default_address = self::where('is_default', 1)->first();
-        $list = self::getSorted($request->filter)->with('user','status','addressType');
+        $active_user_id= self::getApiAuthUserId();
+        $list = self::with('user', 'status', 'addressType');
+        if ($active_user_id) {
+            $list->where('vh_user_id', $active_user_id);
+        }
+        $default_address = self::where('is_default', 1)
+            ->when($active_user_id, function ($q) use ($active_user_id) {
+                return $q->where('vh_user_id', $active_user_id);
+            })
+            ->first();
+        $list = $list->getSorted($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
         $list->dateFilter($request->filter);
@@ -399,24 +408,24 @@ class Address extends VaahModel
         $list->addressTypeFilter($request->filter);
         $list->defaultFilter($request->filter);
         $list->userFilter($request->filter);
-        $default_address_exists = $default_address;
         $rows = config('vaahcms.per_page');
-
         if($request->has('rows'))
         {
             $rows = $request->rows;
         }
+        $list = $request->has('fetch_all') && $request->fetch_all ? $list->get() : $list->paginate($rows);
 
-        $list = $list->paginate($rows);
-
+        if ($request->has('exclude')) {
+            $exclude = is_array($request->exclude) ? array_keys($request->exclude) : explode(',', $request->exclude);
+            $exclude_keys = array_unique(explode(',', implode(',', $exclude)));
+            $list->each(fn($item) => $item->makeHidden($exclude_keys));
+        }
         $response['success'] = true;
         $response['data'] = $list;
-        if (!$default_address_exists) {
+        if (!$default_address) {
             $response['message'] = true;
         }
         return $response;
-
-
     }
 
     //-------------------------------------------------
@@ -671,16 +680,14 @@ class Address extends VaahModel
             return $response;
         }
 
-        if(($inputs['is_default']) == 1)
-        {
-            $user = StoreUser::find($user_id);
-            $previous_default_address = $user->addresses()->where('is_default',1)->first();
-            if($previous_default_address)
-            {
-                $previous_default_address->is_default = 0;
-                $previous_default_address->save();
-            }
-            $item->is_default=1;
+        if (isset($inputs['is_default']) && $inputs['is_default'] == 1) {
+            $user->addresses()
+                ->where('is_default', 1)
+                ->where('taxonomy_id_address_types', $inputs['taxonomy_id_address_types'])
+                ->where('id', '!=', $id)
+                ->update(['is_default' => 0]);
+
+            $item->is_default = 1;
         }
         $item->save();
 
@@ -712,24 +719,18 @@ class Address extends VaahModel
         switch($type)
         {
             case 'make-default':
-                $address = Address::find($id);
+                $address = self::find($id);
                 $user_id = $address->user()->pluck('id')->first();
                 $user = StoreUser::find($user_id);
-                $addresses = $user->addresses()->get();
-                foreach ($addresses as $address) {
-
-                    $address->is_default = 0;
-                    $address->save();
+                $is_default = (bool) $address->is_default;
+                if ($is_default) {
+                    $address->update(['is_default' => 0]);
+                    break;
                 }
-
-                self::where('id', $id)
-                    ->withTrashed()
-                    ->update(['is_default' => 1]);
-                break;
-            case 'remove-from-default':
-                self::where('id', $id)
-                    ->withTrashed()
+                $user->addresses()
+                    ->where('taxonomy_id_address_types', $address->taxonomy_id_address_types)
                     ->update(['is_default' => 0]);
+                self::withTrashed()->where('id', $id)->update(['is_default' => 1]);
                 break;
             case 'trash':
                 self::where('id', $id)
@@ -765,7 +766,7 @@ class Address extends VaahModel
                 'taxonomy_id_address_types' => 'required',
                 'address_line_1'=>'required|max:150',
                 'address_line_2'=>'nullable|max:150',
-                'taxonomy_id_address_status' => 'required',
+                'taxonomy_id_address_status' => 'nullable',
                 'status_notes' => [
                     'required_if:status.slug,==,rejected',
                     'max:250'

@@ -627,12 +627,8 @@ export const useAddressStore = defineStore({
         //---------------------------------------------------------------------
         async toggleIsDefault(item)
         {
-            if(item.is_default)
-            {
-                await this.itemAction('remove-from-default', item);
-            } else{
                 await this.itemAction('make-default', item);
-            }
+
         },
         //---------------------------------------------------------------------
         async paginate(event) {

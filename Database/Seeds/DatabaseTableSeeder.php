@@ -5,6 +5,8 @@ namespace VaahCms\Modules\Store\Database\Seeds;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use VaahCms\Modules\Store\Models\Wishlist;
+use WebReinvent\VaahCms\Entities\Taxonomy;
 use WebReinvent\VaahCms\Libraries\VaahSeeder;
 
 class DatabaseTableSeeder extends Seeder
@@ -32,7 +34,7 @@ class DatabaseTableSeeder extends Seeder
         $this->seedLanguages();
         $this->seedLanguageCategories();
         $this->seedLanguageStrings();
-
+        $this->seedWishlists();
 
         $seeder = new SettingTableSeeder();
         $seeder->run();
@@ -168,6 +170,37 @@ class DatabaseTableSeeder extends Seeder
             }
         }
 
+    }
+    //----------------------------------------------------------------
+
+    public function seedWishlists()
+    {
+        $default_wishlists = [
+            [
+                'name' => 'Save For Later',
+                'slug' => 'save-for-later',
+                'is_default' => 0,
+            ],
+            [
+                'name' => 'My List',
+                'slug' => 'my-list',
+                'is_default' => 0,
+            ],
+        ];
+        $status = Taxonomy::where('slug', 'approved')
+            ->whereHas('type', function ($query) {
+                $query->where('slug', 'whishlists-status');
+            })
+            ->first();
+        foreach ($default_wishlists as $wishlist) {
+            Wishlist::firstOrCreate(
+                ['slug' => $wishlist['slug']],
+                array_merge($wishlist, [
+                    'taxonomy_id_whishlists_status'=> $status?->id,
+                    'type'=> 1,
+                ])
+            );
+        }
     }
 
 

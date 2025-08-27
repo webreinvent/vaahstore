@@ -47,7 +47,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
     await store.getListCreateMenu();
 
 });
@@ -74,17 +76,19 @@ const toggleCreateMenu = (event) => {
 
                     <template class="p-1" #header>
 
-                        <div class="flex flex-row">
-                            <div >
+                        <div class="flex flex-row items-center gap-2">
+                                <Icon icon="material-symbols-light:local-shipping-outline-rounded" width="24" height="24" class="text-gray-950"></Icon>
                                 <b class="mr-1">Shipments</b>
-                                <Badge v-if="store.list && store.list.total > 0"
+                                <!-- <Badge v-if="store.list && store.list.total > 0"
                                        :value="store.list.total">
-                                </Badge>
-                            </div>
+                                </Badge> -->
 
                         </div>
 
                     </template>
+
+                    <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
+
                     <div class="flex gap-2 mb-1">
                         <div class="w-full bg-white   border-gray-200 rounded-sm mb-2">
 
@@ -123,7 +127,7 @@ const toggleCreateMenu = (event) => {
                     </div>
                     <template #icons>
 
-                        <div class="p-inputgroup">
+                        <div class="flex gap-1">
 
                             <Button data-testid="shipments-list-create"
                                     class="p-button-sm"
@@ -159,10 +163,12 @@ const toggleCreateMenu = (event) => {
 
                     </template>
 
-                    <Actions/>
-
-                    <Table/>
-
+                    <Card>
+                        <template #content>
+                            <Actions/>
+                            <Table/>
+                        </template>
+                    </Card>
                 </Panel>
             </div>
 

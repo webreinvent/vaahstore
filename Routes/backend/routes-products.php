@@ -55,6 +55,8 @@ function () {
     Route::post('/{id}/variations/generate', 'ProductsController@generateVariation')
         ->name('vh.backend.store.products.generate.variations');
 
+    Route::get('/existence', 'ProductsController@existenceWithStore')
+        ->name('vh.backend.store.products.existence-with-store');
 
     /**
      * Fill Form Inputs
@@ -127,7 +129,7 @@ function () {
     /**
      * Search Product vendor
      */
-    Route::post('/search/product-vendor', 'ProductsController@searchProductVendor')
+    Route::get('/search/product-vendor', 'ProductsController@searchProductVendor')
         ->name('vh.backend.store.products.search.productvendor');
 
     /**
@@ -239,19 +241,19 @@ function () {
     /**
      * Top Selling products
      */
-    Route::post('/charts/top-selling-products', 'ProductsController@topSellingProducts')
+    Route::get('/charts/top-selling-products', 'ProductsController@topSellingProducts')
         ->name('vh.backend.store.products.charts.top_selling_products');
 
     /**
      * Top Brands By product sales
      */
-    Route::post('/charts/top-selling-brands', 'ProductsController@topSellingBrands')
+    Route::get('/charts/top-selling-brands', 'ProductsController@topSellingBrands')
         ->name('vh.backend.store.products.charts.top_selling_brands');
 
     /**
      * Top Categories By product sales
      */
-    Route::post('/charts/top-selling-categories', 'ProductsController@topSellingCategories')
+    Route::get('/charts/top-selling-categories', 'ProductsController@topSellingCategories')
         ->name('vh.backend.store.products.charts.top_selling_categories');
 
     /**

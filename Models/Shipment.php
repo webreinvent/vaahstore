@@ -127,7 +127,11 @@ class Shipment extends VaahModel
             ->withPivot('quantity','pending');
     }
     //-------------------------------------------------
-
+    public function items()
+    {
+        return $this->hasMany(ShipmentItem::class, 'vh_st_shipment_id');
+    }
+    //-------------------------------------------------
     public  function shipmentOrderItems()
     {
         return $this->belongsToMany(OrderItem::class, 'vh_st_shipment_items', 'vh_st_shipment_id', 'vh_st_order_item_id')
@@ -411,6 +415,13 @@ class Shipment extends VaahModel
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with( 'status','orders');
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
+        if ($selected_store_id) {
+            $list->whereHas('orders', function ($q) use ($selected_store_id) {
+                $q->where('vh_st_store_id', $selected_store_id);
+            });
+        }
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->orderFilter($request->filter);
@@ -938,68 +949,89 @@ class Shipment extends VaahModel
     }
 
     //-------------------------------------------------
-    public static function searchOrders($request){
-        $query = Order::with(['user' => function ($query) {
-            $query->select('id', 'display_name as user_name');
-        }])
+
+    public static function searchOrders($request)
+    {
+        $selected_store_id = $request->input('selected_store')
+            ?? Store::where('is_default', 1)->value('id');
+
+        $query = Order::with(['user:id,first_name as user_name'])
             ->with(['items' => function ($query) {
-                $query->select('id', 'uuid', 'vh_st_order_id', 'vh_user_id', 'vh_st_product_variation_id','quantity')
-                    ->with(['ProductVariation' => function ($query) {
-                        $query->select('id', 'name');
-                    }]);
+                $query->select(
+                    'id',
+                    'uuid',
+                    'vh_st_order_id',
+                    'vh_user_id',
+                    'vh_st_product_variation_id',
+                    'quantity'
+                )->with(['productVariation:id,name']);
             }])
             ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id')
             ->where('is_active', 1);
 
-        if ($request->has('query') && $request->input('query')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
-                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%')
-                    ->orWhere('email', 'LIKE', '%' . $request->input('query') . '%');
+        if (!empty($selected_store_id)) {
+            $query->where('vh_st_store_id', $selected_store_id);
+        }
+
+        if ($request->has('search') && $request->input('search')) {
+            $search_term = $request->input('search');
+
+            $query->where(function ($q) use ($search_term) {
+                $q->where('id', $search_term)
+                    ->orWhereHas('user', function ($q2) use ($search_term) {
+                        $q2->where('display_name', 'LIKE', '%' . $search_term . '%')
+                            ->orWhere('first_name', 'LIKE', '%' . $search_term . '%')
+                            ->orWhere('email', 'LIKE', '%' . $search_term . '%');
+                    });
             });
         }
 
         $orders = $query->limit(10)->get();
-$order_item_pairs = $orders->flatMap(function ($order) {
+
+        // Extract order-item pairs
+        $order_item_pairs = $orders->flatMap(function ($order) {
             return $order->items->map(function ($item) use ($order) {
                 return ['vh_st_order_id' => $order->id, 'vh_st_order_item_id' => $item->id];
             });
         });
-        // Get shipment items in bulk
-        $shipment_items = ShipmentItem::whereIn('vh_st_order_id', $order_item_pairs->pluck('vh_st_order_id')->unique())
+
+        // Get shipment items
+        $shipment_items = ShipmentItem::whereIn(
+            'vh_st_order_id', $order_item_pairs->pluck('vh_st_order_id')->unique()
+        )
             ->whereIn('vh_st_order_item_id', $order_item_pairs->pluck('vh_st_order_item_id')->unique())
             ->get()
             ->groupBy('vh_st_order_id')
             ->mapWithKeys(function ($group, $order_id) {
                 return [$order_id => $group->pluck('vh_st_order_item_id')];
             });
+
         foreach ($orders as &$order) {
             foreach ($order->items as &$item) {
                 if ($item->productVariation) {
                     $item->name = $item->productVariation->name;
-
                     $shippedQuantity = static::getShippedQuantity($item->id);
-                    $pending_quantity = static::getPendingQuantity($item->id);
                     $item->shipped = $shippedQuantity;
-                        $item->pending = $item->quantity - $shippedQuantity;
-                    $item->overall_shipped_quantity = static::getShippedQuantity($item->id);
-                    $item->exists_in_shipment = isset($shipment_items[$order->id]) && $shipment_items[$order->id]->contains($item->id);
-                    unset($item->productVariation);
+                    $item->pending = $item->quantity - $shippedQuantity;
+                    $item->overall_shipped_quantity = $shippedQuantity;
+                    $item->exists_in_shipment = isset($shipment_items[$order->id])
+                        && $shipment_items[$order->id]->contains($item->id);
 
+                    unset($item->productVariation);
                 }
             }
+
             if ($order->user) {
                 $order->user_name = $order->user->user_name;
                 unset($order->user);
             }
         }
 
-        $response['success'] = true;
-        $response['data'] = $orders;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $orders,
+        ];
     }
-
-
 
     //-------------------------------------------------
     private static function getShippedQuantity($itemId) {
@@ -1209,51 +1241,53 @@ $order_item_pairs = $orders->flatMap(function ($order) {
     {
         $inputs = $request->all();
 
-        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
-        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+        $start_date = isset($request->start_date)
+            ? Carbon::parse($request->start_date)->startOfDay()
+            : Carbon::now()->startOfDay();
+        $end_date = isset($request->end_date)
+            ? Carbon::parse($request->end_date)->endOfDay()
+            : Carbon::now()->endOfDay();
 
-        $labels = [];
-        foreach (new \DatePeriod($start_date, new \DateInterval('P1D'), $end_date->copy()->addDay()) as $date) {
-            $labels[] = $date->format('Y-m-d');
-        }
+        $selected_store_id = $request->input('selected_store')
+            ?? Store::where('is_default', 1)->value('id');
 
-        // Fetch shipment data: count of shipped orders and total quantity shipped each day
-        $shipment_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
-            ->selectRaw('DATE(created_at) as shipment_date, COUNT(DISTINCT vh_st_order_id) as shipped_orders, SUM(quantity) as shipped_quantity')
+        // Get shipment data grouped by date
+        $shipment_data = ShipmentItem::whereBetween('vh_st_shipment_items.created_at', [$start_date, $end_date])
+            ->join('vh_st_orders', 'vh_st_shipment_items.vh_st_order_id', '=', 'vh_st_orders.id')
+            ->where('vh_st_orders.vh_st_store_id', $selected_store_id)
+            ->selectRaw('DATE(vh_st_shipment_items.created_at) as shipment_date, COUNT(DISTINCT vh_st_shipment_items.vh_st_order_id) as shipped_orders, SUM(vh_st_shipment_items.quantity) as shipped_quantity')
             ->groupBy('shipment_date')
             ->orderBy('shipment_date')
             ->get()
             ->keyBy('shipment_date');
 
-        // Prepare data for the chart
-        $shipped_orders_so_far = 0;
+        // Generate date labels for the period
+        $labels = [];
+        $date = $start_date->copy();
+        while ($date->lte($end_date)) {
+            $labels[] = $date->format('Y-m-d');
+            $date->addDay();
+        }
+
         $formatted_shipped_data = [];
         $formatted_quantities_shipped_data = [];
 
         foreach ($labels as $date_string) {
-            // Get shipped orders and quantity for the current day
             $shipped_orders = $shipment_data[$date_string]->shipped_orders ?? 0;
             $shipped_quantity = $shipment_data[$date_string]->shipped_quantity ?? 0;
 
-            // Ignore data points where both shipped orders and shipped quantity are 0
-            if ($shipped_orders == 0 && $shipped_quantity == 0) {
-                continue;
+            // Only add data points if there is data for the day
+            if ($shipped_orders > 0 || $shipped_quantity > 0) {
+                $formatted_shipped_data[] = ['x' => $date_string, 'y' => $shipped_orders];
+                $formatted_quantities_shipped_data[] = ['x' => $date_string, 'y' => $shipped_quantity];
             }
-
-            $shipped_orders_so_far += $shipped_orders;
-
-            // Prepare chart data for shipped orders (Orders In Shipment)
-            $formatted_shipped_data[] = ['x' => $date_string, 'y' => $shipped_orders];
-
-            // Prepare chart data for quantities shipped (Quantities Shipped)
-            $formatted_quantities_shipped_data[] = ['x' => $date_string, 'y' => $shipped_quantity];
         }
 
         return [
             'data' => [
                 'chart_series' => [
-                    ['name' => 'Orders In Shipment', 'data' => $formatted_shipped_data],         // Orders shipped
-                    ['name' => 'Quantities Shipped', 'data' => $formatted_quantities_shipped_data], // Quantities shipped
+                    ['name' => 'Orders In Shipment', 'data' => $formatted_shipped_data],
+                    ['name' => 'Quantities Shipped', 'data' => $formatted_quantities_shipped_data],
                 ],
                 'chart_options' => [
                     'xaxis' => ['type' => 'datetime'],
@@ -1270,51 +1304,57 @@ $order_item_pairs = $orders->flatMap(function ($order) {
 
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-        $previous_date = $start_date->copy()->subDay();
+        $selected_store_id = $request->input('selected_store') ?? Store::where('is_default', 1)->value('id');
 
-        $period = new \DatePeriod($previous_date, new \DateInterval('P1D'), $end_date);
+        // Prepare date labels (including previous day for cumulative)
         $labels = [];
-        foreach ($period as $date) {
+        $date = $start_date->copy()->subDay();
+        while ($date->lte($end_date)) {
             $labels[] = $date->format('Y-m-d');
+            $date->addDay();
         }
 
+        // Get shipped data for the range
         $shipped_data = ShipmentItem::whereBetween('created_at', [$start_date, $end_date])
-            ->selectRaw('DATE(created_at) as shipment_date')
-            ->selectRaw('SUM(quantity) as total_quantity')
+            ->whereHas('orders', function ($query) use ($selected_store_id) {
+                $query->where('vh_st_store_id', $selected_store_id);
+            })
+            ->selectRaw('DATE(created_at) as shipment_date, SUM(quantity) as total_quantity')
             ->groupBy('shipment_date')
             ->orderBy('shipment_date')
-            ->get()
-            ->keyBy('shipment_date');
-        $previous_shipped_quantity = ShipmentItem::where('created_at', '<', $start_date)->sum('quantity');
-//        dd($previous_shipped_quantity,$start_date);
-        $total_shipment_quantity_available = OrderItem::sum('quantity');
-        $overall_shipped_quantity=ShipmentItem::sum('quantity');
+            ->pluck('total_quantity', 'shipment_date');
 
-        $cumulative_shipped_quantity = $previous_shipped_quantity;
+        // Get cumulative and total values
+        $previous_shipped_quantity = ShipmentItem::whereHas('orders', function ($query) use ($selected_store_id) {
+            $query->where('vh_st_store_id', $selected_store_id);
+        })->where('created_at', '<', $start_date)->sum('quantity');
 
+        $total_shipment_quantity_available = OrderItem::whereHas('order', function ($query) use ($selected_store_id) {
+            $query->where('vh_st_store_id', $selected_store_id);
+        })->sum('quantity');
+
+        $overall_shipped_quantity = $previous_shipped_quantity;
         $formatted_shipped_data = [];
         $formatted_pending_data = [];
 
-
-        foreach ($labels as $index => $date_string) {
-            $shipped_quantity = isset($shipped_data[$date_string]) ? (int) $shipped_data[$date_string]->total_quantity : 0;
-            $cumulative_shipped_quantity += $shipped_quantity; // Update cumulative shipped quantity
+        foreach ($labels as $date_string) {
+            $shipped_quantity = isset($shipped_data[$date_string]) ? (int) $shipped_data[$date_string] : 0;
+            $overall_shipped_quantity += $shipped_quantity;
 
             $formatted_shipped_data[] = [
                 'x' => $date_string,
-                'y' => $cumulative_shipped_quantity,
+                'y' => $overall_shipped_quantity,
             ];
 
             $pending_quantity = ($inputs['start_date'] === $inputs['end_date'])
-                ? max($total_shipment_quantity_available  - $overall_shipped_quantity, 0)
-                : max($total_shipment_quantity_available - $cumulative_shipped_quantity, 0);
+                ? max($total_shipment_quantity_available - ($overall_shipped_quantity), 0)
+                : max($total_shipment_quantity_available - $overall_shipped_quantity, 0);
 
             $formatted_pending_data[] = [
                 'x' => $date_string,
                 'y' => $pending_quantity < 0 ? 0 : $pending_quantity,
             ];
         }
-
 
         return [
             'data' => [
@@ -1345,39 +1385,60 @@ $order_item_pairs = $orders->flatMap(function ($order) {
 
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-        $shipment_data_with_status = self::with('status')
-            ->select('taxonomy_id_shipment_status')
-            ->selectRaw("SUM(vh_st_shipment_items.quantity) as total_quantity")
-            ->join('vh_st_shipment_items', 'vh_st_shipment_items.vh_st_shipment_id', '=', 'vh_st_shipments.id') // Join with shipment items
+
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
+
+        $shipment_data = self::with('status')
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->whereHas('items.orders', function ($query) use ($selected_store_id) {
+                if ($selected_store_id) {
+                    $query->where('vh_st_store_id', $selected_store_id);
+                }
+            })
             ->withCount([
-                'orders as distinct_orders_count' => function ($query) {
-                    $query->distinct('vh_st_order_id'); // Count distinct orders for each shipment
+                'items as total_quantity' => function ($query) use ($selected_store_id) {
+                    if ($selected_store_id) {
+                        $query->whereHas('orders', function ($q) use ($selected_store_id) {
+                            $q->where('vh_st_store_id', $selected_store_id);
+                        });
+                    }
+                    $query->selectRaw("SUM(quantity)");
+                },
+                'items as distinct_orders_count' => function ($query) use ($selected_store_id) {
+                    if ($selected_store_id) {
+                        $query->whereHas('orders', function ($q) use ($selected_store_id) {
+                            $q->where('vh_st_store_id', $selected_store_id);
+                        });
+                    }
+                    $query->selectRaw("COUNT(DISTINCT vh_st_order_id)");
                 }
             ])
-            ->whereBetween('vh_st_shipments.created_at', [$start_date, $end_date])
-            ->groupBy('taxonomy_id_shipment_status')
             ->get()
-            ->map(function ($shipment) {
+            ->groupBy('taxonomy_id_shipment_status')
+            ->map(function ($shipments) {
+                $first = $shipments->first();
+
                 return [
-                    'status' => $shipment->status->name,
-                    'order_count' => $shipment->distinct_orders_count,
-                    'total_quantity' => $shipment->total_quantity
+                    'status' => optional($first->status)->name ?? 'Unknown',
+                    'order_count' => $shipments->sum('distinct_orders_count'),
+                    'total_quantity' => $shipments->sum('total_quantity'),
                 ];
-            });
-            return [
+            })
+            ->values();
+
+        return [
             'data' => [
-                    'chart_series' => [
-                        'quantity_data' => $shipment_data_with_status->pluck('total_quantity'),
-
+                'chart_series' => [
+                    'quantity_data' => $shipment_data->pluck('total_quantity'),
+                ],
+                'chart_options' => [
+                    'xaxis' => [
+                        'categories' => $shipment_data->pluck('status'),
                     ],
-                    'chart_options' => [
-                        'xaxis' => [
-
-                        'categories' => $shipment_data_with_status->pluck('status'),
-                        ],
-                    ]
-                   ],
-                ];
+                ],
+            ]
+        ];
     }
 
     //----------------------------------------------------------

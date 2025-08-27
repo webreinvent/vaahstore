@@ -2,10 +2,14 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Faker\Factory;
@@ -16,6 +20,8 @@ use VaahCms\Modules\Store\Models\ProductVendor;
 use VaahCms\Modules\Store\Models\ProductAttribute;
 use VaahCms\Modules\Store\Models\ProductPrice;
 use VaahCms\Modules\Store\Models\ProductStock;
+use VaahCms\Modules\Store\Services\CurrencyConverterService;
+use VaahCms\Modules\Store\Traits\ApiAuthUser;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -31,9 +37,11 @@ class Product extends VaahModel
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
+    use ApiAuthUser;
 
     //-------------------------------------------------
     protected $table = 'vh_st_products';
+
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -73,7 +81,290 @@ class Product extends VaahModel
 
     //-------------------------------------------------
     protected $appends = [
+        'price',
+        'is_default_vendor_attached',
+        'vendor_product_data',
+        'media',
+        'grouped_attributes',
+        'wishlist_ids'
     ];
+    //-------------------------------------------------
+
+
+    /**
+     * Get wishlist IDs for the current product and API auth user.
+     * Uses static cache for efficiency.
+     */
+    public function getWishlistIdsAttribute()
+    {
+        $api_auth_user_id = $this->getApiAuthUserId();
+        if (!$api_auth_user_id) {
+            return [];
+        }
+
+        static $product_to_wishlist_map = null;
+
+        if ($product_to_wishlist_map === null) {
+            $product_to_wishlist_map = UserWishlist::with(['wishlist', 'products'])
+                ->where('vh_user_id', $api_auth_user_id)
+                ->get()
+                ->flatMap(fn($wishlist) => $wishlist->products->map(fn($product) => [
+                    'product_id' => $product->id,
+                    'wishlist_id' => $wishlist->wishlist->id ?? null,
+                ]))
+                ->filter(fn($item) => !is_null($item['wishlist_id']))
+                ->groupBy('product_id')
+                ->map(fn($group) => $group->pluck('wishlist_id')->unique()->values()->toArray())
+                ->toArray();
+        }
+        return $product_to_wishlist_map[$this->id] ?? [];
+    }
+    //-------------------------------------------------
+
+    public function getGroupedAttributesAttribute()
+    {
+        return self::getGroupedAttributesViaQuery($this->id);
+    }
+    //-------------------------------------------------
+
+    public function getMediaAttribute()
+    {
+
+        $product_medias = $this->hasMany(ProductMedia::class, 'vh_st_product_id')
+            ->with(['images:id,vh_st_product_media_id,url,url_thumbnail,type', 'productVariationMedia:id,is_default'])
+            ->get();
+
+        $medias_to_return = $product_medias->filter(fn($media) =>
+        $media->productVariationMedia->contains('is_default', 1)
+        )->whenEmpty(fn() => $product_medias);
+
+        return $medias_to_return->map(fn($media) => [
+            'title' => $media->name,
+            'images' => $media->images->map(fn($image) => [
+                'webp_url' => $image->webp_url,
+                'url' => $image->url,
+                'url_thumbnail' => $image->url_thumbnail,
+                'type' => $image->type,
+            ]),
+            'is_default' => (int) $media->productVariationMedia->contains('is_default', 1),
+        ])->values();
+    }
+    //-------------------------------------------------
+
+    public function getIsDefaultVendorAttachedAttribute()
+    {
+        return self::hasDefaultVendorAttachedToProduct($this->id);
+    }
+    //-------------------------------------------------
+
+
+
+
+    public function loadVariations($vendor_id = null)
+    {
+        $variations = $this->productVariations()->with('stocks')->get();
+
+        return $variations->map(function ($variation) use ($vendor_id) {
+            $data = $variation->toArray();
+
+            if ($vendor_id) {
+                $vendor_stock = $variation->getVendorStock($vendor_id);
+                $data['vendor_variation_data'] = [
+                    'selected_vendor_id' => $vendor_id,
+                    'quantity' => $vendor_stock->quantity ?? 0,
+                ];
+            }
+
+            return $data;
+        })->toArray();
+    }
+
+
+
+
+
+
+    //-------------------------------------------------
+
+    protected function getStoreAndCurrencyInfo(): array
+    {
+        $request = request();
+        $currency_code = $request->input('currency');
+        $selected_store_id = $request->input('selected_store');
+
+        $store = null;
+        if ($selected_store_id && $this->store_id == $selected_store_id) {
+            $store = Store::with('defaultCurrency')->find($selected_store_id);
+        }
+
+        // Fallback to product's store
+        if (!$store) {
+            $store = $this->store()->with('defaultCurrency')->first();
+        }
+
+        return [
+            'currency_code' => $currency_code,
+            'store' => $store,
+        ];
+    }
+    //-------------------------------------------------
+
+
+    public function getPriceAttribute()
+    {
+        $price_info = self::getDefaultPriceOfProduct($this->id);
+        $price = (float) $price_info['amount'];
+        $price = is_numeric($price) ? $price : 0;
+        $source = $price_info['source'];
+
+        $store_currency_info = $this->getStoreAndCurrencyInfo();
+        $currency_code = $store_currency_info['currency_code'];
+        $store = $store_currency_info['store'];
+
+        if (!$store || !$store->defaultCurrency) {
+            return [
+                'amount' => number_format($price, 2, '.', ''),
+                'currency' => [
+                    'code' => null,
+                    'symbol' => null,
+                    'rate' => 1,
+                ],
+            ];
+        }
+        $base_currency_code = $store->defaultCurrency->code;
+        $base_currency_symbol = $store->defaultCurrency->symbol;
+
+        if (!$currency_code || $currency_code === $base_currency_code) {
+            return [
+                'amount' => number_format($price, 2, '.', ''),
+                'currency' => [
+                    'code' => $base_currency_code,
+                    'symbol' => $base_currency_symbol,
+                    'rate' => 1,
+                ],
+            ];
+        }
+
+        $conversion_data = $this->getCurrencyConversionData($price, $currency_code, $store);
+        if ($source === 'product_variation') {
+            return [
+                'amount' => number_format($price, 2, '.', ''),
+                'currency' => [
+                    'code' => $conversion_data['currency'],
+                    'symbol' => $conversion_data['currency_symbol'],
+                    'rate' => $conversion_data['conversion_rate'],
+                ],
+            ];
+        }
+
+
+        return [
+            'amount' => number_format($conversion_data['converted_amount'], 2, '.', ''),
+            'currency' => [
+                'code' => $conversion_data['currency'],
+                'symbol' => $conversion_data['currency_symbol'],
+                'rate' => $conversion_data['conversion_rate'],
+            ]
+        ];
+    }
+
+    //-------------------------------------------------
+
+    protected function getCurrencyConversionData($original_amount = 1, $currency_code = null, $store = null)
+
+    {
+        $base_currency_code = $store?->defaultCurrency?->code;
+        $currency_symbol = $store?->defaultCurrency?->symbol ?? null;
+
+        // Step 2: Fallback to default store
+        if (!$base_currency_code) {
+            $default_store = Store::where('is_default', 1)
+                ->with(['defaultCurrency', 'currencies'])
+                ->first();
+
+            $base_currency_code = $default_store?->defaultCurrency?->code;
+            $currency_symbol = $default_store?->defaultCurrency?->symbol ?? null;
+            $store = $default_store;
+        }
+
+        // Step 3: If still no base currency
+        if (!$base_currency_code) {
+            return [
+                'conversion_rate' => 1,
+                'currency' => null,
+                'currency_symbol' => null,
+                'converted_amount' => $original_amount,
+            ];
+        }
+
+        $cache_key = 'conversion_rates_USD';
+        $conversion_rates = Cache::remember($cache_key, now()->addDay(), function () {
+            $converter = new CurrencyConverterService();
+            return $converter->fetchAllRates('USD');
+        });
+        // Step 4: Conversion Logic
+        $store_currency_codes = $store?->currencies->pluck('code')->toArray() ?? [];
+        $store_currency_symbols = $store?->currencies->pluck('symbol', 'code')->toArray() ?? [];
+
+        $convert_to_currency = ($currency_code && in_array($currency_code, $store_currency_codes))
+            ? $currency_code
+            : $base_currency_code;
+
+        $conversion_rate = 1;
+
+
+        $base_currency_rate = $conversion_rates[$base_currency_code] ?? null;
+        $rate_to_convert = $conversion_rates[$convert_to_currency] ?? null;
+        $conversion_rate = $this->calculateConversionRate($base_currency_rate, $rate_to_convert);
+
+
+
+        $converted_amount = round($original_amount * $conversion_rate, 6);
+
+        return [
+            'conversion_rate' => round($conversion_rate, 6),
+            'currency' => $convert_to_currency,
+            'currency_symbol' => $store_currency_symbols[$convert_to_currency] ?? $currency_symbol,
+            'converted_amount' => $converted_amount,
+        ];
+    }
+
+
+    //-------------------------------------------------
+
+    /**
+     * Get converted Vendor Product Data
+     */
+
+    public function getVendorProductDataAttribute()
+    {
+        $vendor_product_data = self::fetchVendorProductPriceRangeAndQuantity($this->id)['data'];
+
+        $store_currency_info = $this->getStoreAndCurrencyInfo();
+        $currency_code = $store_currency_info['currency_code'];
+        $store = $store_currency_info['store'];
+
+        $conversion_data = $this->getCurrencyConversionData(1, $currency_code, $store); // `1` as base for rate
+        $conversion_rate = $conversion_data['conversion_rate'];
+        // Convert prices only if:
+        // - price_range exists and is array
+        // - price source is not from product_variation
+        if (!empty($vendor_product_data['price_range']) && is_array($vendor_product_data['price_range']) &&
+            ($vendor_product_data['price_source'] ?? '') !== 'product_variation') {
+
+            $vendor_product_data['price_range'] = array_map(function ($price) use ($conversion_rate) {
+                return number_format((float)$price * $conversion_rate, 2, '.', '');
+            }, $vendor_product_data['price_range']);
+        }
+        return $vendor_product_data;
+    }
+
+    //-------------------------------------------------
+
+
+
+    //-------------------------------------------------
+
 
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
@@ -484,7 +775,7 @@ class Product extends VaahModel
         }
         $input = $request->all();
         $product_id = $id;
-        $store = $request->input('store');
+        $selected_store_id = $request->input('selected_store') ?? null;
         $vendor_data = $request->input('vendors');
         $validation = self::validatedVendor($vendor_data);
         if (!$validation['success']) {
@@ -495,6 +786,14 @@ class Product extends VaahModel
         $active_user = auth()->user();
 
         foreach ($vendor_data as $key=>$vendor){
+            $ownership_check = self::validateVendorAndProductToStore(
+                $selected_store_id,null,
+                $vendor['id'] ?? null,
+            );
+
+            if (!$ownership_check['success']) {
+                return $ownership_check;
+            }
             $product_vendor = ProductVendor::where(['vh_st_vendor_id'=> $vendor['id'], 'vh_st_product_id' => $product_id])->first();
 
             if($product_vendor){
@@ -503,6 +802,7 @@ class Product extends VaahModel
             }
 
             $item = new ProductVendor();
+            $item->vh_st_store_id = $selected_store_id;
             $item->vh_st_product_id = $product_id;
             $item->vh_st_vendor_id = $vendor['id'];
 
@@ -518,7 +818,6 @@ class Product extends VaahModel
 
             $item->is_active = 1;
             $item->save();
-            $item->storeVendorProduct()->attach([$store['id']]);
         }
 
         $response = self::getItem($product_id);
@@ -556,24 +855,19 @@ class Product extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+        $store_id = $inputs['vh_st_store_id'] ?? null;
 
-
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
-            $response['errors'][] = $error_message;
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
+        $item = self::withTrashed()
+            ->where('vh_st_store_id', $store_id)
+            ->where(function ($query) use ($inputs) {
+                $query->where('name', $inputs['name'])
+                    ->orWhere('slug', $inputs['slug']);
+            })
+            ->first();
 
         if ($item) {
-            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+            $product_name_or_slug = $item->name === $inputs['name'] ? 'name' : 'slug';
+            $error_message = "This product already exists with this store" . ($item->deleted_at ? ' (in trash).' : '.');
             $response['errors'][] = $error_message;
             return $response;
         }
@@ -623,6 +917,10 @@ class Product extends VaahModel
         }
 
         $sort = $filter['sort'];
+// Prevent SQL sorting by accessor
+        if(Str::startsWith($sort, 'price')) {
+            return $query->orderBy('id', 'desc');
+        }
 
         $direction = Str::contains($sort, ':');
 
@@ -821,10 +1119,45 @@ class Product extends VaahModel
         return $query;
     }
 
+    public function scopeFilterBySelectedStore(Builder $query)
+    {
+        if ($selected_store = request('selected_store')) {
+            $query->where('vh_st_store_id', $selected_store);
+        }
 
+        return $query;
+    }
     //-------------------------------------------------
+    /**
+     * Sort paginated collection by product price accessor (in-memory).
+     * Accessors like `price` can't be sorted via DB, so we do it after pagination.
+     */
+    protected static function sortCollectionByPrice($paginated_list, $sort)
+    {
+        if (!$sort || (!str_contains($sort, 'price') && !str_contains($sort, 'price:'))) {
+            return $paginated_list;
+        }
+
+        $direction = 'asc';
+        if (str_contains($sort, ':')) {
+            [, $sort_dir] = explode(':', $sort);
+            $direction = strtolower($sort_dir) === 'desc' ? 'desc' : 'asc';
+        }
+
+        $sorted = $paginated_list->getCollection()->sortBy(function ($item) {
+            return isset($item['product_variation']['sale_price'])
+                ? (float)$item['product_variation']['sale_price']
+                : 0;
+        }, SORT_REGULAR, $direction === 'desc');
+        return $paginated_list->setCollection($sorted->values());
+    }
+    //-------------------------------------------------
+
+
     public static function getList($request)
     {
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
         $include = request()->query('include', []);
         $exclude = request()->query('exclude', []);
         $user = null;
@@ -838,26 +1171,44 @@ class Product extends VaahModel
             }
         }
 
-        $relationships = [
-            'brand', 'store.defaultCurrency', 'type',
-            'productMedias.images:id,vh_st_product_media_id,url',
-            'status', 'productVendors', 'productCategories'
+        $default_relationships = [
+            'brand:id,name',
+            'store',
+            'type',
+            'status',
+            'productCategories:id,name,slug,parent_id'
         ];
+
+        // Prepare excluded relationship keys
+        $excluded_relationships = collect($exclude)
+            ->filter(fn($val) => $val === 'true')
+            ->keys()
+            ->flatMap(fn($key) => array_map('trim', explode(',', $key)))
+            ->unique()
+            ->values();
+
+        $relationships = array_filter($default_relationships, function ($rel) use ($excluded_relationships) {
+            return !in_array(Str::before($rel, '.'), $excluded_relationships->toArray());
+        });
 
         foreach ($include as $key => $value) {
             if ($value === 'true') {
-                $keys = explode(',', $key);
-                foreach ($keys as $relationship) {
+                foreach (explode(',', $key) as $relationship) {
                     $relationship = trim($relationship);
-                    if (method_exists(self::class, $relationship)) {
+                    if (method_exists(self::class, $relationship) && !in_array($relationship, $relationships)) {
                         $relationships[] = $relationship;
                     }
                 }
             }
         }
 
-        $list = self::getSorted($request->filter)->with($relationships)->withCount('productVariations');
+        $list = self::query()->where('vh_st_store_id', $selected_store_id);
+        $filter = $request->filter ?? [];
 
+
+        $list = $list->getSorted($filter)
+            ->with($relationships)
+            ->withCount(['productVariations', 'productVendors']);
         // Apply filters
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
@@ -876,85 +1227,58 @@ class Product extends VaahModel
         $list->newArrivalsFilter($request->filter);
         $list->topSellingsFilter($request->filter);
 
-        // **Filter products by store slug to get product by store**
-        $store_slugs = request()->query('include', [])['stores'] ?? [];
-
-        if (!empty($store_slugs)) {
-            if (!is_array($store_slugs)) {
-                $store_slugs = json_decode($store_slugs, true);
-            }
-
-            if (is_array($store_slugs) && !empty($store_slugs)) {
-                $store_ids = Store::whereIn('slug', $store_slugs)->pluck('id')->toArray();
-
-                if (!empty($store_ids)) {
-                    $list->whereHas('store', function ($query) use ($store_ids) {
-                        $query->whereIn('id', $store_ids);
-                    });
-                }
-            }
-        } else {
-            $default_store_id = Store::where('is_default', true)->value('id');
-            $list->where('vh_st_store_id', $default_store_id);
-        }
-
+        // Filter by product IDs (if provided)
         if ($request->has('ids')) {
             $ids = json_decode($request->ids, true);
-
             if (is_array($ids) && !empty($ids)) {
                 $list->whereIn('id', $ids);
             }
         }
-        $rows = config('vaahcms.per_page');
-        if ($request->has('rows')) {
-            $rows = $request->rows;
-        }
+
+        // Pagination
+        $rows = $request->get('rows', config('vaahcms.per_page'));
         $list = $list->paginate($rows);
 
-        // Exclude unwanted keys
-        $keys_to_exclude = [];
-        foreach ($exclude as $key => $value) {
-            if ($value === 'true') {
-                $keys_to_exclude = array_merge($keys_to_exclude, array_map('trim', explode(',', $key)));
+
+
+        // Transform list items: hide keys + attach variation
+        $filtered = $list->getCollection()->filter(function ($item) use ($request) {
+
+            if ($request->input('filter.only_with_vendor') === 'true') {
+                return optional($item->vendor_product_data)['selected_vendor'] !== null;
             }
-        }
-        $keys_to_exclude = array_unique($keys_to_exclude);
+            return true;
+        })->values()->transform(function ($item) use ($excluded_relationships) {
+            $item->makeHidden($excluded_relationships->toArray());
 
-        foreach ($list as $item) {
-            $item->product_price_range = self::getPriceRangeOfProduct($item->id)['data'];
-            $message = self::getVendorsListForPrduct($item->id)['message'];
-            $item->is_attached_default_vendor = $message ? false : null;
 
-            $all_grouped_attributes = [];
-            foreach ($item->productVariations as $variation) {
-                self::groupedAttributes($variation, $all_grouped_attributes);
-            }
-
-            $item->grouped_attributes = collect($all_grouped_attributes)->map(function ($values, $key) {
-                return [
-                    'attribute' => $key,
-                    'values' => array_unique($values),
-                ];
-            })->values();
-
-            $item->variations = $item->productVariations->pluck('id')->toArray();
-
-            foreach ($keys_to_exclude as $single_key) {
-                if (isset($item[$single_key])) {
-                    unset($item[$single_key]);
+                $resolved_variation = self::getResolvedVariationWithVendor($item['id']);
+                if ($resolved_variation) {
+                    $item['product_variation'] = $resolved_variation;
                 }
-            }
 
-            unset($item->productVariations);
-        }
 
-        $response['success'] = true;
-        $response['data'] = $list;
-        $response['active_cart_user'] = $user;
+            return $item;
+        });
+
+// Replace the original collection with the filtered one
+        $list->setCollection($filtered);
+// Check for price-based sort and apply it in-memory after pagination
+        $sort = $request->input('filter.sort') ?? null;
+        $list = self::sortCollectionByPrice($list, $sort);
+
+        $response = [
+            'success' => true,
+            'data' => $list->toArray(),
+        ];
+
+        $response['data']['active_cart_user'] = null;
 
         if ($user) {
-            $response['active_cart_user']['cart_records'] = $cart_records;
-            $response['active_cart_user']['vh_st_cart_id'] = $cart->id;
+            $user['cart_records'] = $cart_records;
+            $user['vh_st_cart_id'] = $cart->id;
+
+            $response['data']['active_cart_user'] = $user;
         }
 
         return $response;
@@ -1173,15 +1497,15 @@ class Product extends VaahModel
 
         return $response;
     }
-    //-------------------------------------------------
-    public static function getItem($id)
+
+    public static function getItem($id, $request = null)
     {
         $include = request()->query('include', []);
         $exclude = request()->query('exclude', []);
 
         $relationships = [
             'createdByUser', 'updatedByUser', 'deletedByUser',
-            'brand', 'store', 'type', 'status', 'productCategories'
+            'brand', 'store', 'type', 'status', 'productCategories',
         ];
 
         foreach ($include as $key => $value) {
@@ -1197,22 +1521,57 @@ class Product extends VaahModel
         }
 
         $item = self::where('id', $id)
-            ->with($relationships)
+            ->with($relationships)->withCount('productVendors')
             ->withTrashed()
             ->first();
+        if ($item && $item->is_default_vendor_attached) {
+            $item->product_vendors_count += 1;
+        }
+        if ($request && $request->boolean('include.variations')) {
+            $vendor_id = $item->vendor_product_data['selected_vendor']['id'] ?? null;
 
+            $response['data']['variations'] = $item->loadVariations($vendor_id);
+        }
         if (!$item) {
             $response['success'] = false;
             $response['errors'][] = trans("vaahcms-general.record_not_found_with_id") . $id;
             return $response;
         }
-        $all_grouped_attributes = [];
-        if ($item->productVariations){
-            foreach ($item->productVariations as $variation) {
-                self::groupedAttributes($variation, $all_grouped_attributes);
-            }unset($item->productVariations);
-        }
         $array_item = $item->toArray();
+
+
+        $resolved_variation = $item::getResolvedVariationWithVendor($item->id);
+
+        if ($resolved_variation) {
+            $array_item['product_variation'] = $resolved_variation;
+
+            //  Prefer attribute from URL, fallback to resolved variation's attribute_query
+            $attribute_from_url = request()->query('attribute', []);
+            $attribute_query_array = [];
+
+            if (!empty($attribute_from_url)) {
+                // Use attributes directly from query string (?attribute[color]=black&attribute[size]=medium)
+                $attribute_query_array = $attribute_from_url;
+            } elseif (!empty($resolved_variation['attribute_query'])) {
+                // Parse attribute_query from variation fallback if URL has no attribute
+                parse_str(ltrim($resolved_variation['attribute_query'], '?'), $parsed);
+                $attribute_query_array = $parsed['attribute'] ?? [];
+            }
+
+            // If we have any attribute input to work with
+            if (!empty($attribute_query_array)) {
+                // Merge into request so getAvailableCombinations() can use it
+                request()->merge(['attribute' => $attribute_query_array]);
+
+                //  Fetch available combinations using selected/fallback attributes
+                $combinations = self::getAvailableCombinationsWithVariation(request(), $item->id);
+
+                if (!empty($combinations['data']['attributes_combinations'])) {
+                    $array_item['product_variation']['attributes_combinations'] = $combinations['data']['attributes_combinations'];
+                }
+            }
+        }
+
 
 
         $product_vendor = [];
@@ -1240,13 +1599,7 @@ class Product extends VaahModel
         $array_item['launch_at'] = date('Y-m-d', strtotime($array_item['launch_at']));
         $array_item['available_at'] = date('Y-m-d', strtotime($array_item['available_at']));
         $array_item['seo_meta_keyword'] = json_decode($array_item['seo_meta_keyword']);
-        $array_item['grouped_attributes'] = collect($all_grouped_attributes)->map(function ($values, $key) {
-            return [
-                'attribute' => $key,
-                'values' => array_unique($values),
-            ];
-        })->values();
-        $array_item['variations'] = $item->productVariations->pluck('id')->toArray();
+
         $keys_to_exclude = [];
         foreach ($exclude as $key => $value) {
             if ($value === 'true') {
@@ -1269,7 +1622,33 @@ class Product extends VaahModel
         return $response;
     }
 
+    public function findVariationFromQueryParams($query_params)
+    {
+        if (empty($query_params)) {
+            return null;
+        }
 
+        // Always treat each param as an array of values, slug everything
+        $normalized = collect($query_params)->mapWithKeys(function ($value, $key) {
+            $slugged_key = \Illuminate\Support\Str::slug($key);
+            $values = is_array($value) ? $value : [$value];
+            return [$slugged_key => collect($values)->map(fn($v) => \Illuminate\Support\Str::slug($v))->all()];
+        });
+
+        // Find the first matching variation using collections
+        return $this->productVariations->first(function ($variation) use ($normalized) {
+            $attributes = collect($variation->productAttributes)->mapWithKeys(function ($attribute) {
+                $attr_name = \Illuminate\Support\Str::slug($attribute->attribute->name ?? '');
+                $attr_value = \Illuminate\Support\Str::slug(optional($attribute->values->first())->value ?? '');
+                return [$attr_name => $attr_value];
+            });
+
+            // All query param keys must exist and at least one value must match
+            return $normalized->every(function ($values, $key) use ($attributes) {
+                return isset($attributes[$key]) && in_array($attributes[$key], $values, true);
+            });
+        });
+    }
     //-------------------------------------------------
     public static function updateItem($request, $id)
     {
@@ -1279,25 +1658,20 @@ class Product extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-
+        $store_id = $inputs['vh_st_store_id'] ?? null;
         // check if name exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
+        $existing_item = self::withTrashed()
+            ->where('vh_st_store_id', $store_id)
+            ->where(function ($query) use ($inputs) {
+                $query->where('name', $inputs['name'])
+                    ->orWhere('slug', $inputs['slug']);
+            })
+            ->where('id', '!=', $id)
+            ->first();
 
-        if ($item) {
-            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
-            $response['errors'][] = $error_message;
-            return $response;
-        }
-
-        // check if slug exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
+        if ($existing_item) {
+            $product_name_or_slug = $existing_item->name === $inputs['name'] ? 'name' : 'slug';
+            $error_message = "This $product_name_or_slug already exists with this store" . ($existing_item->deleted_at ? ' (in trash).' : '.');
             $response['errors'][] = $error_message;
             return $response;
         }
@@ -1434,10 +1808,10 @@ class Product extends VaahModel
         $rules = validator($inputs, [
             'name' => 'required|max:150',
             'slug' => 'required|max:150',
-            'summary' => 'max:100',
-            'vh_st_store_id'=> 'required',
+            'summary' => 'nullable',
+//            'vh_st_store_id'=> 'required',
             'taxonomy_id_product_type'=> 'required',
-            'details' => 'max:250',
+            'details' => 'nullable',
             'seo_title' => 'max:100',
             'seo_meta_description' => 'max:250',
             'seo_meta_keyword' => 'max:20',
@@ -1452,8 +1826,6 @@ class Product extends VaahModel
                 'name.max' => 'The Name field may not be greater than :max characters',
                 'slug.required' => 'The Slug field is required',
                 'slug.max' => 'The Slug field may not be greater than :max characters',
-                'summary.max' => 'The Summary field may not be greater than :max characters',
-                'details.max' => 'The Details field may not be greater than :max characters',
                 'seo_title.max' => 'The Seo title field may not be greater than :max characters',
                 'seo_meta_description.max' => 'The Seo Description field may not be greater than :max characters',
                 'seo_meta_keyword.max' => 'The Seo Keywords field may not have greater than :max keywords',
@@ -1689,23 +2061,30 @@ class Product extends VaahModel
 
     public static function searchProductVendor($request)
     {
-
+        $query_text = $request->input('search');
+        $selected_store = $request->input('selected_store');
 
         $vendors = Vendor::with('status')
+            ->select('id', 'name', 'slug', 'taxonomy_id_vendor_status')
             ->where('is_active', 1)
-            ->select('id', 'name','slug','taxonomy_id_vendor_status');
+            ->when($selected_store, function ($query) use ($selected_store) {
+                $query->whereHas('store', function ($q) use ($selected_store) {
+                    $q->where('id', $selected_store);
+                });
+            })
+            ->when($query_text, function ($query) use ($query_text) {
+                $query->where('name', 'like', "%{$query_text}%");
+            })
+            ->limit(10)
+            ->get();
 
-        if ($request->has('query') && $request->input('query')) {
-
-            $vendors->where('name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $vendors = $vendors->limit(10)->get();
-
-        $response['success'] = true;
-        $response['data'] = $vendors;
-        return $response;
-
+        return [
+            'success' => true,
+            'data' => $vendors,
+        ];
     }
+
+
 
     //-------------------------------------------------
 
@@ -2078,7 +2457,7 @@ class Product extends VaahModel
         $validated_products = [];
         foreach ($request->products as $product_data) {
             $product_id = $product_data['id'];
-            $active_selected_vendor = self::getPriceRangeOfProduct($product_id)['data'] ?? null;
+            $active_selected_vendor = self::fetchVendorProductPriceRangeAndQuantity($product_id)['data'] ?? null;
             $selected_vendor = $active_selected_vendor['selected_vendor'] ?? $default_vendor;
 
             if (!$selected_vendor) {
@@ -2101,6 +2480,7 @@ class Product extends VaahModel
             $quantity = $product_data['quantity'] ?? 1;
 
             // Store valid product data for cart creation
+
             $validated_products[] = [
                 'product' => $product,
                 'variation' => $product_with_variants,
@@ -2148,7 +2528,6 @@ class Product extends VaahModel
 
     //----------------------------------------------------------
 
-
     private static function handleCart($cart, $product, $product_with_variants, $selected_vendor,$quantity = 1)
     {
         if ($cart->products->contains($product->id)) {
@@ -2164,7 +2543,7 @@ class Product extends VaahModel
     }
     //----------------------------------------------------------
 
-    private static function findCartItem($cart, $variation_id, $selected_vendor_id)
+    public static function findCartItem($cart, $variation_id, $selected_vendor_id)
     {
         return $cart->productVariations()
             ->where('vh_st_product_variation_id', $variation_id)
@@ -2266,120 +2645,137 @@ class Product extends VaahModel
     public static function generateCart($request)
     {
         $response = [];
-        $default_vendor = Vendor::where('is_default', 1)->first();
-        $errors = [];
+        $errors = collect();
         $messages = [];
 
-        // Handle user data (optional)
+        $default_vendor = Vendor::where('is_default', 1)->first();
+
+        // Optional: Handle user
         $user_info = $request->input('user');
         $user = is_array($user_info) && isset($user_info['id'])
             ? self::findOrCreateUser(['id' => $user_info['id']])
             : null;
+        // Prepare product collection with validation and enrichment
+        $valid_products = collect($request->products)
+            ->map(function ($product_data) use ($errors, $default_vendor) {
+                $product_id = $product_data['id'] ?? null;
+                $variation_id = $product_data['variation_id'] ?? null;
+                $vendor_id = $product_data['vendor_id'] ?? null;
+                $quantity = $product_data['quantity'] ?? 1;
 
-        $has_valid_product = false;
-
-        $cart = null;
-        if ($request->has('uuid') && !empty($request->input('uuid'))) {
-            $cart = Cart::findByIdOrUuid($request->input('uuid'))->first();
-            if (!$cart) {
-                $response['success'] = false;
-                $response['errors'][] = "Cart with given UUID {$request->input('cart_uuid')} not found.";
-                return $response;
-            }
-        }
-        foreach ($request->products as $product_data) {
-            $product_id = $product_data['id'];
-            $product = Product::find($product_id);
-            if (!$product) {
-                $errors[] = "Invalid product ID {$product_id}.";
-                continue;
-            }
-            $variation_id = $product_data['variation_id'] ?? null;
-            $product_with_variants = $variation_id
-                ? self::getVariationById($product_id, $variation_id)
-                : self::getDefaultVariation($product);
-
-            if (!$product_with_variants || !isset($product_with_variants['variation_id'])) {
-                $errors[] = "No default variation found for Product ID {$product_id}.";
-                continue;
-            }
-
-            $selected_vendor = null;
-
-            $selected_vendor = self::getActiveSelectedVendor(
-                $product_data['vendor_id'] ?? null,
-                $product_id,
-                $default_vendor
-            );
-
-            if (!$selected_vendor) {
-                $errors[] = "No vendor is selected for product ID {$product_id}.";
-                continue;
-            }
-
-            // Validate product-vendor relationship
-            if ($selected_vendor->id !== $default_vendor->id) {
-                $product_vendor = $product->productVendors()
-                    ->where('vh_st_vendor_id', $selected_vendor->id)
-                    ->first();
-
-                if (!$product_vendor) {
-                    $errors[] = "product ID {$product_id} is not associated with vendor ID {$selected_vendor->id}.";
-                    continue;
+                $product = Product::find($product_id);
+                if (!$product) {
+                    $errors->push("Invalid product ID {$product_id}.");
+                    return null;
                 }
-            }
 
-            // Check item stock
-            $stock_status = self::getItemQuantity($selected_vendor, $product_id, $product_with_variants['variation_id']);
+                $variation = $variation_id
+                    ? self::getVariationById($product_id, $variation_id)
+                    : self::getDefaultVariation($product);
 
-            if (!$stock_status['available'] || $stock_status['quantity'] < ($product_data['quantity'] ?? 1)) {
-                $errors[] = "Insufficient stock for variation ID {$product_with_variants['variation_id']} from vendor ID {$selected_vendor->id}.";
-                continue;
-            }
-            // If everything is valid, ensure cart is created
-            if (!$cart) {
-                $cart = self::findOrCreateCart($user);
-            }
-            // If everything is valid, save to cart
-            $quantity = $product_data['quantity'] ?? 1;
-            self::handleCart($cart, $product, $product_with_variants, $selected_vendor, $quantity);
-            $has_valid_product = true;
-            if ($user) {
-                self::updateSession($user);
-            }
-        }
-        if (!$has_valid_product) {
+                if (!$variation || !isset($variation['variation_id'])) {
+                    $errors->push("No variation found for product ID {$product_id}.");
+                    return null;
+                }
+
+                $vendor = self::getActiveSelectedVendor(
+                    $vendor_id,
+                    $product_id,
+                    $default_vendor
+                );
+
+                if (!$vendor) {
+                    $errors->push("No vendor selected for product ID {$product_id}.");
+                    return null;
+                }
+
+                if ($vendor->id !== $default_vendor?->id) {
+                    $product_vendor = $product->productVendors()
+                        ->where('vh_st_vendor_id', $vendor->id)
+                        ->first();
+
+                    if (!$product_vendor) {
+                        $errors->push("Product ID {$product_id} is not associated with vendor ID {$vendor->id}.");
+                        return null;
+                    }
+                }
+
+                return [
+                    'product_id' => $product_id,
+                    'variation_id' => $variation_id,
+                    'vendor_id' => $vendor_id,
+                    'quantity' => $quantity,
+                    'product' => $product,
+                    'variation' => $variation,
+                    'vendor' => $vendor,
+                ];
+            })
+            ->filter()
+            ->values();
+
+
+        // If no valid products found
+        if ($valid_products->isEmpty()) {
             return [
-                'success'=>false,
-                'errors' => ['No valid products or variations added to the cart.'],
+                'success' => false,
+                'errors' => $errors->isNotEmpty()
+                    ? $errors->toArray()
+                    : ['No products or variations added to the cart.'],
             ];
         }
-        if (!empty($errors)) {
+
+        // Retrieve or create a single cart for the user
+        $cart = null;
+        $cart_uuid = $request->input('uuid');
+
+        // If a user is logged in, prioritize their existing cart
+        if ($user) {
+            $cart = Cart::where('vh_user_id', $user->id)->first();
+        }
+
+        // If no cart for user and UUID is passed, try UUID lookup (non-auth fallback)
+        if (!$cart && $cart_uuid) {
+            $cart = Cart::findByIdOrUuid($cart_uuid)->first();
+        }
+
+        if (!$cart) {
+            $cart = self::findOrCreateCart($user);
+        } elseif ($user && !$cart->vh_user_id) {
+            // Attach user if not already set
+            $cart->vh_user_id = $user->id;
+            $cart->save();
+        }
+
+        // Save all valid products to cart
+        $valid_products->each(function ($item) use ($cart, $user) {
+            self::handleCart(
+                $cart,
+                $item['product'],
+                $item['variation'],
+                $item['vendor'],
+                $item['quantity']
+            );
+        });
+
+        // Prepare final response
+        if ($errors->isNotEmpty()) {
             $response['success'] = false;
-            $response['errors'] = $errors;
+            $response['errors'] = $errors->toArray();
         }
 
         $messages[] = trans("vaahcms-general.saved_successfully");
+
         $response['success'] = true;
         $response['messages'] = $messages;
+        $cart->load('products');
 
-        $response['data'] = $cart->load('user:id,email,username,phone', 'products')->toArray();
+        $cart->makeHidden(['products']);
 
-        $response['data']['products'] = collect($response['data']['products'])->map(function ($product) {
-            return [
-                'id' => $product['id'],
-                'name' => $product['name'],
-                'vh_st_cart_id' => $product['pivot']['vh_st_cart_id'],
-                'vh_st_product_variation_id' => $product['pivot']['vh_st_product_variation_id'],
-                'quantity' => $product['pivot']['quantity'],
-                'vh_st_vendor_id' => $product['pivot']['vh_st_vendor_id'],
-            ];
-        })->toArray();
-
+        $response['data'] = $cart;
         return $response;
-
-
     }
+
+
     //----------------------------------------------------------
 
     protected static function getVariationById($product_id, $variation_id)
@@ -2424,7 +2820,7 @@ class Product extends VaahModel
             return Vendor::find($input_vendor_id);
         }
 
-        $active_selected_vendor = self::getPriceRangeOfProduct($product_id)['data']['selected_vendor'] ?? null;
+        $active_selected_vendor = self::fetchVendorProductPriceRangeAndQuantity($product_id)['data']['selected_vendor'] ?? null;
 
         return $active_selected_vendor ?: $default_vendor;
     }
@@ -2505,11 +2901,11 @@ class Product extends VaahModel
 
     //----------------------------------------------------------
 
-    public static function getPriceRangeOfProduct($id)
+    public static function fetchVendorProductPriceRangeAndQuantity($id)
     {
         $preferred_vendor_product_id = static::getPreferredProductVendorIds($id);
+//        dd( $preferred_vendor_product_id);
         $vendor = static::buildVendorQuery($preferred_vendor_product_id, $id)->first();
-
         if ($vendor && static::isVendorStockActive($vendor, $id)) {
             $data = static::getVendorPriceAndQuantity($vendor, $id);
         } else {
@@ -2565,10 +2961,12 @@ class Product extends VaahModel
 
     //----------------------------------------------------------
 
+
     protected static function getRandomVendor($id)
     {
         $vendor = Vendor::whereHas('productStocks', function ($query) use ($id) {
-            $query->where('vh_st_product_id', $id)->where('is_active', 1)
+            $query->where('vh_st_product_id', $id)
+                ->where('is_active', 1)
                 ->where('quantity', '>', 0);
         })
             ->select('vh_st_vendors.*')
@@ -2579,50 +2977,45 @@ class Product extends VaahModel
             ->first();
 
         if ($vendor) {
-            $quantity = $vendor->productStocks()
-                ->where('vh_st_product_id', $id)
-                ->where('is_active', 1)
-                ->sum('quantity');
-
-            $price_range = ProductPrice::where('vh_st_vendor_id', $vendor->id)
-                ->where('vh_st_product_id', $id)
-                ->whereNotNull('amount')
-                ->pluck('amount')
-                ->toArray();
-
-            if (empty($price_range)) {
-                $price_range = ProductVariation::where('vh_st_product_id', $id)
-                    ->whereNotNull('price')
-                    ->pluck('price')
-                    ->toArray();
-            }
-            $min_price = !empty($price_range) ? min($price_range) : null;
-            $max_price = !empty($price_range) ? max($price_range) : null;
-
+            $price_data = self::getPriceRange($vendor->id, $id);
             return [
-                'price_range' => ($min_price !== null && $min_price === $max_price) ? [$min_price] : [$min_price, $max_price],
-                'quantity' => $quantity,
+                'price_range' => $price_data['price_range'],
+                'price_source' => $price_data['price_source'],
+                'quantity' => $vendor->productStocks()
+                    ->where('vh_st_product_id', $id)
+                    ->where('is_active', 1)
+                    ->sum('quantity'),
                 'selected_vendor' => $vendor,
             ];
         }
 
-        $default_price_range = ProductVariation::where('vh_st_product_id', $id)
-            ->whereNotNull('price')
-            ->pluck('price')
-            ->toArray();
-        $min_price = !empty($default_price_range) ? min($default_price_range) : null;
-        $max_price = !empty($default_price_range) ? max($default_price_range) : null;
-
-
+        // Check for default vendor
+        $default_vendor = Vendor::where('is_default', 1)->first();
+        if ($default_vendor) {
+            $price_data = self::getPriceRange($default_vendor->id, $id);
+            return [
+                'price_range' => $price_data['price_range'],
+                'price_source' => $price_data['price_source'],
+                'quantity' => $default_vendor->productStocks()
+                    ->where('vh_st_product_id', $id)
+                    ->where('is_active', 1)
+                    ->sum('quantity'),
+                'selected_vendor' => $default_vendor,
+            ];
+        }
+        // No vendor found, fallback to product variations
+        $price_data = self::getPriceRange(null, $id);
         return [
-            'price_range' => ($min_price !== null && $min_price === $max_price)
-                ? [$min_price]
-                : ($min_price !== null ? [$min_price, $max_price] : [])
+            'price_range' => $price_data['price_range'],
+            'price_source' => $price_data['price_source'],
+            'quantity' => 0,
+            'selected_vendor' => null,
         ];
     }
 
-    //----------------------------------------------------------
 
+
+    //----------------------------------------------------------
 
     protected static function getVendorPriceAndQuantity($vendor, $id)
     {
@@ -2636,12 +3029,13 @@ class Product extends VaahModel
             ->whereNotNull('amount')
             ->pluck('amount')
             ->toArray();
-
+        $price_source = 'product_price';
         if (empty($price_range)) {
             $price_range = ProductVariation::where('vh_st_product_id', $id)
                 ->whereNotNull('price')
                 ->pluck('price')
                 ->toArray();
+            $price_source = 'product_variation';
         }
 
 
@@ -2653,6 +3047,7 @@ class Product extends VaahModel
             'price_range' =>($min_price !== null && $min_price === $max_price) ? [$min_price] : [$min_price, $max_price],
             'quantity' => $quantity,
             'selected_vendor' => $vendor,
+            'price_source' => $price_source,
         ];
     }
 
@@ -2663,58 +3058,80 @@ class Product extends VaahModel
     //----------------------------------------------------------
 
 
-    public static function getVendorsListForPrduct($id)
+    public static function getVendorsListForPrduct($id, $variation = null)
     {
+        $product=self::findOrFail($id);
+        $rate = data_get($product, 'price.currency.rate', 1);
         $product_vendors = ProductVendor::where('vh_st_product_id', $id)
             ->select('id', 'vh_st_vendor_id', 'is_preferred')
             ->get();
-
         $vendor_ids = $product_vendors->pluck('vh_st_vendor_id')->toArray();
 
         $vendors_data = Vendor::whereIn('id', $vendor_ids)
-            ->select('id', 'name', 'slug', 'is_default')
+            ->select('id', 'name', 'slug', 'is_default', 'email', 'phone_number', 'years_in_business', 'services_offered', 'status_notes')
             ->get();
 
-        // Check if there are any default vendors missing
         $default_vendor_id = $vendors_data->where('is_default', 1)->pluck('id')->toArray();
         $missing_default_vendor = Vendor::whereNotIn('id', $default_vendor_id)
             ->where('is_default', 1)
-            ->select('id', 'name', 'slug', 'is_default')
+            ->select('id', 'name', 'slug', 'is_default', 'email', 'phone_number', 'years_in_business', 'services_offered', 'status_notes')
             ->get();
         $message = $missing_default_vendor->isNotEmpty();
 
         $vendors = $vendors_data->merge($missing_default_vendor);
 
+        // If a variation is passed and has an id, use it, else fallback to default
+        $default_variation = $variation ?: ProductVariation::where('vh_st_product_id', $id)
+                ->where('is_default', 1)
+                ->first() ?? ProductVariation::where('vh_st_product_id', $id)->first();
 
+        $default_variation_id = $default_variation ? $default_variation->id : null;
+
+        // If variation is given, filter product prices accordingly
         $product_prices = ProductPrice::where('vh_st_product_id', $id)
+            ->when($variation && $variation->id, function ($query) use ($variation) {
+                $query->where('vh_st_product_variation_id', $variation->id);
+            })
             ->whereIn('vh_st_vendor_id', $vendor_ids)
             ->get();
 
         $product_price_range_with_vendors = $product_prices->groupBy('vh_st_vendor_id');
 
-        $vendors->each(function ($vendor) use ($product_vendors, $product_price_range_with_vendors, $id) {
+        $default_product_prices = ProductPrice::where('vh_st_product_id', $id)
+            ->where('vh_st_product_variation_id', $default_variation_id)
+            ->whereIn('vh_st_vendor_id', $vendor_ids)
+            ->get()
+            ->groupBy('vh_st_vendor_id');
+
+        $vendors->each(function ($vendor) use ($product_vendors, $product_price_range_with_vendors, $default_product_prices, $id, $default_variation,$rate,$product,$variation) {
+            $price_range = static::getVendorPriceAndQuantity($vendor, $id);
+
+                $converted_range = array_map(fn($val) => round($val * $rate, 2), $price_range['price_range']);
+                $vendor->product_price_range = $converted_range;
+
+
             $quantity = ProductStock::where('vh_st_vendor_id', $vendor->id)
-                ->where('vh_st_product_id', $id)->where('is_active', 1)
+                ->where('vh_st_product_id', $id)
+                ->when($variation && $variation->id, function ($query) use ($variation) {
+                    $query->where('vh_st_product_variation_id', $variation->id);
+                })
+                ->where('is_active', 1)
                 ->sum('quantity');
 
-            $vendor->quantity = $quantity;
-            $vendor->product_price_range = [];
 
-            $vendor->product_price_range = isset($product_price_range_with_vendors[$vendor->id])
-                ? $product_price_range_with_vendors[$vendor->id]->pluck('amount')->toArray()
+
+            $vendor->quantity = $quantity;
+
+            $prices = isset($product_price_range_with_vendors[$vendor->id])
+                ? $product_price_range_with_vendors[$vendor->id]->pluck('amount')->filter()->map('floatval')->toArray()
                 : [];
 
-            if (empty($vendor->product_price_range)) {
-                // Fetch prices from ProductVariation
-                $default_product_price = ProductVariation::where('vh_st_product_id', $id)
+            if (empty($prices)) {
+                $prices = ProductVariation::where('vh_st_product_id', $id)
                     ->pluck('price')
+                    ->filter()
+                    ->map('floatval')
                     ->toArray();
-                // Filter out null or empty prices
-                $default_product_price_array = array_filter($default_product_price, function($value) {
-                    return $value !== null && $value !== '';
-                });
-                // Merge ProductVariation prices with existing variation_prices
-                $vendor->product_price_range = array_merge($vendor->product_price_range, $default_product_price_array);
             }
 
             $vendor->product_vendor_id = null;
@@ -2727,6 +3144,15 @@ class Product extends VaahModel
                 $vendor->vh_st_product_id = $id;
                 $vendor->is_preferred = $product_vendor->is_preferred;
             }
+
+            $vendor->price = isset($default_product_prices[$vendor->id])
+                ? round($default_product_prices[$vendor->id]->first()->amount * $rate, 2)
+                : null;
+
+
+            if (is_null($vendor->price) && $default_variation) {
+                $vendor->price = $default_variation->price;
+            }
         });
 
         return [
@@ -2734,6 +3160,24 @@ class Product extends VaahModel
             'data' => $vendors,
             'message' => $message,
         ];
+    }
+    //----------------------------------------------------------
+
+    public static function hasDefaultVendorAttachedToProduct($product_id)
+    {
+
+        $default_vendor_id = Vendor::where('is_default', 1)->value('id');
+        if (!$default_vendor_id) {
+            return true;
+        }
+
+        $is_attached = ProductVendor::where('vh_st_product_id', $product_id)
+            ->where('vh_st_vendor_id', $default_vendor_id)
+            ->exists();
+
+        return !$is_attached;
+
+
     }
 
     //----------------------------------------------------------
@@ -2769,124 +3213,80 @@ class Product extends VaahModel
 
     public static function topSellingProducts($request)
     {
-        $default_limit = 5;
-        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
-        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
-        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+        $default_limit = 10;
+        $filter_all = $request->boolean('filter_all', false);
+        $limit = $filter_all ? null : (int) $request->input('limit', $default_limit);
 
-        $store_id = isset($request->store['id']) ? (int)$request->store['id'] : null;
+        $start_date = $request->filled('start_date') ? Carbon::parse($request->start_date)->startOfDay() : null;
+        $end_date = $request->filled('end_date') ? Carbon::parse($request->end_date)->endOfDay() : null;
 
-        $query = OrderItem::query();
+        $store_id = $request->input('selected_store') ?? Store::where('is_default', 1)->value('id');
 
-        // Apply date range filter if required
-        if ($apply_date_range) {
-            $query->whereBetween('created_at', [$start_date, $end_date]);
+        $products_query = Product::query()
+            ->whereNull('deleted_at')
+            ->whereHas('store', fn($q) => $q->where('id', $store_id))
+            ->with(['brand:id,name', 'store:id,name,slug'])
+            ->withSum(['orderItems as total_sales' => function ($query) use ($filter_all, $start_date, $end_date) {
+                if (!$filter_all && $start_date && $end_date) {
+                    $query->whereBetween('created_at', [$start_date, $end_date]);
+                }
+            }], 'quantity')
+            ->orderByDesc('total_sales');
+
+        if ($limit) {
+            $products_query->limit($limit);
         }
 
-        if ($store_id) {
-            $query->whereHas('product', function ($q) use ($store_id) {
-                $q->where('vh_st_store_id', $store_id);
-            });
-        }
+        $products = $products_query->get();
 
-        $rows = config('vaahcms.per_page');
-        if ($request->has('rows')) {
-            $rows = $request->rows;
-        }
+        $items = $products->map(function ($product) {
+            $product_media_ids = $product->medias->pluck('pivot.vh_st_product_media_id')->filter();
 
-        $top_selling_products = $query
-            ->select('vh_st_product_id')
-            ->with(['product' => function ($q) {
-                $q->whereNull('deleted_at');
-                $q->with('medias', 'brand', 'store');
-            }])
-            ->groupBy('vh_st_product_id')
-            ->paginate($rows);
-
-        $top_selling_products = $top_selling_products->map(function ($item) use ($apply_date_range, $start_date, $end_date) {
-            if (!$item->vh_st_product_id) {
-                return null;
-            }
-
-            $sales_query = OrderItem::where('vh_st_product_id', $item->vh_st_product_id);
-            if ($apply_date_range) {
-                $sales_query->whereBetween('created_at', [$start_date, $end_date]);
-            }
-
-            $total_sales = $sales_query->sum('quantity');
-            $products = $item->product;
-
-            if (!$products) {
-                return null;
-            }
-
-            $product_media_ids = $products->medias->isNotEmpty()
-                ? $products->medias->map(function ($media) {
-                    return $media->pivot->vh_st_product_media_id ?? null;
-                })->filter()
-                : collect();
-
-            // Fallback if no medias found in the relation: fetch directly from the ProductMedia model
             if ($product_media_ids->isEmpty()) {
-                $product_media_ids = ProductMedia::where('vh_st_product_id', $item->vh_st_product_id)
-                    ->pluck('id');
+                $product_media_ids = ProductMedia::where('vh_st_product_id', $product->id)->pluck('id');
             }
 
             $image_urls = self::getImageUrls($product_media_ids);
-            $brand = $products->brand;
-            $store = $products->store;
 
             return [
-                'id' => $products->id ?? null,
-                'name' => $products->name ?? null,
-                'slug' => $products->slug ?? null,
-                'total_sales' => $total_sales ?? 0,
-                'image_urls' => $image_urls ?? [],
-                'brand' => [
-                    'id' => $brand->id ?? null,
-                    'name' => $brand->name ?? null,
+                'id'          => $product->id,
+                'name'        => $product->name,
+                'slug'        => $product->slug,
+                'total_sales' => (int) ($product->total_sales ?? 0),
+                'media'       => $image_urls->values(),
+                'brand'       => [
+                    'id'   => $product->brand->id ?? null,
+                    'name' => $product->brand->name ?? null,
                 ],
-                'store' => [
-                    'id' => $store->id ?? null,
-                    'name' => $store->name ?? null,
-                    'slug' => $store->slug ?? null,
-                ]
+                'store'       => [
+                    'id'   => $product->store->id ?? null,
+                    'name' => $product->store->name ?? null,
+                    'slug' => $product->store->slug ?? null,
+                ],
             ];
-        })
-            ->filter()
-            ->sortByDesc('total_sales');
-
-        if ($apply_date_range) {
-            $top_selling_products = $top_selling_products->take($limit);
-        }
+        });
 
         return [
             'success' => true,
-            'data' => $top_selling_products->values(),
+            'data'    => $items,
         ];
     }
 
-
-
-
-
-    //----------------------------------------------------------
-
+    /**
+     * Get top selling brands for a store and date range.
+     * Uses collections for grouping and sorting.
+     */
     public static function topSellingBrands($request)
     {
-        $default_limit = 5;
-        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
-        $start_date = isset($request->start_date)
-            ? Carbon::parse($request->start_date)->startOfDay()
-            : Carbon::now()->startOfDay();
-        $end_date = isset($request->end_date)
-            ? Carbon::parse($request->end_date)->endOfDay()
-            : Carbon::now()->endOfDay();
-        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+        $default_limit = 10;
+        $limit = $request->has('limit') ? (int) $request->limit : $default_limit;
 
-        // Get Store ID from request
-        $store_id = $request->store['id'] ?? null;
+        $start_date = $request->filled('start_date') ? Carbon::parse($request->start_date)->startOfDay() : null;
+        $end_date = $request->filled('end_date') ? Carbon::parse($request->end_date)->endOfDay() : null;
+
+        $filter_all = $request->boolean('filter_all', false);
+
+        $store_id = $request->input('selected_store') ?? Store::where('is_default', 1)->value('id');
 
         $query = OrderItem::query()
             ->whereHas('product', function ($q) use ($store_id) {
@@ -2894,12 +3294,16 @@ class Product extends VaahModel
                     $q->where('vh_st_store_id', $store_id);
                 }
             })
-            ->with(['product.brand'])
-            ->when($apply_date_range, function ($query) use ($start_date, $end_date) {
-                $query->whereBetween('created_at', [$start_date, $end_date]);
-            })
-            ->get()
-            ->groupBy('product.brand.id')
+            ->with(['product.brand']);
+
+        if (!$filter_all && $start_date && $end_date) {
+            $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        $order_items = $query->get();
+
+        $grouped = $order_items
+            ->groupBy(fn($item) => optional($item->product->brand)->id)
             ->map(function ($items, $brand_id) {
                 $brand = $items->first()->product->brand ?? null;
                 $total_sales = $items->sum('quantity');
@@ -2909,104 +3313,125 @@ class Product extends VaahModel
                         'id' => $brand->id,
                         'name' => $brand->name,
                         'slug' => $brand->slug,
-                        'image_urls' => $brand->image ? [asset('image/uploads/brands/' . $brand->image)] : [],
+                        'image_urls' => $brand->image
+                            ? [ltrim(Storage::url('brands/' . $brand->image), '/')]
+                            : [],
                         'total_sales' => $total_sales,
                     ];
                 }
                 return null;
             })
             ->filter()
-            ->sortByDesc('total_sales')
-            ->take($limit);
+            ->sortByDesc('total_sales');
+
+        $brands = $filter_all ? $grouped->values() : $grouped->take($limit)->values();
 
         return [
             'success' => true,
-            'data' => $query->values(),
+            'data' => $brands,
         ];
     }
 
-
-
-    //----------------------------------------------------------
-
+    /**
+     * Get top selling categories for a store and date range
+     */
     public static function topSellingCategories($request)
     {
-        $default_limit = 5;
-        $limit = $request->has('limit') ? (int)$request->limit : $default_limit;
-        $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
-        $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-        $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
+        $default_limit = 10;
+        $limit = $request->input('limit', $default_limit);
 
-        // Get Store ID from request
-        $store_id = $request->store['id'] ?? null;
+        $start_date = $request->filled('start_date') ? Carbon::parse($request->start_date)->startOfDay() : null;
+        $end_date = $request->filled('end_date') ? Carbon::parse($request->end_date)->endOfDay() : null;
 
-        $query = OrderItem::query()
-            ->whereHas('product', function ($q) use ($store_id) {
-                if ($store_id) {
-                    $q->where('vh_st_store_id', $store_id);
-                }
-            });
+        $apply_date_range = !$request->boolean('filter_all', false);
+        $store_id = $request->input('selected_store') ?? Store::where('is_default', 1)->value('id');
 
-        if ($apply_date_range) {
-            $query->whereBetween('created_at', [$start_date, $end_date]);
-        }
-
-        $top_categories_by_product = $query
-            ->select('vh_st_product_id')
-            ->with(['product' => function ($query) {
-                $query->with(['productCategories.parentCategory']);
-            }])
-            ->groupBy('vh_st_product_id')
+        $order_items = OrderItem::query()
+            ->when($store_id, fn($q) => $q->whereHas('product', fn($q) => $q->where('vh_st_store_id', $store_id)))
+            ->when($apply_date_range && $start_date && $end_date, fn($q) => $q->whereBetween('created_at', [$start_date, $end_date]))
+            ->with(['product.productCategories.parentCategory'])
             ->get();
 
-        $top_categories = $top_categories_by_product->flatMap(function ($item) {
-            $product = $item->product;
+        $category_counts = [];
 
-            if ($product && $product->productCategories) {
-                return $product->productCategories->map(function ($category) {
-                    $final_parent = $category;
-                    while ($final_parent && $final_parent->parentCategory) {
-                        $final_parent = $final_parent->parentCategory;
-                    }
-                    return $final_parent;
-                });
+        foreach ($order_items as $order_item) {
+            $product = $order_item->product;
+            if (!$product || $product->productCategories->isEmpty()) {
+                continue;
             }
 
-            return [];
-        })
-            ->filter()
-            ->unique('id')
+            foreach ($product->productCategories as $category) {
+                $final_parent = $category;
+                while ($final_parent && $final_parent->parentCategory) {
+                    $final_parent = $final_parent->parentCategory;
+                }
+                if ($final_parent) {
+                    $category_id = $final_parent->id;
+                    if (!isset($category_counts[$category_id])) {
+                        $category_counts[$category_id] = [
+                            'id' => $final_parent->id,
+                            'slug' => $final_parent->slug,
+                            'name' => $final_parent->name,
+                            'count' => 0,
+                            'media' => $final_parent->media,
+                        ];
+                    }
+                    $category_counts[$category_id]['count']++;
+                }
+            }
+        }
+        $top_categories = collect($category_counts)
+            ->sortByDesc('count')
             ->take($limit)
             ->map(function ($category) {
+                $media = $category['media'];
+                $image_urls = [];
+
+                if ($media && isset($media['webp_url'])) {
+                    $image_urls[] = $media['webp_url'];
+                }
                 return [
-                    'id' => $category->id,
-                    'slug' => $category->slug,
-                    'name' => $category->name,
+                    'id' => $category['id'],
+                    'slug' => $category['slug'],
+                    'name' => $category['name'],
+                    'media' => $category['media'],
+                    'image_urls' => $image_urls,
                 ];
-            });
+            })->values();
 
         return [
             'success' => true,
-            'data' => $top_categories->values(),
+            'data' => $top_categories,
         ];
     }
 
 
 
-
     //----------------------------------------------------------
+
 
     private static function getImageUrls($product_media_ids)
     {
-        $image_urls = [];
-        foreach ($product_media_ids as $product_media_id) {
-            $product_media_image = ProductMediaImage::where('vh_st_product_media_id', $product_media_id)->first();
-            if ($product_media_image) {
-                $image_urls[] = $product_media_image->url;
-            }
-        }
-        return $image_urls;
+        $media = ProductMedia::with('images')
+        ->whereIn('id', $product_media_ids)
+            ->get();
+
+        return $media->map(function ($media_item) {
+            return [
+                'title'      => $media_item->title,
+                'images'     => $media_item->images->map(function ($image) {
+                    return [
+                        'webp_url'      => $image->webp_url,
+                        'url'           => $image->url,
+                        'url_thumbnail' => $image->url_thumbnail,
+                        'type'          => $image->type,
+                    ];
+                })->values(),
+                'is_default' => $media_item->is_default,
+            ];
+        })->values();
     }
+
 
     //----------------------------------------------------------
 
@@ -3155,38 +3580,7 @@ class Product extends VaahModel
         ];
     }
 
-    public static function groupedAttributes($variation, &$all_grouped_attributes)
-    {
-        $grouped_attributes = [];
-        ProductVariation::extractAttributeWithValues($variation);
 
-        foreach ($variation->productAttributes as $attribute) {
-            if (!isset($attribute->attribute['name'])) {
-                continue; // Skip if attribute or name is missing
-            }
-
-            foreach ($attribute->values as $value) {
-                if (!isset($value->attribute_value['name'])) {
-                    continue; // Skip if attribute_value or name is missing
-                }
-
-                $attribute_name = $attribute->attribute['name'];
-                $grouped_attributes[$attribute_name][] = $value->attribute_value['name'];
-            }
-        }
-
-        foreach ($grouped_attributes as $key => $values) {
-            $values = array_unique($values);
-
-            if (!isset($all_grouped_attributes[$key])) {
-                $all_grouped_attributes[$key] = $values;
-            } else {
-                $all_grouped_attributes[$key] = array_unique(array_merge($all_grouped_attributes[$key], $values));
-            }
-        }
-
-        unset($variation->productAttributes);
-    }
 
 
     public static function seedProduct(){
@@ -3369,4 +3763,1012 @@ class Product extends VaahModel
 
         return $result;
     }
+    /**
+     * Helper function to get the default price of product.
+     */
+
+    public static function getDefaultPriceOfProduct($product_id)
+    {
+        $price_data_with_vendor = self::fetchVendorProductPriceRangeAndQuantity($product_id)['data'];
+        $default_variation = ProductVariation::where('vh_st_product_id', $product_id)
+            ->where('is_default', 1)
+            ->first();
+
+        if (!$default_variation) {
+            return [
+                'amount' => null,
+                'source' => null,
+            ];
+        }
+
+        if (!empty($price_data_with_vendor['selected_vendor'])) {
+            $product_price = ProductPrice::where([
+                'vh_st_vendor_id' => $price_data_with_vendor['selected_vendor']['id'],
+                'vh_st_product_variation_id' => $default_variation->id
+            ])->value('amount');
+
+            if (!is_null($product_price)) {
+                return [
+                    'amount' => $product_price,
+                    'source' => 'vendor_price',
+                ];
+            }
+        }
+
+        return [
+            'amount' => $default_variation->price,
+            'source' => 'product_variation', //  already converted, no further conversion needed
+        ];
+    }
+
+    /**
+     * Get the price range based on vendor or product variations
+     */
+    protected static function getPriceRange($vendor_id, $product_id)
+    {
+        // Try to get price from ProductPrice if a vendor exists
+        $price_range = [];
+        $price_source = null;
+        if ($vendor_id) {
+            $price_range = ProductPrice::where('vh_st_vendor_id', $vendor_id)
+                ->where('vh_st_product_id', $product_id)
+                ->whereNotNull('amount')
+                ->pluck('amount')
+                ->toArray();
+            if (!empty($price_range)) {
+                $price_source = 'product_price';
+            }
+        }
+
+        // If no price found, fallback to ProductVariation
+        if (empty($price_range)) {
+            $price_range = ProductVariation::where('vh_st_product_id', $product_id)
+                ->whereNotNull('price')
+                ->pluck('price')
+                ->toArray();
+            if (!empty($price_range)) {
+                $price_source = 'product_variation';
+            }
+        }
+
+        // Determine min and max price
+        $min_price = !empty($price_range) ? min($price_range) : null;
+        $max_price = !empty($price_range) ? max($price_range) : null;
+
+        $final_price_range = ($min_price !== null && $min_price === $max_price)
+            ? [$min_price]
+            : ($min_price !== null ? [$min_price, $max_price] : []);
+
+        return [
+            'price_range' => $final_price_range,
+            'price_source' => $price_source,
+        ];
+    }
+    //----------------------------------------------------------
+
+    public static function existenceWithStore($request){
+        $store_id = $request->get('store_id');
+        $product_name = $request->get('name');
+
+        if (!$store_id || !$product_name) {
+            return [
+                'success' => false,
+                'data' => null,
+                'message' => 'Store ID and Product Name are required.'
+            ];
+        }
+        $product = Product::where('name', $product_name)->first();
+        $response = [
+            'exists_in_other_store' => false,
+            'store_id' => $store_id,
+            'product_name' => $product_name,
+        ];
+
+        if ($product) {
+            if ($product->vh_st_store_id != $store_id) {
+                $response['exists_in_other_store'] = true;
+                $response['message'] = 'Product exists with another store.';
+            }
+
+        }
+
+        return [
+            'success' => true,
+            'data' => $response
+        ];
+
+    }
+    protected function calculateConversionRate($base_currency_rate, $rate_to_convert)
+    {
+        $is_valid_base = $base_currency_rate && $base_currency_rate > 0;
+        $is_valid_target = $rate_to_convert && $rate_to_convert > 0;
+
+        $can_convert_to_target = $is_valid_base && $is_valid_target;
+        $can_convert_from_usd = !$can_convert_to_target && $is_valid_target;
+
+        return $can_convert_to_target
+            ? (1 / $base_currency_rate) * $rate_to_convert
+            : ($can_convert_from_usd ? $rate_to_convert : 1);
+    }
+
+    //----------------------------------------------------------
+
+    public static function validateVendorAndProductToStore($store_id, $product_id = null,$vendor_id = null)
+    {
+        $response = ['success' => true, 'errors' => []];
+        if ($vendor_id) {
+            $vendor = Vendor::where('id', $vendor_id)
+                ->where('vh_st_store_id', $store_id)
+                ->first();
+
+            if (!$vendor) {
+                $response['success'] = false;
+                $response['errors'][] = 'Selected vendor does not belong to the selected store.';
+            }
+        }
+
+        if ($product_id) {
+            $product = Product::where('id', $product_id)
+                ->where('vh_st_store_id', $store_id)
+                ->first();
+
+            if (!$product) {
+                $response['success'] = false;
+                $response['errors'][] = 'Selected product does not belong to the selected store.';
+            }
+        }
+
+        return $response;
+    }
+    //----------------------------------------------------------
+    public static function getGroupedAttributesViaQuery($product_id)
+    {
+        $attributes = \DB::table('vh_st_product_variations as pv')
+            ->join('vh_st_product_attributes as pa', 'pv.id', '=', 'pa.vh_st_product_variation_id')
+            ->join('vh_st_attributes as a', 'pa.vh_st_attribute_id', '=', 'a.id')
+            ->join('vh_st_product_attribute_values as pav', 'pa.id', '=', 'pav.vh_st_product_attribute_id')
+            ->join('vh_st_attribute_values as av', 'pav.vh_st_attribute_value_id', '=', 'av.id')
+            ->where('pv.vh_st_product_id', $product_id)
+            ->whereNull('pv.deleted_at')
+            ->whereNull('pa.deleted_at')
+            ->whereNull('pav.deleted_at')
+            ->select(
+                'a.id as attribute_id',
+                'a.name as attribute',
+                'av.id as attribute_value_id',
+                'av.value as attribute_value',
+                'pv.is_default'
+            )
+            ->get();
+
+        // Get default selected attributes
+        $default_attributes = $attributes
+            ->where('is_default', 1)
+            ->keyBy('attribute_id');
+
+        // Group and structure data
+        return $attributes->groupBy('attribute_id')->map(function ($items, $attribute_id) use ($default_attributes) {
+            return [
+                'attribute_id' => $attribute_id,
+                'attribute' => $items->first()->attribute,
+                'values' => $items->map(fn($item) => [
+                    'id' => $item->attribute_value_id,
+                    'value' => $item->attribute_value,
+                ])->unique('id')->values(),
+                'selected' => $default_attributes[$attribute_id]->attribute_value_id ?? null,
+            ];
+        })->values();
+    }
+
+    //----------------------------------------------------------
+    //----------------------------------------------------------
+
+
+    public static function getResolvedVariationWithVendor($product_id, $vendor = null, $variation = null, $item = null)
+    {
+//        $item = Product::with(['productVariations'])->find($product_id);
+        if (!$item) {
+            $item = Product::with(['productVariations'])->find($product_id);
+        }
+        if (!$item) {
+            return null;
+        }
+        if (!$variation && ($uuid = request()->query('variation'))) {
+            $variation = $item->productVariations->firstWhere('uuid', $uuid);
+            if ($variation) {
+                return self::buildResolvedVariationResponse($item, $variation, 'uuid', $vendor);
+            }
+        }
+
+        // 2. Otherwise, resolve via attribute query (?attribute[size]=small)
+        if (!$variation) {
+            $attribute_query = request()->query('attribute', []);
+            $variation = $item->findVariationFromQueryParams($attribute_query);
+            if ($variation) {
+                return self::buildResolvedVariationResponse($item, $variation, 'attribute', $vendor);
+            }
+        }
+
+        // 3. Fallback: default or first variation
+        $variation = $variation
+            ?? $item->productVariations->firstWhere('is_default', 1)
+            ?? $item->productVariations->first();
+        $selected_vendor=$item->vendor_product_data['selected_vendor'];
+
+        if ($variation && $selected_vendor) {
+            $vendor_id = $selected_vendor['id'];
+
+            //  preload all quantities once
+            $variation_ids = $item->productVariations->pluck('id')->toArray();
+
+            // One query to get quantities for all variations for this vendor
+            $quantities = DB::table('vh_st_product_stocks')
+                ->select('vh_st_product_variation_id', DB::raw('SUM(quantity) as available'))
+                ->where('vh_st_product_id', $item->id)
+                ->where('vh_st_vendor_id', $vendor_id)
+                ->whereIn('vh_st_product_variation_id', $variation_ids)
+                ->groupBy('vh_st_product_variation_id')
+                ->pluck('available', 'vh_st_product_variation_id'); // [variation_id => available_quantity]
+
+            $current_qty = $quantities[$variation->id] ?? 0;
+
+            if ($current_qty < 1) {
+                // Find first variation with available quantity > 0
+                $in_stock_variation = $item->productVariations->first(function ($v) use ($quantities) {
+                    return ($quantities[$v->id] ?? 0) > 0;
+                });
+
+                if ($in_stock_variation) {
+                    $variation = $in_stock_variation;
+                }
+            }
+        }
+
+        if (!$variation) {
+            return null;
+        }
+        return self::buildResolvedVariationResponse($item, $variation, 'fallback', $vendor);
+    }
+
+
+    //----------------------------------------------------------
+
+
+    protected static function buildResolvedVariationResponse($item, $variation, $resolvedBy = 'fallback', $vendor = null)
+    {
+        if (!$vendor) {
+            $vendor_id = request()->query('vendor');
+
+            if ($vendor_id) {
+                $temp_vendor = Vendor::find($vendor_id);
+                $is_attached = ProductVendor::where('vh_st_product_id', $item->id)
+                    ->where('vh_st_vendor_id', $vendor_id)
+                    ->exists();
+
+                if ($temp_vendor && $is_attached) {
+                    $vendor = $temp_vendor;
+                }
+            }
+
+            // fallback to selected_vendor from product data if not resolved above
+
+            if (!$vendor && isset($item->vendor_product_data['selected_vendor'])) {
+                $vendor = (object) $item->vendor_product_data['selected_vendor'];
+            }
+
+        }
+
+        $base_price = $variation->price;
+        $available_price = $base_price;
+
+        if ($vendor && $variation) {
+            $product_price = ProductPrice::where('vh_st_product_variation_id', $variation->id)
+                ->where('vh_st_vendor_id', $vendor->id)
+                ->first();
+
+            if ($product_price && !is_null($product_price->amount)) {
+                $available_price = round($product_price->amount * ($item->price['currency']['rate'] ?? 1), 2);
+            }
+        }
+
+        $available_quantity = $vendor
+            ? Cart::getAvailableQuantity($vendor, $item->id, $variation->id)
+            : 0;
+
+        return [
+            'id' => $variation->id,
+            'vh_st_product_id' => $variation->vh_st_product_id,
+            'uuid' => $variation->uuid,
+            'name' => $variation->name,
+            'slug' => $variation->slug,
+            'wishlist_ids' => $variation->wishlist_ids,
+            'is_default' => $variation->is_default,
+            'sku' => $variation->sku ?? null,
+            'price' => $base_price,
+            'sale_price' => $available_price,
+            'attribute_query' => $variation->attribute_query ?? null,
+            'media' => $variation->medias ?? null,
+            'quantity' => $variation->quantity ?? null,
+            'available_quantity' => $available_quantity,
+            'is_stock_available' => $available_quantity > 0 ? 1 : 0,
+            'type' => $resolvedBy,
+            'selected_vendor' => $vendor ? [
+                'id' => $vendor->id,
+                'name' => $vendor->name,
+                'slug' => $vendor->slug,
+                'email' => $vendor->email,
+                'phone_number' => $vendor->phone_number,
+                'address' => $vendor->address,
+            ] : null,
+            'grouped_attributes' => $item->grouped_attributes,
+        ];
+    }
+
+    //----------------------------------------------------------
+    /**
+     * Fast Search Approach For Homepage
+     */
+
+
+
+    public static function searchProducts(Request $request)
+    {
+        $query = trim($request->get('q', ''));
+
+        if (!$query) {
+            return [
+                'success' => true,
+                'data' => [
+                    'products' => [],
+                    'brands' => [],
+                    'categories' => [],
+                ],
+            ];
+        }
+
+        $type_limit = 5;
+        $product_ids = self::select('id')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('slug', 'like', "%{$query}%");
+            })
+            ->limit($type_limit)
+            ->pluck('id')
+            ->toArray();
+
+        $preloaded = self::with(['productVariations'])
+            ->whereIn('id', $product_ids)
+            ->get()
+            ->keyBy('id');
+
+        $products = collect($product_ids)->map(function ($id) use ($preloaded) {
+            $product = $preloaded[$id] ?? null;
+
+            if (!$product) {
+                return null;
+            }
+
+            $resolved = self::getResolvedVariationWithVendor($product->id, null, null, $product);
+
+            return [
+                'type' => 'product',
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'attribute_query' => $resolved['attribute_query']?? null,
+            ];
+        })->filter()->values();
+
+
+        // Brands
+        $brands = Brand::select('id', 'name', 'slug')
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('slug', 'like', "%{$query}%");
+            })
+            ->whereHas('products') //  Only brands that have at least one product
+            ->limit($type_limit)
+            ->get()
+            ->map(fn($b) => [
+                'type' => 'brand',
+                'id' => $b->id,
+                'name' => $b->name,
+                'slug' => $b->slug,
+            ])
+            ->values();
+
+        // Categories
+        $matched_categories = Category::with(['subCategories' => function ($q) {
+            $q->select('id', 'name', 'slug', 'parent_id')
+                ->whereHas('products'); //  Only subcategories with products
+        }])
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('slug', 'like', "%{$query}%");
+            })
+            ->whereHas('products')
+            ->limit($type_limit)
+            ->get();
+
+        $categories = collect();
+
+        foreach ($matched_categories as $category) {
+            $categories->push([
+                'type' => 'category',
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            ]);
+
+            foreach ($category->subCategories as $child) {
+                $categories->push([
+                    'type' => 'category',
+                    'id' => $child->id,
+                    'name' => $child->name,
+                    'slug' => $child->slug,
+                ]);
+            }
+        }
+
+        $categories = $categories
+            ->unique(fn ($item) => $item['type'] . '-' . $item['id'])
+            ->take($type_limit)
+            ->values();
+
+        return [
+            'success' => true,
+            'data' => [
+                'products' => $products,
+                'brands' => $brands,
+                'categories' => $categories,
+            ],
+        ];
+    }
+
+
+
+
+////////////////////////////////////
+///
+///
+    /**
+     * Get all available attribute combinations and matched variation for a product.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $product_id
+     * @return array
+     */
+    public static function getAvailableCombinationsWithVariation($request, $product_id)
+    {
+        $selected_value_ids = self::extractSelectedValueIds($request);
+
+        $vendor = self::resolveVendor($request);
+        $selected_values = self::fetchSelectedAttributeValues($selected_value_ids);
+        $variation_data = self::fetchVariationData($product_id);
+
+        [$value_combination_map, $value_to_variations, $variation_value_map] =
+            self::prepareVariationLookups($variation_data, $selected_value_ids, $vendor);
+
+        $attribute_values = self::fetchAttributeValuePairs($product_id);
+        $grouped_attributes = self::groupAttributeValues(
+            $attribute_values, $selected_values, $value_to_variations, $variation_value_map
+        );
+
+        $matched_variation = self::findMatchingVariation($variation_data, $selected_value_ids);
+        $product = Product::find($product_id);
+
+        $resolved = $matched_variation
+            ? Product::buildResolvedVariationResponse($product, $matched_variation, 'attribute', $vendor)
+            : Product::getResolvedVariationWithVendor($product_id, $vendor);
+
+        $attribute_query = self::buildAttributeQuery($selected_values);
+
+        return [
+            'success' => true,
+            'data' => array_merge(
+                $resolved ?? [],
+                [
+                    'attribute_query' => $attribute_query,
+//                    'selected_attributes' => $selected_values,
+                    'attributes_combinations' => $grouped_attributes,
+                ]
+            ),
+        ];
+    }
+    /**
+     * Extract selected attribute value IDs from the request.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
+    protected static function extractSelectedValueIds($request)
+    {
+        $selected_value_ids = $request->input('selected_value_ids') ?? [];
+
+        if (empty($selected_value_ids)) {
+            $attribute_inputs = $request->query('attribute', []);
+            if (!empty($attribute_inputs)) {
+                $selected_value_ids = \DB::table('vh_st_attribute_values as av')
+                    ->join('vh_st_attributes as a', 'av.vh_st_attribute_id', '=', 'a.id')
+                    ->where(function ($query) use ($attribute_inputs) {
+                        foreach ($attribute_inputs as $attribute_slug => $value_slug) {
+                            $query->orWhere(function ($q) use ($attribute_slug, $value_slug) {
+                                $q->whereRaw("REPLACE(LOWER(a.name), ' ', '-') = ?", [\Str::slug($attribute_slug)])
+                                    ->whereRaw("REPLACE(LOWER(av.value), ' ', '-') = ?", [\Str::slug($value_slug)]);
+                            });
+                        }
+                    })->pluck('av.id')->toArray();
+            }
+        }
+
+        return $selected_value_ids;
+    }
+    /**
+     * Resolve vendor instance from the request input or query string.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \VaahCms\Modules\Store\Models\Vendor|null
+     */
+    protected static function resolveVendor($request)
+    {
+        $vendor_id = $request->input('vendor.id') ?? $request->input('vendor_id') ?? $request->query('vendor');
+        return $vendor_id ? Vendor::find($vendor_id) : null;
+    }
+    /**
+     * Fetch details of selected attribute values using their IDs.
+     *
+     * @param array $selected_value_ids
+     * @return \Illuminate\Support\Collection
+     */
+    protected static function fetchSelectedAttributeValues($selected_value_ids)
+    {
+        return \DB::table('vh_st_attribute_values as av')
+            ->join('vh_st_attributes as a', 'av.vh_st_attribute_id', '=', 'a.id')
+            ->whereIn('av.id', $selected_value_ids)
+            ->select(
+                'a.id as attribute_id',
+                'a.name as attribute',
+                'av.id as attribute_value_id',
+                'av.value as attribute_value'
+            )->get();
+    }
+    /**
+     * Fetch and group product variation data based on attribute values.
+     *
+     * @param int $product_id
+     * @return \Illuminate\Support\Collection
+     */
+    protected static function fetchVariationData($product_id)
+    {
+        return \DB::table('vh_st_product_attribute_values as pav')
+            ->join('vh_st_product_attributes as pa', 'pav.vh_st_product_attribute_id', '=', 'pa.id')
+            ->join('vh_st_product_variations as pv', 'pa.vh_st_product_variation_id', '=', 'pv.id')
+            ->where('pv.vh_st_product_id', $product_id)
+            ->whereNull('pv.deleted_at')
+            ->select(
+                'pv.id as variation_id',
+                'pv.price',
+                'pv.vh_st_product_id as product_id',
+                'pav.vh_st_attribute_value_id as value_id'
+            )->get()->groupBy('variation_id');
+    }
+    /**
+     * Prepare helper maps for combinations of variations and attribute values.
+     *
+     * @param \Illuminate\Support\Collection $variation_data
+     * @param array $selected_value_ids
+     * @param \VaahCms\Modules\Store\Models\Vendor|null $vendor
+     * @return array{array, array, array}
+     */
+    protected static function prepareVariationLookups($variation_data, $selected_value_ids, $vendor)
+    {
+        $value_combination_map = [];
+        $value_to_variations = [];
+        $variation_value_map = [];
+
+        foreach ($variation_data as $variation_id => $records) {
+            $value_ids = $records->pluck('value_id')->unique()->sort()->values()->toArray();
+            $variation_value_map[$variation_id] = $value_ids;
+
+            foreach ($value_ids as $vid) {
+                $value_to_variations[$vid][] = $variation_id;
+            }
+
+            if (count(array_intersect($value_ids, $selected_value_ids)) > 0) {
+                $product_id = $records->first()->product_id;
+                $price = $records->first()->price;
+
+                $sale_price = $price;
+                if ($vendor) {
+                    $product_price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
+                        ->where('vh_st_vendor_id', $vendor->id)->first();
+
+                    if ($product_price && !is_null($product_price->amount)) {
+                        $sale_price = round($product_price->amount * ($vendor->currency_rate ?? 1), 2);
+                    }
+                }
+
+                $stock = $vendor
+                    ? Cart::getAvailableQuantity($vendor, $product_id, $variation_id)
+                    : 0;
+
+                if ($stock > 0) {
+                    foreach ($value_ids as $vid) {
+                        $value_combination_map[$vid][] = [
+                            'variation_id' => $variation_id,
+                            'stock_quantity' => $stock,
+                            'price' => $price,
+                            'sale_price' => $sale_price,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return [$value_combination_map, $value_to_variations, $variation_value_map];
+    }
+    /**
+     * Fetch all attribute value pairs for a product.
+     *
+     * @param int $product_id
+     * @return \Illuminate\Support\Collection
+     */
+    protected static function fetchAttributeValuePairs($product_id)
+    {
+        return \DB::table('vh_st_product_variations as pv')
+            ->join('vh_st_product_attributes as pa', 'pv.id', '=', 'pa.vh_st_product_variation_id')
+            ->join('vh_st_attributes as a', 'pa.vh_st_attribute_id', '=', 'a.id')
+            ->join('vh_st_product_attribute_values as pav', 'pa.id', '=', 'pav.vh_st_product_attribute_id')
+            ->join('vh_st_attribute_values as av', 'pav.vh_st_attribute_value_id', '=', 'av.id')
+            ->where('pv.vh_st_product_id', $product_id)
+            ->select(
+                'a.id as attribute_id',
+                'a.name as attribute',
+                'av.id as attribute_value_id',
+                'av.value as attribute_value'
+            )->distinct()->get();
+    }
+
+    /**
+     * Group attribute values by attribute and evaluate valid selections.
+     *
+     * @param \Illuminate\Support\Collection $attribute_values
+     * @param \Illuminate\Support\Collection $selected_values
+     * @param array $value_to_variations
+     * @param array $variation_value_map
+     * @return \Illuminate\Support\Collection
+     */
+    protected static function groupAttributeValues($attribute_values, $selected_values, $value_to_variations, $variation_value_map)
+    {
+        $selected_map = collect($selected_values)->pluck('attribute_value_id', 'attribute_id')->toArray();
+
+        return $attribute_values->groupBy('attribute_id')->map(function ($items, $attribute_id) use (
+            $value_to_variations, $variation_value_map, $selected_map
+        ) {
+            $attribute = $items->first()->attribute;
+
+            $values = $items->map(function ($item) use (
+                $value_to_variations, $variation_value_map, $selected_map, $attribute_id
+            ) {
+                $value_id = $item->attribute_value_id;
+                $other_selected = collect($selected_map)->except($attribute_id)->values()->toArray();
+
+                $is_valid = collect($value_to_variations[$value_id] ?? [])->contains(function ($variation_id) use (
+                    $variation_value_map, $other_selected
+                ) {
+                    return count(array_intersect($variation_value_map[$variation_id], $other_selected)) === count($other_selected);
+                });
+
+                return [
+                    'id' => $value_id,
+                    'value' => $item->attribute_value,
+                    'valid_for_selection' => $is_valid,
+                ];
+            })->values();
+
+            return [
+                'attribute_id' => $attribute_id,
+                'attribute' => $attribute,
+                'selected' => $selected_map[$attribute_id] ?? null,
+                'values' => $values
+            ];
+        })->values();
+    }
+    /**
+     * Find the exact matching variation based on selected attribute value IDs.
+     *
+     * @param \Illuminate\Support\Collection $variation_data
+     * @param array $selected_value_ids
+     * @return \VaahCms\Modules\Store\Models\ProductVariation|null
+     */
+    protected static function findMatchingVariation($variation_data, $selected_value_ids)
+    {
+        foreach ($variation_data as $variation_id => $records) {
+            $value_ids = $records->pluck('value_id')->unique()->sort()->values()->toArray();
+            if (
+                count($value_ids) === count($selected_value_ids) &&
+                count(array_intersect($value_ids, $selected_value_ids)) === count($selected_value_ids)
+            ) {
+                return ProductVariation::find($variation_id);
+            }
+        }
+        return null;
+    }
+    /**
+     * Generate query string for selected attribute values.
+     *
+     * @param \Illuminate\Support\Collection $selected_values
+     * @return string
+     */
+    protected static function buildAttributeQuery($selected_values)
+    {
+        return '?' . collect($selected_values)
+                ->map(fn($v) => 'attribute[' . \Str::slug(strtolower($v->attribute)) . ']=' . \Str::slug(strtolower($v->attribute_value)))
+                ->implode('&');
+    }
+
+    //----------------------------------------------------------
+
+    public static function getListWithSearch(Request $request)
+    {
+
+        [$brand_ids, $category_ids, $type_ids] = self::getFilterIds($request);
+
+        $base_query = self::buildBaseQuery($request, $brand_ids, $category_ids, $type_ids);
+        // Apply filters from getList()
+        $base_query->isActiveFilter($request->filter);
+        $base_query->trashedFilter($request->filter);
+        $base_query->searchFilter($request->filter);
+        $base_query->statusFilter($request->filter);
+        $base_query->quantityFilter($request->filter);
+        $base_query->productVariationFilter($request->filter);
+        $base_query->vendorFilter($request->filter);
+        $base_query->brandFilter($request->filter);
+        $base_query->dateFilter($request->filter);
+        $base_query->productTypeFilter($request->filter);
+        $base_query->categoryFilter($request->filter);
+        $base_query->priceFilter($request->filter);
+        $base_query->featuredHomePageFilter($request->filter);
+        $base_query->featuredCategoryPageFilter($request->filter);
+        $base_query->newArrivalsFilter($request->filter);
+        $base_query->topSellingsFilter($request->filter);
+
+
+
+        $rows = $request->get('rows', config('vaahcms.per_page'));
+        $products = (clone $base_query)
+
+            ->orderBy('created_at', 'desc')
+            ->paginate($rows)
+            ->appends($request->query());
+
+        $matched_product_ids = (clone $base_query)->pluck('id')->toArray();
+        $products_with_variations = self::attachResolvedVariations($products);
+        $sort = $request->input('filter.sort') ?? null;
+        // Apply price sorting if requested
+        $products_with_variations = self::sortCollectionByPrice($products_with_variations, $sort);
+        $filters = [
+            'brands'     => self::getBrandFacet($request, $brand_ids, $category_ids, $type_ids),
+            'categories' => self::getCategoryFacet($request, $brand_ids, $category_ids, $type_ids),
+            'types'      => self::getTypeFacet($request, $brand_ids, $category_ids, $type_ids),
+            'attributes' => self::getAttributeFacet($request, $matched_product_ids)
+        ];
+
+        $response = [
+            'success' => true,
+            'data' => $products_with_variations->toArray(),
+        ];
+        $response['data']['filters']=$filters;
+        return $response;
+
+    }
+    //----------------------------------------------------------
+
+    protected static function getFilterIds(Request $request)
+    {
+        $brand_ids = Brand::whereIn('slug', (array) $request->get('brand', []))->pluck('id')->toArray();
+        $category_ids = Category::whereIn('slug', (array) $request->get('category', []))->pluck('id')->toArray();
+        $type_ids = Taxonomy::whereIn('slug', (array) $request->get('type', []))->pluck('id')->toArray();
+
+        return [$brand_ids, $category_ids, $type_ids];
+    }
+    //----------------------------------------------------------
+
+    protected static function buildBaseQuery(Request $request, $brand_ids, $category_ids, $type_ids)
+    {
+        $search = $request->get('q', null);
+// Get selected store ID or fallback to default
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
+
+        $query = self::with(['brand', 'productCategories', 'type', 'store', 'store.defaultCurrency'])
+            ->where('vh_st_store_id', $selected_store_id);
+
+        // Apply search terms
+        if (!empty($search)) {
+            $search_terms = preg_split('/\s+/', $search); // split by space into words
+
+            $query->whereRaw("MATCH(name, slug, summary) AGAINST(? IN BOOLEAN MODE)", [$search])
+                ->orWhere(function ($q) use ($search_terms) {
+                    foreach ($search_terms as $term) {
+                        $q->orWhere('name', 'like', "%{$term}%")
+                            ->orWhere('slug', 'like', "%{$term}%")
+                            ->orWhereHas('brand', fn($b) => $b->where('name', 'like', "%{$term}%"))
+                            ->orWhereHas('productCategories', fn($c) => $c->where('name', 'like', "%{$term}%"));
+                    }
+                });
+
+        }
+
+        if ($brand_ids) {
+            $query->whereIn('vh_st_brand_id', $brand_ids);
+        }
+
+        if ($category_ids) {
+            $query->whereHas('productCategories', fn($q) => $q->whereIn('vh_st_categories.id', $category_ids));
+        }
+
+        if ($type_ids) {
+            $query->whereIn('taxonomy_id_product_type', $type_ids);
+        }
+
+        return $query;
+    }
+    //----------------------------------------------------------
+
+
+    protected static function getBrandFacet(Request $request, $brand_ids, $category_ids, $type_ids)
+    {
+        return self::facetScope($request, $brand_ids, $category_ids, $type_ids, 'brands')
+            ->select('vh_st_brand_id', DB::raw('COUNT(*) as count'))
+            ->whereNotNull('vh_st_brand_id')
+            ->groupBy('vh_st_brand_id')
+            ->with('brand:id,name,slug,image')
+            ->get()
+            ->map(fn($row) => [
+                'id'       => $row->vh_st_brand_id,
+                'name'     => $row->brand?->name,
+                'slug'     => $row->brand?->slug,
+                'image'    => $row->brand?->image,
+                'count'    => (int) $row->count,
+                'selected' => in_array($row->vh_st_brand_id, $brand_ids),
+            ])
+            ->values();
+    }
+    //----------------------------------------------------------
+
+    protected static function getCategoryFacet(Request $request, $brand_ids, $category_ids, $type_ids)
+    {
+        $search = $request->get('q', null);
+
+        $categories = DB::table('vh_st_product_categories as pc')
+            ->join('vh_st_products as p', 'p.id', '=', 'pc.vh_st_product_id')
+            ->when($search, fn($q) => $q->whereFullText(['p.name', 'p.slug'], $search))
+            ->when($brand_ids, fn($q) => $q->whereIn('p.vh_st_brand_id', $brand_ids))
+            ->when($type_ids, fn($q) => $q->whereIn('p.taxonomy_id_product_type', $type_ids))
+            ->select('pc.vh_st_category_id as id', DB::raw('COUNT(DISTINCT p.id) as count'))
+            ->groupBy('pc.vh_st_category_id')
+            ->get()
+            ->keyBy('id');
+
+        $category_models = Category::whereIn('id', $categories->keys())->get()->keyBy('id');
+
+        return $categories->map(fn($row) => [
+            'id'       => $row->id,
+            'name'     => $category_models[$row->id]->name ?? null,
+            'slug'     => $category_models[$row->id]->slug ?? null,
+            'count'    => (int) $row->count,
+            'selected' => in_array($row->id, $category_ids),
+        ])->values();
+    }
+    //----------------------------------------------------------
+
+    protected static function getTypeFacet(Request $request, $brand_ids, $category_ids, $type_ids)
+    {
+        return self::facetScope($request, $brand_ids, $category_ids, $type_ids, 'types')
+            ->select('taxonomy_id_product_type', DB::raw('COUNT(*) as count'))
+            ->whereNotNull('taxonomy_id_product_type')
+            ->groupBy('taxonomy_id_product_type')
+            ->with('type:id,name,slug')
+            ->get()
+            ->map(fn($row) => [
+                'id'       => $row->taxonomy_id_product_type,
+                'name'     => $row->type?->name,
+                'slug'     => $row->type?->slug,
+                'count'    => (int) $row->count,
+                'selected' => in_array($row->taxonomy_id_product_type, $type_ids),
+            ])
+            ->values();
+    }
+    //----------------------------------------------------------
+
+    protected static function getAttributeFacet(Request $request, $matchedProductIds)
+    {
+        $attributes = DB::table('vh_st_product_variations as pv')
+            ->join('vh_st_product_attributes as pa', 'pv.id', '=', 'pa.vh_st_product_variation_id')
+            ->join('vh_st_attributes as a', 'pa.vh_st_attribute_id', '=', 'a.id')
+            ->join('vh_st_product_attribute_values as pav', 'pa.id', '=', 'pav.vh_st_product_attribute_id')
+            ->join('vh_st_attribute_values as av', 'pav.vh_st_attribute_value_id', '=', 'av.id')
+            ->whereIn('pv.vh_st_product_id', $matchedProductIds)
+            ->whereNull('pv.deleted_at')
+            ->whereNull('pa.deleted_at')
+            ->whereNull('pav.deleted_at')
+            ->select(
+                'a.id as attribute_id',
+                'a.name as attribute',
+                'av.id as attribute_value_id',
+                'av.value as attribute_value',
+                DB::raw('COUNT(DISTINCT pv.vh_st_product_id) as count')
+            )
+            ->groupBy('a.id', 'a.name', 'av.id', 'av.value')
+            ->get();
+
+        return $attributes->groupBy('attribute_id')->map(function ($items, $attribute_id) use ($request) {
+            return [
+                'attribute_id' => $attribute_id,
+                'attribute'    => $items->first()->attribute,
+                'values'       => $items->map(function ($item) use ($request, $attribute_id) {
+                    $selectedValues = (array) $request->get('attribute_' . $attribute_id, []);
+                    return [
+                        'id'       => $item->attribute_value_id,
+                        'value'    => $item->attribute_value,
+                        'count'    => $item->count,
+                        'selected' => in_array($item->attribute_value_id, $selectedValues),
+                    ];
+                })->values(),
+            ];
+        })->values();
+    }
+    //----------------------------------------------------------
+
+    protected static function attachResolvedVariations($products)
+    {
+        $product_ids = $products->pluck('id')->toArray();
+
+        $preloaded = self::with(['productVariations'])
+            ->whereIn('id', $product_ids)
+            ->get()
+            ->keyBy('id');
+
+        $products->getCollection()->transform(function ($item) use ($preloaded) {
+            $resolved = self::getResolvedVariationWithVendor($item->id, null, null, $preloaded[$item->id] ?? null);
+            if ($resolved) {
+                $item->product_variation = $resolved;
+            }
+            return $item;
+        });
+
+        return $products;
+    }
+    //----------------------------------------------------------
+
+    protected static function facetScope(Request $request, $brand_ids, $category_ids, $type_ids, $exclude)
+    {
+        $search = $request->get('q', null);
+        $q = self::query();
+
+        if ($search) {
+            $q->where(function ($q) use ($search) {
+                $q->whereFullText(['name', 'slug'], $search)
+                    ->orWhereHas('brand', fn($b) => $b->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('productCategories', fn($c) => $c->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($exclude == 'brands' && $brand_ids) {
+            $q->whereIn('vh_st_brand_id', $brand_ids);
+        }
+        if ($exclude == 'categories' && $category_ids) {
+            $q->whereHas('productCategories', fn($sq) => $sq->whereIn('vh_st_categories.id', $category_ids));
+        }
+        if ($exclude == 'types' && $type_ids) {
+            $q->whereIn('taxonomy_id_product_type', $type_ids);
+        }
+
+        return $q;
+    }
+    //----------------------------------------------------------
+
+
+
 }
