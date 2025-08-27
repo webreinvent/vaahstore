@@ -5,8 +5,10 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Faker\Factory;
+use VaahCms\Modules\Store\Traits\ApiAuthUser;
 use WebReinvent\VaahCms\Models\VaahModel;
 use WebReinvent\VaahCms\Traits\CrudWithUuidObservantTrait;
 use WebReinvent\VaahCms\Models\User;
@@ -20,9 +22,10 @@ class Wishlist extends VaahModel
 
     use SoftDeletes;
     use CrudWithUuidObservantTrait;
+    use ApiAuthUser;
 
     //-------------------------------------------------
-    protected $table = 'vh_st_whishlists';
+    protected $table = 'vh_st_wishlists';
     //-------------------------------------------------
     protected $dates = [
         'created_at',
@@ -32,7 +35,7 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     protected $fillable = [
         'uuid',
-        'vh_user_id',
+//        'vh_user_id',
         'name',
         'slug',
         'type',
@@ -50,8 +53,132 @@ class Wishlist extends VaahModel
 
     //-------------------------------------------------
     protected $appends = [
-    ];
+        'user_wishlist_products',
+        'user'];
+    //-------------------------------------------------
+    public static function isIncludeKey($key)
+    {
+        $include = request()->query('include', []);
 
+        $includes = [];
+
+        if (is_string($include)) {
+            // handle ?include=price,vendor_product_data
+            $includes = array_map('trim', explode(',', $include));
+        } elseif (is_array($include)) {
+            // handle ?include[price,vendor_product_data]=true
+            foreach ($include as $k => $v) {
+                if ($v === 'true') {
+                    $keys = array_map('trim', explode(',', $k));
+                    $includes = array_merge($includes, $keys);
+                }
+            }
+        }
+
+        return in_array($key, $includes);
+    }
+   public function getUserWishlistProductsAttribute()
+    {
+        if (!self::isIncludeKey('user_wishlist_products')) {
+            return null;
+        }
+        $active_user_id = $this->getApiAuthUserId();
+
+        $query = UserWishlist::with(['user', 'products'])
+            ->where('vh_st_wishlist_id', $this->id);
+
+        // Filter by authenticated user
+        if ($active_user_id) {
+            $query->where('vh_user_id', $active_user_id);
+        }
+
+        // Optional: Filter products by selected store
+        $selected_store = request('selected_store');
+        $store_id = null;
+
+        if ($selected_store) {
+            $store = Store::where(function ($q) use ($selected_store) {
+                $q->where('id', $selected_store)
+                    ->orWhere('slug', $selected_store);
+            })->first();
+
+            $store_id = $store?->id;
+        }
+
+        $user_wishlists = $query->get();
+        $include_variations = request()->boolean('include.variations');
+
+        return $user_wishlists->map(function ($user_wishlist) use ($include_variations, $store_id) {
+            $user = $user_wishlist->user;
+            $user_array = $user ? $user->only(['id', 'first_name','username','last_name', 'email']) : [];
+
+
+            $filtered_products = $user_wishlist->products;
+
+            // Filter by selected store
+            if ($store_id) {
+                $filtered_products = $filtered_products->where('vh_st_store_id', $store_id);
+            }
+
+            // Map and convert each product to array
+            $user_array['products'] = $filtered_products->map(function ($product) use ($include_variations) {
+                if (!$product->relationLoaded('brand')) {
+                    $product->load('brand');
+                }
+
+                if ($include_variations) {
+                    $selected_vendor_id = $product->vendor_product_data['selected_vendor']['id'] ?? null;
+                    $product->variations = $product->loadVariations($selected_vendor_id);
+                }
+
+                $product_array = $product->toArray();
+                if ($product->brand) {
+                    $product_array['brand'] = [
+                        'id' => $product->brand->id,
+                        'name' => $product->brand->name,
+                        'slug' => $product->brand->slug,
+                        'media' => $product->brand->media,
+                    ];
+                }
+                $variation_id = $product->pivot->vh_st_product_variation_id ?? null;
+
+                if ($variation_id) {
+                    $variation = ProductVariation::with('medias')->find($variation_id);
+                    $variation_array = $variation->toArray();
+                    $vendor = data_get($product, 'vendor_product_data.selected_vendor');
+                    unset($variation_array['product']);
+                    $product_array['product_variation'] = Product::buildResolvedVariationResponse
+                    ($product, $variation,'fallback',$vendor);
+                }
+                // If variations were loaded, make sure they're included in array
+                if ($include_variations && isset($product->variations)) {
+                    $product_array['variations'] = $product->variations;
+                }
+
+                return $product_array;
+            })->values(); // Reset keys just in case
+
+            return $user_array;
+        });
+    }
+
+    //-------------------------------------------------
+
+    public function getUserAttribute()
+    {
+        $sharedNames = ['Save For Later', 'My List'];
+
+        if (in_array($this->name, $sharedNames)) {
+            return null; // Don't return anything for shared names
+        }
+
+        return $this->users()->first(); // Single user object
+    }
+    //-------------------------------------------------
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'vh_user_id');
+    }
     //-------------------------------------------------
     protected function serializeDate(DateTimeInterface $date)
     {
@@ -64,18 +191,24 @@ class Wishlist extends VaahModel
     }
 
     //-------------------------------------------------
-
-    public function products()
+    public function users()
     {
-        return $this->belongsToMany(Product::class, 'vh_st_wishlist_products','vh_st_wishlist_id','vh_st_product_id')
-            ->select('vh_st_products.id', 'vh_st_products.name');
+        return $this->belongsToMany(
+            User::class,
+            'vh_st_user_wishlists',
+            'vh_st_wishlist_id',
+            'vh_user_id'
+        )->withTimestamps();
     }
+    public function userWishlists()
+    {
+        return $this->hasMany(UserWishlist::class, 'vh_st_wishlist_id');
+    }
+
 
     //-------------------------------------------------
 
-    public function user(){
-        return $this->hasOne(User::class, 'id', 'vh_user_id')->select(['id','first_name','username','email']);
-    }
+
     //-------------------------------------------------
     public static function getUnFillableColumns()
     {
@@ -167,53 +300,62 @@ class Wishlist extends VaahModel
 
         $query->whereBetween('updated_at', [$from, $to]);
     }
+    //-------------------------------------------------
+
+    public static function isReservedNameOrSlug($value): bool
+    {
+        $reserved = ['save-for-later', 'my-list', 'Save For Later', 'My List'];
+
+        return in_array(trim($value), $reserved);
+    }
+
 
     //-------------------------------------------------
     public static function createItem($request)
     {
-        $permission_slug = 'can-update-module';
-
-        if (!\Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
-
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
-
-        // check if name exist
-        $item = self::where('name', $inputs['name'])->withTrashed()->first();
-
-        if ($item) {
-            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
-            $response['errors'][] = $error_message;
-            return $response;
+        $self = new self();
+        $user_id_to_sync = $self->getApiAuthUserId() ?? ($inputs['vh_user_id'] ?? null);
+        if ($user_id_to_sync && !empty($inputs['name'])) {
+            $existing = Wishlist::withTrashed()
+                ->where('name', $inputs['name'])
+                ->whereHas('users', function ($q) use ($user_id_to_sync) {
+                    $q->where('vh_user_id', $user_id_to_sync);
+                })
+                ->first();
+            if ($existing) {
+                return [
+                    'success' => false,
+                    'errors' => [ "This name already exists" . ($existing->deleted_at ? ' in trash.' : '.')]
+                ];
+            }
         }
 
-        // check if slug exist
-        $item = self::where('slug', $inputs['slug'])->withTrashed()->first();
-
-        if ($item) {
-            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
-            $response['errors'][] = $error_message;
-            return $response;
+        if (self::isReservedNameOrSlug($inputs['name'] ?? '') || self::isReservedNameOrSlug($inputs['slug'] ?? '')) {
+            return [
+                'success' => false,
+                'errors' => ['This name already exists']
+            ];
         }
-
-        // Check if current record is default
-        if($inputs['is_default']){
-            self::where('is_default',1)
-                ->where('vh_user_id',$inputs['vh_user_id'])
+        if (!empty($inputs['is_default']) && $user_id_to_sync) {
+            self::where('is_default', 1)
+                ->whereHas('users', function ($q) use ($user_id_to_sync) {
+                    $q->where('vh_user_id', $user_id_to_sync);
+                })
                 ->update(['is_default' => 0]);
         }
-
 
         $item = new self();
         $item->fill($inputs);
         $item->save();
 
+        if ($user_id_to_sync) {
+            $item->users()->syncWithoutDetaching([$user_id_to_sync]);
+        }
         $response = self::getItem($item->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
@@ -367,8 +509,39 @@ class Wishlist extends VaahModel
 
     public static function getList($request)
     {
-        $default_wishlist = self::where('is_default', 1)->first();
-        $list = self::getSorted($request->filter)->with('user','status','products');
+        $include = request()->query('include', []);
+        $exclude = request()->query('exclude', []);
+        $relationships = [
+            'status'
+        ];
+        $self = new self();
+        $api_auth_user_id = $self->getApiAuthUserId();
+
+        foreach ($include as $key => $value) {
+            if ($value === 'true') {
+                $keys = explode(',', $key);
+                foreach ($keys as $relationship) {
+                    $relationship = trim($relationship);
+                    if (method_exists(self::class, $relationship)) {
+                        $relationships[] = $relationship;
+                    }
+                }
+            }
+        }
+
+        // Check if the current user has a custom default wishlist (excluding 'my-list' and 'save-for-later')
+        $user_default_exists = false;
+        if ($api_auth_user_id) {
+            $user_default_exists = self::where('is_default', 1)
+                ->whereNotIn('slug', ['my-list', 'save-for-later'])
+                ->exists();
+        }
+
+        // Main query
+        $list = self::with($relationships)
+            ->withCount('users');
+
+
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -377,32 +550,87 @@ class Wishlist extends VaahModel
         $list->dateRangeFilter($request->filter);
         $list->userFilter($request->filter);
         $list->productFilter($request->filter);
-        $default_wishlist_exists = $default_wishlist;
-        $rows = config('vaahcms.per_page');
 
-        if($request->has('rows'))
-        {
+        if ($api_auth_user_id) {
+            $list->whereHas('users', function ($query) use ($api_auth_user_id) {
+                $query->where('vh_user_id', $api_auth_user_id);
+            });
+
+            $list = $list->orderByRaw(
+                $user_default_exists
+                    ? "
+                    CASE
+                        WHEN is_default = 1 THEN 0
+                        WHEN slug = 'my-list' THEN 1
+                        WHEN slug = 'save-for-later' THEN 2
+                        ELSE 3
+                    END
+                  "
+                            : "
+                    CASE
+                        WHEN slug = 'my-list' THEN 0
+                        WHEN slug = 'save-for-later' THEN 1
+                        ELSE 2
+                    END
+                  "
+            )
+                ->orderByRaw(
+                    $user_default_exists
+                        ? "
+                    CASE
+                        WHEN is_default = 1 OR slug IN ('my-list', 'save-for-later') THEN NULL
+                        ELSE slug
+                    END ASC
+                  "
+                                : "
+                    CASE
+                        WHEN slug IN ('my-list', 'save-for-later') THEN NULL
+                        ELSE slug
+                    END ASC
+                  "
+                )
+                ->orderBy('id', 'desc');
+        }
+
+        $rows = config('vaahcms.per_page');
+        if ($request->has('rows')) {
             $rows = $request->rows;
         }
 
         $list = $list->paginate($rows);
 
+        $keys_to_exclude = [];
+        foreach ($exclude as $key => $value) {
+            if ($value === 'true') {
+                $keys_to_exclude = array_merge($keys_to_exclude, array_map('trim', explode(',', $key)));
+            }
+        }
+        $keys_to_exclude = array_unique($keys_to_exclude);
+
+        foreach ($list as $item) {
+            foreach ($keys_to_exclude as $single_key) {
+                if (isset($item[$single_key])) {
+                    unset($item[$single_key]);
+                }
+                if (in_array($single_key, $item->getAppends())) {
+                    $item->setAppends(array_diff($item->getAppends(), [$single_key]));
+                }
+            }
+        }
+
+        $default_wishlist = self::where('is_default', 1)->first();
+
         $response['success'] = true;
         $response['data'] = $list;
-        if (!$default_wishlist_exists) {
-            $response['message'] = true;
-        }
-        return $response;
+        $response['message'] = !$default_wishlist ? true : null;
 
+        return $response;
     }
 
     //-------------------------------------------------
     public static function updateList($request)
     {
-        $permission_slug = 'can-update-module';
-        if (!\Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
+
 
         $inputs = $request->all();
 
@@ -471,10 +699,7 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     public static function deleteList($request): array
     {
-        $permission_slug = 'can-update-module';
-        if (!\Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
+
 
         $inputs = $request->all();
 
@@ -498,12 +723,23 @@ class Wishlist extends VaahModel
         }
 
         $items_id = collect($inputs['items'])->pluck('id')->toArray();
-        foreach($items_id as $item_id)
-        {
-            $item = self::where('id', $item_id)->withTrashed()->first();
-            $item->products()->detach();
+        $items = self::whereIn('id', $items_id)
+            ->withTrashed()
+            ->get();
+
+        foreach ($items as $item) {
+
+            if (self::isReservedNameOrSlug($item->slug)) {
+                continue;
+            }
+
+            foreach ($item->userWishlists as $user_wishlist) {
+                $user_wishlist->products()->detach();
+                $user_wishlist->forceDelete();
+            }
+
+            $item->forceDelete();
         }
-        self::whereIn('id', $items_id)->forceDelete();
 
         $response['success'] = true;
         $response['data'] = true;
@@ -514,10 +750,7 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     public static function listAction($request, $type): array
     {
-        $permission_slug = 'can-update-module';
-        if (!\Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
+
 
         $inputs = $request->all();
 
@@ -573,7 +806,7 @@ class Wishlist extends VaahModel
                     foreach($items_id as $item_id)
                     {
                         $item = self::where('id', $item_id)->withTrashed()->first();
-                        $item->products()->detach();
+
                     }
                     self::whereIn('id', $items_id)->forceDelete();
                 }
@@ -613,11 +846,19 @@ class Wishlist extends VaahModel
                 $list->restore();
                 break;
             case 'delete-all':
-                $item_ids=$list->pluck('id')->toArray();
-                foreach($item_ids as $item_id)
-                {
-                    $item = self::where('id', $item_id)->withTrashed()->first();
-                    $item->products()->detach();
+                $item_ids = $list
+                    ->whereNotIn('name', ['Save For Later', 'My List'])
+                    ->pluck('id')
+                    ->toArray();
+                foreach ($item_ids as $item_id) {
+                    $item = self::withTrashed()->find($item_id);
+                    if ($item) {
+                        $user_wishlists = $item->userWishlists;
+                        foreach ($user_wishlists as $user_wishlist) {
+                            $user_wishlist->products()->detach();
+                        }
+                        $item->users()->detach();
+                    }
                 }
                 $list->forceDelete();
                 break;
@@ -652,104 +893,142 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     public static function getItem($id)
     {
+        $includes = request()->query('include', []);
+        $exclude_param = request()->query('exclude', []);
+
+        $excludes = [];
+        foreach ($exclude_param as $key => $value) {
+            $excludes = array_merge($excludes, explode(',', $key));
+        }
+
+        $excludes = array_map(function($key) {
+            return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
+        }, $excludes);
+
+        $all_relations = ['createdByUser', 'updatedByUser', 'deletedByUser', 'user', 'status'];
+
+        if (!empty($includes)) {
+            $relationships = array_intersect($all_relations, $includes);
+        } else {
+            $relationships = $all_relations;
+        }
+
+        $relationships = array_filter($relationships, fn($r) => !in_array($r, $excludes));
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','user','status','products'])
+            ->with($relationships)
             ->withTrashed()
             ->first();
 
-        if(!$item)
-        {
-            $response['success'] = false;
-            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
-            return $response;
+        if (!$item) {
+            return [
+                'success' => false,
+                'errors' => [trans("vaahcms-general.record_not_found_with_id") . $id]
+            ];
         }
 
-        $products = $item->products->map(function ($product) {
-            return [
-                'is_selected' => false,
-                'product' => [
-                    'id' => $product->id,
-                    'name' => $product->name
-                ]
-            ];
-        })->toArray();
-
-        $response['data'] = $item->toArray();
-        $response['data']['products'] = $products;
-        $response['success'] = true;
-
-        return $response;
-
+        return [
+            'success' => true,
+            'data' => $item->toArray(),
+        ];
     }
+
+
+
     //-------------------------------------------------
+
     public static function updateItem($request, $id)
     {
-
-        $permission_slug = 'can-update-module';
-        if (!\Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
-
         $inputs = $request->all();
-
         $validation = self::validation($inputs);
         if (!$validation['success']) {
             return $validation;
         }
+        // Ensure only one default per user
+        $wishlist = self::with(['users'])->withTrashed()->findOrFail($id);
+        $user_id_to_sync = (new self)->getApiAuthUserId() ?? ($wishlist->users->first()->pivot->vh_user_id ?? null);
+        $is_protected = self::isReservedNameOrSlug($wishlist->name) && self::isReservedNameOrSlug($wishlist->slug);
 
-        // check if name exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('name', $inputs['name'])->first();
-
-        if ($item) {
-            $error_message = "This name already exists".($item->deleted_at?' in trash.':'.');
-            $response['errors'][] = $error_message;
-            return $response;
+        if (!$is_protected) {
+            self::handleDefaultToggle($inputs, $user_id_to_sync, $wishlist, $id);
+            self::handleNameAndSlug($inputs, $wishlist);
+        } else {
+            $inputs = Arr::except($inputs, ['name', 'slug', 'is_default']);
         }
+        // Fill other fields (excluding name and slug if non-editable)
+        $wishlist->fill(Arr::except($inputs, ['name', 'slug','is_default']));
+        $wishlist->save();
 
-        // check if slug exist
-        $item = self::where('id', '!=', $id)
-            ->withTrashed()
-            ->where('slug', $inputs['slug'])->first();
-
-        if ($item) {
-            $error_message = "This slug already exists".($item->deleted_at?' in trash.':'.');
-            $response['errors'][] = $error_message;
-            return $response;
-        }
-
-        // Check default
-        if($inputs['is_default'] == 1 || $inputs['is_default'] == true){
-            self::where('is_default',1)
-                ->where('vh_user_id',$inputs['vh_user_id'])
-                ->update(['is_default' => 0]);
-        }
-
-        $item = self::where('id', $id)->withTrashed()->first();
-        $item->fill($inputs);
-        $item->save();
-
-        if(isset($inputs['products']) && is_array($inputs['products'])){
-            $product_ids = collect($inputs['products'])->pluck('product.id')->toArray();
-
-           $item->products()->sync($product_ids,function($pivot){
-               $pivot->uuid = Str::uuid();
-           });
-        }
-        $response = self::getItem($item->id);
+        self::handleProtectedWishlistSync($wishlist, $inputs, $is_protected);
+        $response = self::getItem($wishlist->id);
         $response['messages'][] = trans("vaahcms-general.saved_successfully");
         return $response;
-
     }
+    //-------------------------------------------------
+
+    protected static function handleDefaultToggle($inputs, $user_id_to_sync, $wishlist, $id)
+    {
+        if (isset($inputs['is_default'])) {
+            if ($inputs['is_default']) {
+                self::where('is_default', 1)
+                    ->whereHas('users', function ($q) use ($user_id_to_sync) {
+                        $q->where('vh_user_id', $user_id_to_sync);
+                    })
+                    ->where('id', '!=', $id)
+                    ->update(['is_default' => 0]);
+
+                $wishlist->is_default = 1;
+            } else {
+                $wishlist->is_default = 0;
+            }
+        }
+    }
+    //-------------------------------------------------
+
+    protected static function handleNameAndSlug($inputs, $wishlist)
+    {
+        if (empty(self::isReservedNameOrSlug($wishlist->name)) && empty(self::isReservedNameOrSlug($wishlist->slug))) {
+            $wishlist->name = $inputs['name'] ?? $wishlist->name;
+            $wishlist->slug = $inputs['slug'] ?? $wishlist->slug;
+        }
+    }
+    //-------------------------------------------------
+
+    protected static function handleProtectedWishlistSync($wishlist, $inputs, $is_protected)
+    {
+        if ($is_protected && !empty($inputs['user'])) {
+            $user_id = $inputs['user']['id'];
+            $wishlist->users()->syncWithoutDetaching([$user_id]);
+
+            $user_wishlist = UserWishlist::firstOrCreate([
+                'vh_st_wishlist_id' => $wishlist->id,
+                'vh_user_id' => $user_id
+            ]);
+
+            if (!empty($inputs['products'])) {
+                foreach ($inputs['products'] as $product) {
+                    $product_id = $product['id'];
+                    $variation_id = $product['vh_st_product_variation_id'] ?? null;
+
+                    $exists = $user_wishlist->products()
+                        ->where('vh_st_product_id', $product_id)
+                        ->when($variation_id, fn($q) => $q->wherePivot('vh_st_product_variation_id', $variation_id))
+                        ->exists();
+
+                    if (!$exists) {
+                        $user_wishlist->products()->attach($product_id, [
+                            'vh_st_product_variation_id' => $variation_id
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
     //-------------------------------------------------
     public static function deleteItem($request, $id): array
     {
-        $permission_slug = 'can-update-module';
-        if (!\Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
+
 
         $item = self::where('id', $id)->withTrashed()->first();
         if (!$item) {
@@ -757,7 +1036,17 @@ class Wishlist extends VaahModel
             $response['errors'][] = trans("vaahcms-general.record_does_not_exist");
             return $response;
         }
-        $item->products()->detach();
+        // Prevent deletion for special slugs
+        if (self::isReservedNameOrSlug($item->name) || self::isReservedNameOrSlug($item->slug)) {
+            return [
+                'success' => false,
+                'errors' => ['This wishlist cannot be deleted: ' . $item->slug]
+            ];
+        }
+        foreach ($item->userWishlists as $user_wishlist) {
+            $user_wishlist->products()->detach();
+            $user_wishlist->forceDelete();
+        }
         $item->forceDelete();
 
         $response['success'] = true;
@@ -769,11 +1058,7 @@ class Wishlist extends VaahModel
     //-------------------------------------------------
     public static function itemAction($request, $id, $type): array
     {
-        $permission_slug = 'can-update-module';
 
-        if (!\Auth::user()->hasPermission($permission_slug)) {
-            return vh_get_permission_denied_response($permission_slug);
-        }
 
         switch($type)
         {
@@ -816,11 +1101,11 @@ class Wishlist extends VaahModel
     {
 
         $rules = array(
-            'vh_user_id'=> 'required',
+            'vh_user_id'=> 'nullable',
             'name' => 'required|max:100',
             'slug' => 'required|max:100',
             'type' => '',
-            'taxonomy_id_whishlists_status'=> 'required',
+            'taxonomy_id_whishlists_status'=> 'nullable',
             'status_notes' => 'max:250',
         );
 
@@ -1008,15 +1293,25 @@ class Wishlist extends VaahModel
 
     //-------------------------------------------------
     public static function searchProduct($request){
-        $product = Product::select('id', 'name','slug')->where('is_active',1);
-        if ($request->has('query') && $request->input('query')) {
-            $product->where('name', 'LIKE', '%' . $request->input('query') . '%');
-        }
-        $product = $product->limit(10)->get();
+        $query_text = $request->input('search');
+        $selected_store = $request->input('selected_store');
+        $products = Product::query()
+            ->where('is_active', 1)
+            ->when($selected_store, function ($q) use ($selected_store) {
+                $q->where('vh_st_store_id', $selected_store);
+            })
+            ->when($query_text, function ($q) use ($query_text) {
+                $q->where('name', 'like', "%{$query_text}%");
+            }, function ($q) {
+                $q->inRandomOrder()->take(10);
+            })
+            ->select('id', 'name', 'slug')
+            ->get();
 
-        $response['success'] = true;
-        $response['data'] = $product;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $products,
+        ];
 
     }
 
@@ -1087,5 +1382,286 @@ class Wishlist extends VaahModel
         $response['data'] = $users;
         return $response;
     }
+
+    //-------------------------------------------------
+
+    public static function updateUserWishlistProducts($request, $id)
+    {
+        $self = new self();
+
+        $user_id_to_sync = $self->getApiAuthUserId() ?? ($request->vh_user_id ?? null);
+        if (!$user_id_to_sync) {
+            return [
+                'errors' => ['User ID is required'],
+            ];
+        }
+        $wishlist = Wishlist::withTrashed()->find($id);
+        $cart = Cart::where('vh_user_id', $user_id_to_sync)->first();
+        if(!$wishlist)
+        {
+            $response['success'] = false;
+            $response['errors'][] = trans("vaahcms-general.record_not_found_with_id").$id;
+            return $response;
+        }
+        // Link user to wishlist
+        $wishlist->users()->syncWithoutDetaching([$user_id_to_sync]);
+
+        // Get or create UserWishlist
+        $user_wishlist = UserWishlist::firstOrCreate([
+            'vh_st_wishlist_id' => $wishlist->id,
+            'vh_user_id' => $user_id_to_sync
+        ]);
+
+        $action = $request->action ?? 'add';
+        $products = collect($request->products);
+
+        // Cache existing pivot records if action is "add"
+        $existing_pivots = [];
+
+        if (in_array($action, ['add', 'move'])) {
+            $existing_pivots = $user_wishlist->products()
+                ->withPivot('vh_st_product_variation_id')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [ $item->id . '_' . ($item->pivot->vh_st_product_variation_id ?? 'null') => true ];
+                });
+        }
+        foreach ($products as $product) {
+            $product_id = $product['id'];
+            $variation_id = $product['vh_st_product_variation_id'] ?? null;
+            $vendor_id = $product['vh_st_vendor_id'] ?? null;
+            $key = $product_id . '_' . ($variation_id ?? 'null');
+
+            if ($action === 'delete') {
+                $detach_query = $user_wishlist->products();
+
+                $detach_query->wherePivot('vh_st_product_id', $product_id);
+                if ($variation_id !== null) {
+                    $detach_query->wherePivot('vh_st_product_variation_id', $variation_id);
+                }
+
+                $detach_query->detach();
+
+            } if ($action === 'move') {
+                if (isset($existing_pivots[$key])) {
+                    // Already in wishlist → remove from wishlist
+                    $user_wishlist->products()
+                        ->wherePivot('vh_st_product_variation_id', $variation_id)
+                        ->detach($product_id);
+                } else {
+                    // Add to wishlist
+                    $user_wishlist->products()->attach($product_id, [
+                        'vh_st_product_variation_id' => $variation_id,
+                    ]);
+
+                    // Then remove from cart
+                    if ($cart && $variation_id && $vendor_id) {
+                        $cart->products()
+                            ->wherePivot('vh_st_product_id', $product_id)
+                            ->wherePivot('vh_st_product_variation_id', $variation_id)
+                            ->wherePivot('vh_st_vendor_id', $vendor_id)
+                            ->detach();
+                    }
+                }
+            } elseif ($action === 'add') {
+                if (!isset($existing_pivots[$key])) {
+                    $user_wishlist->products()->attach($product_id, [
+                        'vh_st_product_variation_id' => $variation_id,
+                    ]);
+                }
+            }
+        }
+        if ($action === 'move' && $cart) {
+//            return Cart::getItem($request, $cart->id);
+            $cart_response = Cart::getItem($request, $cart->id);
+            $cart_response['messages'][] = 'Items moved to wishlist successfully.';
+            return $cart_response;
+
+        }
+        return [
+            'success' => true,
+            'data' => $wishlist->fresh(),
+            'messages' => [trans("vaahcms-general.saved_successfully")],
+        ];
+    }
+    //-------------------------------------------------
+
+    public static function getWishlistUsers( Request $request,$id)
+    {   $self = new self();
+        $active_user_id = $self->getApiAuthUserId();
+        $query = UserWishlist::with(['user', 'products'])
+            ->where('vh_st_wishlist_id', $id);
+        if ($request->filled('q')) {
+            $search = $request->input('q');
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('username', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('first_name', 'like', '%' . $search . '%');
+            });
+        }
+
+
+        // Filter by authenticated user
+        if ($active_user_id) {
+            $query->where('vh_user_id', $active_user_id);
+        }
+
+        // Optional: Filter by selected store
+        $store_id = null;
+        if ($selected_store = $request->input('selected_store')) {
+            $store = Store::where(function ($q) use ($selected_store) {
+                $q->where('id', $selected_store)->orWhere('slug', $selected_store);
+            })->first();
+            $store_id = $store?->id;
+        }
+
+        $include_variations = $request->boolean('include.variations', false);
+        $per_page = $request->has('per_page') && is_numeric($request->input('per_page'))
+            ? (int) $request->input('per_page')
+            : 20;
+
+        $paginated = $query->paginate($per_page);
+
+        $mapped = $paginated->getCollection()->map(function ($user_wishlist) use ($include_variations, $store_id) {
+            $user = $user_wishlist->user;
+            $user_array = $user ? $user->toArray() : [];
+
+            $filtered_products = $user_wishlist->products;
+
+            if ($store_id) {
+                $filtered_products = $filtered_products->where('vh_st_store_id', $store_id);
+            }
+
+            $user_array['products'] = $filtered_products->map(function ($product) use ($include_variations) {
+                if ($include_variations) {
+                    $selected_vendor_id = $product->vendor_product_data['selected_vendor']['id'] ?? null;
+                    $product->variations = $product->loadVariations($selected_vendor_id);
+                }
+
+                $product_array = $product->toArray();
+                $variation_id = $product->pivot->vh_st_product_variation_id ?? null;
+                // If a variation is selected in pivot, include it
+                if ($variation_id) {
+                    $variation = ProductVariation::with('medias')->find($variation_id);
+                    if ($variation) {
+                        $product_array['selected_variation'] = $variation;
+                    }
+                }
+                if ($include_variations && isset($product->variations)) {
+                    $product_array['variations'] = $product->variations;
+                }
+
+                return $product_array;
+            })->values();
+
+            return $user_array;
+        });
+
+        $paginated->setCollection($mapped);
+        $response['success'] = true;
+        $response['data'] = $paginated;
+        return $response;
+    }
+    //-------------------------------------------------
+
+    public static function moveWishlistToCart($request, $wishlist_id)
+    {
+        $self = new self();
+
+        $user_id = $self->getApiAuthUserId()
+            ?? ($request->input('user.id') ?? null);
+
+        if (!$user_id) {
+            return ['success' => false, 'errors' => ['User ID is required']];
+        }
+        $wishlist = Wishlist::find($wishlist_id);
+        // Fetch UserWishlist
+        $user_wishlist = UserWishlist::where('vh_st_wishlist_id', $wishlist_id)
+            ->where('vh_user_id', $user_id)
+            ->first();
+
+        if (!$user_wishlist) {
+            return ['success' => false, 'errors' => ['Wishlist not found']];
+        }
+
+        // Load wishlist products with variation pivot
+        $wishlist_products = $user_wishlist->products()
+            ->withPivot('vh_st_product_variation_id')
+            ->get();
+
+        if ($wishlist_products->isEmpty()) {
+            return ['success' => false, 'errors' => ['No products found in wishlist']];
+        }
+
+        $payload_products = collect($request->input('products', []));
+
+        // Build payload for generateCart using payload vendor_id
+        $product_payload = $wishlist_products->map(function ($product) use ($payload_products) {
+            $product_id = $product->id;
+            $variation_id = $product->pivot->vh_st_product_variation_id;
+
+            $matched = $payload_products->first(function ($p) use ($product_id, $variation_id) {
+                return $p['id'] == $product_id && $p['variation_id'] == $variation_id;
+            });
+
+            if (!$matched || empty($matched['vendor_id'])) {
+                return null;
+            }
+
+            return [
+                'id' => $product_id,
+                'variation_id' => $variation_id,
+                'vendor_id' => $matched['vendor_id'],
+                'quantity' => $matched['quantity'] ?? 1
+            ];
+        })->filter()->values();
+
+        if ($product_payload->isEmpty()) {
+            return ['success' => false, 'errors' => ['No valid items to move']];
+        }
+
+        // Create request for generateCart
+        $cart_request = new Request([
+            'user' => ['id' => $user_id],
+            'products' => $product_payload,
+        ]);
+
+        // Call existing method
+        $cart_response = Product::generateCart($cart_request);
+
+        // If cart update failed
+        if (!$cart_response['success']) {
+            return [
+                'success' => false,
+                'data' => null,
+                'errors' => $cart_response['errors'] ?? ['Something went wrong while updating cart'],
+
+            ];
+        }
+        if ($wishlist && $wishlist->slug === 'save-for-later') {
+        foreach ($product_payload as $p) {
+            $user_wishlist->products()
+                ->wherePivot('vh_st_product_variation_id', $p['variation_id'])
+                ->detach($p['id']);
+        }
+        }
+
+        // Fetch cart count
+        $cart = Cart::where('vh_user_id', $user_id)->first();
+        $cart_count = $cart ? $cart->cart_products_count : 0;
+
+        // Get refreshed wishlist
+        $wishlist_data = self::getItem($wishlist_id);
+
+        if (isset($wishlist_data['data']) && is_array($wishlist_data['data'])) {
+            $wishlist_data['data']['cart_products_count'] = $cart_count;
+        }
+        return [
+            'success' => true,
+            'data' => $wishlist_data['data'] ?? null,
+            'messages' => ['Wishlist items moved to cart successfully.']
+        ];
+    }
+
 
 }

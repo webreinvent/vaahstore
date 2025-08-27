@@ -34,6 +34,7 @@ let empty_states = {
             highest_stock : null,
             quick_filter_menu:[],
         },
+        selected_store:null,
     },
     action: {
         type: null,
@@ -288,11 +289,13 @@ export const useProductStockStore = defineStore({
         },
         //---------------------------------------------------------------------
        async searchVendor(event) {
-            const query = event;
-            const options = {
-                params: query,
-                method: 'post',
-            };
+           const options = {
+               method: 'get',
+               query: {
+                   selected_store: this.query.selected_store,
+                   search: event?.query || ''
+               }
+           };
 
             await vaah().ajax(
                 this.ajax_url+'/search/vendor',
@@ -684,7 +687,7 @@ export const useProductStockStore = defineStore({
             {
                 item = this.item;
             }
-
+            item.vh_st_store_id = this.query.selected_store;
             this.form.action = type;
 
             let ajax_url = this.ajax_url;
@@ -995,7 +998,7 @@ export const useProductStockStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.getDefaultVendor()
+            // this.getDefaultVendor()
             this.$router.push({name: 'productstocks.form'})
         },
         //---------------------------------------------------------------------
@@ -1645,16 +1648,14 @@ export const useProductStockStore = defineStore({
             }
         },
 
-        async getStocksChartData() {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-            }
+        async getStocksChartData(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/stocks-data',
                 this.getStocksChartDataAfter,

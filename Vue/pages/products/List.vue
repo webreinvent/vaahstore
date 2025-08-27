@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
 import {useRoute} from 'vue-router';
 
 import {useProductStore} from '../../stores/store-products'
@@ -60,7 +60,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
     store.getQuickFilterMenu();
     await store.getListCreateMenu();
     await store.watchQuantity();
@@ -95,7 +97,7 @@ const toggleQuickFilterState = (event) => {
             </div>
             <div>
                 <Button @click="store.viewCart(store.cart_id)" class="line-height-1 mr-2" label="View Cart" link/>
-                <!--                <Button @click="store.disableActiveCart()" >X</Button>-->
+                                <Button @click="store.disableActiveCart()" >X</Button>
             </div>
         </div>
     </Message>
@@ -118,8 +120,8 @@ const toggleQuickFilterState = (event) => {
                                 <Icon icon="bx:basket" width="18" height="18"  style="color: #111113" />
                                 </div>
                                 <div class="flex items-center mt-1">
-                                <b class="mr-1">Products</b>
-                                <p class="font-bold text-xs"  v-if="store.list && store.list.total > 0"
+                                <b class="mr-1 text-xs">Products</b>
+                                <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0"
                                 >{{store.list.total}}
                                 </p>
                                     </div>
@@ -128,6 +130,9 @@ const toggleQuickFilterState = (event) => {
                         </div>
 
                     </template>
+
+                    <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
+
                     <div class="flex gap-2  mb-1" v-if=" store.isListView()">
                         <div class="w-full bg-transparent border-none  rounded-sm mb-2">
                             <div class=" justify-content-between " >
@@ -365,7 +370,8 @@ const toggleQuickFilterState = (event) => {
                             </Button
         >
                             <Button data-testid="products-list-create"
-                                    size="small"
+                                    class="p-button-sm"
+
                                     :disabled="!store.assets.permissions.includes('can-update-module')"
                                     @click="store.toForm()">
                                 <Icon class="-mr-1" icon="ph:plus-light" width="16" height="16"  style="color: #7b7a7a" />

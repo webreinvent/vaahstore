@@ -718,7 +718,7 @@ class ProductAttribute extends VaahModel
     {
 
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser','values'])
             ->withTrashed()
             ->first();
 

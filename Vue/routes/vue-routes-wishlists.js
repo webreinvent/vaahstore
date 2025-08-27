@@ -6,6 +6,7 @@ import Form from '../pages/wishlists/Form.vue'
 import Item from '../pages/wishlists/Item.vue'
 import Product from '../pages/wishlists/Product.vue'
 import Filters from "../pages/wishlists/Filters.vue";
+import UserWishlistProducts from "../pages/wishlists/UserWishlistProducts.vue";
 
 routes_list = {
 
@@ -36,6 +37,12 @@ routes_list = {
             path: ':id?/product',
             name: 'wishlists.products',
             component: Product,
+            props: true,
+        },
+        {
+            path: ':id?/user-products',
+            name: 'wishlists.user_products',
+            component: UserWishlistProducts,
             props: true,
         }
 

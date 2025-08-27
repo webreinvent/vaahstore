@@ -95,6 +95,12 @@ class ShipmentItem extends VaahModel {
 
             $query->whereBetween('updated_at', [$from, $to]);
         }
+    //-------------------------------------------------
+
+    public function shipment()
+    {
+        return $this->belongsTo(Shipment::class, 'vh_st_shipment_id');
+    }
 
     //-------------------------------------------------
     public function orderItem()

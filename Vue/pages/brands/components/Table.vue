@@ -45,8 +45,8 @@ const useVaah = vaah();
 
                 <template #body="prop">
 
-                    <Button :disabled="store.countStore(prop.data.products) < 1"
-                            @click="store.storeIds(prop.data.products)">{{(store.countStore((prop.data.products)))}}
+                    <Button class="icon-button"
+                            @click="store.toStore(prop.data.store_ids)">{{prop.data.store_count}}
                     </Button>
                 </template>
 
@@ -76,12 +76,12 @@ const useVaah = vaah();
                     :sortable="true">
                 <template #body="prop">
 
-                    <Badge v-if="prop.data.status && prop.data.status.slug == 'approved'"
-                           severity="success"> {{prop.data.status.name}} </Badge>
+                    <Badge unstyled="true" v-if="prop.data.status && prop.data.status.slug == 'approved'"
+                           class="!text-green-500 bg-[#0E9F6E1A]" > {{prop.data.status.name}} </Badge>
                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'rejected'"
-                           severity="danger"> {{prop.data.status.name}} </Badge>
+                           unstyled="true" class="!text-red-500 bg-[#E02424]/10 "> {{prop.data.status.name}} </Badge>
                     <Badge v-else-if="prop.data.status && prop.data.status.slug == 'pending'"
-                           severity="warn"> {{prop.data.status.name}} </Badge>
+                           unstyled="true" class="!text-yellow-500 bg-[#E3A0081A]/10"> {{prop.data.status.name}} </Badge>
                     <span v-else>
 
                      </span>
@@ -125,9 +125,9 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-1 ">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="brands-table-to-view"
                                 v-tooltip.top="'View'"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
@@ -135,14 +135,14 @@ const useVaah = vaah();
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
-                                class="p-button-tiny p-button-text"
+                                class="p-button-tiny p-button-text icon-button"
                                 data-testid="brands-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && store.item && prop.data.id===store.item.id"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="!text-red-500 p-button-tiny p-button-danger p-button-text icon-button"
                                 data-testid="brands-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at &&
                                 store.assets.permissions.includes('can-update-module')"

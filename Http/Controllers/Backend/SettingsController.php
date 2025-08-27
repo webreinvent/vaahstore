@@ -654,7 +654,6 @@ class SettingsController extends Controller
                 'vh_st_lingual',
                 'vh_st_product_variation_medias',
                 'vh_st_user_customer_groups',
-                'vh_st_vendor_pro_stores',
             ];
 
             foreach ($tables_to_truncate as $table) {

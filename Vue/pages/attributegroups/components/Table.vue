@@ -46,9 +46,9 @@ const useVaah = vaah();
                      <div class="flex flex-wrap gap-2" v-if="prop.data.attributes_list && prop.data.attributes_list.length > 0">
                          <template v-if="prop.data.attributes_list.some(attribute => attribute.deleted_at === null)">
                              <template v-for="(attribute, index) in prop.data.attributes_list" :key="index">
-                                 <Badge class="h-max max-w-full" v-if="attribute.deleted_at === null">
+                                 <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]" v-if="attribute.deleted_at === null">
                                      {{ attribute.name }}
-                                 </Badge>
+                                 </p>
                              </template>
                              <Badge v-if="prop.data.attributes_list.some(attribute => attribute.deleted_at !== null)" value="Trashed" severity="danger"></Badge>
                          </template>
@@ -83,9 +83,9 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-1 ">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="attributegroups-table-to-view"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'View'"
@@ -93,22 +93,22 @@ const useVaah = vaah();
                                 icon="pi pi-eye" />
 
                         <Button v-if=" store.assets.permissions.includes('can-update-module') "
-                                class="p-button-tiny p-button-text"
+                                class="p-button-tiny p-button-text icon-button"
                                 data-testid="attributegroups-table-to-edit"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item?.id"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
-                                data-testid="attributegroups-table-action-trash"
+                        <Button class="p-button-tiny p-button-danger p-button-text icon-button text-red-500"
+                                data-testid="attributegroups-table-action-trash "
                                 v-if="store.isListView() && !prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
                                 icon="pi pi-trash" />
 
 
-                        <Button class="p-button-tiny p-button-success p-button-text"
+                        <Button class="p-button-tiny p-button-success p-button-text icon-button"
                                 data-testid="attributegroups-table-action-restore"
                                 v-if="store.isListView() && prop.data.deleted_at  && store.assets.permissions.includes('can-update-module')"
                                 @click="store.itemAction('restore', prop.data)"

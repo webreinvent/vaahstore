@@ -4,9 +4,10 @@ import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import dayjs from 'dayjs';
 import dayjsPluginUTC from 'dayjs-plugin-utc'
-
+import axios from "axios";
 dayjs.extend(dayjsPluginUTC)
 import {useRootStore} from "./root";
+import {usePaymentStore} from "./store-payments";
 
 let model_namespace = 'VaahCms\\Modules\\Store\\Models\\Order';
 
@@ -118,7 +119,7 @@ export const useOrderStore = defineStore({
                 return 'lg:w-full';
             }
             if(state.view === 'list-and-item') {
-                return 'lg:w-1/2';
+                return 'lg:w-1/6';
             }
 
             if(state.view === 'list-and-filters') {
@@ -342,15 +343,26 @@ export const useOrderStore = defineStore({
                 this.fetchSalesChartData();
                 this.fetchOrderPaymentsData();
                 this.fetchOrdersCountChartData();
+                usePaymentStore().paymentMethodsPieChartData(this.query.selected_store);
             }
         },
         //---------------------------------------------------------------------
 
-        async getItem(id) {
-            if(id){
+        async getItem(id, include_key = null) {
+            if (id) {
+                let options = {};
+                if (include_key) {
+                    options.query = {
+                        include: {
+                            [include_key]: 'true'
+                        }
+                    };
+                }
+
                 await vaah().ajax(
                     ajax_url+'/'+id,
-                    this.getItemAfter
+                    this.getItemAfter,
+                    options
                 );
             }
         },
@@ -1138,17 +1150,15 @@ export const useOrderStore = defineStore({
         },
         //---------------------------------------------------
 
-        async fetchOrdersChartData() {
-            let params = {
+        async fetchOrdersChartData(selected_store_id=null) {
 
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-
-            }
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/data',
                 this.fetchOrdersChartDataAfter,
@@ -1234,17 +1244,15 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------
 
 
-        async fetchSalesChartData(store=null) {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-                store: store ?? null,
-            }
+        async fetchSalesChartData(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
+            // alert('as')
             await vaah().ajax(
                 this.ajax_url + '/charts/total-sales-data',
                 this.fetchSalesChartDataAfter,
@@ -1390,17 +1398,14 @@ export const useOrderStore = defineStore({
 
         //---------------------------------------------------
 
-        async fetchOrderPaymentsData(store=null) {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-                store: store ?? null,
-            }
+        async fetchOrderPaymentsData(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/order-payments-data',
                 this.fetchOrderPaymentsDataAfter,
@@ -1577,17 +1582,14 @@ export const useOrderStore = defineStore({
         //---------------------------------------------------
 
 
-        async fetchOrdersCountChartData() {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-
-            }
+        async fetchOrdersCountChartData(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/orders-count-by-range',
                 this.fetchOrdersCountChartDataAfter,
@@ -1644,6 +1646,18 @@ export const useOrderStore = defineStore({
                         type: "vertical"
                     }
                 },
+                noData: {
+                    text: 'Oops! No Data Available',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    offsetX: 0,
+                    offsetY: 0,
+                    style: {
+                        color: '#FF0000',
+                        fontSize: '14px',
+                        fontFamily: undefined
+                    }
+                },
                 colors: ["#008FFB", "#00E396"], // Created (Blue - Line), Completed (Green - Area)
                 xaxis: {
                     type: "datetime",
@@ -1695,7 +1709,92 @@ export const useOrderStore = defineStore({
 
         },
 
+        //---------------------------------------------------
 
+        toViewProduct(product_id)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                'filter[q]': product_id
+            };
+            const route = {
+                name: 'products.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+        toViewVendor(vendor_id)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+                'filter[q]': vendor_id
+            };
+            const route = {
+                name: 'vendors.index',
+                query: query
+            };
+            this.$router.push(route);
+        },
+        //---------------------------------------------------
+
+        toViewShipment(shipment_id)
+        {
+            const query = {
+                page: 1,
+                rows: 20,
+            };
+
+            const route = {
+                name: 'shipments.view',
+                params: { id: shipment_id },
+                query: query
+            };
+            this.$router.push(route);
+        },
+        //---------------------------------------------------
+
+        async downloadInvoice(order) {
+            try {
+                const orderId = order.id;
+                const response = await axios.get(`${this.ajax_url}/${orderId}/invoice`, {
+                    responseType: 'blob',
+                    headers: {
+                        'Accept': 'application/pdf',
+                    },
+                });
+
+                // Check if the response is actually a PDF
+                const contentType = response.headers['content-type'];
+                if (contentType !== 'application/pdf') {
+                    throw new Error('Received non-PDF content.');
+                }
+
+                const blob = new Blob([response.data], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                const url = window.URL.createObjectURL(blob);
+                link.href = url;
+                const fileName = `${order?.user?.first_name || 'order'}_invoice.pdf`;
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url); // Free up memory
+            } catch (error) {
+                // More specific error handling
+                if (error.response && error.response.status === 404) {
+                    vaah().toastErrors(['Invoice not found for this order.']);
+                } else {
+                    vaah().toastErrors(['Failed to download invoice. Please check if the order exists or try again.']);
+                }
+            }
+        }
+
+
+
+        //---------------------------------------------------
+        //---------------------------------------------------
 
     }
 });

@@ -50,7 +50,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
 
     await store.getListCreateMenu();
 
@@ -75,16 +77,17 @@ const toggleCreateMenu = (event) => {
                 <Panel :pt="root.panel_pt">
                     <template #header>
                         <div class="flex flex-row">
-                            <div>
+                            <div class="flex items-center mt-1">
                                 <b class="mr-1">Product Stocks</b>
-                                <Badge v-if="store.list && store.list.total > 0" :value="store.list.total">
-                                </Badge>
+                                <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]" v-if="store.list && store.list.total > 0">
+                                {{store.list.total}}
+                                </p>
                             </div>
 
                         </div>
 
                     </template>
-                    <div v-if="store.isListView()" class="flex flex-wrap gap-5 mt-1 mb-4 *:w-1/3">
+                    <div v-if="store.isListView()" class="flex justify-content-center flex-wrap gap-5 mt-1 mb-4 *:w-1/3">
                         <Card>
                             <template #title>
 
@@ -103,7 +106,7 @@ const toggleCreateMenu = (event) => {
                             </template>
 
                             <template #content>
-                                <div class="max-h-20rem overflow-y-auto mb-2">
+                                <div class="max-h-10rem overflow-y-auto mb-2">
                                     <div v-if="store.highest_stock && store.highest_stock.length">
                                         <div v-for="product in store.highest_stock" :key="product.id">
                                             <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
@@ -135,7 +138,7 @@ const toggleCreateMenu = (event) => {
                             </template>
 
                             <template #content>
-                                <div class="max-h-20rem overflow-y-auto">
+                                <div class="max-h-10rem overflow-y-auto">
                                     <div v-if="store.lowest_stock && store.lowest_stock.length">
                                         <div v-for="product in store.lowest_stock" :key="product.id">
                                             <TileInfo :product="product" :baseUrl="base_url + '/'" :showVendor="true" />
@@ -151,7 +154,7 @@ const toggleCreateMenu = (event) => {
                     </div>
                     <template #icons>
 
-                        <InputGroup>
+                        <div class="flex gap-1">
 
                             <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                                 data-testid="productstocks-list-create" size="small" @click="store.toForm()">
@@ -174,7 +177,7 @@ const toggleCreateMenu = (event) => {
 
                             <!--/form_menu-->
 
-                        </InputGroup>
+                        </div>
 
                     </template>
                     <Card>

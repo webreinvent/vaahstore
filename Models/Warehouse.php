@@ -865,12 +865,17 @@ class Warehouse extends VaahModel
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
 
         $stock_data = ProductStock::select('vh_st_warehouse_id')
             ->selectRaw('SUM(quantity) as total_quantity')
-            ->groupBy('vh_st_warehouse_id')
             ->whereBetween('created_at', [$start_date, $end_date])
-            ->orderBy('total_quantity', 'asc') // Sort in descending order to get the top
+            ->whereHas('vendor', function ($query) use ($selected_store_id) {
+                $query->where('vh_st_store_id', $selected_store_id);
+            })
+            ->groupBy('vh_st_warehouse_id')
+            ->orderBy('total_quantity', 'asc')
             ->take(7)
             ->get();
 

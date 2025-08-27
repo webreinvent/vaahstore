@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -285,11 +286,20 @@ class Vendor extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
-
+        $selected_store_id = $request->input('selected_store') ?? null;
         $active_user = auth()->user();
         ProductVendor::where('vh_st_vendor_id', $vendor_id)->update(['is_active'=>0]);
 
         foreach ($product_data as $key=>$product){
+
+            $ownership_check = Product::validateVendorAndProductToStore(
+                $selected_store_id,
+                $product['id'] ?? null,null
+            );
+
+            if (!$ownership_check['success']) {
+                return $ownership_check;
+            }
 
             $vendor_product = ProductVendor::where(['vh_st_vendor_id'=> $vendor_id, 'vh_st_product_id' => $product['id']])->first();
            if($vendor_product){
@@ -299,6 +309,7 @@ class Vendor extends VaahModel
 
            $item = new ProductVendor();
 
+           $item->vh_st_store_id = $selected_store_id;
            $item->vh_st_vendor_id = $vendor_id;
 
            $item->vh_st_product_id = $product['id'];
@@ -315,8 +326,6 @@ class Vendor extends VaahModel
 
            $item->is_active = 1;
            $item->save();
-           $vendor_product = ProductVendor::find($item->id);
-           $vendor_product->storeVendorProduct()->attach($product['vh_st_store_id']);
         }
 
         $response = self::getItem($vendor_id);
@@ -673,6 +682,21 @@ class Vendor extends VaahModel
 
     //-------------------------------------------------
 
+    public function scopeFilterBySelectedStore(Builder $query)
+    {
+
+        if ($selected_store = request('selected_store')) {
+
+            $store = Store::where('id', $selected_store)->first();
+
+            if ($store) {
+                $query->where('vh_st_store_id', $store->id);
+            }
+        }
+
+        return $query;
+    }
+    //-------------------------------------------------
 
     public static function getList($request)
     {
@@ -681,7 +705,7 @@ class Vendor extends VaahModel
         $default_vendor_product_exists = $is_exist ? ProductVendor::where('vh_st_vendor_id', $default_vendor->id)->exists() : false;
 
         $list = self::getSorted($request->filter)->with(['store', 'approvedByUser',
-            'ownedByUser', 'status','vendorProducts','users']);
+            'ownedByUser', 'status','users'])->withCount('vendorProducts')->filterBySelectedStore();
 
         if ($request->has('filter')) {
             $list->isActiveFilter($request->filter);
@@ -692,7 +716,6 @@ class Vendor extends VaahModel
             $list->dateFilter($request->filter);
             $list->productFilter($request->filter);
         }
-
         $rows = config('vaahcms.per_page');
         if ($request->has('rows')) {
             $rows = $request->rows;
@@ -1393,23 +1416,29 @@ class Vendor extends VaahModel
 
     public static function searchProduct($request)
     {
+        $query_text = $request->input('search');
+        $selected_store = $request->input('selected_store');
 
-        $search_product = Product::with('status')
-            ->select('id','name','slug','is_default','taxonomy_id_product_status','vh_st_store_id')
-            ->where('is_active', '1');
+        $products = Product::with(['status'])
+        ->select('id', 'name', 'slug', 'taxonomy_id_product_status', 'vh_st_store_id')
+            ->where('is_active', 1)
+            ->when($selected_store, function ($q) use ($selected_store) {
+                return $q->where('vh_st_store_id', $selected_store);
+            })
+            ->when($query_text, function ($q) use ($query_text) {
+                return $q->where('name', 'like', "%{$query_text}%");
+            }, function ($q) {
+                return $q->inRandomOrder()->take(10);
+            })
+            ->get();
 
-        if($request->has('query') && $request->input('query')){
-            $query = $request->input('query');
-            $search_product->where(function($q) use ($query) {
-                $q->where('name', 'LIKE', '%' . $query . '%');
-                $q->orwhere('slug', 'LIKE', '%' . $query . '%');
-            });
-        }
-        $search_product = $search_product->limit(10)->get();
-        $response['success'] = true;
-        $response['data'] = $search_product;
-        return $response;
+        return [
+            'success' => true,
+            'data' => $products,
+        ];
     }
+
+
 
     //-----------------------------------------------------------------
 
@@ -1567,9 +1596,10 @@ class Vendor extends VaahModel
 
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
-        $store_id = isset($request->store['id']) ? (int)$request->store['id'] : null;
+//        $store_id = isset($request->store['id']) ? (int)$request->store['id'] : null;
         $apply_date_range = !isset($request->filter_all) || !$request->filter_all;
-
+        $store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
         $query = OrderItem::query();
 
         if ($apply_date_range) {
@@ -1619,7 +1649,8 @@ class Vendor extends VaahModel
 
         $start_date = isset($inputs['start_date']) ? Carbon::parse($inputs['start_date'])->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($inputs['end_date']) ? Carbon::parse($inputs['end_date'])->endOfDay() : Carbon::now()->endOfDay();
-        $store_id = isset($inputs['store']['id']) ? (int)$inputs['store']['id'] : null;
+        $store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
         $apply_date_range = !isset($inputs['filter_all']) || !$inputs['filter_all'];
 
         $top_vendors = [];

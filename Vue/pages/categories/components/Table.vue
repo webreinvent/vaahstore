@@ -17,7 +17,6 @@ const useVaah = vaah();
                    class="p-datatable-sm p-datatable-hoverable-rows"
                    :nullSortOrder="-1"
                    v-model:selection="store.action.items"
-                   stripedRows
                    responsiveLayout="scroll">
 
             <Column selectionMode="multiple"
@@ -86,21 +85,21 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup gap-1">
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="categories-table-to-view"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
                                 icon="pi pi-eye" />
 
-                        <Button class="p-button-tiny p-button-text"
+                        <Button class="p-button-tiny p-button-text icon-button"
                                 data-testid="categories-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
                                 icon="pi pi-pencil" />
 
-                        <Button class="p-button-tiny p-button-danger p-button-text"
+                        <Button class="text-red-500 p-button-tiny p-button-danger p-button-text icon-button"
                                 data-testid="categories-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"

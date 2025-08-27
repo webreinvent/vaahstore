@@ -33,6 +33,7 @@ let empty_states = {
             max_quantity:null,
             export_menu :[],
         },
+        selected_store:null,
         include: {
             stores: [],
         },
@@ -151,8 +152,6 @@ export const useProductStore = defineStore({
         is_custom_meta_export:false,
         window_width: 0,
         screen_size: null,
-        selected_store_at_list: null,
-        default_store: null,
         float_label_variants: 'on',
 
     }),
@@ -479,6 +478,7 @@ export const useProductStore = defineStore({
         setStore(event) {
             let store = toRaw(event.value);
             this.item.vh_st_store_id = store.id;
+            this.productExistenceWithStore(store.id, this.item.name);
         },
 
         //---------------------------------------------------------------------
@@ -999,49 +999,33 @@ export const useProductStore = defineStore({
         },
 
 
-        async onStoreSelect(selected_store_at_list) {
-            let storeData = selected_store_at_list?.value;
 
-            if (storeData && storeData.slug) {
-                this.query = {
-                    ...this.query,
-                    include: {
-                        ...this.query.include,
-                        stores: [`${storeData.slug}`]
-                    }
-                };
-            } else {
-                this.query = {
-                    ...this.query,
-                    include: {
-                        ...this.query.include,
-                        stores: null
-                    }
-                };
-            }
-            await this.getList();
-        },
         //---------------------------------------------------------------------
         afterGetList: function (data, res)
         {
-            if (res?.data?.active_cart_user) {
-                const { active_cart_user: { cart_records, email, vh_st_cart_id } } = res.data;
-                this.add_to_cart = false;
-                this.show_cart_msg = true;
-                this.active_user = res.data.active_cart_user;
-                this.total_cart_product = cart_records;
-                this.active_cart_user_name = email;
-                this.cart_id = vh_st_cart_id;
-            } else {
-                this.show_cart_msg = false;
-            }
+
             if(data)
             {
                 this.list = data;
+                const active_cart_user = this.list.active_cart_user;
+
+                if (active_cart_user) {
+                    const { cart_records, email, vh_st_cart_id } = active_cart_user;
+
+                    this.add_to_cart = false;
+                    this.show_cart_msg = true;
+                    this.active_user = active_cart_user;
+                    this.total_cart_product = cart_records;
+                    this.active_cart_user_name = email;
+                    this.cart_id = vh_st_cart_id;
+                } else {
+                    this.show_cart_msg = false;
+                }
+
                 this.query.rows=data.per_page;
-                this.topSellingProducts(this.selected_store_at_list);
-                this.topSellingBrands(this.selected_store_at_list);
-                this.topSellingCategories(this.selected_store_at_list);
+                this.topSellingProducts(this.query.selected_store);
+                this.topSellingBrands(this.query.selected_store);
+                this.topSellingCategories(this.query.selected_store);
             }
         },
         viewCart(id){
@@ -1198,7 +1182,7 @@ export const useProductStore = defineStore({
         async attachVendors(item)
         {
             const query = {
-                store: item.store,
+                selected_store: this.query.selected_store,
                 vendors: item.vendors
             };
             const options = {
@@ -1610,7 +1594,6 @@ export const useProductStore = defineStore({
             this.selected_vendors = null;
             this.filter_selected_product_type = null;
             this.selected_dates = null;
-            this.selected_store_at_list = null;
             this.min_quantity = this.assets.min_quantity;
             this.max_quantity = this.assets.max_quantity;
             this.product_category_filter=null;
@@ -1619,7 +1602,6 @@ export const useProductStore = defineStore({
             vaah().toastSuccess(['Action was successful']);
             //reload page list
             await this.getList();
-            await this.setDefaultStoreForProductList();
         },
         //---------------------------------------------------------------------
         async resetQueryString()
@@ -2211,10 +2193,12 @@ export const useProductStore = defineStore({
         //---------------------------------------------------------------------
 
         async searchProductVendor(event) {
-            const query = event;
             const options = {
-                params: query,
-                method: 'post',
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
             await vaah().ajax(
                 this.ajax_url + '/search/product-vendor',
@@ -2661,10 +2645,16 @@ export const useProductStore = defineStore({
             this.show_vendor_panel = true;
             this.product_id=item.id;
             this.product_name=item.name;
+            let options = {
+                query: { selected_store: this.query.selected_store }
+            };
+
+
             if (item.id) {
                 await vaah().ajax(
                     ajax_url + '/'+ item.id+ '/vendors',
-                    this.openVendorsPanelAfter
+                    this.openVendorsPanelAfter,
+                    options
                 );
             }
         },
@@ -2844,7 +2834,7 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        getPriceRangeOfProduct(prices) {
+        fetchVendorProductPriceRangeAndQuantity(prices) {
 
             if (!prices || !Array.isArray(prices)) {
                 return 'Not available';
@@ -2866,18 +2856,15 @@ export const useProductStore = defineStore({
             return `${minPrice} - ${maxPrice}`;
         },
         //---------------------------------------------------------------------
-        async topSellingProducts(store=null) {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-                filter_all: this.filter_all ?? null,
-                store: store ?? null,
-            }
+        async topSellingProducts(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                    filter_all: this.filter_all ?? null,
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/top-selling-products',
                 this.topSellingProductsAfter,
@@ -2890,18 +2877,15 @@ export const useProductStore = defineStore({
             }
         },
 
-        async topSellingBrands(store=null) {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-                filter_all: this.filter_all ?? null,
-                store: store ?? null,
-            }
+        async topSellingBrands(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                    filter_all: this.filter_all ?? null,
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/top-selling-brands',
                 this.topSellingBrandsAfter,
@@ -2913,18 +2897,15 @@ export const useProductStore = defineStore({
                 this.top_selling_brands = data;
             }
         },
-        async topSellingCategories(store=null) {
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-                filter_all: this.filter_all ?? null,
-                store: store ?? null,
-            }
+        async topSellingCategories(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                    filter_all: this.filter_all ?? null,
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/top-selling-categories',
                 this.topSellingCategoriesAfter,
@@ -3096,20 +3077,54 @@ export const useProductStore = defineStore({
         },
         //---------------------------------------------------------------------
 
-        searchStoreForListQuery(event){
-            const query = event.query.toLowerCase();
-            this.filteredStores = this.active_stores.filter(store =>
-                store.name.toLowerCase().includes(query)
+        async productExistenceWithStore(store_id, product_name) {
+            if (!store_id || !product_name) {
+                return;
+            }
+            let options = {
+                query: {  name: product_name,store_id: store_id }
+            };
+
+            await vaah().ajax(
+                ajax_url + '/existence',
+                this.productExistenceWithStoreAfter,
+                options
             );
         },
-        //---------------------------------------------------------------------
+        //----------------------------------------------------------
 
-        setDefaultStoreForProductList(){
-            this.default_store = this.active_stores.find(store => store.is_default === 1);
-            if (this.default_store) {
-                this.selected_store_at_list = this.default_store;
+        productExistenceWithStoreAfter(data,res){
+            if (data && data.exists_in_other_store===true){
+                this.showConfirmationDialog(data.store_id,data.product_id);
             }
         },
+        //----------------------------------------------------------
+
+        showConfirmationDialog(store_id, product_name) {
+            vaah().confirmDialog(
+                'Confirmation Required',
+                'This product already linked with another store. Are you sure you want add it to this store as well??',
+                () => this.proceedWithStoreChange(store_id, product_name) ,
+                () => this.rejectStoreSelection()
+            );
+
+        },
+        //----------------------------------------------------------
+
+        proceedWithStoreChange(store_id, product_name) {
+            vaah().toastSuccess(['Action was successful']);
+        },
+        //----------------------------------------------------------
+
+        rejectStoreSelection() {
+            this.item.vh_st_store_id = null;
+            this.item.store = null;  // Reset the autocomplete field
+            vaah().toastErrors(['Select another store']);
+        },
+
+        //---------------------------------------------------------------------
+
+
         //---------------------------------------------------------------------
 
 

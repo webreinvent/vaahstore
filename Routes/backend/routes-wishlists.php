@@ -9,6 +9,8 @@ Route::group(
         'namespace' => 'Backend',
 ],
 function () {
+    Route::post('/{id}/user-products', 'WishlistsController@getWishlistUsers')
+        ->name('vh.backend.store.wishlists.update-user-products');
     /**
      * Get Assets
      */
@@ -106,5 +108,9 @@ function () {
      */
     Route::post('/search/users-by-slug', 'WishlistsController@searchUserBySlug')
         ->name('vh.backend.store.wishlists.search.users-by-slug');
-
+    /**
+     * update User-Wishlist Products
+     */
+    Route::post('/{id}/products', 'WishlistsController@updateUserWishlistProducts')
+        ->name('vh.backend.store.wishlists.add-products');
 });

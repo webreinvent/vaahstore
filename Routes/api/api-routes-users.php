@@ -46,7 +46,7 @@ function () {
     /**
      * Update Item
      */
-    Route::match(['put', 'patch'], '/{id}', 'UsersController@updateItem')
+    Route::match(['put', 'patch'], '/{id}', 'UsersController@updateAuthUserProfile')
         ->name('vh.backend.store.api.users.update');
     /**
      * Delete Item

@@ -18,9 +18,6 @@ onMounted(async () => {
 
 <template>
   <div v-if="store.list">
-    <Card>
-      <template #content>
-        <!--table-->
         <DataTable
           v-model:selection="store.action.items"
           :rowClass="
@@ -192,7 +189,24 @@ onMounted(async () => {
                     class="text-gray-400"
                   />
                 </Button>
-
+                  <Button
+                      v-tooltip.top="'Download Invoice'"
+                      :disabled="
+                    $route.path.includes('view') &&
+                    prop.data.id === store.item?.id
+                  "
+                      class="p-button-tiny p-button-text"
+                      data-testid="orders-table-to-view"
+                      :pt="{ root: { class: '!bg-none !p-0' } }"
+                      @click="store.downloadInvoice(prop.data)"
+                  >
+                      <Icon
+                          icon="tabler:file-download"
+                          width="20"
+                          height="20"
+                          class="text-gray-400"
+                      />
+                  </Button>
                 <Button
                   v-tooltip.top="'Update'"
                   :disabled="
@@ -251,10 +265,7 @@ onMounted(async () => {
           @page="store.paginate($event)"
         >
         </Paginator>
-
         <OrderItems />
-      </template>
-    </Card>
     <!--/paginator-->
   </div>
 </template>

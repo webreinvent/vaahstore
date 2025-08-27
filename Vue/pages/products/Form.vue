@@ -307,7 +307,7 @@ const toggleFormMenu = (event) => {
                         name="products-details"
                         data-testid="products-details"
                         placeholder="Enter Product Details"
-                        editorStyle="height: 10vh"
+                        editorStyle="min-height: 250px; height: 100%; background-color: white"
                         :pt="{
                             toolbar: {
                                 class: 'hidden'
@@ -330,7 +330,7 @@ const toggleFormMenu = (event) => {
 
                 <VhField label="Summary">
 
-                    <Editor editor-style="height:50px"
+                    <Editor editorStyle="min-height: 100px; height: 100%; background-color: white"
                             name="products-summary"
                             data-testid="products-summary"
                             placeholder="Enter Product Summary"

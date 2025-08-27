@@ -69,9 +69,9 @@ const toggleBulkMenuState = (event) => {
             <!--/left-->
 
             <!--right-->
-            <div>
-                <InputGroup>
+            <div class="flex gap-1">
 
+                            <div class="w-1/2">
                             <InputText v-model="store.query.filter.q"
                                        @keyup.enter="store.delayedSearch()"
                                        class="p-inputtext-sm"
@@ -79,6 +79,7 @@ const toggleBulkMenuState = (event) => {
                                        @keyup.13="store.delayedSearch()"
                                        data-testid="paymentmethods-actions-search"
                                        placeholder="Search"/>
+                                </div>
                             <Button @click="store.delayedSearch()"
                                     class="p-button-sm"
                                     data-testid="paymentmethods-actions-search-button"
@@ -97,14 +98,10 @@ const toggleBulkMenuState = (event) => {
 
                             <Button
                                 type="button"
-                                icon="pi pi-filter-slash"
                                 data-testid="paymentmethods-actions-reset-filters"
                                 class="p-button-sm"
-                                label="Reset"
-                                @click="store.resetQuery()" />
+                                @click="store.resetQuery()" >Reset<Icon icon="mingcute:filter-line" width="14" height="14" style="color: #7b7a7a" /></Button>
 
-
-            </InputGroup>
         </div>
 
             </div>

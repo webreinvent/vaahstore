@@ -50,7 +50,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
 
     await store.getListCreateMenu();
 
@@ -75,9 +77,9 @@ const toggleCreateMenu = (event) => {
 
 
 
-                <Panel class="is-small">
+                <Panel>
 
-                    <template class="p-1" #header>
+                    <template #header>
 
                         <div class="flex flex-row">
                             <div >
@@ -90,6 +92,9 @@ const toggleCreateMenu = (event) => {
                         </div>
 
                     </template>
+
+                <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
+
                     <div class="flex gap-2 mb-1" v-if=" store.isListView()">
                         <div class="w-full bg-white p-3 border-1 border-gray-200 rounded-sm mb-2">
 
@@ -136,7 +141,7 @@ const toggleCreateMenu = (event) => {
 
                                                         </span>
                                                             <p :style="{fontSize: store.show_filters ? '14px' : '18px' }">
-                                                                <b>₹{{
+                                                                <b><span v-html="store.assets?.store_default_currency"></span>{{
                                                                     order_store.overall_paid > 0 ?
                                                                     order_store.overall_income?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') :
                                                                     '0'
@@ -189,7 +194,7 @@ const toggleCreateMenu = (event) => {
                     </div>
                     <template #icons>
 
-                        <div class="p-inputgroup">
+                        <div class="flex gap-1">
 
                             <Button data-testid="payments-list-create"
                                     class="p-button-sm"
@@ -225,9 +230,12 @@ const toggleCreateMenu = (event) => {
 
                     </template>
 
-                    <Actions/>
-
-                    <Table/>
+                    <Card>
+                        <template #content>
+                            <Actions/>
+                            <Table/>
+                        </template>
+                    </Card>
 
                 </Panel>
             </div>

@@ -69,7 +69,7 @@ watch(() => store.show_vendor_panel, (newValue) => {
                 <template #body="props">
                     <template v-if="props.data.product_price_range.length">
                         <Badge severity="info">
-                            {{ store.getPriceRangeOfProduct(props.data.product_price_range) }}
+                            {{ store.fetchVendorProductPriceRangeAndQuantity(props.data.product_price_range) }}
                         </Badge>
                     </template>
                     <template v-else>

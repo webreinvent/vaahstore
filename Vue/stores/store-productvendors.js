@@ -4,6 +4,7 @@ import qs from 'qs'
 import {vaah} from '../vaahvue/pinia/vaah'
 import dayjs from 'dayjs';
 import dayjsPluginUTC from 'dayjs-plugin-utc'
+import {useRootStore} from "./root";
 
 dayjs.extend(dayjsPluginUTC)
 
@@ -26,6 +27,7 @@ let empty_states = {
             selected_dates:null,
             status:null,
         },
+        selected_store:null,
     },
     action: {
         type: null,
@@ -169,14 +171,12 @@ export const useProductVendorStore = defineStore({
 
 
         async searchVendor(event) {
-            const query = {
-                filter: {
-                    q: event,
-                },
-            };
             const options = {
-                params: query,
-                method: 'post',
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
 
             await vaah().ajax(
@@ -349,13 +349,12 @@ export const useProductVendorStore = defineStore({
           },
         //---------------------------------------------------------------------
         async getProductsListForStore(event){
-            const query = {
-                q:event.query,
-                id:this.item.store_ids
-            }
-            let options = {
-                params: query,
-                method: 'POST'
+            const options = {
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
             await vaah().ajax(
                 this.ajax_url+'/products',
@@ -460,12 +459,7 @@ export const useProductVendorStore = defineStore({
             if(data)
             {
                 this.item = data;
-                this.product = data.productList.data
                 this.item.taxonomy_id_product_vendor_status = data.status;
-                if (data.store_vendor_product) {
-                    this.store_name = data.store_vendor_product;
-                    this.item.store_ids = this.store_name.map(store => store.id);
-                }
 
                 this.item.vh_st_product_variation_id = data.product_variation;
 
@@ -591,6 +585,7 @@ export const useProductVendorStore = defineStore({
             {
                 item = this.item;
             }
+            item.vh_st_store_id = this.query.selected_store;
             this.action.type = type;
             this.form.action = type;
 
@@ -688,10 +683,7 @@ export const useProductVendorStore = defineStore({
                 this.item.added_by = data.added_by;
                 this.item.taxonomy_id_product_vendor_status = data.status;
                 this.item.vh_st_product_variation_id = data.product_variation;
-                if (data.store_vendor_product) {
-                    this.store_name = data.store_vendor_product;
-                    this.item.store_ids = this.store_name.map(store => store.id);
-                }
+
                 await this.getList();
                 await this.formActionAfter(data);
                 this.getItemMenu();
@@ -955,33 +947,25 @@ export const useProductVendorStore = defineStore({
         {
             this.item = vaah().clone(this.assets.empty_item);
             this.getFormMenu();
-            this.getDefaultValues();
+            // this.getDefaultValues();
             this.$router.push({name: 'productvendors.form'})
         },
         //---------------------------------------------------------------------
         async getDefaultValues()
         {
-            const options = {
-                method: 'post',
-            };
-
-            await vaah().ajax(
-                this.ajax_url+'/get/default/values',
-                this.getDefaultValuesAfter,
-                options
-            );
+            if (this.query?.selected_store &&  useRootStore().stores?.length) {
+                const selected_store_at_sidebar =  useRootStore().stores.find(
+                    store => store.id === this.query.selected_store
+                );
+                if (selected_store_at_sidebar) {
+                    this.item.store = selected_store_at_sidebar;
+                }
+            }
         },
 
         //-----------------------------------------------------------------------
 
-        getDefaultValuesAfter(data,res) {
-            if (data && data.default_store) {
-                this.item.store_vendor_product = [data.default_store];
-            }
-            if (data && data.default_vendor) {
-                this.item.vendor = data.default_vendor;
-            }
-        },
+
         //---------------------------------------------------------------------
         toView(item)
         {
@@ -1300,10 +1284,7 @@ export const useProductVendorStore = defineStore({
             },)
 
             this.form_menu_list = form_menu;
-            if (!this.item.store_vendor_product) {
-                this.item.store_vendor_product = this.default_store;
-                this.item.store_ids = this.item.store_vendor_product.map(store => store.id);
-            }
+
 
         },
 

@@ -58,9 +58,9 @@ const useVaah = vaah();
                      <div class="p-inputgroup  justify-between !items-center border py-1 px-2 rounded-lg !gap-6">
             <span class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
                   v-tooltip.top="'Total Variations'"
-                  @click="prop.data.product?.product_variations_for_vendor_product?.length && store.toViewProductVariations(prop.data.product)"
+                  @click="prop.data.product && store.toViewProductVariations(prop.data.product)"
                   :class="{ 'cursor-pointer': prop.data.product?.product_variations_for_vendor_product?.length }">
-                <b>{{ prop.data.product?.product_variations_for_vendor_product?.length || 0 }}</b>
+                <b>{{ prop.data.product_variations_for_vendor_product_count }}</b>
             </span>
                          <Button :pt="{ icon: { class: '!text-[8px]' } }"
                                  icon="pi pi-plus" class="quantity-button !rounded"
@@ -77,7 +77,7 @@ const useVaah = vaah();
                      <div class="p-inputgroup flex-1">
                          <div v-tooltip.top="'Variations Price Range'">
                              <Badge severity="info" v-if="prop.data && Array.isArray(prop.data.product_price_range)&& prop.data.product_price_range.length > 0">
-                                 <span v-html="prop.data.product?.store.default_currency.symbol"></span>{{ prop.data.product_price_range.join(' - ') }}
+                                 <span v-html="prop.data.store.currency.symbol"></span>{{ prop.data.product_price_range.join(' - ') }}
                              </Badge>
                              <Badge severity="danger" v-else>
                                  Not Available

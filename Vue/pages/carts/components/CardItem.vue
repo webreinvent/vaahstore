@@ -4,21 +4,27 @@
   >
     <!-- Product Image -->
     <div
-      v-if="Array.isArray(product.image_urls) && product.image_urls.length > 0"
+      v-if="Array.isArray(product.media) && product.media.length > 0"
       class="shrink-0 size-[80px] !grid place-items-center bg-white rounded-md"
     >
       <div
-        v-for="(imageUrl, imgIndex) in product.image_urls"
+        v-for="(mediaItem, imgIndex) in product.media"
         :key="imgIndex"
         class="mt-1"
       >
-        <Image
-          preview
-          :src="baseUrl + imageUrl"
-          alt="Product image"
-          class="overflow-hidden rounded"
-          width="50"
-        />
+          <div
+              v-for="(image, imgIndex) in mediaItem.images"
+              :key="imgIndex"
+              class="mt-1"
+          >
+              <Image
+                  preview
+                  :src="baseUrl + image.webp_url"
+                  alt="Product image"
+                  class="overflow-hidden rounded"
+                  width="50"
+              />
+          </div>
       </div>
     </div>
     <div v-else class="p-2 pb-1 bg-white rounded-md">
@@ -33,42 +39,20 @@
     <!-- Product Details -->
     <div class="product_desc mx-2 flex flex-col justify-between flex-grow">
       <h4 class="line-clamp-1 text-sm text-gray-950 font-semibold">
-        {{ productName }}
+        {{ productName }}-{{product.product_variation?.name}}
+
       </h4>
 
-      <p class="text-xs leading-[18px] font-semibold text-gray-400">
-        {{ displayStats }}
-      </p>
+
 
       <div class="flex justify-between items-center gap-2">
         <p class="line-clamp-1 text-sm text-gray-950 font-semibold">
-          ${{ productPrice }}
+            <span v-html="product.price.currency?.symbol"></span>{{ productPrice }}
         </p>
 
         <div v-if="showRating" class="flex justify-end items-center">
           <h4 class="text-xs font-semibold text-center mr-2">Qty:</h4>
-          <div
-            class="p-inputgroup justify-between !items-center border py-1 px-2 rounded-lg !gap-2"
-          >
-            <Button
-              :pt="{ icon: { class: '!text-[8px]' } }"
-              icon="pi pi-minus"
-              class="quantity-button !rounded bg-gray-200"
-              severity="info"
-            />
-
-            <span
-              class="p-inputgroup-addon border-none py-1 bg-transparent cursor-pointer leading-[14px] text-xs p-0 min-w-max"
-            >
-              <p class="text-gray-950 font-bold text-xs">1</p>
-            </span>
-            <Button
-              :pt="{ icon: { class: '!text-[8px]' } }"
-              icon="pi pi-plus"
-              class="quantity-button !rounded"
-              severity="info"
-            />
-          </div>
+            {{product.pivot.quantity}}
         </div>
       </div>
     </div>
@@ -144,19 +128,7 @@ const progressBarColorClass = computed(() => {
   return "p-progressbar-success";
 });
 
-const displayStats = computed(() => {
-  // Prioritize stock data if available
-  if (hasStockData.value) {
-    return `${props.product.stock} in stock (${
-      props.product.stock_percentage || 0
-    }%)`;
-  }
 
-  // Fallback to quantity from pivot or total sales
-  const quantity =
-    props.product.pivot?.quantity || props.product.total_sales || 0;
-  return `${quantity} Units ${hasStockData.value ? "in Stock" : "Sold"}`;
-});
 
 const vendorName = computed(() => {
   // Handle different vendor data structures

@@ -1272,20 +1272,15 @@ export const useBrandStore = defineStore({
 
         //---------------------------------------------------------------------
 
-        storeIds(store_ids) {
-            const unique_store_ids = new Set();
-            store_ids.forEach(product => {
-                if (product.store && product.store.id) {
-                    unique_store_ids.add(product.store.id);
-                }
-            });
-            const unique_store_ids_array = [...unique_store_ids];
-            const resultString = `{${unique_store_ids_array.join(', ')}}`;
-
+        toStore(store_ids) {
+            if (!Array.isArray(store_ids)) {
+                return ;
+            }
+            const unique_store_ids_array = [...new Set(store_ids.filter(id => Number.isInteger(id)))];
             useStoreStore().storeids(unique_store_ids_array);
             return unique_store_ids_array;
-
         }
+
 
     },
 

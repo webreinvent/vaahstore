@@ -207,9 +207,7 @@ class Payment extends VaahModel
             return $validation;
         }
         $payment_method_slug = $inputs['payment_method']['slug'] ?? null;
-        if ($payment_method_slug !== 'cod') {
-            return ['success' => false, 'errors' => ["Currently dealing with COD payment method"]];
-        }
+
         $validation_result = self::validateOrderAndPayment($inputs['orders'],$inputs['amount']);
         if (!$validation_result['success']) {
             return $validation_result;
@@ -222,6 +220,13 @@ class Payment extends VaahModel
         $item->taxonomy_id_payment_status = Taxonomy::getTaxonomyByType('payment-status')
             ->where('slug', 'failure')->value('id');
         $item->transaction_id = $transaction_id;
+        $item->payment_gateway = $payment_method_slug ;
+        $item->gateway_transaction_id = $inputs['gateway_transaction_id'] ?? null;
+        $item->gateway_payer_id = $inputs['gateway_payer_id'] ?? null;
+        $item->payment_gate_status = $inputs['payment_gate_status'] ?? null;
+        $item->payment_gate_response = $inputs['payment_gate_response'] ?? null;
+        $item->exchange_rate = $inputs['exchange_rate'] ?? null;
+        $item->payment_currency_code = $inputs['payment_currency_code'] ?? null;
         $is_payment_for_all_orders = false;
         $order_ids = [];
         $item->save();
@@ -231,6 +236,9 @@ class Payment extends VaahModel
             foreach ($collect_orders as $key => $order_data){
                 $order = Order::find($order_data['id']);
                 if ($order) {
+                    $order->paid_currency_code = $inputs['payment_currency_code']?? null;
+                    $order->exchange_rate =$inputs['exchange_rate'] ?? null;
+                    $order->amount_in_paid_currency = $inputs['amount'];
                     $order->paid += $order_data['pay_amount'];
                     $payable_amount = round($order_data['payable_amount'], 2);
                     $pay_amount = $order_data['pay_amount'];
@@ -301,32 +309,38 @@ class Payment extends VaahModel
         $collected_orders = collect($orders);
         foreach ($collected_orders as $key => $order_data){
             $order = Order::find($order_data['id']);
+            $rate = isset($order_data['currency']['rate']) && $order_data['currency']['rate'] != 0
+                ? $order_data['currency']['rate']
+                : 1;
+            $converted_payable = $order->payable / $rate;
+            $converted_paid = $order->paid / $rate;
+
             $payable_amount = round($order_data['payable_amount'], 2);
+            $order_payable_amount = round($converted_payable - $converted_paid, 2);
             $pay_amount = $order_data['pay_amount'];
-            $order_payable_amount = round($order->payable - $order->paid, 2);
 
             if (!$order) {
                 $errors[] = "Order not found for ID: {$order_data['id']}";
                 continue;
             }
             if ($order_payable_amount == 0) {
-                $errors[] = "Order '{$order->user->name}' has already been fully paid.";
+                $errors[] = "Order '{$order->id}' has already been fully paid.";
                 continue;
             }
             if ($payable_amount != $order_payable_amount) {
-                $errors[] = "Order '{$order->user->name}' has incorrect payable amount.";
+                $errors[] = "Order '{$order->id}' has incorrect payable amount.";
                 continue;
             }
             if ($pay_amount > $order_payable_amount) {
-                $errors[] = "Payment amount exceeds payable amount for order '{$order->user->name}'";
+                $errors[] = "Payment amount exceeds payable amount for order '{$order->id}'";
                 continue;
             }
             if ($pay_amount <= 0) {
-                $errors[] = "Payment amount for order '{$order->user->name}' must be greater than 0.";
+                $errors[] = "Payment amount for order '{$order->id}' must be greater than 0.";
                 continue;
             }
 
-            $successfully_paid_orders[] = $order->user->name;
+            $successfully_paid_orders[] = $order->id;
             $total_paid_amount += $pay_amount;
         }
         if ($total_paid_amount !== $total_payment) {
@@ -448,6 +462,13 @@ class Payment extends VaahModel
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)->with('status','paymentMethod')->withCount('orders',);
+        $selected_store_id = $request->input('selected_store') ??
+            Store::where('is_default', 1)->value('id');
+        if ($selected_store_id) {
+            $list->whereHas('orders', function ($q) use ($selected_store_id) {
+                $q->where('vh_st_store_id', $selected_store_id);
+            });
+        }
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->orderFilter($request->filter);
@@ -734,7 +755,7 @@ class Payment extends VaahModel
             'orders' => ['required', 'array'],
             'orders.*.pay_amount' => ['required', 'numeric', 'min:0'],
             'orders.*.amount' => 'nullable|numeric',
-            'orders.*.user_name' => 'required|string',
+//            'orders.*.user_name' => 'required|string',
             'vh_st_payment_method_id' => 'required',
             'notes' => 'nullable|string|max:100',
         ], [
@@ -743,8 +764,8 @@ class Payment extends VaahModel
             'orders.*.pay_amount.required' => 'The payment amount field is required.',
             'orders.*.pay_amount.numeric' => 'The payment amount must be a number.',
             'orders.*.pay_amount.min' => 'The payment amount must be at least :min.',
-            'orders.*.user_name.required' => 'The user name for each order is required.',
-            'orders.*.user_name.string' => 'The user name must be a string.',
+//            'orders.*.user_name.required' => 'The user name for each order is required.',
+//            'orders.*.user_name.string' => 'The user name must be a string.',
             'vh_st_payment_method_id.required' => 'The payment method is required.',
             'notes.max' => 'The payment notes field may not be greater than :max characters.',
         ]);
@@ -892,29 +913,41 @@ class Payment extends VaahModel
 
     //-------------------------------------------------
     public static function searchOrders($request){
-        $query = Order::with(['user' => function ($query) {
-            $query->select('id', 'username as user_name');
-        }])
-            ->select('id', 'amount','paid', 'created_at', 'updated_at', 'vh_user_id')
-            ->where('is_active', 1)->whereRaw('amount > paid');;
-
+        $selected_store_id = $request->input('selected_store')
+            ?? Store::where('is_default', 1)->value('id');
+        $query = Order::with(['user:id,username'])
+        ->select('id', 'amount', 'paid', 'created_at', 'updated_at', 'vh_user_id', 'vh_st_store_id')
+            ->where('is_active', 1)
+            ->whereColumn('amount', '>', 'paid');
+        if (!empty($selected_store_id)) {
+            $query->where('vh_st_store_id', $selected_store_id);
+        }
         if ($request->has('query') && $request->input('query')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('display_name', 'LIKE', '%' . $request->input('query') . '%')
-                    ->orWhere('first_name', 'LIKE', '%' . $request->input('query') . '%')
-                    ->orWhere('email', 'LIKE', '%' . $request->input('query') . '%');
+            $search_term = $request->input('query');
+            $query->where(function ($q) use ($search_term) {
+                $q->where('id', $search_term)
+                    ->orWhereHas('user', function ($q2) use ($search_term) {
+                        $q2->where('display_name', 'LIKE', '%' . $search_term . '%')
+                            ->orWhere('first_name', 'LIKE', '%' . $search_term . '%')
+                            ->orWhere('email', 'LIKE', '%' . $search_term . '%');
+                    });
             });
         }
 
         $orders = $query->limit(10)->get();
 
-        foreach ($orders as &$order) {
-            if ($order->user) {
-                $order->user_name = $order->user->user_name;
-                $order->payable_amount = round($order->amount - $order->paid, 2);
-                unset($order->user);
-            }
-        }
+        $orders->transform(function ($order) {
+            return [
+                'id' => $order->id,
+                'currency' => $order->currency,
+                'amount' => round($order->amount, 2),
+                'paid' => round($order->paid, 2),
+                'payable_amount' => round($order->amount - $order->paid, 2),
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+                'user_name' => optional($order->user)->username,
+            ];
+        });
 
         $response['success'] = true;
         $response['data'] = $orders;
@@ -984,33 +1017,33 @@ class Payment extends VaahModel
         $start_date = isset($request->start_date) ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfDay();
         $end_date = isset($request->end_date) ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
-        $payment_data = Payment::query()
-            ->selectRaw('vh_st_payment_method_id, COUNT(*) as total')
-            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
-                $query->whereBetween('created_at', [$start_date, $end_date]);
-            })
-            ->groupBy('vh_st_payment_method_id')
+        $selected_store_id = $request->input('selected_store')
+            ?? Store::where('is_default', 1)->value('id');
+        $orders = Order::where('vh_st_store_id', $selected_store_id)
+            ->pluck('id');
+        $payment_ids = OrderPayment::whereIn('vh_st_order_id', $orders)
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->pluck('vh_st_payment_id');
+
+        $payments = Payment::whereIn('id', $payment_ids)
             ->with('paymentMethod:id,name')
             ->get();
 
-        // Prepare data for the pie chart
-        $chart_data = [];
-        foreach ($payment_data as $data) {
-            $payment_method_name = $data->paymentMethod->name ?? 'Unknown';
-            $chart_data[$payment_method_name] = (int) $data->total;
-        }
+        $grouped = $payments->groupBy(fn($p) => $p->paymentMethod->name ?? 'Unknown')
+            ->map(fn($group) => $group->count());
 
         return [
             'data' => [
                 'chart_series' => [
-                    'payment_methods_pie_chart' => array_values($chart_data),
+                    'payment_methods_pie_chart' => $grouped->values()->all(),
                 ],
                 'chart_options' => [
-                    'labels' => array_keys($chart_data),
+                    'labels' => $grouped->keys()->all(),
                 ],
             ]
         ];
     }
+
 
 
 

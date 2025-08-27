@@ -54,7 +54,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
 
 
 });
@@ -78,7 +80,7 @@ const toggleCreateMenu = (event) => {
 
                  class="mb-4 lg:mb-0">
 
-                <Panel>
+                <Panel class="!p-0">
                     <template #header>
 
                         <div class="w-full">
@@ -86,14 +88,22 @@ const toggleCreateMenu = (event) => {
                                 <Icon icon="solar:cart-large-minimalistic-linear" width="20" height="20" class="text-gray-950"></Icon>
 
                                 <h1 class="text-gray-950 font-medium text-base">Carts</h1>
+                                <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0"
+                                >{{store.list.total}}
+                                </p>
                             </div>
 
-                            <div class="h-[1px] bg-gray-100 w-full mt-3"/>
+                            <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"/>
                         </div>
 
                     </template>
-                <Actions/>
-                <Table/>
+                <Card>
+                    <template #content>
+                        <Actions/>
+                        <Table/>
+                    </template>
+                </Card>
+
 
             </Panel>
         </div>

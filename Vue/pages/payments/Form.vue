@@ -18,6 +18,7 @@ onMounted(async () => {
             store.item = store.item || {};
             store.item.orders = [{
                 id: order_store.item.id,
+                currency: order_store.item.currency,
                 user_name: order_store.item.user.name,
                 payable_amount: order_store.item.payable-order_store.item.paid,
             }];
@@ -175,7 +176,7 @@ const toggleFormMenu = (event) => {
 
                                 <template #body="prop">
                                     <InputGroup>
-                                        <InputGroupAddon>&#8377;</InputGroupAddon>
+                                        <InputGroupAddon> <span v-html="prop.data.currency?.symbol"></span></InputGroupAddon>
                                         <InputNumber
                                             style="width: 6rem;"
                                             v-model="prop.data.payable_amount"
@@ -193,7 +194,7 @@ const toggleFormMenu = (event) => {
                             <Column header="Payment">
                                 <template #body="prop">
                                     <InputGroup>
-                                        <InputGroupAddon>&#8377;</InputGroupAddon>
+                                        <InputGroupAddon><span v-html="prop.data.currency?.symbol"></span></InputGroupAddon>
                                         <InputNumber
                                             v-model="prop.data.pay_amount"
                                             :placeholder="'Enter amount'"

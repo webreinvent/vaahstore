@@ -46,7 +46,6 @@ class ProductVendorsController extends Controller
             $data['empty_item']['is_active'] = 1;
             $data['empty_item']['is_active_product_price'] = 1;
             $data['empty_item']['can_Update'] = 0;
-            $data['empty_item']['vendor'] = $this->getDefaultVendor();
             $data['empty_item']['vh_st_vendor_id'] = Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])
                                                      ->pluck('id')->first();
             $data['empty_item']['added_by_user'] = $this->getActiveUser();
@@ -128,22 +127,7 @@ class ProductVendorsController extends Controller
             }
         }
     }
-    //------------------------Get Vendor data for dropdown----------------------------------
-    public function getDefaultVendor(){
-        try{
-            return Vendor::where(['is_active'=>1,'deleted_at'=>null,'is_default'=>1])->first();
-        }catch (\Exception $e){
-            $response = [];
-            $response['status'] = 'failed';
-            if(env('APP_DEBUG')){
-                $response['errors'][] = $e->getMessage();
-                $response['hint'] = $e->getTrace();
-            } else{
-                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
-                return $response;
-            }
-        }
-    }
+
     //------------------------Get Active Store list----------------------------------
     public function getActiveStore(){
         try{

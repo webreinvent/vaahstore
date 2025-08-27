@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -35,6 +36,7 @@ class ProductVendor extends VaahModel
     protected $fillable = [
         'uuid',
         'id',
+        'vh_st_store_id',
         'vh_st_product_id',
         'vh_st_vendor_id',
         'added_by',
@@ -73,10 +75,6 @@ class ProductVendor extends VaahModel
         ];
     }
     //-------------------------------------------------
-    public function storeVendorProduct()
-    {
-        return $this->belongsToMany(Store::class, 'vh_st_vendor_pro_stores', 'vh_st_vendor_product_id', 'vh_st_store_id')->withTrashed();
-    }
     //-------------------------------------------------
     public static function getFillableColumns()
     {
@@ -136,19 +134,16 @@ class ProductVendor extends VaahModel
     {
         return $this->hasOne(Product::class, 'id', 'vh_st_product_id')
             ->withTrashed()
-            ->select('id', 'name', 'slug', 'deleted_at', 'vh_st_store_id')
-            ->with(['store' => function ($query) {
-                $query->with('defaultCurrency');
-            }]);
+            ->select('id', 'name', 'slug', 'deleted_at', 'vh_st_store_id');
     }
 
 
     //-------------------------------------------------
-    public function stores()
-    {
-        return $this->hasMany(Store::class, 'id', 'vh_st_store_id')->select('id', 'name', 'slug');
-    }
 
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'vh_st_store_id')->select('id','name');
+    }
     //----------------------------------------------------------------------------------
     public function vendor()
     {
@@ -276,8 +271,16 @@ class ProductVendor extends VaahModel
         if (!$validation['success']) {
             return $validation;
         }
+        $store_id = $inputs['vh_st_store_id'] ?? null;
+        $ownership_check = Product::validateVendorAndProductToStore(
+            $store_id,
+            $inputs['product']['id'] ?? null,
+            $inputs['vendor']['id'] ?? null,
+        );
 
-
+        if (!$ownership_check['success']) {
+            return $ownership_check;
+        }
            //  check if product vendor exist
             $item = self::where('vh_st_vendor_id', $inputs['vendor']['id'])
             ->where('vh_st_product_id', $inputs['product']['id'])
@@ -298,13 +301,6 @@ class ProductVendor extends VaahModel
                 $item->taxonomy_id_product_vendor_status = $inputs['taxonomy_id_product_vendor_status'];
               }
             $item->save();
-
-            // Save value in the pivot table
-            if (isset($inputs['store_vendor_product']) && is_array($inputs['store_vendor_product'])) {
-                  foreach ($inputs['store_vendor_product'] as $store) {
-                  $item->storeVendorProduct()->attach($store['id']);
-                  }
-            }
 
 
             $response = self::getItem($item->id);
@@ -444,10 +440,29 @@ class ProductVendor extends VaahModel
 
     }
     //-------------------------------------------------
+
+    public function scopeFilterBySelectedStore(Builder $query)
+    {
+
+        if ($selected_store = request('selected_store')) {
+
+            $store = Store::where(function ($q) use ($selected_store) {
+                $q->where('id', $selected_store)
+                    ->orWhere('slug', $selected_store);
+            })->first();
+
+            if ($store) {
+                $query->where('vh_st_store_id', $store->id);
+            }
+        }
+
+        return $query;
+    }
+    //-------------------------------------------------
     public static function getList($request)
     {
         $list = self::getSorted($request->filter)
-            ->with( 'vendor', 'addedByUser', 'status', 'stores' );
+            ->with( 'vendor', 'addedByUser', 'status','store' )->filterBySelectedStore();
         $list->isActiveFilter($request->filter);
         $list->trashedFilter($request->filter);
         $list->searchFilter($request->filter);
@@ -473,45 +488,51 @@ class ProductVendor extends VaahModel
 
     //-------------------------------------------------
 
+
     public static function productPriceRange($list)
     {
         $list->getCollection()->transform(function ($item) {
             $product = $item->product;
 
-            // get variation prices from pivot
-            $variation_price_with_vendor = $item->productVariationPrices ?
-                $item->productVariationPrices->pluck('pivot.amount')->toArray() :
-                [];
-            // get product variation id's associated with product
-            $product_variation_ids_with_vendor = $item->productVariationPrices ?
-                $item->productVariationPrices->pluck('id')->toArray() :
-                [];
-            $all_product_variation_ids = $product && $product->productVariationsForVendorProduct ?
-                $product->productVariationsForVendorProduct->pluck('id')->toArray() :
-                [];
-            // get remaining  variation ids without associated in pivot
-            $product_variation_ids_without_vendor = array_diff($all_product_variation_ids, $product_variation_ids_with_vendor);
-            // fetch prices of product variations without pivot
-            $variation_prices_without_vendor = [];
-            if (!empty($product_variation_ids_without_vendor)) {
-                $variation_prices_without_vendor = ProductVariation::whereIn('id', $product_variation_ids_without_vendor)
-                    ->pluck('price')->toArray();
-            }
-            // merge prices of variations from pivot table and product variations without associated prices
-            $merged_prices = array_merge($variation_price_with_vendor, $variation_prices_without_vendor);
-            if (empty($merged_prices)) {
-                $item->product_price_range = [];
-            } else {
-                $min_price = min($merged_prices);
-                $max_price = max($merged_prices);
+            $variation_price_with_vendor = $item->productVariationPrices
+                ? $item->productVariationPrices->pluck('pivot.amount')->toArray()
+                : [];
 
-                $item->product_price_range = $min_price === $max_price ? [$min_price] : [$min_price, $max_price];
-            }
+            $product_variation_ids_with_vendor = $item->productVariationPrices
+                ? $item->productVariationPrices->pluck('id')->toArray()
+                : [];
+
+            $all_product_variation_ids = $product && $product->productVariationsForVendorProduct
+                ? $product->productVariationsForVendorProduct->pluck('id')->toArray()
+                : [];
+
+            $product_variation_ids_without_vendor = array_diff($all_product_variation_ids, $product_variation_ids_with_vendor);
+
+            $variation_prices_without_vendor = !empty($product_variation_ids_without_vendor)
+                ? ProductVariation::whereIn('id', $product_variation_ids_without_vendor)->pluck('price')->toArray()
+                : [];
+
+            $merged_prices = array_merge($variation_price_with_vendor, $variation_prices_without_vendor);
+
+            $item->product_price_range = empty($merged_prices)
+                ? []
+                : (min($merged_prices) === max($merged_prices)
+                    ? [min($merged_prices)]
+                    : [min($merged_prices), max($merged_prices)]);
+
+            $item->product_variations_for_vendor_product_count = $product && $product->relationLoaded('productVariationsForVendorProduct')
+                ? $product->productVariationsForVendorProduct->count()
+                : 0;
+
+            unset($item->productVariationPrices);
+            unset($product->productVariationsForVendorProduct);
 
             return $item;
         });
+
         return $list;
     }
+
     //-------------------------------------------------
     public static function updateList($request)
     {
@@ -597,10 +618,6 @@ class ProductVendor extends VaahModel
 
         // delete value from pivot table
         $item_ids = collect($inputs['items'])->pluck('id')->toArray();
-        foreach ($item_ids as $key => $value) {
-            $item = self::find($value);
-            $item->storeVendorProduct()->detach();
-        }
         $vendors_id = collect($inputs['items'])->pluck('vh_st_vendor_id')->toArray();
         ProductPrice::whereIn('vh_st_vendor_id', $vendors_id)->forceDelete();
         self::whereIn('id', $item_ids)->forceDelete();
@@ -680,10 +697,7 @@ class ProductVendor extends VaahModel
             case 'delete-all':
                 $vendor_ids = self::withTrashed()->pluck('vh_st_vendor_id')->toArray();
                 $item_ids = self::withTrashed()->pluck('id')->toArray();
-                foreach ($item_ids as $item_id) {
-                    $item = self::where('id',$item_id)->withTrashed()->first();
-                    $item->storeVendorProduct()->detach();
-                }
+
                 ProductPrice::whereIn('vh_st_vendor_id', $vendor_ids)->forceDelete();
                 $list = self::withTrashed();
                 $list->forceDelete();
@@ -721,7 +735,7 @@ class ProductVendor extends VaahModel
     public static function getItem($id)
     {
         $item = self::where('id', $id)
-            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'product', 'vendor', 'addedByUser', 'status', 'stores', 'storeVendorProduct'])
+            ->with(['createdByUser', 'updatedByUser', 'deletedByUser', 'product', 'vendor', 'addedByUser', 'status', 'store'])
             ->withTrashed()
             ->first();
 
@@ -731,12 +745,6 @@ class ProductVendor extends VaahModel
             return $response;
         }
 
-        $item_product = Product::withTrashed()->find($item->vh_st_product_id);
-        if ($item_product !== null) {
-            $item['productList'] = Product::where('vh_st_store_id', $item_product->vh_st_store_id)
-                ->select('id', 'name', 'slug')
-                ->get();
-        }
 
         // To get data for dropdown of product price
         $array_item = $item->toArray();
@@ -763,10 +771,6 @@ class ProductVendor extends VaahModel
 
         $item['product_variations'] = $variations;
 
-        $item->storeVendorProduct->each(function ($store_vendor) {
-            unset($store_vendor->pivot);
-        });
-
         $response['success'] = true;
         $response['data'] = $item;
         return $response;
@@ -785,6 +789,16 @@ class ProductVendor extends VaahModel
             return $validation;
         }
 
+
+        $vendor_product = self::withTrashed()->with('vendor', 'store')->findOrFail($id);
+
+        // Check for store mismatch
+        if (!empty($inputs['vh_st_store_id']) && $vendor_product->vh_st_store_id !== (int) $inputs['vh_st_store_id']) {
+            return [
+                'success' => false,
+                'errors' => ['Store mismatch. You are trying to update a record from another store.'],
+            ];
+        }
         // check if vendor exist
             $item = self::where('id', '!=', $inputs['id'])
                 ->withTrashed()
@@ -809,14 +823,6 @@ class ProductVendor extends VaahModel
 
             $item->save();
 
-           // Update the relationship with the stores
-            $storeData = $inputs['store_vendor_product'];
-            $storeIds = [];
-            foreach ($storeData as $store) {
-                $storeIds[] = $store['id'];
-            }
-            $item->storeVendorProduct()->sync($storeIds);
-
             $response = self::getItem($item->id);
             $response['messages'][] = trans("vaahcms-general.saved_successfully");
             return $response;
@@ -834,7 +840,7 @@ class ProductVendor extends VaahModel
 
         $vendor_id = self::withTrashed()->where('id',$id)->pluck('vh_st_vendor_id')->first();
         ProductPrice::where('vh_st_vendor_id', $vendor_id)->forceDelete();
-        $item->storeVendorProduct()->detach();
+
         $item->forceDelete();
 
         $response['success'] = true;
@@ -886,7 +892,6 @@ class ProductVendor extends VaahModel
     {
         $rules = validator($inputs, [
             'vh_st_vendor_id'=> 'required',
-            'store_vendor_product' => 'required',
             'vh_st_product_id'=> 'required',
             'taxonomy_id_product_vendor_status'=> 'required',
             'added_by'=> 'required|max:150',
@@ -899,7 +904,6 @@ class ProductVendor extends VaahModel
 
         [
             'vh_st_vendor_id.required' => 'The Vendor field is required',
-            'store_vendor_product.required' => 'The Store field is required',
             'vh_st_product_id.required' => 'The Product field is required',
             'added_by.required' => 'The Added By field is required',
             'taxonomy_id_product_vendor_status.required' => 'The Status field is required',
@@ -1024,23 +1028,26 @@ class ProductVendor extends VaahModel
     //-------------------------------------------------
     public static function searchVendor(Request $request): array
     {
+        $query_text = $request->input('search');
+        $selected_store = $request->input('selected_store');
+        $vendors = Vendor::query()
+            ->where('is_active', 1)
+            ->when($selected_store, function ($q) use ($selected_store) {
+                $q->where('vh_st_store_id', $selected_store);
+            })
+            ->when($query_text, function ($q) use ($query_text) {
+                $q->where('name', 'like', "%{$query_text}%");
+            }, function ($q) {
+                $q->inRandomOrder()->take(10);
+            })
+            ->select('id', 'name', 'slug')
+            ->get();
 
-        $user = Auth::user();
+        return [
+            'success' => true,
+            'data' => $vendors,
+        ];
 
-        $query = $request->input('filter.q.query');
-        $vendor = Vendor::where('is_active', 1, $user->id)
-            ->select('id', 'name', 'slug');
-
-        if ($query !== null) {
-            $vendor->where('name', 'like', "%$query%");
-        }
-
-        $vendor = $vendor->get();
-
-        $response['success'] = true;
-        $response['data'] = $vendor;
-
-        return $response;
     }
 
     //-------------------------------------------------
@@ -1110,10 +1117,7 @@ class ProductVendor extends VaahModel
             $item =  new self();
             $item->fill($inputs);
             $item->save();
-            if (isset($inputs['store_vendor_product']) && $inputs['store_vendor_product'] ) {
-                $storeId = $inputs['store_vendor_product']->id;
-                $item->storeVendorProduct()->attach($storeId);
-            }
+
             $i++;
 
         }
@@ -1161,9 +1165,7 @@ class ProductVendor extends VaahModel
 
         if (!empty($store_ids)) {
             $store_id = $store_ids[array_rand($store_ids)];
-            $store = $stores->where('id', $store_id)->first();
 
-            $inputs['store_vendor_product'] = $store;
             $inputs['vh_st_store_id'] = $store_id;
         }
 
@@ -1303,25 +1305,25 @@ class ProductVendor extends VaahModel
 
     public static function productForStore($request)
     {
-        $inputs = $request->all();
+        $store_id = $request->input('selected_store');
+        $search = $request->input('search');
+
         $response = [];
-        $ids = $inputs['id'];
-        $q = $inputs['q'];
 
         $product = Product::where('is_active', 1)
-            ->whereIn('vh_st_store_id', $ids);
+            ->where('vh_st_store_id', $store_id);
 
-        if (!empty($q)) {
-            $product->where(function ($sub_query) use ($q) {
-                $sub_query->where('name', 'like', '%' . $q . '%')
-                    ->orWhere('slug', 'like', '%' . $q . '%');
+        if (!empty($search)) {
+            $product->where(function ($sub_query) use ($search) {
+                $sub_query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('slug', 'like', '%' . $search . '%');
             });
         }
 
         $product_for_store = $product->with('store')
             ->orderBy('vh_st_store_id')
             ->orderBy('id')
-            ->when(empty($q), function ($query) {
+            ->when(empty($search), function ($query) {
                 return $query->take(10);
             })
             ->get(['id', 'name', 'slug', 'vh_st_store_id']);
@@ -1353,6 +1355,9 @@ class ProductVendor extends VaahModel
 
         return $response;
     }
+
+
+
 
 
 

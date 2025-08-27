@@ -6,7 +6,6 @@ use VaahCms\Modules\Store\Http\Controllers\Backend\CartsController;
 Route::group(
     [
         'prefix' => 'store/carts',
-        'middleware' => ['auth:api'],
         'namespace' => 'Backend',
     ],
 function () {
@@ -68,7 +67,7 @@ function () {
     Route::get('/{id}/checkout', [CartsController::class, 'getCartItemDetailsAtCheckout'])
         ->name('vh.backend.store.api.carts.read');
 
-
+    Route::post('/checkout/buy-now', [CartsController::class, 'previewBuyNowAtCheckout']);
     /**
      * delete cart item
      */

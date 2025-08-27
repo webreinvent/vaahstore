@@ -81,21 +81,21 @@ const toggleCreateMenu = (event) => {
                 <Panel :pt="root.panel_pt">
                     <template #header>
 
-                        <div class="flex flex-row">
-                            <div>
+                        <div class="flex flex-row items-center gap-2">
+                                <Icon icon="hugeicons:payment-02" width="24" height="24" class="text-gray-950"></Icon>
                                 <b class="mr-1">Store Payment Methods</b>
-                                <Badge v-if="store.list && store.list.total > 0"
+                                <!-- <Badge v-if="store.list && store.list.total > 0"
                                        :value="store.list.total">
-                                </Badge>
-                            </div>
-
+                                </Badge> -->
                         </div>
 
                     </template>
 
+                    <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
+
                 <template #icons>
 
-                    <div class="p-inputgroup">
+                    <div class="flex gap-1">
 
                     <Button data-testid="storepaymentmethods-list-create"
                             class="p-button-sm"
@@ -131,9 +131,13 @@ const toggleCreateMenu = (event) => {
 
                 </template>
 
-                <Actions/>
 
-                <Table/>
+                <Card>
+                    <template #content>
+                        <Actions/>
+                        <Table/>
+                    </template>
+                </Card>
 
             </Panel>
         </div>

@@ -47,7 +47,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
 
     await store.getListCreateMenu();
 
@@ -69,25 +71,23 @@ const toggleCreateMenu = (event) => {
         <div class="lg:flex lg:space-x-4 items-start">
             <div v-if="store.getLeftColumnClasses"
                  :class="store.getLeftColumnClasses">
-                <Panel class="is-small">
+                <Panel>
 
                     <template class="p-1" #header>
 
-                        <div class="flex flex-row">
-                            <div >
-                                <b class="mr-1">Wishlists</b>
-                                <Badge v-if="store.list && store.list.total > 0"
-                                       :value="store.list.total">
-                                </Badge>
-                            </div>
-
+                        <div class="flex flex-row items-center gap-2">
+                            <Icon icon="solar:heart-linear" width="20" height="20" class="text-gray-950"/>
+                            <b class="mr-1">Wishlists</b>
+                            <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0">
+                                {{store.list.total}}
+                            </p>
                         </div>
 
                     </template>
 
                     <template #icons>
 
-                        <div class="p-inputgroup">
+                        <div class="flex gap-1">
 
                             <Button :disabled="!store.assets.permissions.includes('can-update-module')"
                                     data-testid="wishlists-list-create"
@@ -125,9 +125,14 @@ const toggleCreateMenu = (event) => {
 
                     </template>
 
-                    <Actions/>
+                    <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
 
-                    <Table/>
+                    <Card>
+                        <template #content>
+                            <Actions/>
+                            <Table/>
+                        </template>
+                    </Card>
 
                 </Panel>
             </div>

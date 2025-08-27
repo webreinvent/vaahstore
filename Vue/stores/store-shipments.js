@@ -24,6 +24,7 @@ let empty_states = {
             sort: null,
         },
     },
+    selected_store:null,
     action: {
         type: null,
         items: [],
@@ -366,13 +367,13 @@ export const useShipmentStore = defineStore({
                     // pending: item.quantity - item.pivot.quantity,
                     is_exist:item.is_items_exist_already,
                     pending:item.pivot.pending,
-                    name: item.product_variation.name
+                    name: item.ordered_product?.variation?.name
                 };
 
                 if (!existingOrder) {
                     uniqueOrders.push({
                         ...order,
-                        user_name: order.user.display_name,
+                        user_name: order.user?.display_name,
                         items: [formattedItem],
                     });
                 } else {
@@ -1090,10 +1091,12 @@ export const useShipmentStore = defineStore({
         //---------------------------------------------------------------------
 
         async searchOrders(event){
-            const query = event;
             const options = {
-                params: query,
-                method: 'post',
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
 
             await vaah().ajax(
@@ -1408,18 +1411,14 @@ export const useShipmentStore = defineStore({
 
         },
         //---------------------------------------------------------------------
-        async ordersShipmentByDateRange() {
-
-
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-            }
+        async ordersShipmentByDateRange(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/orders-shipments-by-range',
                 this.ordersShipmentByDateRangeAfter,
@@ -1532,18 +1531,14 @@ export const useShipmentStore = defineStore({
 
 
         //---------------------------------------------------------------------
-        async ordersShipmentItemsByDateRange() {
-
-
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-            }
+        async ordersShipmentItemsByDateRange(selected_store_id=null) {
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/shipment-items-by-range',
                 this.ordersShipmentItemsByDateRangeAfter,
@@ -1644,19 +1639,16 @@ export const useShipmentStore = defineStore({
 
         //---------------------------------------------------
 
-        async shipmentItemsByStatusBarChart() {
+        async shipmentItemsByStatusBarChart(selected_store_id=null) {
 
 
-            let params = {
-
-                start_date: useRootStore().filter_start_date ?? null,
-                end_date: useRootStore().filter_end_date ?? null,
-
-            }
             let options = {
-                params: params,
-                method: 'POST'
-            }
+                query: {
+                    selected_store: selected_store_id ?? this.query?.selected_store ?? null,
+                    start_date: useRootStore().filter_start_date ?? null,
+                    end_date: useRootStore().filter_end_date ?? null,
+                },
+            };
             await vaah().ajax(
                 this.ajax_url + '/charts/shipment-items-by-status',
                 this.shipmentItemsByStatusBarChartAfter,

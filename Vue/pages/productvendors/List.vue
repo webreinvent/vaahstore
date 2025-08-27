@@ -49,7 +49,9 @@ onMounted(async () => {
     /**
      * fetch list of records
      */
-    await store.getList();
+    root.initWatchStoreChange(route, store, async () => {
+        await store.getList();
+    });
 
     await store.getListCreateMenu();
 
@@ -74,20 +76,18 @@ const toggleCreateMenu = (event) => {
 
                 <Panel>
                     <template #header>
-                        <div class="flex flex-row">
-                            <div>
-                                <b class="mr-1">Vendor Products</b>
-                                <Badge v-if="store.list && store.list.total > 0" :value="store.list.total">
-                                </Badge>
+                        <div class="flex flex-row items-center gap-2">
+                            <Icon icon="icon-park-outline:people-top-card" width="24" height="24" class="text-gray-700"></Icon>
+                            <b class="mr-1">Vendor Products</b>
+                            <p class="font-bold bg-[#4f46e51a] py-[2px] px-2 text-[#4f46e5] rounded-md text-[10px]"  v-if="store.list && store.list.total > 0">
+                                {{store.list.total}}
+                            </p>
                             </div>
-
-                        </div>
-
                     </template>
 
                     <template #icons>
 
-                        <InputGroup>
+                        <div class="flex gap-1">
 
                             <Button data-testid="productvendors-list-create" size="small"
                                 :disabled="!store.assets.permissions.includes('can-update-module')"
@@ -97,7 +97,7 @@ const toggleCreateMenu = (event) => {
                             </Button>
 
                             <Button data-testid="productvendors-list-reload" size="small" @click="store.reload()">
-                                <i class="pi pi-refresh !text-[10px]"></i>
+                                <i class="pi pi-refresh "></i>
                             </Button>
 
                             <!--form_menu-->
@@ -111,9 +111,12 @@ const toggleCreateMenu = (event) => {
 
                             <!--/form_menu-->
 
-                        </InputGroup>
+                        </div>
 
                     </template>
+
+                    <div class="h-[1px] bg-gray-200 w-full mt-3 mb-2"></div>
+
                     <Card>
                         <template #content>
                             <div class="-mt-2">

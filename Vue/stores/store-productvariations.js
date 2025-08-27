@@ -31,6 +31,7 @@ let empty_states = {
             min_quantity:null,
             max_quantity:null,
         },
+        selected_store:null,
     },
     action: {
         type: null,
@@ -246,10 +247,12 @@ export const useProductVariationStore = defineStore({
 
         //---------------------------------------------------------------------
         async searchProduct(event) {
-            const query = event;
             const options = {
-                params: query,
-                method: 'post',
+                method: 'get',
+                query: {
+                    selected_store: this.query.selected_store,
+                    search: event?.query || ''
+                }
             };
 
             await vaah().ajax(
@@ -418,21 +421,23 @@ export const useProductVariationStore = defineStore({
                 ? 'There is no default product variation. Mark a product variation as default.'
                 : null;
 
-
-            if (res?.data?.active_cart_user) {
-                const { active_cart_user: { cart_records, display_name, vh_st_cart_id } } = res.data;
-                this.add_to_cart = false;
-                this.show_cart_msg = true;
-                this.active_user = res.data.active_cart_user;
-                this.total_cart_product = cart_records;
-                this.active_cart_user_name = display_name;
-                this.cart_id = vh_st_cart_id;
-            } else {
-                this.show_cart_msg = false;
-            }
             if(data)
             {
                 this.list = data;
+                const active_cart_user = this.list.active_cart_user;
+
+                if (active_cart_user) {
+                    const { cart_records, email, vh_st_cart_id } = active_cart_user;
+
+                    this.add_to_cart = false;
+                    this.show_cart_msg = true;
+                    this.active_user = active_cart_user;
+                    this.total_cart_product = cart_records;
+                    this.active_cart_user_name = email;
+                    this.cart_id = vh_st_cart_id;
+                } else {
+                    this.show_cart_msg = false;
+                }
                 this.first_element = this.query.rows * (this.query.page - 1);
                 this.query.rows=data.per_page;
             }

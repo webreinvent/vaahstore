@@ -33,12 +33,12 @@ const openLinkInNewTab = (url) => {
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true">
+            <Column field="id" header="ID" :style="{width: '80px'}" :sortable="true" class="font-bold text-xs text-gray-400">
             </Column>
 
 
             <Column field="name" header="Name"
-                    class="overflow-wrap-anywhere"
+                    class="overflow-wrap-anywhere font-bold text-xs text-gray-400"
                     :sortable="true">
 
                 <template #body="prop">
@@ -49,13 +49,13 @@ const openLinkInNewTab = (url) => {
                 </template>
 
             </Column>
-             <Column header="Tracking Key"  :sortable="true" v-if="store.isListView()">
+             <Column header="Tracking Key"  :sortable="true" v-if="store.isListView()" class="font-bold text-xs text-gray-400">
 
                  <template #body="prop">
                          {{prop.data.tracking_key}}
                  </template>
              </Column>
-             <Column header="Tracking Value"  :sortable="true">
+             <Column header="Tracking Value"  :sortable="true" class="font-bold text-xs text-gray-400">
 
                  <template #body="prop">
                      <Button @click="useVaah.copy(prop.data.tracking_value)">
@@ -63,7 +63,7 @@ const openLinkInNewTab = (url) => {
                      </Button>
                  </template>
              </Column>
-             <Column  header="Orders Count" :sortable="true">
+             <Column  header="Orders Count" :sortable="true" class="font-bold text-xs text-gray-400">
                  <template #body="prop">
                      <div class="p-inputgroup justify-content-center">
 
@@ -72,17 +72,17 @@ const openLinkInNewTab = (url) => {
                  </template>
              </Column>
 
-             <Column  header="Status" :sortable="true">
+             <Column  header="Status" :sortable="true" class="font-bold text-xs text-gray-400">
                  <template #body="prop">
                      <Badge v-if="prop.data.status && prop.data.status.name == 'Delivered'"
-                            severity="success"> {{prop.data.status.name}} </Badge>
+                            severity="success" class="!text-[#0E9F6E] !rounded-full !bg-[#0E9F6E1A] px-2 py-1"> {{prop.data.status.name}} </Badge>
 
-                     <Badge v-else class="min-w-max"
+                     <Badge v-else class="!text-[#E3A008] !rounded-full !bg-[#E3A0081A] px-2 py-1"
                             severity="warn"> {{prop.data.status?.name}}</Badge>
 
                  </template>
              </Column>
-             <Column field="type" header="Is Trackable" :sortable="true">
+             <Column field="type" header="Is Trackable" :sortable="true" class="font-bold text-xs text-gray-400">
 
                  <template #body="prop">
                      <span v-if="prop.data.is_trackable === 1" style="padding-left: 5px;">
@@ -102,7 +102,7 @@ const openLinkInNewTab = (url) => {
                  </template>
 
              </Column>
-                <Column field="updated_at" header="Created"
+                <Column field="updated_at" header="Created" class="font-bold text-xs text-gray-400"
                         v-if="store.isListView()"
                         style="width:100px;"
                         :sortable="true">
@@ -115,32 +115,56 @@ const openLinkInNewTab = (url) => {
 
 
 
-            <Column field="actions" style="width:150px;"
+            <Column field="actions" style="width:150px;" class="font-bold text-xs text-gray-400"
                     :style="{width: store.getActionWidth() }"
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup justify-content-center">
+                    <div class="p-inputgroup justify-content-center gap-2 items-center">
 
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-view"
                                 v-tooltip.top="'View'"
                                 @click="store.toView(prop.data)"
-                                icon="pi pi-eye" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="tabler:eye"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="shipments-table-to-edit"
                                 v-tooltip.top="'Update'"
                                 @click="store.toEdit(prop.data)"
-                                icon="pi pi-pencil" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="mdi:pencil-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="shipments-table-action-trash"
                                 v-if="store.isListView() && !prop.data.deleted_at"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
-                                icon="pi pi-trash" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="mdi:trash-can-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-[#E02424]"
+                                />
+                            </Button>
 
 
                         <Button class="p-button-tiny p-button-success p-button-text"

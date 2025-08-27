@@ -26,10 +26,10 @@ const useVaah = vaah();
                     headerStyle="width: 3em">
             </Column>
 
-            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true">
+            <Column field="id" header="ID" :style="{width: store.getIdWidth()}" :sortable="true" class="font-bold text-xs text-gray-400">
             </Column>
 
-             <Column field="user.first_name" header="User"
+             <Column field="user.first_name" header="User" class="font-bold text-xs text-gray-400"
                      :sortable="true">
 
                  <template #body="prop" >
@@ -43,7 +43,7 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="address" header="Address"
+             <Column field="address" header="Address" class="font-bold text-xs text-gray-400"
                      :sortable="true">
 
                  <template #body="prop">
@@ -59,21 +59,21 @@ const useVaah = vaah();
 
              </Column>
 
-             <Column field="status" header="Status">
+             <Column field="status" header="Status" class="font-bold text-xs text-gray-400">
 
                  <template #body="prop">
 
-                     <Badge v-if="prop.data.status.slug == 'approved'"
+                     <Badge v-if="prop.data.status.slug == 'approved'" class="!text-[#0E9F6E] !rounded-full !bg-[#0E9F6E1A] !px-2 !py-1"
                             severity="success"> {{prop.data.status.name}} </Badge>
                      <Badge v-else-if="prop.data.status.slug == 'rejected'"
-                            severity="danger"> {{prop.data.status.name}} </Badge>
+                            severity="danger" class="!text-red-500 !bg-red-100 !rounded-full !px-2 !py-1"> {{prop.data.status.name}} </Badge>
                      <Badge v-else
-                            severity="warn"> {{prop.data.status.name}} </Badge>
+                            severity="warn" class="!text-[#E3A008] !bg-[#E3A0081A] !rounded-full !px-2 !py-1"> {{prop.data.status.name}} </Badge>
                  </template>
 
              </Column>
 
-                <Column field="updated_at" header="Updated"
+                <Column field="updated_at" header="Updated" class="font-bold text-xs text-gray-400"
                         v-if="store.isListView()"
                         style="width:150px;"
                         :sortable="true">
@@ -107,14 +107,22 @@ const useVaah = vaah();
                     :header="store.getActionLabel()">
 
                 <template #body="prop">
-                    <div class="p-inputgroup ">
+                    <div class="p-inputgroup items-center gap-2">
 
                         <Button class="p-button-tiny p-button-text"
                                 data-testid="addresses-table-to-view"
                                 v-tooltip.top="'View'"
                                 :disabled="$route.path.includes('view') && prop.data.id===store.item.id"
                                 @click="store.toView(prop.data)"
-                                icon="pi pi-eye" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="tabler:eye"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button v-if="store.assets.permissions.includes('can-update-module')"
                                 class="p-button-tiny p-button-text"
@@ -122,14 +130,30 @@ const useVaah = vaah();
                                 v-tooltip.top="'Update'"
                                 :disabled="$route.path.includes('form') && prop.data.id===store.item.id "
                                 @click="store.toEdit(prop.data)"
-                                icon="pi pi-pencil" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="mdi:pencil-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-gray-400"
+                                />
+                            </Button>
 
                         <Button  v-if="store.isListView() && !prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
                                 class="p-button-tiny p-button-danger p-button-text"
                                 data-testid="addresses-table-action-trash"
                                 @click="store.itemAction('trash', prop.data)"
                                 v-tooltip.top="'Trash'"
-                                icon="pi pi-trash" />
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
+                                >
+                                <Icon
+                                    icon="mdi:trash-can-outline"
+                                    width="20"
+                                    height="20"
+                                    class="text-[#E02424]"
+                                />
+                            </Button>
 
 
                         <Button v-if="store.isListView() && prop.data.deleted_at && store.assets.permissions.includes('can-update-module')"
@@ -137,6 +161,7 @@ const useVaah = vaah();
                                 data-testid="addresses-table-action-restore"
                                 @click="store.itemAction('restore', prop.data)"
                                 v-tooltip.top="'Restore'"
+                                :pt="{ root: { class: '!bg-none !p-0' } }"
                                 icon="pi pi-replay" />
 
                     </div>

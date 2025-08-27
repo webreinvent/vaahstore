@@ -6,12 +6,13 @@ use VaahCms\Modules\Store\Models\Address;
 use VaahCms\Modules\Store\Models\Cart;
 use VaahCms\Modules\Store\Models\Store;
 use VaahCms\Modules\Store\Models\User;
+use VaahCms\Modules\Store\Traits\HasTransformer;
 use WebReinvent\VaahExtend\Facades\VaahCountry;
 
 
 class CartsController extends Controller
 {
-
+    use HasTransformer;
 
     //----------------------------------------------------------
     public function __construct()
@@ -151,7 +152,17 @@ class CartsController extends Controller
     public function getItem(Request $request, $id)
     {
         try{
-            return Cart::getItem($id);
+            $cart_details= Cart::getItem($request,$id);
+            if (!$cart_details['success']) {
+                return $cart_details;
+            }
+            $transformer = $this->getTransformer();
+            if ($transformer) {
+                return $transformer::getCartDetails($cart_details['data']);
+            }
+
+            return $cart_details;
+
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -227,7 +238,16 @@ class CartsController extends Controller
     public function getCartItemDetailsAtCheckout(Request $request, $id)
     {
         try{
-            return Cart::getCartItemDetailsAtCheckout($id);
+            $checkout_details= Cart::getCartItemDetailsAtCheckout($request,$id);
+            if (!$checkout_details['success']) {
+                return $checkout_details;
+            }
+            $transformer = $this->getTransformer();
+            if ($transformer) {
+                return $transformer::getCartItemDetailsAtCheckout($checkout_details['data']);
+            }
+
+            return $checkout_details;
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
@@ -316,6 +336,23 @@ class CartsController extends Controller
     }
 
     //----------------------------------------------------------
+    public function validateOrderDetails(Request $request)
+    {
+        try{
+            return Cart::validateOrderDetails($request);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
 
     public function placeOrder(Request $request)
     {
@@ -376,6 +413,34 @@ class CartsController extends Controller
     {
         try{
             return Cart::AddUserToCart($request,$uuid);
+        }catch (\Exception $e){
+            $response = [];
+            $response['success'] = false;
+            if(env('APP_DEBUG')){
+                $response['errors'][] = $e->getMessage();
+                $response['hint'] = $e->getTrace();
+            } else{
+                $response['errors'][] = trans("vaahcms-general.something_went_wrong");
+            }
+            return $response;
+        }
+    }
+    //----------------------------------------------------------
+
+    public function previewBuyNowAtCheckout(Request $request)
+    {
+        try{
+            $checkout_details= Cart::previewBuyNowAtCheckout($request);
+            if (!$checkout_details['success']) {
+                return $checkout_details;
+            }
+            $transformer = $this->getTransformer();
+            if ($transformer) {
+                return $transformer::getCartItemDetailsAtCheckout($checkout_details['data']);
+            }
+
+            return $checkout_details;
+
         }catch (\Exception $e){
             $response = [];
             $response['success'] = false;
