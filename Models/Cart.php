@@ -1311,6 +1311,10 @@ class Cart extends VaahModel
         $errors = [];
 
         $order_details = $request->order_details ?? [];
+        $store_id = $order_details['vh_st_store_id'];
+        $store = Store::find($store_id);
+
+
 
         // Validate cart
         $cart = self::findByIdOrUuid($order_details['cart_id'] ?? null)->first();
@@ -1320,7 +1324,12 @@ class Cart extends VaahModel
                 'errors' => ['We couldn’t find your cart. Please refresh the page or try again.']
             ];
         }
+        $pricing = self::validateAndCalculatePricing($request, $cart, $store);
+        $client_currency = $order_details['currency']['code'] ?? null;
 
+        if ($client_currency && $client_currency !== $pricing['currency']) {
+             $errors[]= 'The selected currency has changed. Please refresh the cart and try again.';
+        }
         $cart_user_id = $cart->vh_user_id;
         $shipping = $request->order_details['shipping_address'] ?? null;
         if (empty($shipping)) {
@@ -1428,12 +1437,12 @@ class Cart extends VaahModel
 
         $default_currency = $store->defaultCurrency ; // make sure 'currency_code' exists
         $pricing = self::validateAndCalculatePricing($request, $cart, $store);
-
+        dd($pricing);
         $request_currency_code = $request->order_details['currency']['code']??$default_currency['code'] ;
 
         // If currency is missing, assume amount is already in default currency
         if (!isset($request->order_details['currency']['code'])) {
-            $amount = $pricing['subtotal'];
+            $amount = $pricing['subtotal_base'];
             $payable = $request->order_details['payable'];
         } else {
             $amount = self::convertToDefaultCurrency(
@@ -1443,21 +1452,21 @@ class Cart extends VaahModel
             );
 
             $payable = self::convertToDefaultCurrency(
-                $request->order_details['payable'],
+                $pricing['payable'],
                 $request_currency_code,
                 $default_currency['code']
             );
         }
-        dd($amount);
+
         $order = new Order();
 
         $order->vh_user_id = $request->order_details['vh_user_id'];
         $order->vh_st_store_id = $request->order_details['vh_st_store_id'];
-        $order->amount = $pricing['subtotal'];
+        $order->amount = $amount;
         $order->order_status = 'Placed';
         $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
         $order->order_shipment_status = 'Pending';
-        $order->payable = $pricing['payable'];
+        $order->payable = $payable;
         $order->discount =  $pricing['discount'];
         $order->taxes = $pricing['taxes'];
         $order->delivery_fee = $pricing['delivery_fee'];
@@ -1480,12 +1489,19 @@ class Cart extends VaahModel
         $taxonomy_order_items_type = Taxonomy::getTaxonomyByType('order-items-types')->where('slug', 'cod')->value('id');
         $taxonomy_order_items_status = Taxonomy::getTaxonomyByType('order-items-status')->where('slug', 'approved')->value('id');
 
-        foreach ($request->order_details['products'] as $item) {
+        $store = Store::findOrFail($order->vh_st_store_id);
+        $cart  = Cart::findOrFail($request->order_details['cart_id']);
+
+        /**
+         * 🔐 SERVER-TRUTH PRICING
+         */
+        $pricing = self::validateAndCalculatePricing($request, $cart, $store);
+        foreach ($pricing['items'] as $item) {
             if (!isset($request->order_details['currency']['code'])) {
-                $converted_price = $item['pivot']['price'];
+                $converted_price = $item['pivot']['unit_price_base'];
             } else {
                 $converted_price = self::convertToDefaultCurrency(
-                    $item['pivot']['price'],
+                    $item['pivot']['unit_price_base'],
                     $request_currency_code,
                     $default_currency['code']
                 );
@@ -1499,15 +1515,15 @@ class Cart extends VaahModel
             $order_item->vh_shipping_address_id = $request->order_details['shipping_address']['id'];
             $order_item->vh_billing_address_id = $request->order_details['billing_address']['id'];
 
-            $order_item->vh_st_product_id =$item['pivot']['vh_st_product_id'];
-            $order_item->vh_st_product_variation_id = $item['pivot']['vh_st_product_variation_id'];
-            $order_item->vh_st_vendor_id = $item['pivot']['vh_st_vendor_id'];
-            $order_item->quantity = $item['pivot']['quantity'];
+            $order_item->vh_st_product_id =$item['vh_st_product_id'];
+            $order_item->vh_st_product_variation_id = $item['vh_st_product_variation_id'];
+            $order_item->vh_st_vendor_id = $item['vh_st_vendor_id'];
+            $order_item->quantity = $item['quantity'];
             $order_item->price = $converted_price;
             $order_item->is_active = 1;
             $order_item->save();
 
-            self::updateStock($item['pivot']['vh_st_product_variation_id'], $item['pivot']['quantity'], $item['pivot']['vh_st_vendor_id']);
+            self::updateStock($item['vh_st_product_variation_id'], $item['quantity'], $item['vh_st_vendor_id']);
         }
     }
     //-------------------------------------------------
@@ -2056,9 +2072,9 @@ class Cart extends VaahModel
             $vendor_id    = $pivot['vh_st_vendor_id'];
             $quantity     = (int) $pivot['quantity'];
 
-            if ($quantity <= 0) {
-                throw new \Exception('Invalid product quantity.');
-            }
+//            if ($quantity <= 0) {
+//                throw new \Exception('Invalid product quantity.');
+//            }
 
             /**
              * 1️⃣ Validate variation
@@ -2067,9 +2083,9 @@ class Cart extends VaahModel
                 ->where('vh_st_product_id', $product_id)
                 ->first();
 
-            if (!$variation) {
-                throw new \Exception('Invalid product variation.');
-            }
+//            if (!$variation) {
+//                throw new \Exception('Invalid product variation.');
+//            }
 
             /**
              * 2️⃣ Validate vendor stock
@@ -2084,25 +2100,25 @@ class Cart extends VaahModel
                 })
                 ->exists();
 
-            if (!$hasStock) {
-                throw new \Exception('Product is out of stock for this vendor.');
-            }
+//            if (!$hasStock) {
+//                throw new \Exception('Product is out of stock for this vendor.');
+//            }
 
             /**
              * 3️⃣ Authoritative unit price (BASE currency only)
              */
             $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
                 ->where('vh_st_vendor_id', $vendor_id)
-                ->where('is_active', 1)
+
                 ->value('amount');
 
             if ($price === null) {
                 $price = $variation->price;
             }
 
-            if ($price <= 0) {
-                throw new \Exception('Invalid product price configuration.');
-            }
+//            if ($price <= 0) {
+//                throw new \Exception('Invalid product price configuration.');
+//            }
 
             $unit_price_base = (float) $price;
             $line_total_base = $unit_price_base * $quantity;
@@ -2131,9 +2147,9 @@ class Cart extends VaahModel
                 ->where('code', $requested_currency)
                 ->exists();
 
-            if (!$allowed) {
-                throw new \Exception('Requested currency is not supported by this store.');
-            }
+//            if (!$allowed) {
+//                throw new \Exception('Requested currency is not supported by this store.');
+//            }
         }
 
         /**
