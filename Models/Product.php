@@ -270,7 +270,7 @@ class Product extends VaahModel
 
     //-------------------------------------------------
 
-    protected function getCurrencyConversionData($original_amount = 1, $currency_code = null, $store = null)
+    public function getCurrencyConversionData($original_amount = 1, $currency_code = null, $store = null)
 
     {
         $base_currency_code = $store?->defaultCurrency?->code;

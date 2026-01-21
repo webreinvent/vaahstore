@@ -1349,7 +1349,7 @@ class Cart extends VaahModel
         if ($payment_method_slug && !PaymentMethod::where('slug', $payment_method_slug)->exists()) {
             $errors[] = "The selected payment method is invalid. Please choose a valid option.";
         }
-        
+
 
         // Validate products
         $products = collect($order_details['products'] ?? []);
@@ -1422,17 +1422,22 @@ class Cart extends VaahModel
             ->value('id');
         $store_id = $request->order_details['vh_st_store_id'];
         $store = Store::find($store_id);
+
+        $cart_id = $request->order_details['cart_id'] ?? null;
+        $cart = $cart_id ? self::findByIdOrUuid($cart_id)->first() : null;
+
         $default_currency = $store->defaultCurrency ; // make sure 'currency_code' exists
+        $pricing = self::validateAndCalculatePricing($request, $cart, $store);
 
         $request_currency_code = $request->order_details['currency']['code']??$default_currency['code'] ;
 
         // If currency is missing, assume amount is already in default currency
         if (!isset($request->order_details['currency']['code'])) {
-            $amount = $request->order_details['total_amount'];
+            $amount = $pricing['subtotal'];
             $payable = $request->order_details['payable'];
         } else {
             $amount = self::convertToDefaultCurrency(
-                $request->order_details['total_amount'],
+                $pricing['subtotal'],
                 $request_currency_code,
                 $default_currency['code']
             );
@@ -1443,19 +1448,19 @@ class Cart extends VaahModel
                 $default_currency['code']
             );
         }
-
+        dd($amount);
         $order = new Order();
 
         $order->vh_user_id = $request->order_details['vh_user_id'];
         $order->vh_st_store_id = $request->order_details['vh_st_store_id'];
-        $order->amount = $amount;
+        $order->amount = $pricing['subtotal'];
         $order->order_status = 'Placed';
         $order->taxonomy_id_payment_status = $taxonomy_payment_status_id;
         $order->order_shipment_status = 'Pending';
-        $order->payable = $payable;
-        $order->discount = $request->order_details['discounts'];
-        $order->taxes = $request->order_details['taxes'];
-        $order->delivery_fee = $request->order_details['delivery_fee'];
+        $order->payable = $pricing['payable'];
+        $order->discount =  $pricing['discount'];
+        $order->taxes = $pricing['taxes'];
+        $order->delivery_fee = $pricing['delivery_fee'];
         $order->paid = 0;
         $order->is_paid = null;
         $order->is_active = 1;
@@ -2038,5 +2043,136 @@ class Cart extends VaahModel
         return self::getCartItemDetailsAtCheckout($request, $cart->uuid ?? $cart->id);
     }
 
+    private static function validateAndCalculatePricing($request, Cart $cart, Store $store): array
+    {
+        $subtotal_base = 0;
+        $items = [];
 
+        foreach ($request->order_details['products'] as $item) {
+            $pivot = $item['pivot'];
+
+            $product_id   = $pivot['vh_st_product_id'];
+            $variation_id = $pivot['vh_st_product_variation_id'];
+            $vendor_id    = $pivot['vh_st_vendor_id'];
+            $quantity     = (int) $pivot['quantity'];
+
+            if ($quantity <= 0) {
+                throw new \Exception('Invalid product quantity.');
+            }
+
+            /**
+             * 1️⃣ Validate variation
+             */
+            $variation = ProductVariation::where('id', $variation_id)
+                ->where('vh_st_product_id', $product_id)
+                ->first();
+
+            if (!$variation) {
+                throw new \Exception('Invalid product variation.');
+            }
+
+            /**
+             * 2️⃣ Validate vendor stock
+             */
+            $hasStock = Vendor::where('id', $vendor_id)
+                ->where('vh_st_store_id', $store->id)
+                ->whereHas('productStocks', function ($q) use ($product_id, $variation_id, $quantity) {
+                    $q->where('vh_st_product_id', $product_id)
+                        ->where('vh_st_product_variation_id', $variation_id)
+                        ->where('quantity', '>=', $quantity)
+                        ->where('is_active', 1);
+                })
+                ->exists();
+
+            if (!$hasStock) {
+                throw new \Exception('Product is out of stock for this vendor.');
+            }
+
+            /**
+             * 3️⃣ Authoritative unit price (BASE currency only)
+             */
+            $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
+                ->where('vh_st_vendor_id', $vendor_id)
+                ->where('is_active', 1)
+                ->value('amount');
+
+            if ($price === null) {
+                $price = $variation->price;
+            }
+
+            if ($price <= 0) {
+                throw new \Exception('Invalid product price configuration.');
+            }
+
+            $unit_price_base = (float) $price;
+            $line_total_base = $unit_price_base * $quantity;
+
+            $subtotal_base += $line_total_base;
+
+            $items[] = [
+                'product_id'        => $product_id,
+                'variation_id'      => $variation_id,
+                'vendor_id'         => $vendor_id,
+                'quantity'          => $quantity,
+
+                // BASE
+                'unit_price_base'   => round($unit_price_base, 2),
+                'line_total_base'   => round($line_total_base, 2),
+            ];
+        }
+
+        /**
+         * 4️⃣ Currency validation
+         */
+        $requested_currency = $request->order_details['currency']['code'] ?? null;
+
+        if ($requested_currency) {
+            $allowed = $store->currencies()
+                ->where('code', $requested_currency)
+                ->exists();
+
+            if (!$allowed) {
+                throw new \Exception('Requested currency is not supported by this store.');
+            }
+        }
+
+        /**
+         * 5️⃣ Convert using ONE authoritative rate
+         */
+        $conversion = (new Product())->getCurrencyConversionData(
+            1, // 👈 IMPORTANT: get rate only
+            $requested_currency,
+            $store
+        );
+
+        $rate = (float) $conversion['conversion_rate'];
+
+        /**
+         * 6️⃣ Convert line items using same rate
+         */
+        foreach ($items as &$item) {
+            $item['unit_price'] = round($item['unit_price_base'] * $rate, 2);
+            $item['line_total'] = round($item['line_total_base'] * $rate, 2);
+        }
+        unset($item);
+
+        $subtotal = round($subtotal_base * $rate, 2);
+
+        return [
+            'base_currency'     => $store->defaultCurrency->code,
+            'currency'          => $conversion['currency'],
+            'currency_symbol'   => $conversion['currency_symbol'],
+            'conversion_rate'   => round($rate, 6),
+
+            'subtotal_base'     => round($subtotal_base, 2),
+            'subtotal'          => $subtotal,
+
+            'taxes'             => 0,
+            'discount'          => 0,
+            'delivery_fee'      => 0,
+            'payable'           => $subtotal,
+
+            'items'             => $items,
+        ];
+    }
 }
