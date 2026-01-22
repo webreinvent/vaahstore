@@ -2128,9 +2128,9 @@ class Cart extends VaahModel
             $subtotal_base += $line_total_base;
 
             $items[] = [
-                'product_id'      => $product_id,
-                'variation_id'    => $variation_id,
-                'vendor_id'       => $vendor_id,
+                'vh_st_product_id'      => $product_id,
+                'vh_st_product_variation_id'    => $variation_id,
+                'vh_st_vendor_id'       => $vendor_id,
                 'quantity'        => $quantity,
                 'unit_price_base' => round($unit_price_base, 2),
                 'line_total_base' => round($line_total_base, 2),
@@ -2208,9 +2208,9 @@ class Cart extends VaahModel
             $client_item = $client_items->first(function ($item) use ($server_item) {
                 $pivot = $item['pivot'] ?? [];
 
-                return ($pivot['vh_st_product_id'] ?? null) == $server_item['product_id']
-                    && ($pivot['vh_st_product_variation_id'] ?? null) == $server_item['variation_id']
-                    && ($pivot['vh_st_vendor_id'] ?? null) == $server_item['vendor_id'];
+                return ($pivot['vh_st_product_id'] ?? null) == $server_item['vh_st_product_id']
+                    && ($pivot['vh_st_product_variation_id'] ?? null) == $server_item['vh_st_product_variation_id']
+                    && ($pivot['vh_st_vendor_id'] ?? null) == $server_item['vh_st_vendor_id'];
             });
 
             if (!$client_item) {
