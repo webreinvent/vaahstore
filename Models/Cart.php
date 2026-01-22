@@ -1521,10 +1521,10 @@ class Cart extends VaahModel
         $pricing = $pricing_response['data'];
         foreach ($pricing['items'] as $item) {
             if (!isset($request->order_details['currency']['code'])) {
-                $converted_price = $item['pivot']['unit_price_base'];
+                $converted_price = $item['unit_price_base'];
             } else {
                 $converted_price = self::convertToDefaultCurrency(
-                    $item['pivot']['unit_price_base'],
+                    $item['unit_price_base'],
                     $request_currency_code,
                     $default_currency['code']
                 );
