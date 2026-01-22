@@ -1324,12 +1324,7 @@ class Cart extends VaahModel
                 'errors' => ['We couldn’t find your cart. Please refresh the page or try again.']
             ];
         }
-        $pricing = self::validateAndCalculatePricing($request, $cart, $store);
-        $client_currency = $order_details['currency']['code'] ?? null;
 
-        if ($client_currency && $client_currency !== $pricing['currency']) {
-             $errors[]= 'The selected currency has changed. Please refresh the cart and try again.';
-        }
         $cart_user_id = $cart->vh_user_id;
         $shipping = $request->order_details['shipping_address'] ?? null;
         if (empty($shipping)) {
@@ -1414,6 +1409,23 @@ class Cart extends VaahModel
             });
         }
 
+        $pricing_response = self::validateAndCalculatePricing($request, $cart, $store);
+
+        if (!$pricing_response['success']) {
+            return [
+                'success' => false,
+                'errors'  => $pricing_response['errors'],
+            ];
+        }
+
+        $pricing = $pricing_response['data'];
+
+        $pricing_errors = self::validateClientPricing($order_details, $pricing);
+
+        if (!empty($pricing_errors)) {
+            $errors = array_merge($errors, $pricing_errors);
+        }
+
         return empty($errors)
             ? ['success' => true]
             : ['success' => false, 'errors' => $errors];
@@ -1436,8 +1448,14 @@ class Cart extends VaahModel
         $cart = $cart_id ? self::findByIdOrUuid($cart_id)->first() : null;
 
         $default_currency = $store->defaultCurrency ; // make sure 'currency_code' exists
-        $pricing = self::validateAndCalculatePricing($request, $cart, $store);
-        dd($pricing);
+        $pricing_response = self::validateAndCalculatePricing($request, $cart, $store);
+        if (!$pricing_response['success']) {
+            return [
+                'success' => false,
+                'errors'  => $pricing_response['errors'],
+            ];
+        }
+        $pricing = $pricing_response['data'];
         $request_currency_code = $request->order_details['currency']['code']??$default_currency['code'] ;
 
         // If currency is missing, assume amount is already in default currency
@@ -1492,10 +1510,15 @@ class Cart extends VaahModel
         $store = Store::findOrFail($order->vh_st_store_id);
         $cart  = Cart::findOrFail($request->order_details['cart_id']);
 
-        /**
-         * 🔐 SERVER-TRUTH PRICING
-         */
-        $pricing = self::validateAndCalculatePricing($request, $cart, $store);
+        // Pricing
+        $pricing_response = self::validateAndCalculatePricing($request, $cart, $store);
+        if (!$pricing_response['success']) {
+            return [
+                'success' => false,
+                'errors'  => $pricing_response['errors'],
+            ];
+        }
+        $pricing = $pricing_response['data'];
         foreach ($pricing['items'] as $item) {
             if (!isset($request->order_details['currency']['code'])) {
                 $converted_price = $item['pivot']['unit_price_base'];
@@ -2058,67 +2081,46 @@ class Cart extends VaahModel
         // Return enriched preview
         return self::getCartItemDetailsAtCheckout($request, $cart->uuid ?? $cart->id);
     }
+    //-------------------------------------------------
 
     private static function validateAndCalculatePricing($request, Cart $cart, Store $store): array
     {
+        $errors = [];
         $subtotal_base = 0;
         $items = [];
 
-        foreach ($request->order_details['products'] as $item) {
-            $pivot = $item['pivot'];
+        foreach ($request->order_details['products'] ?? [] as $item) {
+            $pivot = $item['pivot'] ?? [];
 
-            $product_id   = $pivot['vh_st_product_id'];
-            $variation_id = $pivot['vh_st_product_variation_id'];
-            $vendor_id    = $pivot['vh_st_vendor_id'];
-            $quantity     = (int) $pivot['quantity'];
+            $product_id   = $pivot['vh_st_product_id'] ?? null;
+            $variation_id = $pivot['vh_st_product_variation_id'] ?? null;
+            $vendor_id    = $pivot['vh_st_vendor_id'] ?? null;
+            $quantity     = (int) ($pivot['quantity'] ?? 0);
 
-//            if ($quantity <= 0) {
-//                throw new \Exception('Invalid product quantity.');
-//            }
+            if (!$product_id || !$variation_id || !$vendor_id || $quantity <= 0) {
+                $errors[] = 'Invalid product data detected. Please refresh your cart.';
+                continue;
+            }
 
-            /**
-             * 1️⃣ Validate variation
-             */
             $variation = ProductVariation::where('id', $variation_id)
                 ->where('vh_st_product_id', $product_id)
                 ->first();
 
-//            if (!$variation) {
-//                throw new \Exception('Invalid product variation.');
-//            }
-
-            /**
-             * 2️⃣ Validate vendor stock
-             */
-            $hasStock = Vendor::where('id', $vendor_id)
-                ->where('vh_st_store_id', $store->id)
-                ->whereHas('productStocks', function ($q) use ($product_id, $variation_id, $quantity) {
-                    $q->where('vh_st_product_id', $product_id)
-                        ->where('vh_st_product_variation_id', $variation_id)
-                        ->where('quantity', '>=', $quantity)
-                        ->where('is_active', 1);
-                })
-                ->exists();
-
-//            if (!$hasStock) {
-//                throw new \Exception('Product is out of stock for this vendor.');
-//            }
-
-            /**
-             * 3️⃣ Authoritative unit price (BASE currency only)
-             */
-            $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
-                ->where('vh_st_vendor_id', $vendor_id)
-
-                ->value('amount');
-
-            if ($price === null) {
-                $price = $variation->price;
+            if (!$variation) {
+                $errors[] = 'A product variation is no longer available.';
+                continue;
             }
 
-//            if ($price <= 0) {
-//                throw new \Exception('Invalid product price configuration.');
-//            }
+            $price = ProductPrice::where('vh_st_product_variation_id', $variation_id)
+                ->where('vh_st_vendor_id', $vendor_id)
+                ->value('amount');
+
+            $price = $price ?? $variation->price;
+
+            if (!$price || $price <= 0) {
+                $errors[] = 'Invalid product pricing detected.';
+                continue;
+            }
 
             $unit_price_base = (float) $price;
             $line_total_base = $unit_price_base * $quantity;
@@ -2126,69 +2128,104 @@ class Cart extends VaahModel
             $subtotal_base += $line_total_base;
 
             $items[] = [
-                'product_id'        => $product_id,
-                'variation_id'      => $variation_id,
-                'vendor_id'         => $vendor_id,
-                'quantity'          => $quantity,
-
-                // BASE
-                'unit_price_base'   => round($unit_price_base, 2),
-                'line_total_base'   => round($line_total_base, 2),
+                'product_id'      => $product_id,
+                'variation_id'    => $variation_id,
+                'vendor_id'       => $vendor_id,
+                'quantity'        => $quantity,
+                'unit_price_base' => round($unit_price_base, 2),
+                'line_total_base' => round($line_total_base, 2),
             ];
         }
 
-        /**
-         * 4️⃣ Currency validation
-         */
-        $requested_currency = $request->order_details['currency']['code'] ?? null;
-
-        if ($requested_currency) {
-            $allowed = $store->currencies()
-                ->where('code', $requested_currency)
-                ->exists();
-
-//            if (!$allowed) {
-//                throw new \Exception('Requested currency is not supported by this store.');
-//            }
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
         }
 
-        /**
-         * 5️⃣ Convert using ONE authoritative rate
-         */
-        $conversion = (new Product())->getCurrencyConversionData(
-            1, // 👈 IMPORTANT: get rate only
-            $requested_currency,
-            $store
-        );
+        $requested_currency = $request->order_details['currency']['code'] ?? null;
 
+        if ($requested_currency && !$store->currencies()->where('code', $requested_currency)->exists()) {
+            return [
+                'success' => false,
+                'errors'  => ['Selected currency is not supported by this store.'],
+            ];
+        }
+
+        $conversion = (new Product())->getCurrencyConversionData(1, $requested_currency, $store);
         $rate = (float) $conversion['conversion_rate'];
 
-        /**
-         * 6️⃣ Convert line items using same rate
-         */
         foreach ($items as &$item) {
             $item['unit_price'] = round($item['unit_price_base'] * $rate, 2);
             $item['line_total'] = round($item['line_total_base'] * $rate, 2);
         }
-        unset($item);
 
         $subtotal = round($subtotal_base * $rate, 2);
 
         return [
-            'base_currency'     => $store->defaultCurrency->code,
-            'currency'          => $conversion['currency'],
-            'currency_symbol'   => $conversion['currency_symbol'],
-            'conversion_rate'   => round($rate, 6),
-
-            'subtotal_base'     => round($subtotal_base, 2),
-            'subtotal'          => $subtotal,
-
-            'taxes'             => 0,
-            'discount'          => 0,
-            'delivery_fee'      => 0,
-            'payable'           => $subtotal,
-
-            'items'             => $items,
+            'success' => true,
+            'data' => [
+                'base_currency'   => $store->defaultCurrency->code,
+                'currency'        => $conversion['currency'],
+                'currency_symbol' => $conversion['currency_symbol'],
+                'conversion_rate' => round($rate, 6),
+                'subtotal_base'   => round($subtotal_base, 2),
+                'subtotal'        => $subtotal,
+                'taxes'           => 0,
+                'discount'        => 0,
+                'delivery_fee'    => 0,
+                'payable'         => $subtotal,
+                'items'           => $items,
+            ],
         ];
     }
+
+    //-------------------------------------------------
+
+    private static function validateClientPricing(
+        array $order_details,
+        array $pricing
+    ): array {
+        $errors = [];
+
+        // Currency validation
+        $client_currency = $order_details['currency']['code'] ?? null;
+
+        if ($client_currency && $client_currency !== $pricing['currency']) {
+            $errors[] = 'The selected currency has changed. Please refresh the cart and try again.';
+        }
+
+        //Payable validation
+        $client_payable = round((float) ($order_details['payable'] ?? 0), 2);
+        $server_payable = round((float) ($pricing['payable'] ?? 0), 2);
+
+        if ($client_payable !== $server_payable) {
+            $errors[] = 'Prices in your cart have changed. Please refresh and try again.';
+        }
+        //Line item validation (identity + quantity)
+        $client_items = collect($order_details['products'] ?? []);
+        $server_items = collect($pricing['items'] ?? []);
+
+        foreach ($server_items as $server_item) {
+            $client_item = $client_items->first(function ($item) use ($server_item) {
+                $pivot = $item['pivot'] ?? [];
+
+                return ($pivot['vh_st_product_id'] ?? null) == $server_item['product_id']
+                    && ($pivot['vh_st_product_variation_id'] ?? null) == $server_item['variation_id']
+                    && ($pivot['vh_st_vendor_id'] ?? null) == $server_item['vendor_id'];
+            });
+
+            if (!$client_item) {
+                $errors[] = 'Your cart items have changed. Please refresh and try again.';
+                continue;
+            }
+
+            $client_qty = (int) ($client_item['pivot']['quantity'] ?? 0);
+
+            if ($client_qty !== (int) $server_item['quantity']) {
+                $errors[] = 'Product quantities in your cart have changed. Please refresh.';
+            }
+        }
+
+        return $errors;
+    }
+
 }
